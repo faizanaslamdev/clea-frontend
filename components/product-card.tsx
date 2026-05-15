@@ -16,13 +16,17 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
   return (
     <Link href={`/product/${product.id}`}>
-      <Card className="group cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <Card className="group cursor-pointer gap-0 overflow-hidden p-0 py-0 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
         {/* Image Container */}
         <div className="relative aspect-square overflow-hidden bg-muted">
           <img
             src={product.image}
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
+            }}
           />
           {product.trending && (
             <Badge className="absolute right-3 top-3 bg-accent text-accent-foreground">

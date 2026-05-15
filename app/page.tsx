@@ -38,7 +38,7 @@ export default function Home() {
               </h2>
             </div>
 
-            <div className="grid gap-8 md:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               {/* Feature 1 */}
               <div className="rounded-lg border border-border bg-card p-8">
                 <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary text-xl font-bold">
@@ -75,6 +75,19 @@ export default function Home() {
                 </h3>
                 <p className="text-muted-foreground">
                   Compare prices side-by-side. Find the best deal instantly.
+                </p>
+              </div>
+
+              {/* Feature 4 */}
+              <div className="rounded-lg border border-border bg-card p-8">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10 text-accent text-xl font-bold">
+                  ✨
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-foreground">
+                  Price AI
+                </h3>
+                <p className="text-muted-foreground">
+                  Buy now or wait? Insights from tracked price history only.
                 </p>
               </div>
             </div>

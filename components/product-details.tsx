@@ -1,7 +1,7 @@
 'use client';
 
 import { Product } from '@/lib/types';
-import { formatPrice, getAllStores } from '@/lib/services';
+import { formatPrice, getAllStores, getMatchTypeLabel } from '@/lib/services';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PriceComparison } from './price-comparison';
@@ -23,6 +23,9 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               src={product.image}
               alt={product.name}
               className="h-full w-full object-cover"
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.svg';
+              }}
             />
           </div>
           
@@ -60,6 +63,13 @@ export function ProductDetails({ product }: ProductDetailsProps) {
             {product.name}
           </h1>
           <p className="text-lg text-muted-foreground">{product.brand}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            SKU: {product.sku}
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-primary">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary" />
+            {getMatchTypeLabel(product.matchType)}
+          </p>
         </div>
 
         {/* Rating */}

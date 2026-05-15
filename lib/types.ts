@@ -12,13 +12,20 @@ export interface PricePoint {
   store: string;
 }
 
+export type ProductCategory = 'Fashion' | 'Beauty' | 'Accessories';
+
+/** How confidently the same product is matched across stores */
+export type MatchType = 'exact' | 'near' | 'similar';
+
 export interface Product {
   id: string;
   name: string;
   brand: string;
-  category: 'Fashion' | 'Beauty' | 'Accessories';
+  category: ProductCategory;
   image: string;
   description: string;
+  sku: string;
+  matchType: MatchType;
   rating: number;
   reviewCount: number;
   prices: {
@@ -44,4 +51,17 @@ export interface SearchResult {
 export interface ComparisonData {
   product: Product;
   stores: Store[];
+}
+
+export type PriceAIVerdict = 'good_deal' | 'fair' | 'above_average';
+export type PriceAIRecommendation = 'buy_now' | 'wait';
+
+export interface PriceAIInsights {
+  verdict: PriceAIVerdict;
+  verdictLabel: string;
+  recommendation: PriceAIRecommendation;
+  recommendationLabel: string;
+  summary: string;
+  insights: string[];
+  comparedToAveragePercent: number;
 }

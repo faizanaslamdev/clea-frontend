@@ -3,6 +3,7 @@ import { Footer } from '@/components/footer';
 import { ProductDetails } from '@/components/product-details';
 import { ProductGrid } from '@/components/product-grid';
 import { PriceChart } from '@/components/price-chart';
+import { PriceAIInsightsPanel } from '@/components/price-ai-insights';
 import { getProductById, getSimilarProducts } from '@/lib/services';
 import { notFound } from 'next/navigation';
 
@@ -28,6 +29,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <section className="border-b border-border py-8 md:py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <ProductDetails product={product} />
+          </div>
+        </section>
+
+        {/* Price AI */}
+        <section className="border-b border-border py-12 md:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <PriceAIInsightsPanel product={product} />
           </div>
         </section>
 
@@ -75,5 +83,7 @@ export async function generateStaticParams() {
     { id: '10' },
     { id: '11' },
     { id: '12' },
+    { id: '13' },
+    { id: '14' },
   ];
 }

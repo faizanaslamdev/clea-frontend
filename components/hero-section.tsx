@@ -16,7 +16,7 @@ export function HeroSection() {
 
           {/* Subheadline */}
           <p className="text-balance mb-8 text-lg text-muted-foreground md:text-xl max-w-2xl mx-auto">
-            Compare fashion and beauty products in real-time. Get instant price alerts and trending deals from your favorite Nordic retailers.
+            Compare fashion and beauty across Nordic stores. Track price history, spot trends, and get Price AI guidance on when to buy.
           </p>
 
           {/* Search Bar */}
@@ -41,7 +41,7 @@ export function HeroSection() {
           {/* Stats */}
           <div className="mt-16 grid gap-8 sm:grid-cols-3">
             <div>
-              <p className="text-3xl font-bold text-primary">50+</p>
+              <p className="text-3xl font-bold text-primary">14+</p>
               <p className="text-sm text-muted-foreground">Products</p>
             </div>
             <div>
