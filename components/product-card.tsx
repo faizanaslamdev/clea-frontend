@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { Product } from '@/lib/types';
 import { formatPrice, getLowestPriceStore } from '@/lib/services';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { TrendingBadge } from '@/components/trending-badge';
+import { LowestPriceBadge } from '@/components/lowest-price-badge';
 
 interface ProductCardProps {
   product: Product;
@@ -29,14 +30,12 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
             }}
           />
           {product.trending && (
-            <Badge className="absolute right-3 top-3 bg-accent text-accent-foreground">
-              Trending
-            </Badge>
+            <TrendingBadge variant="overlay" className="absolute right-3 top-3" />
           )}
           {product.savingsPercent > 0 && (
-            <Badge variant="destructive" className="absolute left-3 top-3">
-              Save {product.savingsPercent}%
-            </Badge>
+            <span className="absolute left-3 top-3 inline-flex rounded-md bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.15em] text-foreground shadow-sm backdrop-blur-sm">
+              −{product.savingsPercent}%
+            </span>
           )}
         </div>
 
@@ -79,9 +78,12 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
           {/* Store Info */}
           {lowestPrice && !compact && (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Lowest at <span className="font-medium">{lowestPrice.store.name}</span>
-            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <LowestPriceBadge variant="mini" />
+              <p className="text-xs text-muted-foreground">
+                at <span className="font-medium text-foreground">{lowestPrice.store.name}</span>
+              </p>
+            </div>
           )}
         </div>
       </Card>

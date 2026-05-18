@@ -41,7 +41,7 @@ export function HeroSection() {
           {/* Stats */}
           <div className="mt-16 grid gap-8 sm:grid-cols-3">
             <div>
-              <p className="text-3xl font-bold text-primary">14+</p>
+              <p className="text-3xl font-bold text-primary">38+</p>
               <p className="text-sm text-muted-foreground">Products</p>
             </div>
             <div>

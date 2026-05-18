@@ -22,6 +22,24 @@ export const getTrendingProducts = (limit: number = 6): Product[] => {
     .slice(0, limit);
 };
 
+/** Curated picks for the home page — best visuals for client demo */
+const HOME_FEATURED_PRODUCT_IDS = [
+  '2', // High-Rise Wide Leg Jeans
+  '26', // Leila Linen Midi Dress
+  '36', // Cherry Print Bikini Set
+  '30', // Paradise Sequin Halter Top
+  '33', // High-Waist Denim Shorts
+  '39', // Sage Linen Romper
+  '29', // Paloma Mini Skirt
+  '38', // Off-Shoulder Ruffle Top
+] as const;
+
+export const getHomeFeaturedProducts = (limit: number = 8): Product[] => {
+  return HOME_FEATURED_PRODUCT_IDS.map((id) => getProductById(id))
+    .filter((p): p is Product => p != null)
+    .slice(0, limit);
+};
+
 export const searchProducts = (query: string): SearchResult[] => {
   const lowerQuery = query.toLowerCase();
 

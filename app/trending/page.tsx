@@ -4,7 +4,7 @@ import { ProductGrid } from '@/components/product-grid';
 import { getTrendingProducts } from '@/lib/services';
 
 export default function TrendingPage() {
-  const trendingProducts = getTrendingProducts(14);
+  const trendingProducts = getTrendingProducts(40);
 
   return (
     <>
