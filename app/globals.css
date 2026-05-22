@@ -1,10 +1,10 @@
-@import 'tailwindcss';
+/* @import 'tailwindcss';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Nordic Light Theme - Minimalist Scandinavian */
+
   --background: oklch(0.98 0.001 0);
   --foreground: oklch(0.2 0.01 0);
   --card: oklch(1 0 0);
@@ -41,7 +41,7 @@
 }
 
 .dark {
-  /* Nordic Dark Theme */
+  
   --background: oklch(0.15 0.01 0);
   --foreground: oklch(0.95 0.001 0);
   --card: oklch(0.2 0.01 0);
@@ -123,5 +123,221 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+} */
+
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ─────────────────────────────────────────
+     NORD STUDIO — Light Theme
+     Palette: Warm Cream · Sage Green · Charcoal
+     Curated. Nordic. Timeless.
+  ───────────────────────────────────────── */
+
+  /* Base surfaces */
+  --background: oklch(0.971 0.006 80);        /* warm cream #F5F2ED */
+  --foreground: oklch(0.18 0.006 60);         /* deep charcoal #1C1C1A */
+
+  /* Cards & popovers — slightly warmer white */
+  --card: oklch(0.985 0.005 75);              /* warm white #FAF8F5 */
+  --card-foreground: oklch(0.18 0.006 60);
+
+  --popover: oklch(0.985 0.005 75);
+  --popover-foreground: oklch(0.18 0.006 60);
+
+  /* Primary — deep sage green (CTAs, active tabs, links) */
+  --primary: oklch(0.38 0.065 145);           /* sage dark #4A5C40 */
+  --primary-foreground: oklch(0.971 0.006 80);/* cream text on green */
+
+  /* Secondary — mid sage (secondary buttons, badges) */
+  --secondary: oklch(0.55 0.055 145);         /* sage mid #7A8C6E */
+  --secondary-foreground: oklch(0.985 0.005 75);
+
+  /* Muted — subtle cream surface (input bg, muted sections) */
+  --muted: oklch(0.935 0.008 78);             /* cream2 #EDE9E2 */
+  --muted-foreground: oklch(0.52 0.008 65);   /* warm muted text #8A8880 */
+
+  /* Accent — light sage (hover states, tags, chips) */
+  --accent: oklch(0.735 0.045 145);           /* sage light #B8C4AD */
+  --accent-foreground: oklch(0.22 0.01 60);   /* charcoal on light sage */
+
+  /* Destructive */
+  --destructive: oklch(0.58 0.19 28);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  /* Borders & inputs */
+  --border: oklch(0.862 0.008 78);            /* warm border #D8D3CA */
+  --input: oklch(0.935 0.008 78);             /* same as muted */
+  --ring: oklch(0.38 0.065 145);              /* sage dark focus ring */
+
+  /* Border radius — Nordic prefers subtle, not pill-like */
+  --radius: 0.5rem;
+
+  /* Charts — sage-adjacent natural tones */
+  --chart-1: oklch(0.38 0.065 145);           /* sage dark */
+  --chart-2: oklch(0.55 0.055 145);           /* sage mid */
+  --chart-3: oklch(0.735 0.045 145);          /* sage light */
+  --chart-4: oklch(0.52 0.008 65);            /* warm muted */
+  --chart-5: oklch(0.18 0.006 60);            /* charcoal */
+
+  /* Sidebar */
+  --sidebar: oklch(0.935 0.008 78);           /* cream2 */
+  --sidebar-foreground: oklch(0.18 0.006 60);
+  --sidebar-primary: oklch(0.38 0.065 145);
+  --sidebar-primary-foreground: oklch(0.971 0.006 80);
+  --sidebar-accent: oklch(0.862 0.008 78);
+  --sidebar-accent-foreground: oklch(0.22 0.01 60);
+  --sidebar-border: oklch(0.862 0.008 78);
+  --sidebar-ring: oklch(0.38 0.065 145);
+}
+
+.dark {
+  /* ─────────────────────────────────────────
+     NORD STUDIO — Dark Theme
+     Deep forest night · aged linen · sage glow
+  ───────────────────────────────────────── */
+
+  /* Base surfaces — dark forest, not cold black */
+  --background: oklch(0.165 0.008 60);        /* deep charcoal-warm */
+  --foreground: oklch(0.942 0.006 75);        /* warm off-white */
+
+  --card: oklch(0.205 0.008 62);              /* slightly lighter dark */
+  --card-foreground: oklch(0.942 0.006 75);
+
+  --popover: oklch(0.205 0.008 62);
+  --popover-foreground: oklch(0.942 0.006 75);
+
+  /* Primary — lighter sage so it pops on dark */
+  --primary: oklch(0.655 0.075 145);          /* sage light-mid */
+  --primary-foreground: oklch(0.165 0.008 60);
+
+  /* Secondary — muted sage */
+  --secondary: oklch(0.48 0.055 145);
+  --secondary-foreground: oklch(0.942 0.006 75);
+
+  /* Muted surfaces */
+  --muted: oklch(0.265 0.008 60);
+  --muted-foreground: oklch(0.62 0.008 68);
+
+  /* Accent — sage glow on dark */
+  --accent: oklch(0.38 0.042 145);
+  --accent-foreground: oklch(0.942 0.006 75);
+
+  /* Destructive */
+  --destructive: oklch(0.62 0.21 28);
+  --destructive-foreground: oklch(0.165 0.008 60);
+
+  /* Borders & inputs */
+  --border: oklch(0.285 0.008 60);
+  --input: oklch(0.265 0.008 60);
+  --ring: oklch(0.655 0.075 145);
+
+  /* Charts */
+  --chart-1: oklch(0.655 0.075 145);
+  --chart-2: oklch(0.735 0.045 145);
+  --chart-3: oklch(0.48 0.055 145);
+  --chart-4: oklch(0.62 0.008 68);
+  --chart-5: oklch(0.942 0.006 75);
+
+  /* Sidebar */
+  --sidebar: oklch(0.205 0.008 62);
+  --sidebar-foreground: oklch(0.942 0.006 75);
+  --sidebar-primary: oklch(0.655 0.075 145);
+  --sidebar-primary-foreground: oklch(0.165 0.008 60);
+  --sidebar-accent: oklch(0.265 0.008 60);
+  --sidebar-accent-foreground: oklch(0.942 0.006 75);
+  --sidebar-border: oklch(0.285 0.008 60);
+  --sidebar-ring: oklch(0.655 0.075 145);
+}
+
+@theme inline {
+  --font-sans: 'Geist', 'Geist Fallback';
+  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+
+
+@layer utilities {
+
+  .type-display {
+    @apply text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem];
+  }
+
+  .type-heading {
+    @apply text-2xl font-semibold tracking-tight text-foreground md:text-3xl;
+  }
+
+  .type-subheading {
+    @apply text-base leading-relaxed text-muted-foreground md:text-lg;
+  }
+
+  .type-eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground;
+  }
+
+  .type-title-sm {
+    @apply text-xl font-semibold tracking-tight text-foreground;
+  }
+
+  .type-link {
+    @apply inline-flex items-center gap-1 border-b border-foreground pb-0.5 text-sm font-medium text-foreground transition-opacity hover:opacity-70;
+  }
+
+  .section-shell {
+    @apply py-16 md:py-24;
+  }
+
+  .section-container {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 }

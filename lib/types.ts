@@ -1,9 +1,18 @@
 export interface Store {
-  id: string;
+  // id: string;
+  // name: string;
+  // country: string;
+  // logo?: string;
+  // currency: string;
+   id: string;
   name: string;
-  country: string;
-  logo?: string;
+   country: string;
   currency: string;
+  slug?: string;
+  href?: string;
+  coverImage: string;
+  logo?: string;
+  size?: "sm" | "md" | "lg";
 }
 
 export interface PricePoint {

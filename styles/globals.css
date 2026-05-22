@@ -123,3 +123,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+@layer utilities {
+
+  .type-display {
+    @apply text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem];
+  }
+
+  .type-heading {
+    @apply text-2xl font-semibold tracking-tight text-foreground md:text-3xl;
+  }
+
+  .type-subheading {
+    @apply text-base leading-relaxed text-muted-foreground md:text-lg;
+  }
+
+  .type-eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground;
+  }
+
+  .type-title-sm {
+    @apply text-xl font-semibold tracking-tight text-foreground;
+  }
+
+  .type-link {
+    @apply inline-flex items-center gap-1 border-b border-foreground pb-0.5 text-sm font-medium text-foreground transition-opacity hover:opacity-70;
+  }
+
+  .section-shell {
+    @apply py-16 md:py-24;
+  }
+
+  .section-container {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+}

@@ -45,11 +45,15 @@ export const productImages = {
 } as const;
 
 export const stores: Store[] = [
-  { id: 'hm', name: 'H&M', country: 'Sweden', currency: 'SEK' },
-  { id: 'zara', name: 'Zara', country: 'Spain', currency: 'EUR' },
-  { id: 'boozt', name: 'Boozt', country: 'Sweden', currency: 'SEK' },
-  { id: 'kicks', name: 'Kicks', country: 'Sweden', currency: 'SEK' },
-  { id: 'ellos', name: 'Ellos', country: 'Sweden', currency: 'SEK' },
+  { id: 'hm', size: 'sm', name: 'H&M', country: 'Sweden', currency: 'SEK',  coverImage: '/products/linen-dress-white.jpg'},
+  { id: 'zara', size: 'lg', name: 'Zara', country: 'Spain', currency: 'EUR',  coverImage: '/products/linen-shorts.jpg'},
+  { id: 'boozt', size: 'md', name: 'Boozt', country: 'Sweden', currency: 'SEK', coverImage: '/products/sequin-top.jpg'},
+  { id: 'kicks', size: 'lg', name: 'Kicks', country: 'Sweden', currency: 'SEK',coverImage: '/products/summer-romper.jpg' },
+  { id: 'ellos', size: 'md', name: 'Ellos', country: 'Sweden', currency: 'SEK',coverImage:'/products/handbag.jpg' },
+  { id: 'monki', size: 'sm', name: 'Monki', country: 'Sweden', currency: 'SEK',coverImage:'/products/earrings.jpg' },
+  { id: 'weekday', size: 'md', name: 'Weekday', country: 'Sweden', currency: 'SEK',coverImage:'/products/palette.jpg' },
+  { id: 'arket', size: 'sm', name: 'Arket', country: 'Sweden', currency: 'SEK',coverImage:'/products/ribbed-crop-top.jpg' },
+  { id: 'fjallraven', size: 'lg', name: 'Fjällräven', country: 'Sweden', currency: 'SEK',coverImage:'/products/graphic-tee.jpg' },
 ];
 
 const seededRandom = (seed: number): number => {

@@ -1,0 +1,39 @@
+import StoreGrid from "./StoreGrid";
+import type { Store } from '@/lib/types';
+import Link from "next/link";
+
+type Props = {
+  stores: Store[];
+};
+
+export default function StoreSection({ stores }: Props) {
+  return (
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <h2 className="type-heading">
+            Explore stores
+          </h2>
+          <p className="type-eyebrow md:max-w-[35%] md:text-right">
+            Explore top-tier products from stores you know and discover new stores you'll love.
+          </p>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <h3 className="type-subheading">
+            Trending stores
+          </h3>
+
+          <Link href="/stores" className="border-b border-black flex items-center gap-1">
+            <span className="type-link">See all</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Grid */}
+      <StoreGrid stores={stores} />
+    </section>
+  );
+}

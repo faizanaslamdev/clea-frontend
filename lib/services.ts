@@ -271,3 +271,13 @@ export const sortProducts = (
       return sorted;
   }
 };
+
+
+
+const FEATURED_STORE_IDS = ['hm', 'zara', 'boozt', 'kicks', 'ellos','monki','weekday','arket','fjallraven'] as const;
+
+export function getFeaturedStores(): Store[] {
+  return FEATURED_STORE_IDS
+    .map((id) => getStoreById(id))
+    .filter((s): s is Store => s != null);
+}
