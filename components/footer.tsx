@@ -1,95 +1,134 @@
-'use client';
-
 import Link from 'next/link';
-import { BrandLogo } from './brand-logo';
+import { ArrowRight, Instagram, Linkedin } from 'lucide-react';
+
+const FOOTER_LINKS = {
+  shopping: [
+    { href: '/trending', label: 'Trending' },
+    { href: '/search', label: 'All products' },
+    { href: '/#stores', label: 'Stores' },
+    { href: '/search', label: 'Compare prices' },
+  ],
+  explore: [
+    { href: '/trending', label: "Editor's picks" },
+    { href: '/search', label: 'Fashion' },
+    { href: '/search', label: 'Beauty' },
+    { href: '/#stores', label: 'Nordic brands' },
+  ],
+  company: [
+    { href: '#', label: 'About' },
+    { href: '#', label: 'Partner' },
+    { href: '#', label: 'Careers' },
+    { href: '#', label: 'Press' },
+  ],
+  resources: [
+    { href: '#', label: 'Privacy' },
+    { href: '#', label: 'Terms' },
+    { href: '#', label: 'Contact' },
+    { href: '#', label: 'FAQ' },
+  ],
+} as const;
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: readonly { href: string; label: string }[];
+}) {
+  return (
+    <div>
+      <h3 className="footer-col-title">{title}</h3>
+      <ul className="space-y-3">
+        {links.map((link) => (
+          <li key={link.label}>
+            <Link href={link.href} className="footer-link">
+              {link.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className={className}
+      fill="currentColor"
+    >
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-muted/30 py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-4">
-          {/* Brand */}
-          <div>
-            <BrandLogo className="mb-4 text-lg" showText />
-            <p className="text-sm text-muted-foreground">
-              Smart shopping assistant for Nordic stores
+    <footer className="site-footer" aria-label="Site footer">
+      {/* <p className="site-footer-watermark" aria-hidden>
+        Nordic Price
+      </p> */}
+
+      <div className="section-container relative z-10 py-16 md:py-20 lg:py-24">
+        <div className="grid gap-14 lg:grid-cols-[minmax(0,240px)_1fr] lg:gap-20 xl:grid-cols-[minmax(0,280px)_1fr]">
+          <div className="flex flex-col gap-6">
+            <Link href="/" className="site-footer-brand w-fit">
+              nordic price
+            </Link>
+
+            <div className="flex items-center gap-1">
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-link"
+                aria-label="Instagram"
+              >
+                <Instagram className="size-[18px]" strokeWidth={1.5} />
+              </a>
+              <a
+                href="https://x.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-link"
+                aria-label="X"
+              >
+                <XIcon className="size-[17px]" />
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-social-link"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="size-[18px]" strokeWidth={1.5} />
+              </a>
+            </div>
+
+            <p className="text-sm font-light text-muted-foreground">
+              © 2026 · All rights reserved
             </p>
           </div>
 
-          {/* Company */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-3">Company</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Careers
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Support */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-3">Support</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Help Center
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Contact
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-3">Legal</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Privacy
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Terms
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  Cookies
-                </Link>
-              </li>
-            </ul>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 sm:gap-x-6">
+            <FooterColumn title="Shopping" links={FOOTER_LINKS.shopping} />
+            <FooterColumn title="Explore" links={FOOTER_LINKS.explore} />
+            <FooterColumn title="Company" links={FOOTER_LINKS.company} />
+            <FooterColumn title="Resources" links={FOOTER_LINKS.resources} />
           </div>
         </div>
 
-        <div className="mt-8 border-t border-border pt-8 flex flex-col sm:flex-row items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            © 2025 Nordic Price. All rights reserved.
-          </p>
-          <p className="text-xs text-muted-foreground mt-4 sm:mt-0">
-            Made with ♡ in Scandinavia
-          </p>
+        <div className="mt-14 flex justify-center md:mt-20">
+          <Link href="/search" className="footer-cta-pill group">
+            <span>Start comparing prices</span>
+            <ArrowRight
+              className="size-4 transition-transform group-hover:translate-x-0.5"
+              strokeWidth={1.5}
+            />
+          </Link>
         </div>
       </div>
     </footer>

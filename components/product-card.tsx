@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Product } from '@/lib/types';
 import { formatPrice, getLowestPriceStore } from '@/lib/services';
 import { Card } from '@/components/ui/card';
-import { TrendingBadge } from '@/components/trending-badge';
+// import { TrendingBadge } from '@/components/trending-badge';
 import { LowestPriceBadge } from '@/components/lowest-price-badge';
 
 interface ProductCardProps {
@@ -29,9 +29,9 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
               e.currentTarget.src = '/placeholder.svg';
             }}
           />
-          {product.trending && (
+          {/* {product.trending && (
             <TrendingBadge variant="overlay" className="absolute right-3 top-3" />
-          )}
+          )} */}
           {product.savingsPercent > 0 && (
             <span className="absolute left-3 top-3 inline-flex rounded-md bg-white/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.15em] text-foreground shadow-sm backdrop-blur-sm">
               −{product.savingsPercent}%

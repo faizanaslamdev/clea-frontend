@@ -132,15 +132,10 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* ─────────────────────────────────────────
-     NORD STUDIO — Light Theme
-     Palette: Warm Cream · Sage Green · Charcoal
-     Curated. Nordic. Timeless.
-  ───────────────────────────────────────── */
 
-  /* Base surfaces */
-  --background: oklch(0.971 0.006 80);        /* warm cream #F5F2ED */
-  --foreground: oklch(0.18 0.006 60);         /* deep charcoal #1C1C1A */
+
+  --background: oklch(0.971 0.006 80);        
+  --foreground: oklch(0.18 0.006 60);     
 
   /* Cards & popovers — slightly warmer white */
   --card: oklch(0.985 0.005 75);              /* warm white #FAF8F5 */
@@ -149,12 +144,10 @@
   --popover: oklch(0.985 0.005 75);
   --popover-foreground: oklch(0.18 0.006 60);
 
-  /* Primary — deep sage green (CTAs, active tabs, links) */
   --primary: oklch(0.38 0.065 145);           /* sage dark #4A5C40 */
-  --primary-foreground: oklch(0.971 0.006 80);/* cream text on green */
+  --primary-foreground: oklch(0.971 0.006 80);
 
-  /* Secondary — mid sage (secondary buttons, badges) */
-  --secondary: oklch(0.55 0.055 145);         /* sage mid #7A8C6E */
+  --secondary: oklch(0.55 0.055 145);        
   --secondary-foreground: oklch(0.985 0.005 75);
 
   /* Muted — subtle cream surface (input bg, muted sections) */
@@ -193,14 +186,15 @@
   --sidebar-accent-foreground: oklch(0.22 0.01 60);
   --sidebar-border: oklch(0.862 0.008 78);
   --sidebar-ring: oklch(0.38 0.065 145);
+
+  /* Hero — overlay & text on background image */
+  --hero-overlay-start: oklch(0.18 0.02 60 / 0.45);
+  --hero-overlay-end: oklch(0.18 0.02 60 / 0.78);
+  --hero-foreground: oklch(0.985 0.005 75);
+  --hero-muted: oklch(0.92 0.008 78 / 0.88);
 }
 
 .dark {
-  /* ─────────────────────────────────────────
-     NORD STUDIO — Dark Theme
-     Deep forest night · aged linen · sage glow
-  ───────────────────────────────────────── */
-
   /* Base surfaces — dark forest, not cold black */
   --background: oklch(0.165 0.008 60);        /* deep charcoal-warm */
   --foreground: oklch(0.942 0.006 75);        /* warm off-white */
@@ -252,11 +246,17 @@
   --sidebar-accent-foreground: oklch(0.942 0.006 75);
   --sidebar-border: oklch(0.285 0.008 60);
   --sidebar-ring: oklch(0.655 0.075 145);
+
+  --hero-overlay-start: oklch(0.12 0.01 60 / 0.55);
+  --hero-overlay-end: oklch(0.12 0.01 60 / 0.88);
+  --hero-foreground: oklch(0.971 0.006 80);
+  --hero-muted: oklch(0.75 0.008 70 / 0.9);
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+  --font-mono: var(--font-roboto-mono), ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -310,19 +310,19 @@
 @layer utilities {
 
   .type-display {
-    @apply text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem];
+    @apply text-balance font-sans text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-[3.25rem];
   }
 
   .type-heading {
-    @apply text-2xl font-semibold tracking-tight text-foreground md:text-3xl;
+    @apply text-4xl font-serif leading-11 md:leading-16 font-light  text-foreground md:text-[56px];
   }
 
   .type-subheading {
-    @apply text-base leading-relaxed text-muted-foreground md:text-lg;
+    @apply text-base font-sans leading-5 md:leading-4 font-light text-muted-foreground;
   }
 
   .type-eyebrow {
-    @apply font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground;
+    @apply font-mono text-[14px] md:text-base leading-6 uppercase font-normal text-muted-foreground;
   }
 
   .type-title-sm {
@@ -330,7 +330,7 @@
   }
 
   .type-link {
-    @apply inline-flex items-center gap-1 border-b border-foreground pb-0.5 text-sm font-medium text-foreground transition-opacity hover:opacity-70;
+    @apply font-sans text-base inline-flex items-center  border-foreground  font-medium text-foreground;
   }
 
   .section-shell {
@@ -338,6 +338,161 @@
   }
 
   .section-container {
-    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
+    @apply mx-auto max-w-7xl px-6 md:px-8 lg:px-16 xl:px-24;
+  }
+
+  .hero {
+    @apply relative flex min-h-[28rem] items-center overflow-hidden md:min-h-[34rem] lg:min-h-[38rem];
+  }
+
+  .hero-media {
+    @apply pointer-events-none absolute inset-0;
+  }
+
+  .hero-overlay {
+    background: linear-gradient(
+      180deg,
+      var(--hero-overlay-start) 0%,
+      var(--hero-overlay-end) 100%
+    );
+    @apply absolute inset-0;
+  }
+
+  .hero-content {
+    @apply relative z-10 w-full pb-16 pt-24 md:pb-24 md:pt-28;
+  }
+
+  .hero .type-display,
+  .hero .type-heading {
+    color: var(--hero-foreground);
+  }
+
+  .hero .type-subheading,
+  .hero .type-eyebrow {
+    color: var(--hero-muted);
+  }
+
+  .hero-stat-value {
+    @apply text-3xl font-semibold tracking-tight;
+    color: var(--hero-foreground);
+  }
+
+  .hero-stat-label {
+    @apply text-sm;
+    color: var(--hero-muted);
+  }
+
+  .hero-surface {
+    @apply rounded-lg border border-[oklch(1_0_0/0.12)] bg-card/90 shadow-sm backdrop-blur-md;
+  }
+
+  .site-header {
+    @apply fixed inset-x-0 top-0 z-50 h-16 border-b transition-[background-color,border-color,box-shadow] duration-300;
+  }
+
+  .site-header-inner {
+    @apply mx-auto flex h-full max-w-7xl items-center justify-between gap-4 px-6 md:gap-8 md:px-8 lg:px-16 xl:px-24;
+  }
+
+  .site-header--solid {
+    @apply border-border bg-background shadow-none;
+  }
+
+  .site-header--over-hero {
+    @apply border-transparent bg-transparent;
+  }
+
+  .site-header-logo {
+    @apply font-serif text-xl font-light tracking-tight text-foreground md:text-[1.35rem];
+  }
+
+  .nav-link {
+    @apply relative inline-block px-1 py-2 font-mono text-[14px] leading-6 font-normal text-muted-foreground uppercase transition-colors md:text-base;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute right-1 bottom-1 left-1 h-px origin-left scale-x-0 bg-current transition-transform duration-200;
+  }
+
+  .nav-link:hover::after,
+  .nav-link[data-active='true']::after {
+    @apply scale-x-100;
+  }
+
+  .site-header--over-hero .site-header-logo {
+    color: var(--hero-foreground);
+  }
+
+  .site-header--over-hero .nav-link {
+    color: var(--hero-muted);
+  }
+
+  .site-header--over-hero .nav-link:hover,
+  .site-header--over-hero .nav-link[data-active='true'] {
+    color: var(--hero-foreground);
+  }
+
+  .site-header--over-hero .site-header-icon-btn,
+  .site-header--over-hero .site-header-menu-btn {
+    color: var(--hero-foreground);
+  }
+
+  .site-header--over-hero .site-header-icon-btn:hover,
+  .site-header--over-hero .site-header-menu-btn:hover {
+    color: var(--hero-foreground);
+    @apply opacity-80;
+  }
+
+  .site-header-icon {
+    @apply size-10 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted/80 hover:text-foreground;
+  }
+
+  .site-header-icon-btn {
+    @apply inline-flex size-10 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted/80 hover:text-foreground;
+  }
+
+  .site-header-menu-btn {
+    @apply hidden size-10 items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted/80 max-lg:inline-flex hover:text-foreground;
+  }
+
+  .site-header-search {
+    @apply max-w-xs flex-1 lg:max-w-xs;
+  }
+
+  .site-header--over-hero .site-header-search [data-slot='input'] {
+    @apply border-[oklch(1_0_0/0.2)] bg-card/90 text-foreground shadow-sm placeholder:text-muted-foreground;
+  }
+
+  .site-header--over-hero .brand-logo-text {
+    color: var(--hero-foreground);
+  }
+
+  .site-footer {
+    @apply relative overflow-hidden border-t border-border bg-muted;
+  }
+
+  .site-footer-watermark {
+    @apply pointer-events-none absolute inset-x-4 bottom-6 select-none font-serif text-[clamp(4.5rem,18vw,14rem)] leading-[0.85] font-light italic tracking-tight text-foreground/[0.045] md:inset-x-8 lg:bottom-10;
+  }
+
+  .site-footer-brand {
+    @apply font-serif text-[1.75rem] leading-none font-light italic tracking-tight text-foreground;
+  }
+
+  .footer-col-title {
+    @apply mb-5 font-sans text-sm font-semibold tracking-tight text-foreground;
+  }
+
+  .footer-link {
+    @apply text-sm font-light text-muted-foreground transition-colors hover:text-foreground;
+  }
+
+  .footer-social-link {
+    @apply inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground;
+  }
+
+  .footer-cta-pill {
+    @apply inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-6 py-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background;
   }
 }

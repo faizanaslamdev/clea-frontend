@@ -4,12 +4,14 @@ interface BrandLogoProps {
   className?: string;
   showText?: boolean;
   iconClassName?: string;
+  textClassName?: string;
 }
 
 export function BrandLogo({
   className,
   showText = true,
   iconClassName,
+  textClassName,
 }: BrandLogoProps) {
   return (
     <span className={cn('inline-flex items-center gap-2.5', className)}>
@@ -31,7 +33,14 @@ export function BrandLogo({
         </svg>
       </span>
       {showText && (
-        <span className="font-bold tracking-tight text-foreground">Nordic Price</span>
+        <span
+          className={cn(
+            'brand-logo-text font-serif text-lg font-light tracking-tight text-foreground md:text-xl',
+            textClassName,
+          )}
+        >
+          Nordic Price
+        </span>
       )}
     </span>
   );

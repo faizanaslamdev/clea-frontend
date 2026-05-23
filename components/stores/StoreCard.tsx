@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import type { Store } from '@/lib/types';
+import { Card } from '@/components/ui/card';
 
 const heightMap = {
   sm: 'h-[260px] md:h-[230px]',
@@ -18,7 +19,7 @@ export function StoreCard({ store }: { store: Store }) {
       href={href}
       className={cn('group relative block w-full', heightMap[size])}
     >
-      <div className="relative h-full w-full overflow-hidden rounded-lg">
+      <Card className="relative h-full w-full overflow-hidden p-0 transition-all duration-500 hover:shadow-lg hover:-translate-y-1">
         <Image
           src={store.coverImage}
           alt={`${store.name} cover`}
@@ -38,7 +39,7 @@ export function StoreCard({ store }: { store: Store }) {
             </span>
           )}
         </div>
-      </div>
+      </Card>
     </Link>
   );
 }

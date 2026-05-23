@@ -32,6 +32,7 @@ const HOME_FEATURED_PRODUCT_IDS = [
   '39', // Sage Linen Romper
   '29', // Paloma Mini Skirt
   '38', // Off-Shoulder Ruffle Top
+  37, // Ocean Print Swim Trunks
 ] as const;
 
 export const getHomeFeaturedProducts = (limit: number = 8): Product[] => {

@@ -1,38 +1,24 @@
 import { HeroSection } from "@/components/hero-section";
-import { ProductGrid } from "@/components/product-grid";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { getHomeFeaturedProducts } from "@/lib/services";
 import StoreSection from "@/components/stores/StoreSection";
-import { getFeaturedStores } from "@/lib/services";
-import {ProductCarousel} from "@/components/product-carousel";
+import { TrendingSection } from "@/components/trending-section";
+import PartnerSection from "@/components/partner-section";
+
 
 export default function Home() {
-  const featuredProducts = getHomeFeaturedProducts(8);
-  const featuredStores = getFeaturedStores();
+  
+
   return (
     <>
       <Header />
       <main className="min-h-screen">
         <HeroSection />
-        <StoreSection stores={featuredStores} />
-        <section className="py-16 md:py-24">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-12">
-              <h2 className="type-heading">
-                Trending Now
-              </h2>
-              <p className="mt-2 type-subheading">
-                Popular fashion picks — compare prices across Nordic stores
-              </p>
-            </div>
+        <StoreSection />
+       <TrendingSection />
+       <PartnerSection/>
 
-            <ProductCarousel products={featuredProducts} />
-          </div>
-        </section>
-
-
-        <section className="border-t border-border bg-muted/30 py-16 md:py-24">
+        {/* <section className="border-t border-border bg-muted/30 py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-12 text-center">
               <h2 className="type-heading">
@@ -92,7 +78,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
       <Footer />
     </>
