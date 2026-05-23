@@ -1,16 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchFeaturedStores, fetchAllStores } from "@/lib/api/stores";
+import { useQuery } from '@tanstack/react-query';
+import { fetchFeaturedStores, fetchAllStores } from '@/lib/api/stores';
+import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
+import { storeKeys } from '@/lib/query/keys';
 
-export const storeKeys = {
-  all: ["stores"] as const,
-  featured: () => [...storeKeys.all, "featured"] as const,
-};
+export { storeKeys };
 
 export function useFeaturedStores() {
   return useQuery({
     queryKey: storeKeys.featured(),
     queryFn: fetchFeaturedStores,
-    staleTime: Infinity, // dummy data never changes
+    staleTime: STALE_TIME_STATIC_MS,
   });
 }
 
@@ -18,6 +17,6 @@ export function useAllStores() {
   return useQuery({
     queryKey: storeKeys.all,
     queryFn: fetchAllStores,
-    staleTime: Infinity,
+    staleTime: STALE_TIME_STATIC_MS,
   });
 }

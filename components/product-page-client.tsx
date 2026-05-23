@@ -1,19 +1,24 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Product } from '@/lib/types';
+import { PriceAIInsightsPanel } from '@/components/price-ai-insights';
+import { PriceChart } from '@/components/price-chart';
 import { ProductDetails } from '@/components/product-details';
 import { ProductGrid } from '@/components/product-grid';
-import { PriceChart } from '@/components/price-chart';
-import { PriceAIInsightsPanel } from '@/components/price-ai-insights';
-import { getAllStores, getLowestPriceStore, getSimilarProducts } from '@/lib/services';
+import {
+  getAllStores,
+  getLowestPriceStore,
+  getSimilarProducts,
+} from '@/lib/services';
+import type { Product } from '@/lib/types';
 
 interface ProductPageClientProps {
   product: Product;
 }
 
 export function ProductPageClient({ product }: ProductPageClientProps) {
-  const stores = getAllStores();
+  const stores = useMemo(() => getAllStores(), []);
+
   const defaultStoreId = useMemo(() => {
     const best = getLowestPriceStore(product);
     return best?.store.id ?? stores[0]?.id ?? null;
@@ -25,12 +30,15 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
     setSelectedStoreId(defaultStoreId);
   }, [product.id, defaultStoreId]);
 
-  const similarProducts = getSimilarProducts(product.id);
+  const similarProducts = useMemo(
+    () => getSimilarProducts(product.id),
+    [product.id]
+  );
 
   return (
     <>
       <section className="border-b border-border py-8 md:py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="section-container">
           <ProductDetails
             product={product}
             selectedStoreId={selectedStoreId}
@@ -40,20 +48,20 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
       </section>
 
       <section className="border-b border-border py-12 md:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="section-container">
           <PriceAIInsightsPanel product={product} />
         </div>
       </section>
 
       <section className="border-b border-border py-12 md:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="section-container">
           <PriceChart product={product} />
         </div>
       </section>
 
       {similarProducts.length > 0 && (
         <section className="py-12 md:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="section-container">
             <div className="mb-12">
               <h2 className="text-3xl font-bold text-foreground">Similar Products</h2>
               <p className="mt-2 text-lg text-muted-foreground">

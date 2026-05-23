@@ -6,8 +6,8 @@ import {
   getProductById,
   getTrendingProducts,
   searchProducts,
-} from './services';
-import { Product } from './types';
+} from '@/lib/services';
+import type { Product } from '@/lib/types';
 
 export type AssistantMessageRole = 'assistant' | 'user';
 

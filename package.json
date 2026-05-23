@@ -1,7 +1,8 @@
 {
-  "name": "nordic-shop",
+  "name": "nordic-price-intelligence",
   "version": "0.1.0",
   "private": true,
+  "description": "Nordic fashion & beauty price comparison — production demo",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

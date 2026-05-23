@@ -1,4 +1,4 @@
-import { Product, Store } from './types';
+import type { Product, Store } from '@/lib/types';
 
 /** Local product photos in /public/products (user-provided + bundled assets) */
 export const productImages = {

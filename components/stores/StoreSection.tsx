@@ -1,15 +1,17 @@
-"use client"
-import StoreGrid from "./StoreGrid";
-import { useFeaturedStores } from "@/lib/hooks/useStores";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+'use client';
 
-
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+import { LoadingBlock } from '@/components/shared/loading-block';
+import { useFeaturedStores } from '@/lib/hooks/useStores';
+import StoreGrid from './StoreGrid';
 
 export default function StoreSection() {
-    const { data: stores = [], isLoading } = useFeaturedStores();
+  const { data: stores = [], isLoading } = useFeaturedStores();
 
-  if (isLoading) return <div className="section-container animate-pulse h-64" />;
+  if (isLoading) {
+    return <LoadingBlock className="section-container h-64" />;
+  }
   return (
     <section id="stores" className="section-container section-shell scroll-mt-20">
       {/* Header */}
@@ -27,7 +29,7 @@ export default function StoreSection() {
 
           <Link
             href="/stores"
-            className="border-b border-black flex items-center gap-1"
+            className="border-b border-foreground flex items-center gap-1"
           >
             <span className="type-link">See all</span>
             <ArrowRight className="h-4 w-4" />

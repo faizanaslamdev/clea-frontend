@@ -57,9 +57,7 @@ export function PriceComparison({
               className={cn(
                 'gap-0 p-4 py-4 transition-all hover:shadow-md',
                 isSelected && 'border-primary ring-2 ring-primary/25',
-                !isSelected &&
-                  isLowest &&
-                  'border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20',
+                !isSelected && isLowest && 'comparison-row-best',
                 !isSelected && isHighest && !isLowest && 'border-border bg-muted/30'
               )}
             >
@@ -104,7 +102,7 @@ export function PriceComparison({
                   <p
                     className={cn(
                       'text-xl font-bold',
-                      isLowest ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary'
+                      isLowest ? 'text-deal' : 'text-primary'
                     )}
                   >
                     {price ? formatPrice(price) : 'N/A'}

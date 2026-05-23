@@ -1,28 +1,28 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+import { FilterSidebar, type FilterOptions } from '@/components/filter-sidebar';
+import { PageLayout } from '@/components/layout/page-layout';
 import { ProductGrid } from '@/components/product-grid';
-import { FilterSidebar } from '@/components/filter-sidebar';
+import { LoadingBlock } from '@/components/shared/loading-block';
 import {
-  getAllProducts,
-  searchProducts,
   filterByPriceRange,
   filterByRating,
+  getAllProducts,
+  searchProducts,
   sortProducts,
 } from '@/lib/services';
-import type { FilterOptions } from '@/components/filter-sidebar';
 
 function SearchPageContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
-
   const [filters, setFilters] = useState<FilterOptions>({});
 
   const filteredProducts = useMemo(() => {
-    let results = query ? searchProducts(query).map((r) => r.product) : getAllProducts();
+    let results = query
+      ? searchProducts(query).map((r) => r.product)
+      : getAllProducts();
 
     if (filters.category) {
       results = results.filter((p) => p.category === filters.category);
@@ -47,12 +47,8 @@ function SearchPageContent() {
     return results;
   }, [query, filters]);
 
-  const handleReset = () => {
-    setFilters({});
-  };
-
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+    <div className="section-container section-shell">
       <div className="mb-12">
         {query ? (
           <h1 className="text-4xl font-bold text-foreground">
@@ -72,7 +68,7 @@ function SearchPageContent() {
           <FilterSidebar
             filters={filters}
             onFilterChange={setFilters}
-            onReset={handleReset}
+            onReset={() => setFilters({})}
           />
         </aside>
 
@@ -93,13 +89,13 @@ function SearchPageContent() {
 
 function SearchPageFallback() {
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <div className="mb-12 h-20 animate-pulse rounded-lg bg-muted" />
+    <div className="section-container section-shell">
+      <LoadingBlock className="mb-12 h-20" />
       <div className="grid gap-8 lg:grid-cols-4">
-        <div className="hidden h-96 animate-pulse rounded-lg bg-muted lg:block" />
+        <LoadingBlock className="hidden h-96 lg:block" />
         <div className="grid gap-6 sm:grid-cols-2 lg:col-span-3">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="aspect-square animate-pulse rounded-lg bg-muted" />
+            <LoadingBlock key={i} className="aspect-square" />
           ))}
         </div>
       </div>
@@ -109,14 +105,10 @@ function SearchPageFallback() {
 
 export default function SearchPage() {
   return (
-    <>
-      <Header />
-      <main className="min-h-screen bg-background">
-        <Suspense fallback={<SearchPageFallback />}>
-          <SearchPageContent />
-        </Suspense>
-      </main>
-      <Footer />
-    </>
+    <PageLayout>
+      <Suspense fallback={<SearchPageFallback />}>
+        <SearchPageContent />
+      </Suspense>
+    </PageLayout>
   );
 }

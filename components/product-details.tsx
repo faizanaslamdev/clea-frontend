@@ -48,9 +48,9 @@ export function ProductDetails({
 
           <div className="grid grid-cols-2 gap-4">
             <button type="button" onClick={scrollToComparison} className="text-left">
-              <Card className="p-4 text-center transition-colors hover:border-emerald-500/30 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20">
+              <Card className="deal-highlight-card p-4 text-center">
                 <LowestPriceBadge variant="label" className="mx-auto" />
-                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                <p className="text-xl font-bold text-deal">
                   {formatPrice(product.lowestPrice)}
                 </p>
                 {best && (

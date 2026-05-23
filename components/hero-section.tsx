@@ -52,7 +52,7 @@ export function HeroSection() {
               <Button
                 variant="outline"
                 size="lg"
-                className="w-full border-[oklch(1_0_0/0.35)] bg-transparent text-[var(--hero-foreground)] hover:bg-[oklch(1_0_0/0.1)] hover:text-[var(--hero-foreground)] sm:w-auto"
+                className="hero-btn-outline"
               >
                 View All Products
               </Button>
