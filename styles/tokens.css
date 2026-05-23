@@ -53,6 +53,26 @@
   --hero-outline-hover: oklch(1 0 0 / 0.1);
   --hero-input-border: oklch(1 0 0 / 0.2);
 
+  /* Collection cards (favorite finds fan) */
+  --collection-card-radius: 28px;
+  --collection-card-shadow:
+    0 4px 6px oklch(0 0 0 / 0.02),
+    0 12px 32px oklch(0 0 0 / 0.06),
+    0 24px 56px oklch(0 0 0 / 0.05);
+
+  /* Wide promo panel (shop everywhere block) */
+  --promo-panel-radius: 20px;
+  --promo-panel-shadow:
+    0 4px 8px oklch(0 0 0 / 0.02),
+    0 16px 40px oklch(0 0 0 / 0.06),
+    0 32px 64px oklch(0 0 0 / 0.04);
+  --promo-image-fade: linear-gradient(
+    to top,
+    var(--card) 0%,
+    color-mix(in oklch, var(--card) 85%, transparent) 35%,
+    transparent 72%
+  );
+
   /* Lowest-price / best-deal emphasis */
   --deal: oklch(0.596 0.145 163.225);
   --deal-muted: oklch(0.979 0.021 166.113);
