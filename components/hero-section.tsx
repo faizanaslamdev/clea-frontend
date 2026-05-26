@@ -12,7 +12,13 @@ export function HeroSection() {
       contentClassName="page-hero-content--home"
     >
       <div className="layout-inner-wide text-center">
-        <h1 className="hero-kicker">{BRAND.tagline}</h1>
+        <h1 className="hero-kicker">
+          {BRAND.heroTagline.map((line) => (
+            <span key={line} className="hero-kicker__line">
+              {line}
+            </span>
+          ))}
+        </h1>
         <HeroSearchForm variant="full" />
       </div>
     </PageHero>

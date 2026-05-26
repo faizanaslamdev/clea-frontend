@@ -5,7 +5,13 @@ export const BRAND = {
   wordmark: 'clea',
   domain: 'clea.no',
   siteUrl: 'https://clea.no',
+  /** Short label (metadata, etc.) */
   tagline: 'Fashion & beauty',
+  /** Home hero headline (two lines) */
+  heroTagline: [
+    'Shop the best Nordic stores with',
+    'AI-powered personalized discovery.',
+  ] as const,
   title: 'Clea — Fashion & Beauty',
   titleTemplate: '%s | Clea',
   description:

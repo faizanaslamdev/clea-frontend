@@ -13,20 +13,24 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(145deg, #1a1a1a 0%, #000000 100%)',
+          background: '#1a1a1a',
           borderRadius: 8,
         }}
       >
         <div
           style={{
-            width: 14,
-            height: 14,
-            background: '#fafafa',
-            transform: 'rotate(45deg)',
+            fontSize: 20,
+            fontStyle: 'italic',
+            fontFamily: 'Georgia, serif',
+            color: '#fafafa',
+            marginTop: 2,
+            marginLeft: -1,
           }}
-        />
+        >
+          c
+        </div>
       </div>
     ),
-    { ...size }
+    { ...size },
   );
 }
