@@ -1,10 +1,10 @@
-# Nordic Price - Complete Project Summary
+# Clea — Complete Project Summary
 
 ## Overview
-A modern, fully-functional price comparison platform for Nordic fashion and beauty products with real-time pricing, price history tracking, and trending product discovery.
+A modern, fully-functional price comparison platform for fashion and beauty on [clea.no](https://clea.no), with real-time pricing, price history tracking, and trending product discovery.
 
 ## Design System
-- **Color Palette**: Nordic minimalist theme with cool blues, teals, and neutral grays
+- **Color Palette**: Minimal theme with cool blues, teals, and neutral grays
 - **Typography**: Geist font family for clean, modern look
 - **Layout**: Mobile-first responsive design using Tailwind CSS Flexbox
 - **Accessibility**: Semantic HTML, ARIA labels, proper contrast ratios
@@ -48,7 +48,7 @@ lib/
 - Trending badges and savings percentages
 
 ### 2. **Price Comparison** ✓
-- Real-time prices across 5 Nordic stores (H&M, Zara, Nykaa, Kicks, Ellos)
+- Real-time prices across partner stores (demo dataset)
 - Best price highlighting
 - In-stock/out-of-stock indicators
 - Store availability tracking
@@ -193,7 +193,7 @@ lib/
 
 ## Styling Highlights
 
-- **Color System**: 5-color Nordic palette (primary, accent, neutrals, destructive, backgrounds)
+- **Color System**: 5-color palette (primary, accent, neutrals, destructive, backgrounds)
 - **Spacing**: Tailwind scale (gap-4, p-6, etc.)
 - **Shadows**: Subtle elevation with `shadow-sm` and hover states
 - **Transitions**: Smooth animations on cards and links

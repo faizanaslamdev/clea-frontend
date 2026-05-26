@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Roboto_Mono, Playfair_Display, DM_Sans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
+import { BRAND } from '@/lib/constants/brand';
 import './globals.css';
 import { Providers } from './providers';
 
@@ -25,13 +26,13 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(BRAND.siteUrl),
   title: {
-    default: 'Nordic Price — Fashion & Beauty',
-    template: '%s | Nordic Price',
+    default: BRAND.title,
+    template: BRAND.titleTemplate,
   },
-  description:
-    'Compare fashion and beauty prices across Nordic stores. Find the best deals with real-time price tracking and Price AI.',
-  applicationName: 'Nordic Price',
+  description: BRAND.description,
+  applicationName: BRAND.name,
   icons: {
     icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
     apple: [{ url: '/apple-icon', sizes: '180x180' }],

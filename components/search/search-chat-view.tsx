@@ -10,7 +10,7 @@ import {
 import { SearchLanding } from '@/components/search/search-landing';
 import { buildSearchAssistantReply } from '@/lib/domain/search/chat-reply';
 import type { Product } from '@/lib/types';
-import { searchProducts } from '@/lib/services';
+import { resolveProductSearch } from '@/lib/services';
 
 function createMessage(
   role: SearchChatMessage['role'],
@@ -25,14 +25,22 @@ function createMessage(
   };
 }
 
-function buildTurnMessages(query: string, products: Product[]) {
+function buildTurnMessages(
+  query: string,
+  products: Product[],
+  usedFallback: boolean,
+) {
   const trimmed = query.trim();
   return [
     createMessage('user', trimmed),
-    createMessage('assistant', buildSearchAssistantReply(trimmed, products.length), {
-      products,
-      query: trimmed,
-    }),
+    createMessage(
+      'assistant',
+      buildSearchAssistantReply(trimmed, products.length, { usedFallback }),
+      {
+        products,
+        query: trimmed,
+      },
+    ),
   ];
 }
 
@@ -60,10 +68,14 @@ export function SearchChatView() {
       const trimmed = query.trim();
       if (!trimmed) return;
 
-      const products = searchProducts(trimmed).map((r) => r.product);
+      const { results, usedFallback } = resolveProductSearch(trimmed);
+      const products = results.map((r) => r.product);
       syncUrl(trimmed);
 
-      setMessages((prev) => [...prev, ...buildTurnMessages(trimmed, products)]);
+      setMessages((prev) => [
+        ...prev,
+        ...buildTurnMessages(trimmed, products, usedFallback),
+      ]);
       setDraft('');
     },
     [syncUrl],
@@ -72,8 +84,9 @@ export function SearchChatView() {
   useEffect(() => {
     if (!urlQuery || messages.length > 0) return;
 
-    const products = searchProducts(urlQuery).map((r) => r.product);
-    setMessages(buildTurnMessages(urlQuery, products));
+    const { results, usedFallback } = resolveProductSearch(urlQuery);
+    const products = results.map((r) => r.product);
+    setMessages(buildTurnMessages(urlQuery, products, usedFallback));
   }, [urlQuery, messages.length]);
 
   const handleSubmitQuery = (trimmed: string) => {

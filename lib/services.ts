@@ -12,7 +12,11 @@ export {
   getProductsByStoreId,
 } from '@/lib/domain/products/catalog';
 
-export { searchProducts } from '@/lib/domain/products/search';
+export {
+  searchProducts,
+  resolveProductSearch,
+  type ProductSearchResponse,
+} from '@/lib/domain/products/search';
 
 export {
   filterByPriceRange,

@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Star } from 'lucide-react';
+import { BRAND } from '@/lib/constants/brand';
 
 const PROMO_IMAGE = '/promo/shop-everywhere.jpg';
 
@@ -19,14 +20,14 @@ export function ShopEverywhereSection() {
         {/* Copy */}
         <div className="flex w-full flex-col justify-center gap-6 bg-muted px-8 py-12 md:min-h-[520px] md:flex-1 md:gap-7 md:px-16 md:py-16 lg:px-20 lg:py-20">
           <p className="type-eyebrow text-muted-foreground">
-            Compare across Nordic stores
+            Compare on {BRAND.domain}
           </p>
 
           <h2
             id="shop-everywhere-heading"
             className="type-heading max-w-[14ch] text-balance"
           >
-            Use Nordic Price wherever you shop
+            Use {BRAND.name} wherever you shop
           </h2>
 
           <p className="type-subheading max-w-[520px]">

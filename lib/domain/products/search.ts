@@ -1,5 +1,13 @@
+import { getHomeFeaturedProducts } from '@/lib/domain/products/catalog';
 import { products } from '@/lib/data/dummy-data';
 import type { Product, SearchResult } from '@/lib/types';
+
+const DEMO_FALLBACK_LIMIT = 8;
+
+export interface ProductSearchResponse {
+  results: SearchResult[];
+  usedFallback: boolean;
+}
 
 function calculateRelevance(product: Product, query: string): number {
   let score = 0;
@@ -15,7 +23,7 @@ function calculateRelevance(product: Product, query: string): number {
   return score;
 }
 
-export function searchProducts(query: string): SearchResult[] {
+function matchProducts(query: string): SearchResult[] {
   const lowerQuery = query.toLowerCase();
 
   return products
@@ -24,11 +32,36 @@ export function searchProducts(query: string): SearchResult[] {
         p.name.toLowerCase().includes(lowerQuery) ||
         p.brand.toLowerCase().includes(lowerQuery) ||
         p.category.toLowerCase().includes(lowerQuery) ||
-        p.description.toLowerCase().includes(lowerQuery)
+        p.description.toLowerCase().includes(lowerQuery),
     )
     .map((product) => ({
       product,
       relevance: calculateRelevance(product, lowerQuery),
     }))
     .sort((a, b) => b.relevance - a.relevance);
+}
+
+function getFallbackResults(): SearchResult[] {
+  return getHomeFeaturedProducts(DEMO_FALLBACK_LIMIT).map((product) => ({
+    product,
+    relevance: 0,
+  }));
+}
+
+export function resolveProductSearch(query: string): ProductSearchResponse {
+  const trimmed = query.trim();
+  if (!trimmed) {
+    return { results: [], usedFallback: false };
+  }
+
+  const matches = matchProducts(trimmed);
+  if (matches.length > 0) {
+    return { results: matches, usedFallback: false };
+  }
+
+  return { results: getFallbackResults(), usedFallback: true };
+}
+
+export function searchProducts(query: string): SearchResult[] {
+  return resolveProductSearch(query).results;
 }

@@ -1,5 +1,6 @@
-import { HeroSearchPanel } from '@/components/hero-search-panel';
+import { HeroSearchForm } from '@/components/hero-search-form';
 import { PageHero } from '@/components/page-hero';
+import { BRAND } from '@/lib/constants/brand';
 
 const HERO_IMAGE = '/products/hero.jpg';
 
@@ -11,8 +12,8 @@ export function HeroSection() {
       contentClassName="page-hero-content--home"
     >
       <div className="layout-inner-wide text-center">
-        <h1 className="hero-kicker">Nordic fashion &amp; beauty</h1>
-        <HeroSearchPanel />
+        <h1 className="hero-kicker">{BRAND.tagline}</h1>
+        <HeroSearchForm variant="full" />
       </div>
     </PageHero>
   );

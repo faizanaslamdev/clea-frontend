@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Instagram, Linkedin } from 'lucide-react';
+import { BRAND } from '@/lib/constants/brand';
 
 const FOOTER_LINKS = {
   shopping: [
@@ -10,7 +11,7 @@ const FOOTER_LINKS = {
   explore: [
     { href: '/brands', label: 'Fashion brands' },
     { href: '/brands', label: 'Beauty brands' },
-    { href: '/#brands', label: 'Nordic brands' },
+    { href: '/#brands', label: 'Shop brands' },
   ],
   company: [
     { href: '#', label: 'About' },
@@ -66,14 +67,14 @@ export function Footer() {
   return (
     <footer className="site-footer" aria-label="Site footer">
       {/* <p className="site-footer-watermark" aria-hidden>
-        Nordic Price
+        Clea
       </p> */}
 
       <div className="section-container relative z-10 py-16 md:py-20 lg:py-24">
         <div className="grid gap-14 lg:grid-cols-[minmax(0,240px)_1fr] lg:gap-20 xl:grid-cols-[minmax(0,280px)_1fr]">
           <div className="flex flex-col gap-6">
             <Link href="/" className="site-footer-brand w-fit">
-              nordic price
+              {BRAND.wordmark}
             </Link>
 
             <div className="flex items-center gap-1">

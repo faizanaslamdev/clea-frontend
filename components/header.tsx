@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HeroSearchForm } from '@/components/hero-search-form';
+import { BRAND } from '@/lib/constants/brand';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -12,6 +13,9 @@ const NAV_ITEMS = [
 ] as const;
 
 const HEADER_HEIGHT = 64;
+const MOBILE_MAX_WIDTH = 767;
+/** Hide bottom sticky search when footer enters this zone (mobile only). */
+const STICKY_SEARCH_FOOTER_CLEARANCE_PX = 112;
 
 function isNavActive(href: string, pathname: string): boolean {
   if (href === '/brands') return pathname.startsWith('/brands');
@@ -53,23 +57,43 @@ function getPastHeroScrollThreshold(): number {
   return Math.max(0, bottom + window.scrollY - HEADER_HEIGHT);
 }
 
+function isMobileViewport(): boolean {
+  return window.matchMedia(`(max-width: ${MOBILE_MAX_WIDTH}px)`).matches;
+}
+
+function isFooterNearStickySearch(): boolean {
+  const footer = document.querySelector('.site-footer');
+  if (!footer) return false;
+  const { top } = footer.getBoundingClientRect();
+  return top < window.innerHeight - STICKY_SEARCH_FOOTER_CLEARANCE_PX;
+}
+
 export function Header() {
   const pathname = usePathname();
   const [pastHero, setPastHero] = useState(false);
+  const [hideStickyNearFooter, setHideStickyNearFooter] = useState(false);
 
   const isHome = pathname === '/';
   const hasUnderlapHero =
     isHome || /^\/brands\/[^/]+$/.test(pathname);
   const overHero = hasUnderlapHero && !pastHero;
-  const showStickySearch = isHome && pastHero;
+  const showStickySearch =
+    isHome && pastHero && !hideStickyNearFooter;
 
   const updateHeaderOnScroll = useCallback(() => {
     if (!hasUnderlapHero) {
       setPastHero(true);
+      setHideStickyNearFooter(false);
       return;
     }
     setPastHero(window.scrollY >= getPastHeroScrollThreshold());
-  }, [hasUnderlapHero]);
+
+    if (isHome && isMobileViewport()) {
+      setHideStickyNearFooter(isFooterNearStickySearch());
+    } else {
+      setHideStickyNearFooter(false);
+    }
+  }, [hasUnderlapHero, isHome]);
 
   useEffect(() => {
     if (!hasUnderlapHero) {
@@ -117,7 +141,7 @@ export function Header() {
               overHero && 'site-header-wordmark--over-hero',
             )}
           >
-            Nordic
+            {BRAND.wordmark}
           </Link>
 
           <div className="site-header-right" aria-hidden />

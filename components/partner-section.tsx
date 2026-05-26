@@ -1,11 +1,11 @@
-import Image from "next/image";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
+import { BRAND } from '@/lib/constants/brand';
 
 export default function PartnerSection() {
   return (
     <section
-      aria-label="Partner with Phia"
+      aria-label={`Partner with ${BRAND.name}`}
       className="section-shell section-container"
     >
       <div className="flex flex-col overflow-hidden rounded-[16px] md:flex-row bg-card">
@@ -14,7 +14,7 @@ export default function PartnerSection() {
         <div className="relative aspect-square w-full flex-shrink-0 md:w-auto md:min-w-[400px] lg:min-w-[500px]">
           <Image
             src="/products/dress.jpg"
-            alt="Partner with Phia"
+            alt={`Partner with ${BRAND.name}`}
             fill
             className="object-cover"
             priority

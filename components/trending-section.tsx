@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ProductCarousel, type ProductCarouselHandle } from '@/components/product-carousel';
 import { LoadingBlock } from '@/components/shared/loading-block';
 import { Button } from '@/components/ui/button';
+import { BRAND } from '@/lib/constants/brand';
 import { useFeaturedProducts } from '@/lib/hooks/useProducts';
 
 export function TrendingSection() {
@@ -43,7 +44,7 @@ export function TrendingSection() {
 
       <div className="section-container mb-6 hidden md:flex items-center justify-between">
         <p className="type-subheading">
-          Popular fashion picks — compare prices across Nordic stores
+          Popular fashion picks — compare prices on {BRAND.domain}
         </p>
         <div className="flex items-center gap-4">
           <Link href="/brands" className="type-link">

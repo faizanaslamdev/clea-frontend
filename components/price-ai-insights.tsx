@@ -1,5 +1,6 @@
 'use client';
 
+import { BRAND } from '@/lib/constants/brand';
 import { Product } from '@/lib/types';
 import { getPriceAIInsights, getMatchTypeLabel } from '@/lib/services';
 import { Card } from '@/components/ui/card';
@@ -31,9 +32,9 @@ export function PriceAIInsightsPanel({ product }: PriceAIInsightsProps) {
             <Sparkles className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Price AI</h3>
+            <h3 className="font-semibold text-foreground">{BRAND.name} insights</h3>
             <p className="text-sm text-muted-foreground">
-              Insights from collected price history
+              Price history and recommendations from {BRAND.domain}
             </p>
           </div>
         </div>

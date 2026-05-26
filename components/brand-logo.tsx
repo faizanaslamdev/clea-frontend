@@ -1,3 +1,4 @@
+import { BRAND } from '@/lib/constants/brand';
 import { cn } from '@/lib/utils';
 
 interface BrandLogoProps {
@@ -39,7 +40,7 @@ export function BrandLogo({
             textClassName,
           )}
         >
-          Nordic Price
+          {BRAND.name}
         </span>
       )}
     </span>

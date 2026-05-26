@@ -1,6 +1,6 @@
 # Architecture
 
-Production-oriented layout for Nordic Price. UI behavior is unchanged; concerns are separated for long-term maintenance.
+Production-oriented layout for [Clea](https://clea.no). UI behavior is unchanged; concerns are separated for long-term maintenance.
 
 ## Directory map
 
@@ -14,7 +14,7 @@ components/
   stores/               # Store showcase feature
   …                     # Feature components (product, search, hero, etc.)
 lib/
-  constants/            # Curated IDs (featured products, stores)
+  constants/            # Brand (clea.no), curated IDs, search prompts
   data/                 # Static demo dataset (swap for API later)
   domain/               # Business logic (no React)
     products/           # Catalog, search, filters, comparison, insights
@@ -31,7 +31,7 @@ lib/
 ## Data flow
 
 1. **Static demo:** `lib/data/dummy-data.ts` holds products and stores.
-2. **Domain:** `lib/domain/*` implements queries, search, Price AI, formatting.
+2. **Domain:** `lib/domain/*` implements queries, search, Clea insights, formatting.
 3. **Services barrel:** `lib/services.ts` re-exports the domain API for pages and components.
 4. **API layer:** `lib/api/*` wraps services in async functions for hooks.
 5. **UI:** Server pages call `lib/services` directly; client sections use `lib/hooks/*`.
