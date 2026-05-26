@@ -9,8 +9,8 @@ export const BRAND = {
   tagline: 'Fashion & beauty',
   /** Home hero headline (two lines) */
   heroTagline: [
-    'Shop the best Nordic stores with',
-    'AI-powered personalized discovery.',
+    'Get the best price on your favorite brands with',
+    'AI-powered discovery.',
   ] as const,
   title: 'Clea — Fashion & Beauty',
   titleTemplate: '%s | Clea',
