@@ -41,6 +41,15 @@
   --layout-inner-wide: 56rem;
   --layout-inner-medium: 48rem;
 
+  /* Product detail modal — scales up on large viewports */
+  --product-detail-modal-radius: var(--radius-lg);
+  --product-detail-modal-width-min: 68.5rem;
+  --product-detail-modal-width-fluid: 85vw;
+  --product-detail-modal-width-max: 100rem;
+  --product-detail-modal-height-min: 54rem;
+  --product-detail-modal-height-fluid: 82dvh;
+  --product-detail-modal-height-max: 70rem;
+
   --chart-1: oklch(0.14 0 0);
   --chart-2: oklch(0.32 0 0);
   --chart-3: oklch(0.5 0 0);

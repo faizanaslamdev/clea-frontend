@@ -43,7 +43,6 @@ export function SearchChatView() {
 
   const [messages, setMessages] = useState<SearchChatMessage[]>([]);
   const [draft, setDraft] = useState('');
-  const [lastQuery, setLastQuery] = useState(urlQuery);
 
   const syncUrl = useCallback(
     (query: string) => {
@@ -62,7 +61,6 @@ export function SearchChatView() {
       if (!trimmed) return;
 
       const products = searchProducts(trimmed).map((r) => r.product);
-      setLastQuery(trimmed);
       syncUrl(trimmed);
 
       setMessages((prev) => [...prev, ...buildTurnMessages(trimmed, products)]);
@@ -76,14 +74,9 @@ export function SearchChatView() {
 
     const products = searchProducts(urlQuery).map((r) => r.product);
     setMessages(buildTurnMessages(urlQuery, products));
-    setLastQuery(urlQuery);
   }, [urlQuery, messages.length]);
 
   const handleSubmitQuery = (trimmed: string) => {
-    if (trimmed === lastQuery) {
-      setDraft('');
-      return;
-    }
     runSearch(trimmed);
   };
 

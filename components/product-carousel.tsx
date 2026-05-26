@@ -189,6 +189,7 @@ export const ProductCarousel = forwardRef<
     >
       <ProductCard
         product={product}
+        variant="trending"
         imageSizes="(max-width: 768px) 210px, 270px"
       />
     </div>

@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 /** Full card artwork (2×2 grid + labels), 997×1265px source */
 const COLLECTION_CARDS = [
@@ -59,11 +60,14 @@ export function FavoriteFindsSection() {
             role="list"
             aria-label="Example collections"
           >
-            {COLLECTION_CARDS.map((card) => (
+            {COLLECTION_CARDS.map((card, index) => (
               <div
                 key={card.src}
                 role="listitem"
-                className="relative shrink-0 will-change-transform"
+                className={cn(
+                  'relative shrink-0 will-change-transform',
+                  index >= 2 && 'hidden lg:block',
+                )}
                 style={{
                   zIndex: card.zIndex,
                   marginLeft: card.overlap,

@@ -47,10 +47,6 @@ export {
   type BrandVisitLinkOptions,
 } from '@/lib/domain/stores/visit-link';
 
-export {
-  getProductHref,
-  getProductHrefFromProduct,
-  resolveStoreIdForProduct,
-} from '@/lib/domain/products/paths';
+export { resolveStoreIdForProduct } from '@/lib/domain/products/paths';
 
 export { formatDateShort, formatPrice } from '@/lib/domain/format';

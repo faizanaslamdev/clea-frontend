@@ -1,4 +1,5 @@
 import { ProductGrid } from '@/components/product-grid';
+import { SearchChatUserDemo } from '@/components/search/search-chat-user-demo';
 import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -34,13 +35,22 @@ export function SearchChatThread({ messages }: SearchChatThreadProps) {
         >
           <div
             className={cn(
-              'search-chat-bubble',
-              message.role === 'user'
-                ? 'search-chat-bubble--user'
-                : 'search-chat-bubble--assistant',
+              message.role === 'user' && 'search-chat-thread__user-turn',
             )}
           >
-            <p>{message.content}</p>
+            <div
+              className={cn(
+                'search-chat-bubble',
+                message.role === 'user'
+                  ? 'search-chat-bubble--user'
+                  : 'search-chat-bubble--assistant',
+              )}
+            >
+              <p>{message.content}</p>
+            </div>
+            {message.role === 'user' ? (
+              <SearchChatUserDemo query={message.content} />
+            ) : null}
           </div>
           {message.role === 'assistant' && message.products ? (
             <div
