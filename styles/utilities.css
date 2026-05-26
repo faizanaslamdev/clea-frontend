@@ -51,7 +51,8 @@
   }
 
   .page-search-section__bar {
-    @apply w-full max-w-none;
+    @apply w-full;
+    max-width: var(--sticky-hero-search-width);
   }
 
   .pill-search-bar {
@@ -297,7 +298,22 @@
 
   .hero-kicker {
     color: var(--hero-foreground);
-    @apply mb-[52px] font-mono text-xl font-medium uppercase tracking-[0.32em] sm:text-2xl md:mb-[60px] md:text-[1.75rem] md:tracking-[0.38em] lg:text-3xl;
+    @apply mx-auto mb-10 w-full max-w-[42rem] px-4 text-balance text-center font-serif text-[1.625rem] font-light leading-[1.2] tracking-tight sm:text-4xl md:mb-12 md:text-[2.375rem] md:leading-[1.15] lg:max-w-none lg:text-[2.5rem] lg:leading-[1.15];
+  }
+
+  .hero-kicker__line {
+    @apply block w-full;
+  }
+
+  @media (min-width: 1024px) {
+    .hero-kicker__line {
+      display: inline;
+      width: auto;
+    }
+
+    .hero-kicker__line:not(:last-child)::after {
+      content: ' ';
+    }
   }
 
   .hero-search-stack {

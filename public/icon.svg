@@ -1,11 +1,10 @@
 <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="32" height="32" rx="8" fill="#2B4C7E"/>
+  <rect width="32" height="32" rx="8" fill="#1a1a1a"/>
   <path
-    d="M16 7L22.5 16L16 25L9.5 16L16 7Z"
-    fill="#5ECFB3"
-  />
-  <path
-    d="M16 11.5L19.2 16L16 20.5L12.8 16L16 11.5Z"
-    fill="#2B4C7E"
+    d="M20.75 10.5C18.05 8.25 13.35 8.25 10.5 10.5 8 12.9 8 17.6 10.5 20.25 12.9 22.5 17.6 22.5 20.25 18.05"
+    stroke="#fafafa"
+    stroke-width="2.2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
   />
 </svg>
