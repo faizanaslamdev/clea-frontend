@@ -39,7 +39,7 @@ export function FavoriteFindsSection() {
       className="section-shell bg-background"
     >
       <div className="section-container">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="layout-inner-wide text-center">
           <h2
             id="favorite-finds-heading"
             className="font-serif text-[40px] font-light leading-[1.1] tracking-tight text-foreground md:text-[56px] md:leading-[1.15]"

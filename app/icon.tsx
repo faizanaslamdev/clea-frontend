@@ -13,7 +13,7 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(145deg, #2B4C7E 0%, #1E3A5F 100%)',
+          background: 'linear-gradient(145deg, #1a1a1a 0%, #000000 100%)',
           borderRadius: 8,
         }}
       >
@@ -21,7 +21,7 @@ export default function Icon() {
           style={{
             width: 14,
             height: 14,
-            background: '#5ECFB3',
+            background: '#fafafa',
             transform: 'rotate(45deg)',
           }}
         />

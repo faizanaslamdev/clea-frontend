@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from 'next';
 import { Roboto_Mono, Playfair_Display, DM_Sans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
-import { FloatingShoppingAssistant } from '@/components/floating-shopping-assistant';
 import { Providers } from './providers';
 
 const robotoMono = Roboto_Mono({
   subsets: ['latin'],
+  weight: ['400', '500'],
   variable: '--font-roboto-mono',
   display: 'swap',
 });
@@ -26,7 +26,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Nordic Price — Smart Shopping Assistant',
+    default: 'Nordic Price — Fashion & Beauty',
     template: '%s | Nordic Price',
   },
   description:
@@ -43,8 +43,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f7f6f3' },
-    { media: '(prefers-color-scheme: dark)', color: '#2a2926' },
+    { media: '(prefers-color-scheme: light)', color: '#fafafa' },
+    { media: '(prefers-color-scheme: dark)', color: '#1a1a1a' },
   ],
 };
 
@@ -57,12 +57,13 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${dmSans.variable} ${playfair.variable} ${robotoMono.variable} bg-background`}
+      suppressHydrationWarning
     >
-      <body className="font-sans antialiased bg-background text-foreground">
-        <Providers>
-          {children}
-          <FloatingShoppingAssistant />
-        </Providers>
+      <body
+        className="font-sans antialiased bg-background text-foreground"
+        suppressHydrationWarning
+      >
+        <Providers>{children}</Providers>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

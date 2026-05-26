@@ -14,9 +14,10 @@ import type { Product } from '@/lib/types';
 
 interface ProductPageClientProps {
   product: Product;
+  storeId: string;
 }
 
-export function ProductPageClient({ product }: ProductPageClientProps) {
+export function ProductPageClient({ product, storeId }: ProductPageClientProps) {
   const stores = useMemo(() => getAllStores(), []);
 
   const defaultStoreId = useMemo(() => {
@@ -68,7 +69,7 @@ export function ProductPageClient({ product }: ProductPageClientProps) {
                 Other {product.category.toLowerCase()} items you might like
               </p>
             </div>
-            <ProductGrid products={similarProducts} />
+            <ProductGrid products={similarProducts} storeId={storeId} />
           </div>
         </section>
       )}

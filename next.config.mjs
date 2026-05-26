@@ -9,6 +9,13 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      { source: '/cart', destination: '/brands', permanent: false },
+      { source: '/trending', destination: '/brands', permanent: false },
+      { source: '/products', destination: '/brands', permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

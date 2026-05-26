@@ -179,7 +179,7 @@ lib/
 | Route | Purpose | Features |
 |-------|---------|----------|
 | `/` | Home | Hero section, trending products, feature cards |
-| `/search` | Search Results | Advanced filtering, sorting, product grid |
+| `/chat` | Chat search | Product discovery with chat UI and results |
 | `/trending` | Trending | Top trending products, info section |
 | `/product/[id]` | Product Detail | Full details, price comparison, chart, similar items |
 | `/not-found` | 404 Page | Error handling, navigation options |

@@ -1,27 +1,11 @@
-import { ProductPageClient } from '@/components/product-page-client';
-import { PageLayout } from '@/components/layout/page-layout';
-import { getProductById } from '@/lib/services';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
+import { getProductHref } from '@/lib/services';
 
-interface ProductPageProps {
+interface LegacyProductPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function LegacyProductPage({ params }: LegacyProductPageProps) {
   const { id } = await params;
-  const product = getProductById(id);
-
-  if (!product) {
-    notFound();
-  }
-
-  return (
-    <PageLayout>
-      <ProductPageClient product={product} />
-    </PageLayout>
-  );
-}
-
-export function generateStaticParams() {
-  return Array.from({ length: 39 }, (_, i) => ({ id: String(i + 1) }));
+  redirect(getProductHref(id));
 }

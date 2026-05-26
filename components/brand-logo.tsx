@@ -24,12 +24,12 @@ export function BrandLogo({
       >
         <svg
           viewBox="0 0 24 24"
-          className="h-5 w-5"
-          fill="none"
+          className="h-5 w-5 text-primary-foreground"
+          fill="currentColor"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d="M12 4L18 12L12 20L6 12L12 4Z" fill="#5ECFB3" />
-          <path d="M12 8.5L14.8 12L12 15.5L9.2 12L12 8.5Z" fill="#f8fafc" />
+          <path d="M12 4L18 12L12 20L6 12L12 4Z" opacity="0.65" />
+          <path d="M12 8.5L14.8 12L12 15.5L9.2 12L12 8.5Z" />
         </svg>
       </span>
       {showText && (

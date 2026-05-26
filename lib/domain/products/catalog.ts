@@ -27,6 +27,12 @@ export function getProductsByCategory(category: string): Product[] {
   return products.filter((p) => p.category === category);
 }
 
+export function getProductsByStoreId(storeId: string): Product[] {
+  return products.filter(
+    (p) => p.prices[storeId] != null && p.inStock[storeId] !== false,
+  );
+}
+
 export function getSimilarProducts(productId: string, limit = 4): Product[] {
   const product = getProductById(productId);
   if (!product) return [];

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ProductCarousel, type ProductCarouselHandle } from '@/components/product-carousel';
@@ -14,25 +14,23 @@ export function TrendingSection() {
   const [canRight, setCanRight] = useState(false);
   const { data: products = [], isLoading } = useFeaturedProducts();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (carouselRef.current) {
-        setCanLeft(carouselRef.current.canScrollLeft);
-        setCanRight(carouselRef.current.canScrollRight);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, []);
+  const handleScrollState = useCallback(
+    (state: { canScrollLeft: boolean; canScrollRight: boolean }) => {
+      setCanLeft(state.canScrollLeft);
+      setCanRight(state.canScrollRight);
+    },
+    [],
+  );
 
   if (isLoading) {
     return <LoadingBlock className="section-container h-96" />;
   }
 
   return (
-    <section className="overflow-hidden">
+    <section className="overflow-x-hidden">
       <div className="section-container mb-6 flex items-center justify-between">
         <h2 className="type-heading">Trending Now</h2>
-        <Link href="/trending" aria-label="See all" className="md:hidden">
+        <Link href="/brands" aria-label="See all" className="md:hidden">
           <Button
             variant="outline"
             size="icon"
@@ -48,7 +46,7 @@ export function TrendingSection() {
           Popular fashion picks — compare prices across Nordic stores
         </p>
         <div className="flex items-center gap-4">
-          <Link href="/trending" className="type-link">
+          <Link href="/brands" className="type-link">
             See all
           </Link>
           <div className="flex gap-2">
@@ -77,7 +75,12 @@ export function TrendingSection() {
       </div>
 
       <div className="section-container">
-        <ProductCarousel ref={carouselRef} products={products} hideControls />
+        <ProductCarousel
+          ref={carouselRef}
+          products={products}
+          hideControls
+          onScrollStateChange={handleScrollState}
+        />
       </div>
     </section>
   );

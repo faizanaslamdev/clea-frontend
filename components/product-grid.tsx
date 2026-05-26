@@ -1,26 +1,43 @@
 'use client';
 
 import { Product } from '@/lib/types';
+import { cn } from '@/lib/utils';
 import { ProductCard } from './product-card';
 
 interface ProductGridProps {
   products: Product[];
+  storeId?: string;
   loading?: boolean;
   emptyMessage?: string;
+  variant?: 'default' | 'trending';
 }
 
 export function ProductGrid({
   products,
+  storeId,
   loading = false,
   emptyMessage = 'No products found',
+  variant = 'trending',
 }: ProductGridProps) {
+  const isTrending = variant === 'trending';
+
   if (loading) {
     return (
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        className={cn(
+          'grid',
+          isTrending
+            ? 'grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 xl:grid-cols-4'
+            : 'gap-6 sm:grid-cols-2 lg:grid-cols-3',
+        )}
+      >
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="h-80 rounded-lg bg-muted animate-pulse"
+            className={cn(
+              'animate-pulse bg-muted',
+              isTrending ? 'aspect-[2/3] w-full rounded-xl' : 'h-80 rounded-lg',
+            )}
           />
         ))}
       </div>
@@ -38,9 +55,21 @@ export function ProductGrid({
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      className={cn(
+        'grid',
+        isTrending
+          ? 'grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 xl:grid-cols-4'
+          : 'gap-6 sm:grid-cols-2 lg:grid-cols-3',
+      )}
+    >
       {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+          storeId={storeId}
+          variant={variant}
+        />
       ))}
     </div>
   );

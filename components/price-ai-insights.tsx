@@ -15,10 +15,10 @@ export function PriceAIInsightsPanel({ product }: PriceAIInsightsProps) {
 
   const verdictClass =
     ai.verdict === 'good_deal'
-      ? 'border-accent/40 bg-accent/5 text-accent'
+      ? 'border-foreground/25 bg-muted text-foreground'
       : ai.verdict === 'above_average'
-        ? 'border-destructive/30 bg-destructive/5 text-destructive'
-        : 'border-primary/30 bg-primary/5 text-primary';
+        ? 'border-border bg-muted/50 text-muted-foreground'
+        : 'border-border bg-muted/30 text-foreground';
 
   const RecommendationIcon =
     ai.recommendation === 'buy_now' ? CheckCircle2 : Clock;

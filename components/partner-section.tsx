@@ -32,7 +32,7 @@ export default function PartnerSection() {
             Discover & reward top shoppers
           </h2>
 
-          <p className="type-subheading max-w-[600px]">
+          <p className="type-subheading max-w-[720px]">
             Feature your products across trending feeds, exclusive deals, and curated collections that drive purchases.
           </p>
 

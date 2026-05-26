@@ -3,16 +3,14 @@ import { ArrowRight, Instagram, Linkedin } from 'lucide-react';
 
 const FOOTER_LINKS = {
   shopping: [
-    { href: '/trending', label: 'Trending' },
-    { href: '/search', label: 'All products' },
-    { href: '/#stores', label: 'Stores' },
-    { href: '/search', label: 'Compare prices' },
+    { href: '/brands', label: 'All brands' },
+    { href: '/#brands', label: 'Featured brands' },
+    { href: '/brands', label: 'Compare prices' },
   ],
   explore: [
-    { href: '/trending', label: "Editor's picks" },
-    { href: '/search', label: 'Fashion' },
-    { href: '/search', label: 'Beauty' },
-    { href: '/#stores', label: 'Nordic brands' },
+    { href: '/brands', label: 'Fashion brands' },
+    { href: '/brands', label: 'Beauty brands' },
+    { href: '/#brands', label: 'Nordic brands' },
   ],
   company: [
     { href: '#', label: 'About' },
@@ -122,7 +120,7 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex justify-center md:mt-20">
-          <Link href="/search" className="footer-cta-pill group">
+          <Link href="/brands" className="footer-cta-pill group">
             <span>Start comparing prices</span>
             <ArrowRight
               className="size-4 transition-transform group-hover:translate-x-0.5"

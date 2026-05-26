@@ -26,7 +26,6 @@ lib/
   services.ts           # Public barrel — import from here in app code
   types.ts
   utils.ts
-  shopping-assistant.ts
 ```
 
 ## Data flow

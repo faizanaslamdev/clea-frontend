@@ -13,15 +13,15 @@ export default function AppleIcon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(145deg, #2B4C7E 0%, #1E3A5F 100%)',
-          borderRadius: 40,
+          background: 'linear-gradient(145deg, #1a1a1a 0%, #000000 100%)',
+          borderRadius: 36,
         }}
       >
         <div
           style={{
             width: 72,
             height: 72,
-            background: '#5ECFB3',
+            background: '#fafafa',
             transform: 'rotate(45deg)',
           }}
         />

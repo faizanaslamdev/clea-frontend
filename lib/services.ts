@@ -9,6 +9,7 @@ export {
   getHomeFeaturedProducts,
   getProductsByCategory,
   getSimilarProducts,
+  getProductsByStoreId,
 } from '@/lib/domain/products/catalog';
 
 export { searchProducts } from '@/lib/domain/products/search';
@@ -30,8 +31,26 @@ export { getPriceAIInsights } from '@/lib/domain/products/insights';
 
 export {
   getStoreById,
+  getStoreBySlug,
+  resolveStoreFromRouteParam,
   getAllStores,
   getFeaturedStores,
 } from '@/lib/domain/stores/catalog';
+
+export { searchStores } from '@/lib/domain/stores/search';
+
+export { getBrandSlug, getBrandHref } from '@/lib/domain/stores/slug';
+
+export {
+  buildBrandVisitLink,
+  type BrandVisitLink,
+  type BrandVisitLinkOptions,
+} from '@/lib/domain/stores/visit-link';
+
+export {
+  getProductHref,
+  getProductHrefFromProduct,
+  resolveStoreIdForProduct,
+} from '@/lib/domain/products/paths';
 
 export { formatDateShort, formatPrice } from '@/lib/domain/format';

@@ -129,11 +129,11 @@ export function ProductDetails({
               <div key={store.id} className="flex items-center justify-between">
                 <span className="text-foreground">{store.name}</span>
                 {product.inStock[store.id] ? (
-                  <Badge variant="outline" className="border-green-200 bg-green-50 text-green-700">
+                  <Badge variant="outline" className="border-border bg-muted text-foreground">
                     In Stock
                   </Badge>
                 ) : (
-                  <Badge variant="secondary" className="border-red-200 bg-red-50 text-red-700">
+                  <Badge variant="secondary" className="border-border bg-muted text-muted-foreground">
                     Out of Stock
                   </Badge>
                 )}
