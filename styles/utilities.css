@@ -51,7 +51,8 @@
   }
 
   .page-search-section__bar {
-    @apply w-full max-w-none;
+    @apply w-full;
+    max-width: var(--sticky-hero-search-width);
   }
 
   .pill-search-bar {
