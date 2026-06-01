@@ -11,27 +11,25 @@ export function ShopEverywhereSection() {
       className="section-shell section-container"
     >
       <div className="promo-panel flex flex-col md:flex-row">
-        {/* Copy */}
         <div className="flex w-full flex-col justify-center gap-6 bg-muted px-8 py-12 md:min-h-[520px] md:flex-1 md:gap-7 md:px-16 md:py-16 lg:px-20 lg:py-20">
           <p className="type-eyebrow text-muted-foreground">
-            Compare on {BRAND.domain}
+            Sammenlign på {BRAND.domain}
           </p>
 
           <h2
             id="shop-everywhere-heading"
             className="type-heading max-w-[14ch] text-balance"
           >
-            Use {BRAND.name} wherever you shop
+            Bruk {BRAND.name} uansett hvor du handler
           </h2>
 
           <p className="type-subheading max-w-[520px]">
-            Track prices, compare retailers side by side, and save your favorite
-            finds — right in your browser. No app to install, just smarter
-            shopping when you need it.
+            Følg priser, sammenlign forhandlere side om side, og lagre
+            favoritter — rett i nettleseren. Ingen app å installere, bare
+            smartere shopping når du trenger det.
           </p>
         </div>
 
-        {/* Image + testimonial */}
         <div className="relative min-h-[380px] w-full md:min-h-[520px] md:min-w-[45%] md:max-w-[52%] md:flex-1">
           <Image
             src={PROMO_IMAGE}

@@ -12,7 +12,7 @@ interface BrandVisitButtonProps {
 
 export function BrandVisitButton({ brand, className }: BrandVisitButtonProps) {
   const { href, isExternal } = useBrandVisitLink(brand);
-  const label = `Visit ${brand.name}`;
+  const label = `Besøk ${brand.name}`;
 
   const classNames = cn('brand-visit-btn', className);
 
@@ -23,7 +23,7 @@ export function BrandVisitButton({ brand, className }: BrandVisitButtonProps) {
         className={classNames}
         disabled
         aria-disabled="true"
-        title="Store link coming soon"
+        title="Butikklenke kommer snart"
       >
         <span>{label}</span>
         <ArrowUpRight className="size-4 shrink-0" aria-hidden />

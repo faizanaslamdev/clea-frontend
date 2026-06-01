@@ -1,17 +1,17 @@
 export const SEARCH_HEADLINE_EXAMPLES = [
-  'an outfit that works desk to dinner',
-  'leather work bag, not a briefcase',
-  'casual wedding guest footwear',
-  'old school running shoes',
-  'Americana work wear',
+  'antrekk fra jobb til middag',
+  'lærveske til jobb, ikke stresskoffert',
+  'fottøy til uformell bryllupsgjest',
+  'old school joggesko',
+  'americana-arbeidsklær',
 ] as const;
 
 export const SEARCH_SUGGESTION_CHIPS = [
-  'Something to wear over a T-shirt while on a zoom call',
-  'Americana work wear',
-  "I'm 6'3 and looking for a tracksuit",
-  'Leather work bag, not a brief case',
-  'Pair of old school running shoe',
-  'Casual shoes that I can also wear to work',
-  'Casual wedding guest footwear',
+  'Noe å ha over T-skjorte på Zoom',
+  'Americana-arbeidsklær',
+  'Jeg er 198 cm og leter etter tracksuit',
+  'Lærveske til jobb, ikke stresskoffert',
+  'Old school joggesko',
+  'Uformelle sko jeg også kan ha på jobb',
+  'Fottøy til uformell bryllupsgjest',
 ] as const;

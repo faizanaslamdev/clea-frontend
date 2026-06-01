@@ -5,62 +5,62 @@ import { BRAND } from '@/lib/constants/brand';
 import { COMPANY } from '@/lib/constants/company';
 
 export const metadata: Metadata = {
-  title: 'Terms',
-  description: `Terms of use for ${BRAND.name}.`,
+  title: 'Vilkår',
+  description: `Vilkår for bruk av ${BRAND.name}.`,
 };
 
 export default function TermsPage() {
   return (
     <LegalPageShell
-      title="Terms of use"
-      description={`Terms for using ${BRAND.domain}.`}
+      title="Vilkår for bruk"
+      description={`Vilkår for bruk av ${BRAND.domain}.`}
     >
       <p>
-        <strong>Last updated:</strong> June 2026
+        <strong>Sist oppdatert:</strong> juni 2026
       </p>
       <p>
-        By using {BRAND.domain}, operated by {COMPANY.name}, you agree to these
-        terms. If you do not agree, please do not use the site.
+        Ved å bruke {BRAND.domain}, drevet av {COMPANY.name}, godtar du disse
+        vilkårene. Hvis du ikke godtar dem, vennligst ikke bruk nettstedet.
       </p>
-      <h2>Service</h2>
+      <h2>Tjenesten</h2>
       <p>
-        {BRAND.name} provides fashion and beauty price comparison and discovery
-        tools, including AI-assisted search. Product information, prices, and
-        availability come from retailers and may change without notice.
+        {BRAND.name} tilbyr prissammenligning og oppdagelse for mote og
+        skjønnhet, inkludert AI-assistert søk. Produktinformasjon, priser og
+        tilgjengelighet kommer fra forhandlere og kan endres uten varsel.
       </p>
-      <h2>Accuracy</h2>
+      <h2>Nøyaktighet</h2>
       <p>
-        We strive for accurate listings but do not guarantee completeness or
-        real-time pricing. Always confirm price and availability on the
-        retailer&apos;s site before purchasing.
+        Vi streber etter nøyaktige oppføringer, men garanterer ikke
+        fullstendighet eller sanntidspriser. Bekreft alltid pris og
+        tilgjengelighet hos forhandleren før kjøp.
       </p>
-      <h2>External links</h2>
+      <h2>Eksterne lenker</h2>
       <p>
-        Links to third-party retailers are provided for your convenience.{' '}
-        {COMPANY.name} is not responsible for retailer sites, products, or
-        transactions.
+        Lenker til tredjepartsforhandlere er tilgjengelig for din bekvemmelighet.{' '}
+        {COMPANY.name} er ikke ansvarlig for forhandlernes nettsteder, produkter
+        eller transaksjoner.
       </p>
-      <h2>Acceptable use</h2>
+      <h2>Akseptabel bruk</h2>
       <p>
-        You may not misuse the site, attempt unauthorised access, scrape content
-        at scale, or use the service for unlawful purposes.
+        Du kan ikke misbruke nettstedet, forsøke uautorisert tilgang, scrape
+        innhold i stort omfang eller bruke tjenesten til ulovlige formål.
       </p>
-      <h2>Intellectual property</h2>
+      <h2>Immaterielle rettigheter</h2>
       <p>
-        {BRAND.name} branding, design, and software are owned by {COMPANY.name}
-        or its licensors. Retailer trademarks belong to their respective owners.
+        {BRAND.name}-merkevare, design og programvare eies av {COMPANY.name} eller
+        lisensgivere. Forhandlernes varemerker tilhører deres respektive eiere.
       </p>
-      <h2>Limitation of liability</h2>
+      <h2>Ansvarsbegrensning</h2>
       <p>
-        The site is provided &quot;as is&quot; to the extent permitted by law.{' '}
-        {COMPANY.name} is not liable for indirect losses arising from use of the
-        service or reliance on displayed information.
+        Nettstedet leveres «som det er» i den grad loven tillater. {COMPANY.name}{' '}
+        er ikke ansvarlig for indirekte tap som følge av bruk av tjenesten eller
+        tillit til vist informasjon.
       </p>
-      <h2>Changes</h2>
-      <p>We may update these terms; continued use constitutes acceptance.</p>
-      <h2>Contact</h2>
+      <h2>Endringer</h2>
+      <p>Vi kan oppdatere disse vilkårene; fortsatt bruk regnes som aksept.</p>
+      <h2>Kontakt</h2>
       <p>
-        <Link href="/contact">Contact</Link> ·{' '}
+        <Link href="/contact">Kontakt</Link> ·{' '}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
       </p>
     </LegalPageShell>

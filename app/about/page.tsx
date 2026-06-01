@@ -5,33 +5,33 @@ import { BRAND } from '@/lib/constants/brand';
 import { COMPANY } from '@/lib/constants/company';
 
 export const metadata: Metadata = {
-  title: 'About',
-  description: `Learn about ${BRAND.name} — Nordic AI-powered fashion price comparison.`,
+  title: 'Om oss',
+  description: `Lær mer om ${BRAND.name} — nordisk AI-drevet prissammenligning for mote.`,
 };
 
 export default function AboutPage() {
   return (
     <LegalPageShell
-      title={`About ${BRAND.name}`}
-      description="Smarter fashion shopping for the Nordics."
+      title={`Om ${BRAND.name}`}
+      description="Smartere motehandel i Norden."
     >
       <p>{COMPANY.about}</p>
       <p>{COMPANY.market}</p>
       <p>
-        {BRAND.name} is based in {COMPANY.locationLabel}. We combine conversational
-        AI with real retailer listings so you can compare prices quickly and shop
-        with confidence.
+        {BRAND.name} er basert i {COMPANY.locationLabel}. Vi kombinerer
+        samtale-AI med ekte produktlister fra forhandlere, slik at du raskt kan
+        sammenligne priser og handle trygt.
       </p>
-      <h2>What we offer</h2>
+      <h2>Det vi tilbyr</h2>
       <ul>
-        <li>AI-powered search across fashion and beauty retailers</li>
-        <li>Price comparison and discovery for purchase-ready shoppers</li>
-        <li>Direct links to retailer product pages</li>
-        <li>Brand exploration and curated collections</li>
+        <li>AI-drevet søk på tvers av mote- og skjønnhetsforhandlere</li>
+        <li>Prissammenligning og oppdagelse for kjøpsklare shoppere</li>
+        <li>Direkte lenker til produktsider hos forhandlere</li>
+        <li>Merkeutforskning og kuraterte samlinger</li>
       </ul>
       <p>
-        Questions? Visit our{' '}
-        <Link href="/contact">contact page</Link> or email{' '}
+        Spørsmål? Besøk{' '}
+        <Link href="/contact">kontaktsiden</Link> eller send e-post til{' '}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
       </p>
       <p className="text-muted-foreground text-sm">

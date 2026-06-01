@@ -8,7 +8,7 @@ export function HeroSection() {
   return (
     <PageHero
       imageSrc={HERO_IMAGE}
-      ariaLabel="Welcome"
+      ariaLabel="Velkommen"
       contentClassName="page-hero-content--home"
     >
       <div className="layout-inner-wide text-center">

@@ -4,22 +4,22 @@ import { BRAND } from '@/lib/constants/brand';
 import { COMPANY } from '@/lib/constants/company';
 
 export const metadata: Metadata = {
-  title: 'Contact',
-  description: `Get in touch with ${BRAND.name}.`,
+  title: 'Kontakt',
+  description: `Ta kontakt med ${BRAND.name}.`,
 };
 
 export default function ContactPage() {
   return (
     <LegalPageShell
-      title="Contact"
-      description={`We would love to hear from you. Reach ${BRAND.name} using the details below.`}
+      title="Kontakt"
+      description={`Vi hører gjerne fra deg. Kontakt ${BRAND.name} med detaljene nedenfor.`}
     >
-      <h2>General enquiries</h2>
+      <h2>Generelle henvendelser</h2>
       <p>
-        Email:{' '}
+        E-post:{' '}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
       </p>
-      <h2>Location</h2>
+      <h2>Sted</h2>
       <p>{COMPANY.locationLabel}</p>
     </LegalPageShell>
   );

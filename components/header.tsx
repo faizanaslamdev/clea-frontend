@@ -8,8 +8,8 @@ import { BRAND } from '@/lib/constants/brand';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-  { href: '/brands', label: 'Brands' },
-  { href: '/chat', label: 'Chat' },
+  { href: '/brands', label: 'Merker' },
+  { href: '/chat', label: 'Søk' },
 ] as const;
 
 const HEADER_HEIGHT = 64;
@@ -121,7 +121,7 @@ export function Header() {
       >
         <div className="site-header-bar">
           <div className="site-header-left">
-            <nav className="flex items-center gap-6 md:gap-8" aria-label="Main">
+            <nav className="flex items-center gap-6 md:gap-8" aria-label="Hovedmeny">
               {NAV_ITEMS.map((item) => (
                 <NavLink
                   key={item.href}

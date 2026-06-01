@@ -2,9 +2,9 @@
 export const COMPANY = {
   name: 'Clea',
   email: 'hei@clea.no',
-  locationLabel: 'Oslo, Norway',
+  locationLabel: 'Oslo, Norge',
   about:
-    'Clea is a Nordic AI-powered fashion price comparison platform based in Oslo, Norway. We help shoppers find the best prices across leading retailers such as Zalando, Boozt, Nelly, and H&M through conversational AI search. Our users arrive with high purchase intent — ready to buy — and we connect them directly to retailer product pages.',
+    'Clea er en nordisk AI-drevet prissammenligningstjeneste for mote, basert i Oslo, Norge. Vi hjelper shoppere med å finne de beste prisene hos ledende forhandlere som Zalando, Boozt, Nelly og H&M gjennom samtalebasert AI-søk. Brukerne våre kommer med høy kjøpsintensjon — klare til å handle — og vi kobler dem direkte til produktsider hos forhandlerne.',
   market:
-    'Our primary market is Norway, with expansion planned across the Nordics.',
+    'Hovedmarkedet vårt er Norge, med planer om ekspansjon i hele Norden.',
 } as const;

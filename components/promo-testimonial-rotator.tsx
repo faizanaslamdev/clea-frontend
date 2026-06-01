@@ -101,7 +101,7 @@ export function PromoTestimonialRotator() {
       </div>
 
       <p className="sr-only">
-        Review {activeIndex + 1} of {count} by {active.author}
+        Anmeldelse {activeIndex + 1} av {count} av {active.author}
       </p>
     </div>
   );

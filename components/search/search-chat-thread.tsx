@@ -71,16 +71,16 @@ export function SearchChatThread({ messages }: SearchChatThreadProps) {
               className="search-chat-thread__results"
               aria-label={
                 message.query
-                  ? `Products for "${message.query}"`
-                  : 'Search results'
+                  ? `Produkter for «${message.query}»`
+                  : 'Søkeresultater'
               }
             >
               <ProductGrid
                 products={message.products}
                 emptyMessage={
                   message.query
-                    ? `No products found for "${message.query}"`
-                    : 'No products found'
+                    ? `Ingen produkter funnet for «${message.query}»`
+                    : 'Ingen produkter funnet'
                 }
               />
             </div>

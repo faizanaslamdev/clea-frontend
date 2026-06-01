@@ -22,15 +22,15 @@ function BrandsPageContent() {
   return (
     <div className="section-container section-shell">
       <PageSearchSection
-        title="Explore brands"
-        placeholder="Search for a brand"
+        title="Utforsk merker"
+        placeholder="Søk etter et merke"
         paramKey="q"
-        aria-label="Search for a brand"
+        aria-label="Søk etter et merke"
       />
 
       {brandQuery && filteredBrands.length === 0 ? (
         <p className="text-center text-muted-foreground">
-          No brands found for &quot;{brandQuery}&quot;
+          Ingen merker funnet for «{brandQuery}»
         </p>
       ) : (
         <BrandGrid brands={filteredBrands} />

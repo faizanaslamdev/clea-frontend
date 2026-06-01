@@ -6,25 +6,24 @@ export interface PromoTestimonial {
 export const PROMO_TESTIMONIALS: PromoTestimonial[] = [
   {
     quote:
-      'Finally, a tool that helps me shop smarter without the noise — real price insights, not ads. Whether it\'s everyday fashion or a splurge, I know I\'m buying at the right time.',
+      'Endelig et verktøy som hjelper meg å handle smartere uten støy — ekte prisinnsikt, ikke reklame. Enten det er hverdagsmote eller en treat, vet jeg at jeg handler til rett tid.',
     author: 'Ari L.',
   },
   {
     quote:
-      'I used to open ten tabs to compare prices. Now I check clea.no once and know which store is actually cheapest — it saves me time every week.',
+      'Jeg pleide å åpne ti faner for å sammenligne priser. Nå sjekker jeg clea.no én gang og vet hvilken butikk som faktisk er billigst — det sparer meg tid hver uke.',
     author: 'Sofia M.',
   },
   {
     quote:
-      'The collections feature is perfect for wishlists. I get a clear view of what dropped and what\'s still full price before I buy.',
+      'Samlingsfunksjonen er perfekt til ønskelister. Jeg ser tydelig hva som har falt i pris og hva som fortsatt er full pris før jeg kjøper.',
     author: 'Jonas K.',
   },
   {
     quote:
-      'Clean, fast, and no clutter. It feels built for how I actually shop online — browse, compare, then decide with confidence.',
+      'Rent, raskt og uten rot. Det føles laget for hvordan jeg faktisk handler på nett — bla, sammenlign, bestem deg med trygghet.',
     author: 'Ella R.',
   },
 ];
 
-/** Auto-advance interval for promo testimonial rotator (ms). */
 export const PROMO_TESTIMONIAL_ROTATE_MS = 6500;

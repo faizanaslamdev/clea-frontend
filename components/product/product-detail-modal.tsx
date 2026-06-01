@@ -89,14 +89,14 @@ export function ProductDetailModal({
                 {product.brand} {product.name}
               </DialogPrimitive.Title>
               <DialogPrimitive.Description className="sr-only">
-                Product details and similar items
+                Produktdetaljer og lignende varer
               </DialogPrimitive.Description>
 
               <button
                 type="button"
                 className="product-detail-modal__close"
                 onClick={() => onOpenChange(false)}
-                aria-label="Close"
+                aria-label="Lukk"
               >
                 <X className="size-5" strokeWidth={1.5} />
               </button>
@@ -131,7 +131,7 @@ export function ProductDetailModal({
                         type="button"
                         className="product-detail-modal__share"
                         onClick={handleShare}
-                        aria-label="Share product"
+                        aria-label="Del produkt"
                       >
                         <Share2 className="size-4.5" strokeWidth={1.5} />
                       </button>
@@ -140,7 +140,7 @@ export function ProductDetailModal({
                     {listingStore && listingPrice != null ? (
                       <div className="product-detail-modal__purchase">
                         <p className="product-detail-modal__purchase-label">
-                          Available at
+                          Tilgjengelig hos
                         </p>
                         <a
                           href={
@@ -170,10 +170,10 @@ export function ProductDetailModal({
                 {similarProducts.length > 0 ? (
                   <section
                     className="product-detail-modal__similar"
-                    aria-label="Shop similar"
+                    aria-label="Lignende produkter"
                   >
                     <h3 className="product-detail-modal__similar-title">
-                      Shop similar
+                      Lignende produkter
                     </h3>
                     <ProductGrid
                       products={similarProducts}
@@ -185,7 +185,7 @@ export function ProductDetailModal({
               </div>
             </>
           ) : (
-            <DialogPrimitive.Title className="sr-only">Product</DialogPrimitive.Title>
+            <DialogPrimitive.Title className="sr-only">Produkt</DialogPrimitive.Title>
           )}
         </DialogPrimitive.Content>
       </DialogPortal>
@@ -219,7 +219,7 @@ function ProductDescription({
               className="product-detail-modal__see-more"
               onClick={onExpand}
             >
-              See more
+              Les mer
             </button>
           </>
         ) : null}

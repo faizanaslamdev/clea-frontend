@@ -37,15 +37,15 @@ export default async function BrandPage({ params }: BrandPageProps) {
           <h1 className="type-heading">{brand.name}</h1>
           <p className="type-subheading mt-2">
             {usedFallback
-              ? `Curated picks to explore at ${brand.name}`
-              : `${products.length} products available at ${brand.name}`}
+              ? `Utvalgte produkter å utforske hos ${brand.name}`
+              : `${products.length} produkter tilgjengelig hos ${brand.name}`}
           </p>
         </div>
 
         <ProductGrid
           products={products}
           storeId={brand.id}
-          emptyMessage={`No products listed for ${brand.name} yet.`}
+          emptyMessage={`Ingen produkter listet for ${brand.name} ennå.`}
         />
       </section>
     </PageLayout>

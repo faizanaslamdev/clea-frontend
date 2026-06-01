@@ -12,21 +12,21 @@ export default function BrandSection() {
     <section id="brands" className="section-container section-shell scroll-mt-20">
       <div className="mb-6 flex flex-col gap-6">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <h2 className="type-heading">Explore brands</h2>
+          <h2 className="type-heading">Utforsk merker</h2>
           <p className="type-subheading md:max-w-[35%] md:text-right">
-            Explore top-tier products from brands you know and discover new
-            brands you&apos;ll love.
+            Utforsk produkter fra merker du kjenner, og oppdag nye merker du vil
+            elske.
           </p>
         </div>
 
         <div className="flex items-center justify-between">
-          <h3 className="type-eyebrow">Trending brands</h3>
+          <h3 className="type-eyebrow">Populære merker</h3>
 
           <Link
             href="/brands"
             className="flex items-center gap-1 border-b border-foreground"
           >
-            <span className="type-link">See all</span>
+            <span className="type-link">Se alle</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

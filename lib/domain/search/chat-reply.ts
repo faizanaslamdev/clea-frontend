@@ -5,13 +5,13 @@ export function buildSearchAssistantReply(
 ): string {
   const trimmed = query.trim();
   if (!trimmed) {
-    return 'Tell me what you are shopping for and I will surface matching products.';
+    return 'Fortell meg hva du leter etter, så viser jeg matchende produkter.';
   }
   if (resultCount === 0) {
-    return `I could not find a match for "${trimmed}". Try refining your search.`;
+    return `Jeg fant ingen treff på «${trimmed}». Prøv å presisere søket.`;
   }
   if (options?.usedFallback) {
-    return `I couldn't find an exact match for "${trimmed}". Here are some picks you might like.`;
+    return `Jeg fant ingen eksakt match på «${trimmed}». Her er noen forslag du kan like.`;
   }
-  return `Here are some options for "${trimmed}".`;
+  return `Her er noen alternativer for «${trimmed}».`;
 }

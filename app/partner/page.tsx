@@ -5,41 +5,42 @@ import { BRAND } from '@/lib/constants/brand';
 import { COMPANY } from '@/lib/constants/company';
 
 export const metadata: Metadata = {
-  title: 'Partner',
-  description: `Partner with ${BRAND.name} — reach high-intent fashion shoppers.`,
+  title: 'Samarbeid',
+  description: `Samarbeid med ${BRAND.name} — nå kjøpsklare mote-shoppere.`,
 };
 
 export default function PartnerPage() {
   return (
     <LegalPageShell
-      title="Partner with Clea"
-      description="Reach purchase-ready shoppers across the Nordics."
+      title="Samarbeid med Clea"
+      description="Nå shoppere med høy kjøpsintensjon i Norden."
     >
       <p>
-        {BRAND.name} connects fashion and beauty brands with high-intent shoppers
-        who use AI search to find products and compare prices before they buy.
+        {BRAND.name} kobler mote- og skjønnhetsmerker med shoppere som bruker
+        AI-søk for å finne produkter og sammenligne priser før de handler.
       </p>
-      <h2>Why partner</h2>
+      <h2>Hvorfor samarbeide</h2>
       <ul>
-        <li>Exposure across search, brand pages, and curated collections</li>
-        <li>Traffic driven to your product pages</li>
-        <li>Audience focused on Norway and the wider Nordic region</li>
-        <li>Placement alongside discovery experiences shoppers already trust</li>
+        <li>Synlighet i søk, merkesider og kuraterte samlinger</li>
+        <li>Trafikk til produktsidene dine</li>
+        <li>Målgruppe med fokus på Norge og resten av Norden</li>
+        <li>Plassering i opplevelser shoppere allerede bruker til oppdagelse</li>
       </ul>
-      <h2>Who we work with</h2>
+      <h2>Hvem vi samarbeider med</h2>
       <p>
-        Fashion and beauty retailers, marketplaces, and brands that sell through
-        established Nordic channels — from global names to emerging labels.
+        Mote- og skjønnhetsforhandlere, markedsplasser og merker som selger
+        gjennom etablerte nordiske kanaler — fra globale navn til nye
+        merkevarer.
       </p>
-      <h2>Get in touch</h2>
+      <h2>Ta kontakt</h2>
       <p>
-        To discuss partnerships, integrations, or brand listings, email{' '}
-        <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> with
-        &quot;Partnership&quot; in the subject line.
+        For partnerskap, integrasjoner eller merkelisting, send e-post til{' '}
+        <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> med
+        «Partnerskap» i emnefeltet.
       </p>
       <p>
-        <Link href="/brands">Explore brands on Clea</Link> ·{' '}
-        <Link href="/contact">Contact</Link>
+        <Link href="/brands">Utforsk merker på Clea</Link> ·{' '}
+        <Link href="/contact">Kontakt</Link>
       </p>
     </LegalPageShell>
   );

@@ -5,64 +5,67 @@ import { BRAND } from '@/lib/constants/brand';
 import { COMPANY } from '@/lib/constants/company';
 
 export const metadata: Metadata = {
-  title: 'Privacy',
-  description: `Privacy policy for ${BRAND.name}.`,
+  title: 'Personvern',
+  description: `Personvernerklæring for ${BRAND.name}.`,
 };
 
 export default function PrivacyPage() {
   return (
     <LegalPageShell
-      title="Privacy policy"
-      description={`How ${BRAND.name} handles information when you use ${BRAND.domain}.`}
+      title="Personvernerklæring"
+      description={`Hvordan ${BRAND.name} behandler informasjon når du bruker ${BRAND.domain}.`}
     >
       <p>
-        <strong>Last updated:</strong> June 2026
+        <strong>Sist oppdatert:</strong> juni 2026
       </p>
       <p>
-        {COMPANY.name} ({BRAND.domain}) respects your privacy. This policy describes
-        what information we collect and how we use it when you visit our website.
+        {COMPANY.name} ({BRAND.domain}) respekterer personvernet ditt. Denne
+        erklæringen beskriver hvilken informasjon vi samler inn og hvordan vi
+        bruker den når du besøker nettstedet vårt.
       </p>
-      <h2>Information we collect</h2>
+      <h2>Informasjon vi samler inn</h2>
       <ul>
         <li>
-          <strong>Usage data:</strong> anonymised analytics (e.g. pages visited,
-          device type) via Vercel Analytics to improve the service.
+          <strong>Bruksdata:</strong> anonymisert analyse (f.eks. besøkte sider,
+          enhetstype) via Vercel Analytics for å forbedre tjenesten.
         </li>
         <li>
-          <strong>Search queries:</strong> text you enter in search or chat to
-          provide product results. We do not require an account to browse.
+          <strong>Søkeforespørsler:</strong> tekst du skriver inn i søk eller
+          chat for å vise produktresultater. Du trenger ikke konto for å bla på
+          siden.
         </li>
         <li>
-          <strong>Technical data:</strong> standard server logs (IP address,
-          browser type) for security and reliability.
+          <strong>Tekniske data:</strong> standard serverlogger (IP-adresse,
+          nettlesertype) for sikkerhet og drift.
         </li>
       </ul>
-      <h2>How we use information</h2>
+      <h2>Hvordan vi bruker informasjon</h2>
       <p>
-        We use data to operate the site, improve search and comparison features,
-        prevent abuse, and understand aggregate usage patterns. We do not sell
-        personal data.
+        Vi bruker data til å drive nettstedet, forbedre søk og sammenligning,
+        hindre misbruk og forstå bruk i aggregert form. Vi selger ikke
+        personopplysninger.
       </p>
-      <h2>Cookies</h2>
+      <h2>Informasjonskapsler</h2>
       <p>
-        We use essential cookies for site functionality and analytics cookies as
-        described above. You can control cookies through your browser settings.
+        Vi bruker nødvendige informasjonskapsler for funksjonalitet og
+        analysekapsler som beskrevet over. Du kan styre kapsler i
+        nettleserinnstillingene.
       </p>
-      <h2>Third parties</h2>
+      <h2>Tredjeparter</h2>
       <p>
-        When you follow links to retailers, their privacy policies apply. We may
-        use infrastructure providers (e.g. hosting) that process data on our
-        behalf under appropriate agreements.
+        Når du følger lenker til forhandlere, gjelder deres personvernregler. Vi
+        kan bruke infrastrukturleverandører (f.eks. hosting) som behandler data
+        på våre vegne etter avtale.
       </p>
-      <h2>Your rights</h2>
+      <h2>Dine rettigheter</h2>
       <p>
-        Depending on applicable law, you may request access, correction, or
-        deletion of personal data we hold. Contact us at{' '}
+        Avhengig av gjeldende lov kan du be om innsyn, retting eller sletting av
+        personopplysninger vi har. Kontakt oss på{' '}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
       </p>
-      <h2>Contact</h2>
+      <h2>Kontakt</h2>
       <p>
-        {COMPANY.name} · <Link href="/contact">Contact page</Link> ·{' '}
+        {COMPANY.name} · <Link href="/contact">Kontaktside</Link> ·{' '}
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
       </p>
     </LegalPageShell>

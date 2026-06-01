@@ -52,7 +52,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="nb"
       className={`${dmSans.variable} ${playfair.variable} ${robotoMono.variable} bg-background`}
       suppressHydrationWarning
     >

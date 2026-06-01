@@ -5,28 +5,28 @@ import { cn } from '@/lib/utils';
 const COLLECTION_CARDS = [
   {
     src: '/collections/collection-fall-faves.png',
-    alt: 'Fall faves collection — 44 items',
+    alt: 'Høstfavoritter — 44 produkter',
     rotate: -4,
     overlap: 0,
     zIndex: 1,
   },
   {
     src: '/collections/collection-winter-layers.png',
-    alt: 'Winter layers collection — 23 items',
+    alt: 'Vinterlag — 23 produkter',
     rotate: -1.5,
     overlap: -56,
     zIndex: 2,
   },
   {
     src: '/collections/collection-holiday-wishlist.png',
-    alt: 'Holiday wishlist collection — 104 items',
+    alt: 'Juleønskeliste — 104 produkter',
     rotate: 1.5,
     overlap: -56,
     zIndex: 3,
   },
   {
     src: '/collections/collection-going-out.png',
-    alt: 'Going out collection — 96 items',
+    alt: 'Ut på byen — 96 produkter',
     rotate: 4.5,
     overlap: -56,
     zIndex: 4,
@@ -45,11 +45,10 @@ export function FavoriteFindsSection() {
             id="favorite-finds-heading"
             className="font-serif text-[40px] font-light leading-[1.1] tracking-tight text-foreground md:text-[56px] md:leading-[1.15]"
           >
-            Save your <em className="italic">favorite</em> finds.
+            Lagre <em className="italic">favoritt</em>funnene dine.
           </h2>
           <p className="mx-auto mt-5 max-w-[420px] text-base font-light leading-6 text-muted-foreground md:mt-6">
-            Organize your best finds in collections. Get alerted when the price
-            drops.
+            Organiser de beste funnene i samlinger. Få varsel når prisen faller.
           </p>
         </div>
 
@@ -58,7 +57,7 @@ export function FavoriteFindsSection() {
           <div
             className="flex origin-bottom scale-[0.62] items-end justify-center min-[420px]:scale-[0.75] sm:scale-[0.88] md:scale-100"
             role="list"
-            aria-label="Example collections"
+            aria-label="Eksempelsamlinger"
           >
             {COLLECTION_CARDS.map((card, index) => (
               <div

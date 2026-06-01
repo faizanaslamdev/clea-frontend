@@ -30,8 +30,8 @@ export function TrendingSection() {
   return (
     <section className="overflow-x-hidden">
       <div className="section-container mb-6 flex items-center justify-between">
-        <h2 className="type-heading">Trending Now</h2>
-        <Link href="/brands" aria-label="See all" className="md:hidden">
+        <h2 className="type-heading">Populært nå</h2>
+        <Link href="/brands" aria-label="Se alle" className="md:hidden">
           <Button
             variant="outline"
             size="icon"
@@ -44,17 +44,17 @@ export function TrendingSection() {
 
       <div className="section-container mb-6 hidden md:flex items-center justify-between">
         <p className="type-subheading">
-          Popular fashion picks — compare prices on {BRAND.domain}
+          Populære motevalg — sammenlign priser på {BRAND.domain}
         </p>
         <div className="flex items-center gap-4">
           <Link href="/brands" className="type-link">
-            See all
+            Se alle
           </Link>
           <div className="flex gap-2">
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Scroll left"
+              aria-label="Rull til venstre"
               disabled={!canLeft}
               onClick={() => carouselRef.current?.scrollLeft()}
               className="rounded-full size-7 bg-muted hover:bg-muted/80 disabled:opacity-30"
@@ -64,7 +64,7 @@ export function TrendingSection() {
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Scroll right"
+              aria-label="Rull til høyre"
               disabled={!canRight}
               onClick={() => carouselRef.current?.scrollRight()}
               className="rounded-full size-7 bg-muted hover:bg-muted/80 disabled:opacity-30"

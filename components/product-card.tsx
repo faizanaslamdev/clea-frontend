@@ -87,7 +87,7 @@ export function ProductCard({
           <p className="product-card-detailed__price">{formatPrice(price)}</p>
         )}
         <p className="product-card-detailed__shop">
-          Shop {product.brand}
+          Handle hos {product.brand}
         </p>
       </div>
     </button>

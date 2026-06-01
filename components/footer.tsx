@@ -5,18 +5,18 @@ import { BRAND } from '@/lib/constants/brand';
 
 const FOOTER_LINKS = {
   discover: [
-    { href: '/brands', label: 'All brands' },
-    { href: '/chat', label: 'AI search' },
-    { href: '/#brands', label: 'Featured brands' },
+    { href: '/brands', label: 'Alle merker' },
+    { href: '/chat', label: 'AI-søk' },
+    { href: '/#brands', label: 'Utvalgte merker' },
   ],
   company: [
-    { href: '/about', label: 'About' },
-    { href: '/partner', label: 'Partner' },
+    { href: '/about', label: 'Om oss' },
+    { href: '/partner', label: 'Samarbeid' },
   ],
   resources: [
-    { href: '/privacy', label: 'Privacy' },
-    { href: '/terms', label: 'Terms' },
-    { href: '/contact', label: 'Contact' },
+    { href: '/privacy', label: 'Personvern' },
+    { href: '/terms', label: 'Vilkår' },
+    { href: '/contact', label: 'Kontakt' },
     { href: '/faq', label: 'FAQ' },
   ],
 } as const;
@@ -100,20 +100,20 @@ export function Footer() {
             */}
 
             <p className="text-sm font-light text-muted-foreground">
-              © 2026 {BRAND.name} · All rights reserved
+              © 2026 {BRAND.name} · Alle rettigheter reservert
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 sm:gap-x-6 lg:gap-x-10">
-            <FooterColumn title="Discover" links={FOOTER_LINKS.discover} />
-            <FooterColumn title="Company" links={FOOTER_LINKS.company} />
-            <FooterColumn title="Resources" links={FOOTER_LINKS.resources} />
+            <FooterColumn title="Oppdag" links={FOOTER_LINKS.discover} />
+            <FooterColumn title="Selskap" links={FOOTER_LINKS.company} />
+            <FooterColumn title="Ressurser" links={FOOTER_LINKS.resources} />
           </div>
         </div>
 
         <div className="mt-14 flex justify-center md:mt-20">
           <Link href="/brands" className="footer-cta-pill group">
-            <span>Start comparing prices</span>
+            <span>Begynn å sammenligne priser</span>
             <ArrowRight
               className="size-4 transition-transform group-hover:translate-x-0.5"
               strokeWidth={1.5}
