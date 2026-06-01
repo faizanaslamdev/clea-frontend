@@ -117,7 +117,7 @@ lib/
 - **UI Components**: shadcn/ui (built-in)
 - **Charts**: Recharts for price history visualization
 - **Type Safety**: TypeScript
-- **Package Manager**: pnpm
+- **Package Manager**: npm
 
 ## Key Components Breakdown
 
