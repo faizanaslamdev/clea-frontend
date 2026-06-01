@@ -4,7 +4,7 @@ export const BRAND = {
   /** Lowercase mark for header, footer, and UI chrome */
   wordmark: 'clea',
   domain: 'clea.no',
-  siteUrl: 'https://clea.no',
+  siteUrl: 'https://www.clea.no',
   /** Short label (metadata, etc.) */
   tagline: 'Fashion & beauty',
   /** Home hero headline (two lines) */

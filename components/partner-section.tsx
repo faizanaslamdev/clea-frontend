@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { BRAND } from '@/lib/constants/brand';
 
@@ -38,14 +39,13 @@ export default function PartnerSection() {
 
           {/* Button */}
           <div className="w-fit">
-            {/* <Link href="/partners"> */}
-              <button className="group cursor-pointer inline-flex items-center gap-2 border-b border-foreground text-foreground transition-opacity hover:opacity-80">
-                <span className="type-link">Learn more</span>
-
-             
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </button>
-            {/* </Link> */}
+            <Link
+              href="/partner"
+              className="group inline-flex items-center gap-2 border-b border-foreground text-foreground transition-opacity hover:opacity-80"
+            >
+              <span className="type-link">Learn more</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
         </div>
       </div>

@@ -33,10 +33,6 @@ export const metadata: Metadata = {
   },
   description: BRAND.description,
   applicationName: BRAND.name,
-  icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    apple: [{ url: '/apple-icon', sizes: '180x180' }],
-  },
 };
 
 export const viewport: Viewport = {

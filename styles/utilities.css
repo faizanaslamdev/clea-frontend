@@ -42,6 +42,27 @@
     max-width: var(--layout-inner-medium);
   }
 
+  .legal-page {
+    @apply mx-auto max-w-3xl py-16 md:py-20 lg:py-24;
+  }
+
+  .legal-page__body {
+    @apply space-y-4 font-sans text-base font-light leading-relaxed text-foreground md:text-[17px] md:leading-7;
+  }
+
+  .legal-page__body h2,
+  .legal-page__h2 {
+    @apply mt-10 mb-3 font-serif text-2xl font-light tracking-tight text-foreground md:text-[1.75rem];
+  }
+
+  .legal-page__body ul {
+    @apply mb-4 list-disc space-y-2 pl-6;
+  }
+
+  .legal-page__body a {
+    @apply underline decoration-foreground/30 underline-offset-4 transition-opacity hover:opacity-75;
+  }
+
   .page-search-section {
     @apply mb-12 flex w-full flex-col items-stretch gap-6 md:gap-8;
   }

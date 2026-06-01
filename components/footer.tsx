@@ -1,29 +1,23 @@
 import Link from 'next/link';
-import { ArrowRight, Instagram, Linkedin } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+// import { Instagram, Linkedin } from 'lucide-react';
 import { BRAND } from '@/lib/constants/brand';
 
 const FOOTER_LINKS = {
-  shopping: [
+  discover: [
     { href: '/brands', label: 'All brands' },
+    { href: '/chat', label: 'AI search' },
     { href: '/#brands', label: 'Featured brands' },
-    { href: '/brands', label: 'Compare prices' },
-  ],
-  explore: [
-    { href: '/brands', label: 'Fashion brands' },
-    { href: '/brands', label: 'Beauty brands' },
-    { href: '/#brands', label: 'Shop brands' },
   ],
   company: [
-    { href: '#', label: 'About' },
-    { href: '#', label: 'Partner' },
-    { href: '#', label: 'Careers' },
-    { href: '#', label: 'Press' },
+    { href: '/about', label: 'About' },
+    { href: '/partner', label: 'Partner' },
   ],
   resources: [
-    { href: '#', label: 'Privacy' },
-    { href: '#', label: 'Terms' },
-    { href: '#', label: 'Contact' },
-    { href: '#', label: 'FAQ' },
+    { href: '/privacy', label: 'Privacy' },
+    { href: '/terms', label: 'Terms' },
+    { href: '/contact', label: 'Contact' },
+    { href: '/faq', label: 'FAQ' },
   ],
 } as const;
 
@@ -39,7 +33,7 @@ function FooterColumn({
       <h3 className="footer-col-title">{title}</h3>
       <ul className="space-y-3">
         {links.map((link) => (
-          <li key={link.label}>
+          <li key={link.href}>
             <Link href={link.href} className="footer-link">
               {link.label}
             </Link>
@@ -50,26 +44,22 @@ function FooterColumn({
   );
 }
 
-function XIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden
-      className={className}
-      fill="currentColor"
-    >
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  );
-}
+// function XIcon({ className }: { className?: string }) {
+//   return (
+//     <svg
+//       viewBox="0 0 24 24"
+//       aria-hidden
+//       className={className}
+//       fill="currentColor"
+//     >
+//       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+//     </svg>
+//   );
+// }
 
 export function Footer() {
   return (
     <footer className="site-footer" aria-label="Site footer">
-      {/* <p className="site-footer-watermark" aria-hidden>
-        Clea
-      </p> */}
-
       <div className="section-container relative z-10 py-16 md:py-20 lg:py-24">
         <div className="grid gap-14 lg:grid-cols-[minmax(0,240px)_1fr] lg:gap-20 xl:grid-cols-[minmax(0,280px)_1fr]">
           <div className="flex flex-col gap-6">
@@ -77,6 +67,7 @@ export function Footer() {
               {BRAND.wordmark}
             </Link>
 
+            {/* Social links — restore when profiles are ready
             <div className="flex items-center gap-1">
               <a
                 href="https://instagram.com"
@@ -106,15 +97,15 @@ export function Footer() {
                 <Linkedin className="size-[18px]" strokeWidth={1.5} />
               </a>
             </div>
+            */}
 
             <p className="text-sm font-light text-muted-foreground">
-              © 2026 · All rights reserved
+              © 2026 {BRAND.name} · All rights reserved
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 sm:gap-x-6">
-            <FooterColumn title="Shopping" links={FOOTER_LINKS.shopping} />
-            <FooterColumn title="Explore" links={FOOTER_LINKS.explore} />
+          <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 sm:gap-x-6 lg:gap-x-10">
+            <FooterColumn title="Discover" links={FOOTER_LINKS.discover} />
             <FooterColumn title="Company" links={FOOTER_LINKS.company} />
             <FooterColumn title="Resources" links={FOOTER_LINKS.resources} />
           </div>
