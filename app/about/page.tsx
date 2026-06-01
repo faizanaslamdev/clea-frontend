@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { LegalPageShell } from '@/components/legal/legal-page-shell';
 import { BRAND } from '@/lib/constants/brand';
-import { COMPANY, formatCompanyAddress } from '@/lib/constants/company';
+import { COMPANY } from '@/lib/constants/company';
 
 export const metadata: Metadata = {
   title: 'About',
@@ -35,7 +35,7 @@ export default function AboutPage() {
         <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
       </p>
       <p className="text-muted-foreground text-sm">
-        {COMPANY.name} · {formatCompanyAddress()}
+        {COMPANY.name} · {COMPANY.locationLabel}
       </p>
     </LegalPageShell>
   );
