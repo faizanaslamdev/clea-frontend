@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { ArrowUpRight, Share2, X } from 'lucide-react';
+import { ArrowUpRight, Share2, Sparkles, X } from 'lucide-react';
 import { ProductGrid } from '@/components/product-grid';
+import { ProductAiSearchPopover } from '@/components/product/product-ai-search-popover';
 import { Dialog, DialogOverlay, DialogPortal } from '@/components/ui/dialog';
 import {
   formatPrice,
@@ -46,9 +47,11 @@ export function ProductDetailModal({
   );
 
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+  const [aiSearchOpen, setAiSearchOpen] = useState(false);
 
   useEffect(() => {
     setDescriptionExpanded(false);
+    setAiSearchOpen(false);
   }, [productId]);
 
   const handleShare = async () => {
@@ -114,6 +117,33 @@ export function ProductDetailModal({
                         priority
                       />
                     </div>
+
+                    <button
+                      type="button"
+                      className="product-detail-modal__ai-btn"
+                      aria-label="AI-innsikt"
+                      aria-expanded={aiSearchOpen}
+                      aria-controls="product-ai-search-panel"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAiSearchOpen((isOpen) => !isOpen);
+                      }}
+                    >
+                      <Sparkles
+                        className="product-detail-modal__ai-icon"
+                        fill="currentColor"
+                        stroke="none"
+                        aria-hidden
+                      />
+                    </button>
+
+                    <ProductAiSearchPopover
+                      id="product-ai-search-panel"
+                      open={aiSearchOpen}
+                      onOpenChange={setAiSearchOpen}
+                      product={product}
+                      onNavigate={() => onOpenChange(false)}
+                    />
                   </div>
 
                   <div className="product-detail-modal__info">
