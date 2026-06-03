@@ -20,6 +20,8 @@ interface HeroSearchFormProps {
   value?: string;
   onValueChange?: (value: string) => void;
   onSubmitQuery?: (query: string) => void;
+  placeholder?: string;
+  inputLabel?: string;
 }
 
 export function HeroSearchForm({
@@ -32,6 +34,8 @@ export function HeroSearchForm({
   value: controlledValue,
   onValueChange,
   onSubmitQuery,
+  placeholder = 'Beskriv hva du leter etter …',
+  inputLabel = 'Beskriv hva du leter etter',
 }: HeroSearchFormProps) {
   const [category, setCategory] = useState<ShopCategory>('mens');
   const [internalQuery, setInternalQuery] = useState('');
@@ -93,14 +97,14 @@ export function HeroSearchForm({
         )}
       >
         <label htmlFor={inputId} className="sr-only">
-          Beskriv hva du leter etter
+          {inputLabel}
         </label>
         <textarea
           id={inputId}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleQueryKeyDown}
-          placeholder="Beskriv hva du leter etter …"
+          placeholder={placeholder}
           rows={1}
           className="hero-search-bar--compact__input"
           autoComplete="off"
@@ -115,7 +119,7 @@ export function HeroSearchForm({
           disabled={!hasText}
           aria-label="Søk"
         >
-          <ArrowUp className="size-[1.125rem]" strokeWidth={2.25} />
+          <ArrowUp className="size-4.5" strokeWidth={2.25} />
         </button>
       </form>
     );
@@ -151,14 +155,14 @@ export function HeroSearchForm({
 
       <form onSubmit={handleSubmit} className="hero-search-card">
         <label htmlFor={inputId} className="sr-only">
-          Beskriv hva du leter etter
+          {inputLabel}
         </label>
         <textarea
           id={inputId}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleQueryKeyDown}
-          placeholder="Beskriv hva du leter etter …"
+          placeholder={placeholder}
           rows={1}
           className="hero-search-card__input"
           enterKeyHint="search"
@@ -174,7 +178,7 @@ export function HeroSearchForm({
             disabled={!hasText}
             aria-label="Søk"
           >
-            <ArrowUp className="size-[1.125rem]" strokeWidth={2.25} />
+            <ArrowUp className="size-4.5" strokeWidth={2.25} />
           </button>
         </div>
       </form>

@@ -49,6 +49,8 @@
   --product-detail-modal-height-min: 54rem;
   --product-detail-modal-height-fluid: 82dvh;
   --product-detail-modal-height-max: 70rem;
+  --product-detail-ai-input-bg: oklch(0.94 0 0);
+  --product-detail-ai-action-radius: 1.375rem;
 
   --chart-1: oklch(0.14 0 0);
   --chart-2: oklch(0.32 0 0);

@@ -868,16 +868,115 @@
   }
 
   .product-detail-modal__gallery {
-    @apply relative flex min-h-[26rem] flex-col md:min-h-full;
+    @apply relative isolate flex min-h-[26rem] flex-col overflow-visible md:min-h-full;
   }
 
   .product-detail-modal__gallery-frame {
     background-color: var(--card);
-    @apply relative flex min-h-[26rem] flex-1 items-center justify-center md:absolute md:inset-0 md:min-h-0;
+    @apply relative z-0 flex min-h-[26rem] flex-1 items-center justify-center overflow-visible md:absolute md:inset-0 md:min-h-0;
   }
 
   .product-detail-modal__gallery-image {
-    @apply object-contain object-center;
+    @apply pointer-events-none z-0 object-contain object-center;
+  }
+
+  .product-detail-modal__ai-btn {
+    box-shadow: 0 2px 8px oklch(0 0 0 / 0.14);
+    @apply absolute bottom-4 left-4 z-20 flex size-10 items-center justify-center rounded-full bg-white text-foreground transition-shadow hover:shadow-[0_4px_12px_oklch(0_0_0_/_0.18)];
+  }
+
+  .product-detail-modal__gallery:has(.product-detail-modal__ai-panel)
+    .product-detail-modal__ai-btn {
+    @apply invisible pointer-events-none;
+  }
+
+  .product-detail-modal__ai-dismiss {
+    @apply absolute inset-0 z-30 cursor-default border-0 bg-transparent p-0;
+  }
+
+  .product-detail-modal__ai-icon {
+    @apply size-[1.125rem] fill-foreground stroke-none;
+  }
+
+  .product-detail-modal__ai-panel {
+    /* Above the sparkle trigger (bottom-4 + 2.5rem button + gap) */
+    bottom: 4.75rem;
+    @apply pointer-events-auto absolute left-4 z-40 w-[calc(100%-2rem)] max-w-[22rem] sm:max-w-[24rem];
+  }
+
+  .product-detail-modal__ai-panel-content {
+    border-radius: var(--product-detail-modal-radius);
+    box-shadow:
+      0 2px 8px oklch(0 0 0 / 0.08),
+      0 8px 24px oklch(0 0 0 / 0.12);
+    @apply flex flex-col gap-3.5 overflow-x-hidden bg-card p-4;
+  }
+
+  .product-detail-modal__ai-actions-viewport {
+    margin-inline: -1rem;
+    padding-inline: 1rem;
+    scroll-padding-inline: 1rem;
+    -webkit-overflow-scrolling: touch;
+    @apply max-w-full overflow-x-auto overflow-y-hidden [scrollbar-width:none];
+  }
+
+  .product-detail-modal__ai-actions-viewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .product-detail-modal__ai-actions {
+    width: max-content;
+    min-width: 100%;
+    padding-inline-end: 1rem;
+    @apply m-0 flex list-none gap-2.5 p-0;
+  }
+
+  .product-detail-modal__ai-action-btn {
+    border-radius: var(--product-detail-ai-action-radius);
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--foreground);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.35;
+    padding: 0.75rem 1.375rem;
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease;
+    @apply inline-flex shrink-0 cursor-pointer items-center justify-center whitespace-nowrap font-sans;
+  }
+
+  .product-detail-modal__ai-action-btn:hover,
+  .product-detail-modal__ai-action-btn:focus-visible {
+    background-color: var(--muted);
+    border-color: var(--border);
+    @apply outline-none;
+  }
+
+  .product-detail-modal__ai-composer.hero-search-bar--compact {
+    background-color: var(--product-detail-ai-input-bg);
+    border: none;
+    box-shadow: none;
+    @apply gap-2 rounded-[1.75rem] py-1.5 pl-4 pr-1.5;
+  }
+
+  .product-detail-modal__ai-composer .hero-search-bar--compact__input {
+    @apply text-sm;
+  }
+
+  .product-detail-modal__ai-composer .hero-search-bar--compact__submit {
+    background-color: oklch(0.62 0 0);
+    color: var(--primary-foreground);
+  }
+
+  .product-detail-modal__ai-composer:has(
+      .hero-search-bar--compact__input:not(:placeholder-shown)
+    )
+    .hero-search-bar--compact__submit,
+  .product-detail-modal__ai-composer
+    .hero-search-bar--compact__submit--active {
+    background-color: var(--hero-search-submit-bg);
+    color: var(--hero-search-submit-fg);
   }
 
   .product-detail-modal__info {
