@@ -20,7 +20,3 @@ export async function resolveProductSearch(
     hasMore: page.hasMore,
   };
 }
-
-export async function searchProducts(query: string): Promise<SearchResult[]> {
-  return (await resolveProductSearch(query)).results;
-}

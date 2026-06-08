@@ -1,9 +1,8 @@
 import { apiFetch } from '@/lib/api/backend-client';
 import { mapApiMerchantToStore } from '@/lib/api/mappers';
 import type { ApiMerchant } from '@/lib/api/types';
+import { FEATURED_MERCHANT_LIMIT } from '@/lib/constants/featured';
 import type { Store } from '@/lib/types';
-
-const FEATURED_MERCHANT_LIMIT = 9;
 
 function merchantsUrl(limit: number): string {
   return `/merchants?limit=${limit}&segment=fashion`;

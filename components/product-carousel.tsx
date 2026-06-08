@@ -44,9 +44,6 @@ export const ProductCarousel = forwardRef<
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
-  // controls initial padding visibility
-  const [isAtStart, setIsAtStart] = useState(true);
-
   const updateScrollState = useCallback(() => {
     const el = scrollRef.current;
 
@@ -59,7 +56,6 @@ export const ProductCarousel = forwardRef<
 
     setCanScrollLeft(nextLeft);
     setCanScrollRight(nextRight);
-    setIsAtStart(scrollLeft <= 4);
     onScrollStateChange?.({
       canScrollLeft: nextLeft,
       canScrollRight: nextRight,

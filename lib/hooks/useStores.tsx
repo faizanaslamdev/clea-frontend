@@ -3,8 +3,6 @@ import { fetchFeaturedStores, fetchAllStores } from '@/lib/api/stores';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { storeKeys } from '@/lib/query/keys';
 
-export { storeKeys };
-
 export function useFeaturedStores() {
   return useQuery({
     queryKey: storeKeys.featured(),

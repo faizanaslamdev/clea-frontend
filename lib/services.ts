@@ -3,56 +3,18 @@
  * Implementation lives under lib/domain/.
  */
 export {
-  getAllProducts,
-  getProductById,
-  getTrendingProducts,
-  getHomeFeaturedProducts,
-  getProductsByCategory,
-  getSimilarProducts,
-  getProductsByStoreId,
-  resolveBrandProducts,
-  type BrandListingResult,
-} from '@/lib/domain/products/catalog';
-
-export {
-  searchProducts,
   resolveProductSearch,
   type ProductSearchResponse,
 } from '@/lib/domain/products/search';
 
-export {
-  filterByPriceRange,
-  filterByRating,
-  sortProducts,
-} from '@/lib/domain/products/filters';
+export { getLowestPriceStore } from '@/lib/domain/products/comparison';
 
-export {
-  getLowestPriceStore,
-  getProductComparison,
-  getPriceChartData,
-  getMatchTypeLabel,
-} from '@/lib/domain/products/comparison';
-
-export { getPriceAIInsights } from '@/lib/domain/products/insights';
-
-export {
-  getStoreById,
-  getStoreBySlug,
-  resolveStoreFromRouteParam,
-  getAllStores,
-  getFeaturedStores,
-} from '@/lib/domain/stores/catalog';
+export { resolveStoreFromRouteParam } from '@/lib/domain/stores/catalog';
 
 export { searchStores } from '@/lib/domain/stores/search';
 
 export { getBrandSlug, getBrandHref } from '@/lib/domain/stores/slug';
 
-export {
-  buildBrandVisitLink,
-  type BrandVisitLink,
-  type BrandVisitLinkOptions,
-} from '@/lib/domain/stores/visit-link';
-
 export { resolveStoreIdForProduct } from '@/lib/domain/products/paths';
 
-export { formatDateShort, formatPrice } from '@/lib/domain/format';
+export { formatPrice } from '@/lib/domain/format';

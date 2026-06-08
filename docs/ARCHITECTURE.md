@@ -14,13 +14,12 @@ components/
   stores/               # Store showcase feature
   …                     # Feature components (product, search, hero, etc.)
 lib/
-  constants/            # Brand (clea.no), curated IDs, search prompts
-  data/                 # Static demo dataset (swap for API later)
+  constants/            # Brand (clea.no), curated merchant IDs, search prompts
   domain/               # Business logic (no React)
-    products/           # Catalog, search, filters, comparison, insights
+    products/           # Search, comparison, path helpers
     stores/
     format.ts
-  api/                  # Async facades for React Query
+  api/                  # Backend fetch facades for React Query
   hooks/                # TanStack Query hooks
   query/                # Query client factory & cache keys
   services.ts           # Public barrel — import from here in app code
@@ -30,13 +29,13 @@ lib/
 
 ## Data flow
 
-1. **Static demo:** `lib/data/dummy-data.ts` holds products and stores.
-2. **Domain:** `lib/domain/*` implements queries, search, Clea insights, formatting.
+1. **Backend API:** `lib/api/*` fetches catalog, products, and merchants from the Clea NestJS API.
+2. **Domain:** `lib/domain/*` implements search resolution, price helpers, and store slug logic.
 3. **Services barrel:** `lib/services.ts` re-exports the domain API for pages and components.
-4. **API layer:** `lib/api/*` wraps services in async functions for hooks.
-5. **UI:** Server pages call `lib/services` directly; client sections use `lib/hooks/*`.
+4. **Hooks:** Client sections use `lib/hooks/*` with TanStack Query (`lib/query/keys.ts`).
+5. **UI:** Server pages may call `lib/services` directly; interactive sections use hooks.
 
-To plug in a real backend, replace `lib/api/*` implementations (or add `fetch` calls in domain) without changing component props.
+Removed demo-era artifacts are documented in [`docs/archive/frontend-unused-exports-report.md`](./archive/frontend-unused-exports-report.md).
 
 ## Styling
 
@@ -49,6 +48,7 @@ Do not add hardcoded colors in components; extend tokens in `styles/tokens.css`.
 ## Conventions
 
 - Import business logic from `@/lib/services`, not from `@/lib/domain/*` (unless extending domain).
+- Import query keys from `@/lib/query/keys`, not from hook re-exports.
 - Use `PageLayout` for pages that need header + footer.
 - Use `section-container` / `section-shell` for page sections (defined in utilities).
 - Query keys live in `lib/query/keys.ts`; stale times in `lib/query/client.ts`.

@@ -61,20 +61,6 @@ export async function fetchCatalogFromApi(
   };
 }
 
-/** All variant rows — prefer fetchCatalogFromApi for listings */
-export async function fetchProductsFromApi(
-  params: FetchProductsParams = {},
-): Promise<{ products: Product[]; total: number }> {
-  const qs = buildProductsQuery(params);
-  const data = await apiFetch<ApiProductListResponse>(`/products?${qs}`, {
-    cache: 'no-store',
-  });
-  return {
-    products: data.items.map(mapApiProductToProduct),
-    total: data.total,
-  };
-}
-
 export async function fetchProductById(
   id: string,
 ): Promise<Product | undefined> {
@@ -100,12 +86,6 @@ export async function fetchFeaturedProducts(
     limit,
   });
   return products;
-}
-
-export async function fetchTrendingProducts(
-  limit = POPULAR_PRODUCTS_LIMIT,
-): Promise<Product[]> {
-  return fetchFeaturedProducts(limit);
 }
 
 function calculateRelevance(product: Product, query: string): number {
@@ -213,8 +193,3 @@ export async function fetchProductsByMerchant(
   return products;
 }
 
-export async function fetchSearchResultItems(
-  query: string,
-): Promise<SearchResult[]> {
-  return (await fetchSearchResults(query)).results;
-}
