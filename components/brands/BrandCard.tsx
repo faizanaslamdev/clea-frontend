@@ -59,24 +59,34 @@ export function BrandCard({ brand }: { brand: Store }) {
         ref={cardRef}
         className="brand-card-tilt relative h-full w-full overflow-hidden p-0"
       >
-        <Image
-          src={brand.coverImage}
-          alt={`${brand.name} cover`}
-          fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 33vw"
-        />
+        {brand.coverImage ? (
+          <Image
+            src={brand.coverImage}
+            alt={`${brand.name} cover`}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 33vw"
+            unoptimized
+          />
+        ) : null}
         <div className="absolute inset-0 bg-foreground/20" aria-hidden />
         <div className="relative flex h-full items-center justify-center p-6">
-          <div className="relative h-[52px] w-[min(78%,11rem)] md:h-[60px]">
-            <Image
-              src={brand.logo ?? ''}
-              alt={brand.name}
-              fill
-              className="object-contain drop-shadow-sm"
-              sizes="184px"
-            />
-          </div>
+          {brand.logo ? (
+            <div className="relative h-[52px] w-[min(78%,11rem)] md:h-[60px]">
+              <Image
+                src={brand.logo}
+                alt={brand.name}
+                fill
+                className="object-contain drop-shadow-sm"
+                sizes="184px"
+                unoptimized
+              />
+            </div>
+          ) : (
+            <p className="max-w-[90%] text-center font-serif text-2xl font-light tracking-tight text-background drop-shadow-md md:text-3xl">
+              {brand.name}
+            </p>
+          )}
         </div>
       </Card>
     </Link>

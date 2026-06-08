@@ -1,18 +1,14 @@
 export interface Store {
-  // id: string;
-  // name: string;
-  // country: string;
-  // logo?: string;
-  // currency: string;
-   id: string;
+  id: string;
   name: string;
-   country: string;
+  country: string;
   currency: string;
   slug?: string;
   href?: string;
   coverImage: string;
   logo?: string;
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
+  productCount?: number;
 }
 
 export interface PricePoint {
@@ -50,6 +46,21 @@ export interface Product {
   savingsPercent: number;
   trending: boolean;
   trendingScore: number;
+  currency?: string;
+  deepLink?: string | null;
+  merchantId?: string;
+  merchantName?: string;
+  colour?: string;
+  size?: string;
+  suitableFor?: string;
+  productType?: string;
+  condition?: string;
+  categoryPath?: string;
+  brandId?: string;
+  dataFeedId?: string;
+  isForSale?: boolean;
+  /** Primary + alternate feed images (normalized). */
+  images?: string[];
 }
 
 export interface SearchResult {

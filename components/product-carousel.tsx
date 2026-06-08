@@ -185,7 +185,9 @@ export const ProductCarousel = forwardRef<
     <div
       key={product.id}
       data-product-slide
-      className={cn('shrink-0 snap-start px-0.5 py-1', 'w-[210px] md:w-[270px]')}
+      className={cn(
+        'flex w-[210px] shrink-0 snap-start flex-col px-0.5 py-1 md:w-[270px]',
+      )}
     >
       <ProductCard
         product={product}

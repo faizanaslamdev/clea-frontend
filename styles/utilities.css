@@ -100,24 +100,28 @@
   }
 
   .trending-product-card {
-    @apply flex w-full cursor-pointer flex-col items-center border-0 bg-transparent p-0;
+    @apply flex w-full cursor-pointer flex-col items-stretch border-0 bg-transparent p-0;
   }
 
-  .trending-product-card__image-wrap {
-    box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0.04),
-      0 0 10px oklch(0 0 0 / 0.12);
-    @apply relative aspect-[2/3] w-full overflow-hidden rounded-xl transition-shadow duration-300;
+  .product-card__image-wrap {
+    @apply relative aspect-[3/4] w-full max-w-full shrink-0 overflow-hidden;
   }
 
-  .trending-product-card:hover .trending-product-card__image-wrap {
-    box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0.05),
-      0 0 12px oklch(0 0 0 / 0.15);
+  .product-card__image {
+    @apply rounded-xl object-contain object-center transition-transform duration-300;
+  }
+
+  .trending-product-card:hover .product-card__image,
+  .product-card-detailed:hover .product-card__image {
+    @apply scale-[1.02];
   }
 
   .trending-product-card__brand {
     @apply mt-3 text-center font-sans text-[11px] font-normal uppercase tracking-[0.14em] text-muted-foreground;
+  }
+
+  .trending-product-card__meta {
+    @apply flex h-[3.25rem] shrink-0 flex-col items-center justify-start;
   }
 
   .trending-product-card__price {
@@ -128,21 +132,8 @@
     @apply flex w-full cursor-pointer flex-col items-stretch border-0 bg-transparent p-0 text-left;
   }
 
-  .product-card-detailed__image-wrap {
-    box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0.04),
-      0 0 10px oklch(0 0 0 / 0.12);
-    @apply relative aspect-[2/3] w-full overflow-hidden rounded-xl transition-shadow duration-300;
-  }
-
-  .product-card-detailed:hover .product-card-detailed__image-wrap {
-    box-shadow:
-      0 0 0 1px oklch(0 0 0 / 0.05),
-      0 0 12px oklch(0 0 0 / 0.15);
-  }
-
   .product-card-detailed__body {
-    @apply pt-3 text-left;
+    @apply flex h-[6.75rem] shrink-0 flex-col pt-3 text-left;
   }
 
   .product-card-detailed__brand {
@@ -878,6 +869,22 @@
 
   .product-detail-modal__gallery-image {
     @apply object-contain object-center;
+  }
+
+  .product-detail-modal__thumbs {
+    @apply mt-3 flex flex-wrap gap-2;
+  }
+
+  .product-detail-modal__thumb {
+    @apply relative h-[4.5rem] w-[3.25rem] shrink-0 overflow-hidden rounded-md border-2 border-transparent bg-muted/40 p-0 transition-colors;
+  }
+
+  .product-detail-modal__thumb--active {
+    @apply border-foreground;
+  }
+
+  .product-detail-modal__thumb-image {
+    @apply h-full w-full object-contain object-center;
   }
 
   .product-detail-modal__info {

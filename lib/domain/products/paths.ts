@@ -15,25 +15,25 @@ export function resolveStoreIdForProduct(
   ) {
     return preferredStoreId;
   }
-  return getLowestPriceStore(product)?.store.id ?? null;
+  return getLowestPriceStore(product)?.store.id ?? product.merchantId ?? null;
 }
 
-export function getProductHref(
+export async function getProductHref(
   productId: string,
   preferredStoreId?: string | null,
-): string {
-  const product = getProductById(productId);
+): Promise<string> {
+  const product = await getProductById(productId);
   if (!product) return '/brands';
   return getProductHrefFromProduct(product, preferredStoreId);
 }
 
-export function getProductHrefFromProduct(
+export async function getProductHrefFromProduct(
   product: Product,
   preferredStoreId?: string | null,
-): string {
+): Promise<string> {
   const storeId = resolveStoreIdForProduct(product, preferredStoreId);
   if (!storeId) return '/brands';
-  const store = getStoreById(storeId);
+  const store = await getStoreById(storeId);
   if (!store) return '/brands';
   return `/brands/${getBrandSlug(store)}/products/${product.id}`;
 }

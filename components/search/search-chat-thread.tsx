@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { ProductGrid } from '@/components/product-grid';
+import { LoadMoreButton } from '@/components/shared/load-more-button';
 import type { Product } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -12,10 +13,14 @@ export interface SearchChatMessage {
   /** Products shown for this search turn (assistant messages only). */
   products?: Product[];
   query?: string;
+  searchTotal?: number;
+  searchHasMore?: boolean;
 }
 
 interface SearchChatThreadProps {
   messages: SearchChatMessage[];
+  onLoadMoreSearch?: (messageId: string) => void;
+  loadingMoreMessageId?: string | null;
 }
 
 function scrollToLatestMessage(messageEl: HTMLElement | null) {
@@ -29,7 +34,11 @@ function scrollToLatestMessage(messageEl: HTMLElement | null) {
   });
 }
 
-export function SearchChatThread({ messages }: SearchChatThreadProps) {
+export function SearchChatThread({
+  messages,
+  onLoadMoreSearch,
+  loadingMoreMessageId = null,
+}: SearchChatThreadProps) {
   const latestMessageRef = useRef<HTMLDivElement>(null);
   const latestMessageId = messages.at(-1)?.id;
 
@@ -75,6 +84,11 @@ export function SearchChatThread({ messages }: SearchChatThreadProps) {
                   : 'Søkeresultater'
               }
             >
+              {message.searchTotal != null && message.searchTotal > 0 ? (
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Viser {message.products.length} av {message.searchTotal} produkter
+                </p>
+              ) : null}
               <ProductGrid
                 products={message.products}
                 emptyMessage={
@@ -83,6 +97,12 @@ export function SearchChatThread({ messages }: SearchChatThreadProps) {
                     : 'Ingen produkter funnet'
                 }
               />
+              {message.searchHasMore && onLoadMoreSearch ? (
+                <LoadMoreButton
+                  onClick={() => onLoadMoreSearch(message.id)}
+                  loading={loadingMoreMessageId === message.id}
+                />
+              ) : null}
             </div>
           ) : null}
         </li>

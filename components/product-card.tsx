@@ -20,6 +20,27 @@ const TRENDING_CARD_IMAGE_SIZES =
 const DETAILED_CARD_IMAGE_SIZES =
   '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw';
 
+function ProductCardImage({
+  product,
+  sizes,
+}: {
+  product: Product;
+  sizes: string;
+}) {
+  return (
+    <div className="product-card__image-wrap">
+      <Image
+        src={product.image}
+        alt={product.name}
+        fill
+        className="product-card__image"
+        sizes={sizes}
+        unoptimized
+      />
+    </div>
+  );
+}
+
 function useListingPrice(product: Product, storeId?: string) {
   const lowest = getLowestPriceStore(product);
   if (storeId && product.prices[storeId] != null) {
@@ -46,20 +67,19 @@ export function ProductCard({
         className="trending-product-card group"
         onClick={openDetails}
       >
-        <div className="trending-product-card__image-wrap">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            sizes={imageSizes ?? TRENDING_CARD_IMAGE_SIZES}
-          />
-        </div>
+        <ProductCardImage
+          product={product}
+          sizes={imageSizes ?? TRENDING_CARD_IMAGE_SIZES}
+        />
 
-        <p className="trending-product-card__brand">{product.brand}</p>
-        {price != null && (
-          <p className="trending-product-card__price">{formatPrice(price)}</p>
-        )}
+        <div className="trending-product-card__meta">
+          <p className="trending-product-card__brand">{product.brand}</p>
+          {price != null && (
+            <p className="trending-product-card__price">
+              {formatPrice(price, product.currency)}
+            </p>
+          )}
+        </div>
       </button>
     );
   }
@@ -70,21 +90,18 @@ export function ProductCard({
       className="product-card-detailed group"
       onClick={openDetails}
     >
-      <div className="product-card-detailed__image-wrap">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-          sizes={imageSizes ?? DETAILED_CARD_IMAGE_SIZES}
-        />
-      </div>
+      <ProductCardImage
+        product={product}
+        sizes={imageSizes ?? DETAILED_CARD_IMAGE_SIZES}
+      />
 
       <div className="product-card-detailed__body">
         <p className="product-card-detailed__brand">{product.brand}</p>
         <h3 className="product-card-detailed__title">{product.name}</h3>
         {price != null && (
-          <p className="product-card-detailed__price">{formatPrice(price)}</p>
+          <p className="product-card-detailed__price">
+            {formatPrice(price, product.currency)}
+          </p>
         )}
         <p className="product-card-detailed__shop">
           Handle hos {product.brand}

@@ -13,7 +13,7 @@ interface ProductGridProps {
 }
 
 const GRID_CLASS =
-  'grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 xl:grid-cols-4';
+  'grid grid-cols-2 items-stretch gap-x-5 gap-y-10 sm:grid-cols-3 xl:grid-cols-4';
 
 export function ProductGrid({
   products,
@@ -28,10 +28,7 @@ export function ProductGrid({
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className={cn(
-              'animate-pulse rounded-xl bg-muted',
-              variant === 'trending' ? 'aspect-[2/3]' : 'aspect-[2/3]',
-            )}
+            className="aspect-[3/4] animate-pulse rounded-xl bg-muted"
           />
         ))}
       </div>
@@ -51,12 +48,13 @@ export function ProductGrid({
   return (
     <div className={GRID_CLASS}>
       {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          storeId={storeId}
-          variant={variant}
-        />
+        <div key={product.id} className="min-w-0">
+          <ProductCard
+            product={product}
+            storeId={storeId}
+            variant={variant}
+          />
+        </div>
       ))}
     </div>
   );

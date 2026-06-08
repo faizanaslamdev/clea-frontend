@@ -3,10 +3,10 @@ export function formatDateShort(dateString: string): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export function formatPrice(price: number): string {
-  return price.toLocaleString('sv-SE', {
+export function formatPrice(price: number, currency = 'NOK'): string {
+  return price.toLocaleString('nb-NO', {
     style: 'currency',
-    currency: 'SEK',
+    currency,
     minimumFractionDigits: 0,
   });
 }

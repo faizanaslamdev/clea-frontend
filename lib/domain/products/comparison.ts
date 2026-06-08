@@ -1,40 +1,61 @@
-import { stores } from '@/lib/data/dummy-data';
 import { formatDateShort } from '@/lib/domain/format';
 import { getProductById } from '@/lib/domain/products/catalog';
 import { getStoreById } from '@/lib/domain/stores/catalog';
 import type { MatchType, Product, Store } from '@/lib/types';
 
 export function getLowestPriceStore(
-  product: Product
+  product: Product,
 ): { store: Store; price: number } | null {
-  let lowestStore: Store | null = null;
+  let lowestStoreId: string | null = null;
   let lowestPrice = Infinity;
 
   for (const [storeId, price] of Object.entries(product.prices)) {
-    if (product.inStock[storeId] && price < lowestPrice) {
+    if (product.inStock[storeId] !== false && price < lowestPrice) {
       lowestPrice = price;
-      lowestStore = getStoreById(storeId) ?? null;
+      lowestStoreId = storeId;
     }
   }
 
-  return lowestStore ? { store: lowestStore, price: lowestPrice } : null;
+  if (!lowestStoreId) return null;
+
+  return {
+    store: {
+      id: lowestStoreId,
+      name: product.merchantName ?? lowestStoreId,
+      country: 'Norway',
+      currency: product.currency ?? 'NOK',
+      coverImage: product.image,
+    },
+    price: lowestPrice,
+  };
 }
 
-export function getProductComparison(productId: string) {
-  const product = getProductById(productId);
+export async function getProductComparison(productId: string) {
+  const product = await getProductById(productId);
   if (!product) return null;
 
-  const comparison = stores.map((store) => ({
-    store,
-    price: product.prices[store.id] ?? null,
-    inStock: product.inStock[store.id] ?? false,
-  }));
+  const entries = await Promise.all(
+    Object.keys(product.prices).map(async (storeId) => {
+      const store = (await getStoreById(storeId)) ?? {
+        id: storeId,
+        name: product.merchantName ?? storeId,
+        country: 'Norway',
+        currency: product.currency ?? 'NOK',
+        coverImage: product.image,
+      };
+      return {
+        store,
+        price: product.prices[storeId] ?? null,
+        inStock: product.inStock[storeId] ?? false,
+      };
+    }),
+  );
 
-  return { product, comparison };
+  return { product, comparison: entries };
 }
 
-export function getPriceChartData(productId: string, days: 7 | 15 | 30 = 30) {
-  const product = getProductById(productId);
+export async function getPriceChartData(productId: string, days: 7 | 15 | 30 = 30) {
+  const product = await getProductById(productId);
   if (!product) return null;
 
   const slice = product.priceHistory.slice(-days);

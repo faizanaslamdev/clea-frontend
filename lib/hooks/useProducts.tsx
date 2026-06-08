@@ -3,17 +3,20 @@ import {
   fetchFeaturedProducts,
   fetchTrendingProducts,
   fetchProductById,
-  fetchSearchResults,
+  fetchSearchResultItems,
   fetchSimilarProducts,
-  fetchProductComparison,
-  fetchPriceChartData,
 } from '@/lib/api/products';
+import {
+  getProductComparison,
+  getPriceChartData,
+} from '@/lib/domain/products/comparison';
+import { POPULAR_PRODUCTS_LIMIT } from '@/lib/constants/featured';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { productKeys } from '@/lib/query/keys';
 
 export { productKeys };
 
-export function useFeaturedProducts(limit = 8) {
+export function useFeaturedProducts(limit = POPULAR_PRODUCTS_LIMIT) {
   return useQuery({
     queryKey: productKeys.featured(),
     queryFn: () => fetchFeaturedProducts(limit),
@@ -21,7 +24,7 @@ export function useFeaturedProducts(limit = 8) {
   });
 }
 
-export function useTrendingProducts(limit = 6) {
+export function useTrendingProducts(limit = POPULAR_PRODUCTS_LIMIT) {
   return useQuery({
     queryKey: productKeys.trending(),
     queryFn: () => fetchTrendingProducts(limit),
@@ -41,7 +44,7 @@ export function useProduct(id: string) {
 export function useSearchResults(query: string) {
   return useQuery({
     queryKey: productKeys.search(query),
-    queryFn: () => fetchSearchResults(query),
+    queryFn: () => fetchSearchResultItems(query),
     staleTime: STALE_TIME_STATIC_MS,
     enabled: query.length > 1,
   });
@@ -59,7 +62,7 @@ export function useSimilarProducts(id: string, limit = 4) {
 export function useProductComparison(id: string) {
   return useQuery({
     queryKey: productKeys.comparison(id),
-    queryFn: () => fetchProductComparison(id),
+    queryFn: () => getProductComparison(id),
     staleTime: STALE_TIME_STATIC_MS,
     enabled: !!id,
   });
@@ -68,7 +71,7 @@ export function useProductComparison(id: string) {
 export function usePriceChartData(id: string, days: 7 | 15 | 30 = 30) {
   return useQuery({
     queryKey: productKeys.chart(id, days),
-    queryFn: () => fetchPriceChartData(id, days),
+    queryFn: () => getPriceChartData(id, days),
     staleTime: STALE_TIME_STATIC_MS,
     enabled: !!id,
   });

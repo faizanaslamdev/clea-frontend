@@ -3,10 +3,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-      },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'cdn.occtoo-media.com' },
+      { protocol: 'https', hostname: 'images2.productserve.com' },
     ],
   },
   async redirects() {

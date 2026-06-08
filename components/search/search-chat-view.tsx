@@ -8,14 +8,18 @@ import {
   type SearchChatMessage,
 } from '@/components/search/search-chat-thread';
 import { SearchLanding } from '@/components/search/search-landing';
+import { LoadingBlock } from '@/components/shared/loading-block';
 import { buildSearchAssistantReply } from '@/lib/domain/search/chat-reply';
-import type { Product } from '@/lib/types';
 import { resolveProductSearch } from '@/lib/services';
+import type { Product } from '@/lib/types';
 
 function createMessage(
   role: SearchChatMessage['role'],
   content: string,
-  options?: { products?: Product[]; query?: string },
+  options?: Pick<
+    SearchChatMessage,
+    'products' | 'query' | 'searchTotal' | 'searchHasMore'
+  >,
 ): SearchChatMessage {
   return {
     id: crypto.randomUUID(),
@@ -29,16 +33,22 @@ function buildTurnMessages(
   query: string,
   products: Product[],
   usedFallback: boolean,
+  total: number,
+  hasMore: boolean,
 ) {
   const trimmed = query.trim();
   return [
     createMessage('user', trimmed),
     createMessage(
       'assistant',
-      buildSearchAssistantReply(trimmed, products.length, { usedFallback }),
+      buildSearchAssistantReply(trimmed, usedFallback ? products.length : total, {
+        usedFallback,
+      }),
       {
         products,
         query: trimmed,
+        searchTotal: usedFallback ? products.length : total,
+        searchHasMore: hasMore,
       },
     ),
   ];
@@ -51,6 +61,10 @@ export function SearchChatView() {
 
   const [messages, setMessages] = useState<SearchChatMessage[]>([]);
   const [draft, setDraft] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [loadingMoreMessageId, setLoadingMoreMessageId] = useState<string | null>(
+    null,
+  );
 
   const syncUrl = useCallback(
     (query: string) => {
@@ -64,19 +78,25 @@ export function SearchChatView() {
   );
 
   const runSearch = useCallback(
-    (query: string) => {
+    async (query: string) => {
       const trimmed = query.trim();
       if (!trimmed) return;
 
-      const { results, usedFallback } = resolveProductSearch(trimmed);
-      const products = results.map((r) => r.product);
+      setIsSearching(true);
       syncUrl(trimmed);
 
-      setMessages((prev) => [
-        ...prev,
-        ...buildTurnMessages(trimmed, products, usedFallback),
-      ]);
-      setDraft('');
+      try {
+        const { results, usedFallback, total, hasMore } =
+          await resolveProductSearch(trimmed);
+        const products = results.map((r) => r.product);
+        setMessages((prev) => [
+          ...prev,
+          ...buildTurnMessages(trimmed, products, usedFallback, total, hasMore),
+        ]);
+        setDraft('');
+      } finally {
+        setIsSearching(false);
+      }
     },
     [syncUrl],
   );
@@ -84,14 +104,59 @@ export function SearchChatView() {
   useEffect(() => {
     if (!urlQuery || messages.length > 0) return;
 
-    const { results, usedFallback } = resolveProductSearch(urlQuery);
-    const products = results.map((r) => r.product);
-    setMessages(buildTurnMessages(urlQuery, products, usedFallback));
+    let cancelled = false;
+    setIsSearching(true);
+
+    resolveProductSearch(urlQuery)
+      .then(({ results, usedFallback, total, hasMore }) => {
+        if (cancelled) return;
+        const products = results.map((r) => r.product);
+        setMessages(buildTurnMessages(urlQuery, products, usedFallback, total, hasMore));
+      })
+      .finally(() => {
+        if (!cancelled) setIsSearching(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [urlQuery, messages.length]);
 
   const handleSubmitQuery = (trimmed: string) => {
-    runSearch(trimmed);
+    void runSearch(trimmed);
   };
+
+  const handleLoadMoreSearch = useCallback(
+    async (messageId: string) => {
+      const target = messages.find((m) => m.id === messageId);
+      if (!target?.query || !target.products?.length) return;
+
+      setLoadingMoreMessageId(messageId);
+      try {
+        const { results, total, hasMore } = await resolveProductSearch(
+          target.query,
+          { offset: target.products.length },
+        );
+        const nextProducts = results.map((r) => r.product);
+
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === messageId && m.products
+              ? {
+                  ...m,
+                  products: [...m.products, ...nextProducts],
+                  searchTotal: total,
+                  searchHasMore: hasMore,
+                }
+              : m,
+          ),
+        );
+      } finally {
+        setLoadingMoreMessageId(null);
+      }
+    },
+    [messages],
+  );
 
   const showLanding = !urlQuery && messages.length === 0;
 
@@ -106,7 +171,15 @@ export function SearchChatView() {
   return (
     <div className="chat-page">
       <div className="chat-page__body section-container">
-        <SearchChatThread messages={messages} />
+        {isSearching && messages.length === 0 ? (
+          <LoadingBlock className="h-64" />
+        ) : (
+          <SearchChatThread
+            messages={messages}
+            onLoadMoreSearch={(id) => void handleLoadMoreSearch(id)}
+            loadingMoreMessageId={loadingMoreMessageId}
+          />
+        )}
       </div>
 
       <HeroSearchForm

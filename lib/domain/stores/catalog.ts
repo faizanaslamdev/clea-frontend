@@ -1,27 +1,32 @@
-import { FEATURED_STORE_IDS } from '@/lib/constants/featured';
-import { stores } from '@/lib/data/dummy-data';
+import { cache } from 'react';
+import { fetchAllStoresFromApi, fetchFeaturedStores } from '@/lib/api/stores';
 import type { Store } from '@/lib/types';
 import { getBrandSlug } from '@/lib/domain/stores/slug';
 
-export function getStoreById(id: string): Store | undefined {
+const loadStores = cache(async (): Promise<Store[]> => {
+  return fetchAllStoresFromApi();
+});
+
+export async function getStoreById(id: string): Promise<Store | undefined> {
+  const stores = await loadStores();
   return stores.find((s) => s.id === id);
 }
 
-export function getStoreBySlug(slug: string): Store | undefined {
+export async function getStoreBySlug(slug: string): Promise<Store | undefined> {
+  const stores = await loadStores();
   return stores.find((s) => getBrandSlug(s) === slug);
 }
 
-/** Resolve brand from URL segment (slug or legacy internal id). */
-export function resolveStoreFromRouteParam(param: string): Store | undefined {
-  return getStoreBySlug(param) ?? getStoreById(param);
+export async function resolveStoreFromRouteParam(
+  param: string,
+): Promise<Store | undefined> {
+  return (await getStoreBySlug(param)) ?? (await getStoreById(param));
 }
 
-export function getAllStores(): Store[] {
-  return stores;
+export async function getAllStores(): Promise<Store[]> {
+  return loadStores();
 }
 
-export function getFeaturedStores(): Store[] {
-  return FEATURED_STORE_IDS.map((id) => getStoreById(id)).filter(
-    (s): s is Store => s != null
-  );
+export async function getFeaturedStores(): Promise<Store[]> {
+  return fetchFeaturedStores();
 }
