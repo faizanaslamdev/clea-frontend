@@ -23,6 +23,10 @@ import {
   subscribeChatAnchorBridge,
 } from '@/lib/chat/chat-anchor-bridge';
 import { anchorPreviewFromProduct } from '@/lib/chat/anchor-preview';
+import {
+  PRODUCT_LOAD_ERROR_MESSAGE,
+  PRODUCT_NOT_FOUND_MESSAGE,
+} from '@/lib/api/api-errors';
 import { useProduct, useSimilarProducts } from '@/lib/hooks/useProducts';
 
 function useChatAnchorBridge() {
@@ -49,7 +53,12 @@ export function ProductDetailModal({
   onOpenChange,
 }: ProductDetailModalProps) {
   const chatAnchor = useChatAnchorBridge();
-  const { data: product, isLoading } = useProduct(productId ?? '');
+  const {
+    data: product,
+    isLoading,
+    isError,
+    isFetched,
+  } = useProduct(productId ?? '');
   const { data: similarProducts = [] } = useSimilarProducts(productId ?? '', 4);
 
   const listingStoreId = useMemo(() => {
@@ -123,6 +132,11 @@ export function ProductDetailModal({
 
           {isLoading ? (
             <LoadingBlock className="m-8 h-96" />
+          ) : isError ? (
+            <ProductModalErrorState
+              message={PRODUCT_LOAD_ERROR_MESSAGE}
+              onClose={() => onOpenChange(false)}
+            />
           ) : product ? (
             <>
               <button
@@ -292,10 +306,44 @@ export function ProductDetailModal({
                 ) : null}
               </div>
             </>
+          ) : isFetched ? (
+            <ProductModalErrorState
+              message={PRODUCT_NOT_FOUND_MESSAGE}
+              onClose={() => onOpenChange(false)}
+            />
           ) : null}
         </DialogPrimitive.Content>
       </DialogPortal>
     </Dialog>
+  );
+}
+
+function ProductModalErrorState({
+  message,
+  onClose,
+}: {
+  message: string;
+  onClose: () => void;
+}) {
+  return (
+    <div className="product-detail-modal__error">
+      <button
+        type="button"
+        className="product-detail-modal__close"
+        onClick={onClose}
+        aria-label="Lukk"
+      >
+        <X className="size-5" strokeWidth={1.5} />
+      </button>
+      <p className="product-detail-modal__error-message">{message}</p>
+      <button
+        type="button"
+        className="product-detail-modal__error-retry"
+        onClick={onClose}
+      >
+        Lukk
+      </button>
+    </div>
   );
 }
 

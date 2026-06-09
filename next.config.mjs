@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import { validateProductionApiUrl } from './lib/api/api-base-url.mjs';
 
 if (process.env.NODE_ENV === 'production') {
@@ -33,4 +34,12 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  widenClientFileUpload: true,
+  disableLogger: true,
+  automaticVercelMonitors: false,
+});

@@ -18,6 +18,7 @@ interface SearchChatThreadProps {
   onLoadMoreSearch?: (messageId: string) => void;
   onSuggestionSelect?: (query: string, messageId: string) => void;
   loadingMoreMessageId?: string | null;
+  interactionDisabled?: boolean;
 }
 
 function scrollToLatestMessage(messageEl: HTMLElement | null) {
@@ -44,6 +45,7 @@ export function SearchChatThread({
   onLoadMoreSearch,
   onSuggestionSelect,
   loadingMoreMessageId = null,
+  interactionDisabled = false,
 }: SearchChatThreadProps) {
   const latestMessageRef = useRef<HTMLDivElement>(null);
   const latestMessageId = messages.at(-1)?.id;
@@ -109,6 +111,7 @@ export function SearchChatThread({
               <SearchSuggestionChips
                 suggestions={visibleSuggestions}
                 ariaLabel="Forslag"
+                disabled={interactionDisabled}
                 onSelect={(query) => onSuggestionSelect(query, message.id)}
               />
             ) : null}
@@ -141,6 +144,7 @@ export function SearchChatThread({
                   <LoadMoreButton
                     onClick={() => onLoadMoreSearch(message.id)}
                     loading={loadingMoreMessageId === message.id}
+                    disabled={interactionDisabled}
                   />
                 ) : null}
               </div>

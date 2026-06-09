@@ -97,4 +97,5 @@ export interface ChatTurnResult {
   anchorProductId?: string;
   suggestions?: string[];
   usedFallback: boolean;
+  degraded?: boolean;
 }

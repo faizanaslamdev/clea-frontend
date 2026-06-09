@@ -16,6 +16,7 @@ export interface SearchChatMessageData {
   anchorProductId?: string;
   anchorPreview?: AnchorPreview;
   suggestions?: string[];
+  degraded?: boolean;
 }
 
 function createMessage(
@@ -45,6 +46,7 @@ function assistantOptionsFromTurn(
     intent: turn.intent,
     anchorProductId: turn.anchorProductId,
     suggestions: turn.suggestions,
+    degraded: turn.degraded,
   };
 }
 

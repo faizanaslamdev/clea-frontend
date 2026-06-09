@@ -36,7 +36,8 @@ import {
   shouldClearActiveProductId,
   syncAnchorSessionForTurn,
 } from '@/lib/chat/anchor-turn-state';
-import { CHAT_SEARCH_ERROR_MESSAGE } from '@/lib/constants/chat';
+import { resolveChatErrorMessage } from '@/lib/api/api-errors';
+import { ChatDegradedBanner } from '@/components/search/chat-degraded-banner';
 
 export function SearchChatView() {
   const router = useRouter();
@@ -100,10 +101,18 @@ export function SearchChatView() {
   );
 
   const appendErrorTurn = useCallback(
-    (query: string, options?: { anchorPreview?: AnchorPreview }) => {
+    (
+      query: string,
+      error: unknown,
+      options?: { anchorPreview?: AnchorPreview },
+    ) => {
       setMessages((prev) => [
         ...prev,
-        ...buildErrorTurnMessagePair(query, CHAT_SEARCH_ERROR_MESSAGE, options),
+        ...buildErrorTurnMessagePair(
+          query,
+          resolveChatErrorMessage(error),
+          options,
+        ),
       ]);
     },
     [],
@@ -141,9 +150,9 @@ export function SearchChatView() {
         if (turnGenerationRef.current !== turnGeneration) return;
         applyTurnResult(trimmed, turn, options);
         setDraft('');
-      } catch {
+      } catch (error) {
         if (turnGenerationRef.current !== turnGeneration) return;
-        appendErrorTurn(trimmed, options);
+        appendErrorTurn(trimmed, error, options);
       } finally {
         if (turnGenerationRef.current === turnGeneration) {
           setIsSearching(false);
@@ -223,9 +232,9 @@ export function SearchChatView() {
           setActiveProductId(turn.anchorProductId);
         }
       })
-      .catch(() => {
+      .catch((error) => {
         if (cancelled || turnGenerationRef.current !== turnGeneration) return;
-        appendErrorTurn(urlQuery, { anchorPreview });
+        appendErrorTurn(urlQuery, error, { anchorPreview });
       })
       .finally(() => {
         if (!cancelled && turnGenerationRef.current === turnGeneration) {
@@ -244,6 +253,8 @@ export function SearchChatView() {
 
   const handleSuggestionSelect = useCallback(
     (query: string, sourceMessageId: string) => {
+      if (isSearching) return;
+
       const sourceMessage = messages.find((message) => message.id === sourceMessageId);
 
       setMessages((prev) =>
@@ -266,7 +277,7 @@ export function SearchChatView() {
         anchorPreview ? { anchorPreview } : undefined,
       );
     },
-    [activeProductId, messages, runTurn],
+    [activeProductId, isSearching, messages, runTurn],
   );
 
   const handleLoadMoreSearch = useCallback(
@@ -311,13 +322,13 @@ export function SearchChatView() {
               : m,
           ),
         );
-      } catch {
+      } catch (error) {
         setMessages((prev) => [
           ...prev,
           {
             id: crypto.randomUUID(),
             role: 'assistant',
-            content: CHAT_SEARCH_ERROR_MESSAGE,
+            content: resolveChatErrorMessage(error),
           },
         ]);
       } finally {
@@ -328,6 +339,9 @@ export function SearchChatView() {
   );
 
   const showLanding = !urlQuery && messages.length === 0;
+  const showDegradedBanner = messages.some(
+    (message) => message.role === 'assistant' && message.degraded,
+  );
 
   if (showLanding) {
     return (
@@ -355,9 +369,12 @@ export function SearchChatView() {
               onLoadMoreSearch={(id) => void handleLoadMoreSearch(id)}
               onSuggestionSelect={handleSuggestionSelect}
               loadingMoreMessageId={loadingMoreMessageId}
+              interactionDisabled={isSearching}
             />
           )}
         </div>
+
+        <ChatDegradedBanner visible={showDegradedBanner} />
 
         <div className="chat-page__composer-dock">
           <HeroSearchForm
@@ -368,6 +385,7 @@ export function SearchChatView() {
             value={draft}
             onValueChange={setDraft}
             onSubmitQuery={handleSubmitQuery}
+            submitLocked={isSearching}
           />
           <ChatNewChatButton
             onNewChat={handleNewChat}

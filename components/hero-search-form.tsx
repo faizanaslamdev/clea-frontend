@@ -20,6 +20,7 @@ interface HeroSearchFormProps {
   value?: string;
   onValueChange?: (value: string) => void;
   onSubmitQuery?: (query: string) => void;
+  submitLocked?: boolean;
 }
 
 export function HeroSearchForm({
@@ -32,6 +33,7 @@ export function HeroSearchForm({
   value: controlledValue,
   onValueChange,
   onSubmitQuery,
+  submitLocked = false,
 }: HeroSearchFormProps) {
   const [category, setCategory] = useState<ShopCategory>('mens');
   const [internalQuery, setInternalQuery] = useState('');
@@ -58,6 +60,8 @@ export function HeroSearchForm({
   );
 
   const submitQuery = useCallback(() => {
+    if (submitLocked) return;
+
     const trimmed = query.trim();
     if (!trimmed) return;
 
@@ -67,7 +71,7 @@ export function HeroSearchForm({
     }
 
     navigateToChat(trimmed);
-  }, [query, onSubmitQuery, navigateToChat]);
+  }, [query, onSubmitQuery, navigateToChat, submitLocked]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,8 +93,10 @@ export function HeroSearchForm({
         className={cn(
           'hero-search-bar hero-search-bar--compact',
           size === 'large' && 'hero-search-bar--large',
+          submitLocked && 'hero-search-bar--locked',
           className,
         )}
+        aria-busy={submitLocked}
       >
         <label htmlFor={inputId} className="sr-only">
           Beskriv hva du leter etter
@@ -105,6 +111,8 @@ export function HeroSearchForm({
           className="hero-search-bar--compact__input"
           autoComplete="off"
           enterKeyHint="search"
+          disabled={submitLocked}
+          readOnly={submitLocked}
         />
         <button
           type="submit"
@@ -112,7 +120,7 @@ export function HeroSearchForm({
             'hero-search-bar--compact__submit',
             hasText && 'hero-search-bar--compact__submit--active',
           )}
-          disabled={!hasText}
+          disabled={!hasText || submitLocked}
           aria-label="Søk"
         >
           <ArrowUp className="size-[1.125rem]" strokeWidth={2.25} />
@@ -149,7 +157,14 @@ export function HeroSearchForm({
         })}
       </div>
 
-      <form onSubmit={handleSubmit} className="hero-search-card">
+      <form
+        onSubmit={handleSubmit}
+        className={cn(
+          'hero-search-card',
+          submitLocked && 'hero-search-card--locked',
+        )}
+        aria-busy={submitLocked}
+      >
         <label htmlFor={inputId} className="sr-only">
           Beskriv hva du leter etter
         </label>
@@ -162,6 +177,8 @@ export function HeroSearchForm({
           rows={1}
           className="hero-search-card__input"
           enterKeyHint="search"
+          disabled={submitLocked}
+          readOnly={submitLocked}
         />
 
         <div className="hero-search-card__footer">
@@ -171,7 +188,7 @@ export function HeroSearchForm({
               'hero-search-card__submit',
               hasText && 'hero-search-card__submit--active',
             )}
-            disabled={!hasText}
+            disabled={!hasText || submitLocked}
             aria-label="Søk"
           >
             <ArrowUp className="size-[1.125rem]" strokeWidth={2.25} />

@@ -61,5 +61,6 @@ export async function fetchChatTurn(
     anchorProductId: data.anchorProductId,
     suggestions: data.suggestions,
     usedFallback: data.meta?.usedFallback ?? false,
+    degraded: data.meta?.degraded ?? false,
   };
 }
