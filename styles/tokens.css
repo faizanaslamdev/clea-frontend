@@ -33,6 +33,7 @@
   --site-header-height: 4rem;
   --sticky-hero-search-width: 28rem;
   --chat-composer-width: 32rem;
+  --chat-new-chat-btn-size: 3.4rem;
   --search-highlight: oklch(0.94 0.12 95);
   --search-landing-glow: oklch(0.88 0.06 280 / 0.22);
   --search-typewriter-min-height: 3rem;

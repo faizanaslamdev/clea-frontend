@@ -1,7 +1,7 @@
-const DEFAULT_API_URL = 'http://localhost:3000';
+import { resolveApiBaseUrl } from './api-base-url.mjs';
 
 export function getApiBaseUrl(): string {
-  return (process.env.NEXT_PUBLIC_API_URL ?? DEFAULT_API_URL).replace(/\/$/, '');
+  return resolveApiBaseUrl(process.env);
 }
 
 export class ApiError extends Error {

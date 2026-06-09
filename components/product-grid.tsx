@@ -10,6 +10,7 @@ interface ProductGridProps {
   loading?: boolean;
   emptyMessage?: string;
   variant?: ProductCardVariant;
+  enableAnchorActions?: boolean;
 }
 
 const GRID_CLASS =
@@ -21,6 +22,7 @@ export function ProductGrid({
   loading = false,
   emptyMessage = 'No products found',
   variant = 'detailed',
+  enableAnchorActions = false,
 }: ProductGridProps) {
   if (loading) {
     return (
@@ -53,6 +55,7 @@ export function ProductGrid({
             product={product}
             storeId={storeId}
             variant={variant}
+            enableAnchorActions={enableAnchorActions}
           />
         </div>
       ))}

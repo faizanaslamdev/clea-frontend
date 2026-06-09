@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { ArrowUpRight, Share2, X } from 'lucide-react';
@@ -18,7 +18,20 @@ import {
   formatPrice,
   resolveStoreIdForProduct,
 } from '@/lib/services';
+import {
+  getChatAnchorBridge,
+  subscribeChatAnchorBridge,
+} from '@/lib/chat/chat-anchor-bridge';
+import { anchorPreviewFromProduct } from '@/lib/chat/anchor-preview';
 import { useProduct, useSimilarProducts } from '@/lib/hooks/useProducts';
+
+function useChatAnchorBridge() {
+  return useSyncExternalStore(
+    subscribeChatAnchorBridge,
+    getChatAnchorBridge,
+    () => null,
+  );
+}
 
 const DESCRIPTION_PREVIEW_LENGTH = 220;
 
@@ -35,6 +48,7 @@ export function ProductDetailModal({
   open,
   onOpenChange,
 }: ProductDetailModalProps) {
+  const chatAnchor = useChatAnchorBridge();
   const { data: product, isLoading } = useProduct(productId ?? '');
   const { data: similarProducts = [] } = useSimilarProducts(productId ?? '', 4);
 
@@ -209,6 +223,47 @@ export function ProductDetailModal({
                           </span>
                           <ArrowUpRight className="size-5 shrink-0" strokeWidth={1.5} />
                         </a>
+                      </div>
+                    ) : null}
+
+                    {chatAnchor && productId ? (
+                      <div
+                        className="product-detail-modal__chat-actions"
+                        role="group"
+                        aria-label="Chat-handlinger"
+                      >
+                        <button
+                          type="button"
+                          className="product-detail-modal__chat-action"
+                          disabled={chatAnchor.isAnchorLoading}
+                          onClick={() => {
+                            chatAnchor.setActiveProductId(productId);
+                            void chatAnchor.runAnchorAction(
+                              productId,
+                              'similar',
+                              anchorPreviewFromProduct(product),
+                            );
+                            onOpenChange(false);
+                          }}
+                        >
+                          Vis lignende
+                        </button>
+                        <button
+                          type="button"
+                          className="product-detail-modal__chat-action"
+                          disabled={chatAnchor.isAnchorLoading}
+                          onClick={() => {
+                            chatAnchor.setActiveProductId(productId);
+                            void chatAnchor.runAnchorAction(
+                              productId,
+                              'cheaper',
+                              anchorPreviewFromProduct(product),
+                            );
+                            onOpenChange(false);
+                          }}
+                        >
+                          Finn billigere
+                        </button>
                       </div>
                     ) : null}
 

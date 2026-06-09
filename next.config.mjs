@@ -1,3 +1,9 @@
+import { validateProductionApiUrl } from './lib/api/api-base-url.mjs';
+
+if (process.env.NODE_ENV === 'production') {
+  validateProductionApiUrl(process.env.NEXT_PUBLIC_API_URL);
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {

@@ -78,3 +78,5 @@ npm run lint
 ```
 
 Set `NEXT_PUBLIC_API_URL` to point at the Clea backend (default local: `http://localhost:3000` API).
+
+**Production builds** (`npm run build`) require `NEXT_PUBLIC_API_URL` to be set to a public `http`/`https` URL. Builds fail if the variable is missing or points at localhost, `127.0.0.1`, or other loopback hosts. Preview and staging deploys must set the variable to the matching backend URL before building.

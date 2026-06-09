@@ -152,6 +152,44 @@
     @apply mt-1.5 font-sans text-[11px] font-normal uppercase tracking-[0.12em] text-muted-foreground;
   }
 
+  .product-card-detailed-wrap {
+    @apply relative flex h-full min-w-0 flex-col;
+  }
+
+  .product-card-detailed__actions {
+    @apply mt-2 flex flex-wrap gap-2;
+  }
+
+  .product-card-detailed__action {
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--foreground);
+    transition:
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    @apply cursor-pointer rounded-full px-3 py-1.5 font-sans text-[11px] font-medium leading-none disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .product-card-detailed__action:hover,
+  .product-card-detailed__action:focus-visible {
+    background-color: var(--hero-toggle-active-bg);
+    border-color: var(--hero-toggle-active-bg);
+    color: var(--hero-toggle-active-fg);
+  }
+
+  @media (min-width: 768px) {
+    .product-card-detailed-wrap:not(:hover):not(:focus-within)
+      .product-card-detailed__actions {
+      @apply opacity-0;
+    }
+
+    .product-card-detailed-wrap:hover .product-card-detailed__actions,
+    .product-card-detailed-wrap:focus-within .product-card-detailed__actions {
+      @apply opacity-100;
+    }
+  }
+
   .collection-card {
     border-radius: var(--collection-card-radius);
     background-color: var(--card);
@@ -444,6 +482,59 @@
     @apply flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-8 md:pb-[calc(6rem+env(safe-area-inset-bottom))] md:pt-10;
   }
 
+  .chat-page__composer-dock {
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    left: 50%;
+    width: min(
+      calc(100vw - 2rem),
+      calc(var(--chat-composer-width) + var(--chat-new-chat-btn-size) + 0.5rem)
+    );
+    @apply fixed z-40 flex items-center gap-2;
+    transform: translateX(-50%);
+  }
+
+  .chat-page__composer-dock .hero-search-bar--compact.chat-page__composer {
+    width: min(
+      var(--chat-composer-width),
+      calc(100% - var(--chat-new-chat-btn-size) - 0.5rem)
+    );
+    @apply static min-w-0 shrink-0;
+    transform: none;
+  }
+
+  .chat-new-chat-btn {
+    background-color: var(--card);
+    border: 2px solid var(--hero-search-border);
+    box-shadow: var(--hero-search-shadow);
+    height: var(--chat-new-chat-btn-size);
+    width: var(--chat-new-chat-btn-size);
+    @apply inline-flex shrink-0 items-center justify-center rounded-full text-foreground transition-[opacity,box-shadow] duration-200 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .search-chat-bubble__anchor-preview {
+    @apply flex items-center gap-3;
+  }
+
+  .search-chat-bubble__anchor-image-wrap {
+    @apply relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white/10;
+  }
+
+  .search-chat-bubble__anchor-image {
+    @apply object-cover;
+  }
+
+  .search-chat-bubble__anchor-copy {
+    @apply min-w-0 text-left;
+  }
+
+  .search-chat-bubble__anchor-title {
+    @apply truncate text-sm font-medium leading-snug;
+  }
+
+  .search-chat-bubble__anchor-action {
+    @apply mt-0.5 text-xs leading-snug opacity-80;
+  }
+
   .search-chat-thread {
     @apply mb-10 flex list-none flex-col gap-4 p-0;
   }
@@ -479,13 +570,6 @@
     color: var(--foreground);
   }
 
-  .hero-search-bar--compact.chat-page__composer {
-    bottom: max(1rem, env(safe-area-inset-bottom));
-    left: 50%;
-    width: min(calc(100vw - 2rem), var(--chat-composer-width));
-    @apply fixed z-40;
-    transform: translateX(-50%);
-  }
 
   .chat-page--landing {
     @apply min-h-[calc(100dvh-var(--site-header-height))];
@@ -936,6 +1020,28 @@
 
   .product-detail-modal__purchase-label {
     @apply mb-2 font-sans text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground;
+  }
+
+  .product-detail-modal__chat-actions {
+    @apply mt-5 flex flex-wrap gap-2.5;
+  }
+
+  .product-detail-modal__chat-action {
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--foreground);
+    transition:
+      background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+      color 220ms cubic-bezier(0.4, 0, 0.2, 1);
+    @apply cursor-pointer rounded-full px-4 py-2 font-sans text-xs font-medium leading-none disabled:cursor-not-allowed disabled:opacity-50 md:text-[13px];
+  }
+
+  .product-detail-modal__chat-action:hover,
+  .product-detail-modal__chat-action:focus-visible {
+    background-color: var(--hero-toggle-active-bg);
+    border-color: var(--hero-toggle-active-bg);
+    color: var(--hero-toggle-active-fg);
   }
 
   .product-detail-modal__purchase-btn {
