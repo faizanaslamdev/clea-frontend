@@ -32,6 +32,7 @@ import {
   buildTurnMessagePair,
 } from '@/lib/chat/chat-messages';
 import { performChatReset } from '@/lib/chat/chat-reset';
+import { resolveComposerTurnContext } from '@/lib/chat/anchor-dependent-message';
 import {
   shouldClearActiveProductId,
   syncAnchorSessionForTurn,
@@ -139,14 +140,20 @@ export function SearchChatView() {
         syncUrl(trimmed);
       }
 
-      if (shouldClearActiveProductId(context)) {
+      const resolvedContext = resolveComposerTurnContext(
+        trimmed,
+        context,
+        activeProductId,
+      );
+
+      if (shouldClearActiveProductId(resolvedContext)) {
         setActiveProductId(null);
       }
 
-      syncAnchorSessionForTurn(context, trimmed, options);
+      syncAnchorSessionForTurn(resolvedContext, trimmed, options);
 
       try {
-        const turn = await requestTurn(trimmed, context);
+        const turn = await requestTurn(trimmed, resolvedContext);
         if (turnGenerationRef.current !== turnGeneration) return;
         applyTurnResult(trimmed, turn, options);
         setDraft('');
@@ -159,7 +166,7 @@ export function SearchChatView() {
         }
       }
     },
-    [appendErrorTurn, applyTurnResult, requestTurn, syncUrl],
+    [activeProductId, appendErrorTurn, applyTurnResult, requestTurn, syncUrl],
   );
 
   const runSearch = useCallback(
