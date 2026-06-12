@@ -121,6 +121,7 @@ export function SearchChatThread({
               <SearchSuggestionChips
                 suggestions={visibleSuggestions}
                 ariaLabel="Forslag"
+                className="search-chat-thread__suggestions"
                 disabled={interactionDisabled}
                 onSelect={(query) => onSuggestionSelect(query, message.id)}
               />

@@ -1,27 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import {
-  ANCHOR_CHEAPER_MESSAGE,
-  ANCHOR_SIMILAR_MESSAGE,
-} from '@/lib/chat/anchor-actions';
+import { anchorDisplayLabel } from '@/lib/chat/anchor-display-label';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
 
 interface ChatAnchorUserBubbleProps {
   preview: AnchorPreview;
   actionLabel: string;
-}
-
-function anchorActionDisplayLabel(actionLabel: string): string {
-  if (actionLabel === ANCHOR_SIMILAR_MESSAGE) {
-    return 'Vis lignende';
-  }
-
-  if (actionLabel === ANCHOR_CHEAPER_MESSAGE) {
-    return 'Finn billigere';
-  }
-
-  return actionLabel;
 }
 
 export function ChatAnchorUserBubble({
@@ -43,7 +28,7 @@ export function ChatAnchorUserBubble({
         </div>
       ) : null}
       <span className="search-chat-anchor-ref__pill" title={actionLabel}>
-        {anchorActionDisplayLabel(actionLabel)}
+        {anchorDisplayLabel(actionLabel)}
       </span>
     </div>
   );
