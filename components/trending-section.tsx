@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ProductCarousel, type ProductCarouselHandle } from '@/components/product-carousel';
+import { ProductCarouselSkeleton } from '@/components/product/product-carousel-skeleton';
 import { Button } from '@/components/ui/button';
 import { BRAND } from '@/lib/constants/brand';
 import {
@@ -26,12 +27,8 @@ export function TrendingSection() {
     [],
   );
 
-  if (isLoading) {
-    return null;
-  }
-
   return (
-    <section className="overflow-x-hidden">
+    <section className="overflow-x-hidden" aria-busy={isLoading}>
       <div className="section-container mb-6 flex items-center justify-between">
         <h2 className="type-heading">Populært nå</h2>
         <Link
@@ -87,12 +84,19 @@ export function TrendingSection() {
       </div>
 
       <div className="section-container">
-        <ProductCarousel
-          ref={carouselRef}
-          products={products}
-          hideControls
-          onScrollStateChange={handleScrollState}
-        />
+        {isLoading ? (
+          <>
+            <p className="sr-only">Laster populære produkter</p>
+            <ProductCarouselSkeleton />
+          </>
+        ) : (
+          <ProductCarousel
+            ref={carouselRef}
+            products={products}
+            hideControls
+            onScrollStateChange={handleScrollState}
+          />
+        )}
       </div>
     </section>
   );

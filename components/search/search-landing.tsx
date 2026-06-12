@@ -41,6 +41,7 @@ export function SearchLanding() {
       <SearchSuggestionChips
         suggestions={suggestions}
         onSelect={selectSuggestion}
+        className="search-suggestion-chips--centered"
       />
     </section>
   );

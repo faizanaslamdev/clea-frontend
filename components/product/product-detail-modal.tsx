@@ -18,6 +18,7 @@ import {
   resolveStoreIdForProduct,
 } from '@/lib/services';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
+import { ProductSimilarSkeleton } from '@/components/product/product-similar-skeleton';
 import {
   PRODUCT_LOAD_ERROR_MESSAGE,
   PRODUCT_NOT_FOUND_MESSAGE,
@@ -45,7 +46,10 @@ export function ProductDetailModal({
     isError,
     isFetched,
   } = useProduct(productId ?? '');
-  const { data: similarProducts = [] } = useSimilarProducts(productId ?? '', 4);
+  const {
+    data: similarProducts = [],
+    isLoading: isSimilarLoading,
+  } = useSimilarProducts(productId ?? '', 4);
 
   const listingStoreId = useMemo(() => {
     if (!product) return null;
@@ -303,20 +307,28 @@ export function ProductDetailModal({
                   </div>
                 </div>
 
-                {similarProducts.length > 0 ? (
+                {isSimilarLoading || similarProducts.length > 0 ? (
                   <section
                     className="product-detail-modal__similar"
                     aria-label="Lignende produkter"
+                    aria-busy={isSimilarLoading}
                   >
                     <h3 className="product-detail-modal__similar-title">
                       Lignende produkter
                     </h3>
-                    <ProductGrid
-                      products={similarProducts}
-                      storeId={listingStoreId ?? undefined}
-                      variant="detailed"
-                      enableAnchorActions
-                    />
+                    {isSimilarLoading ? (
+                      <>
+                        <p className="sr-only">Laster lignende produkter</p>
+                        <ProductSimilarSkeleton />
+                      </>
+                    ) : (
+                      <ProductGrid
+                        products={similarProducts}
+                        storeId={listingStoreId ?? undefined}
+                        variant="detailed"
+                        enableAnchorActions
+                      />
+                    )}
                   </section>
                 ) : null}
               </div>

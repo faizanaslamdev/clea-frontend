@@ -171,18 +171,18 @@ export async function fetchSimilarProducts(
   id: string,
   limit = 4,
 ): Promise<Product[]> {
-  const product = await fetchProductById(id);
-  if (!product) return [];
-
-  const brand = product.brand?.trim();
-  if (!brand) return [];
-
-  const { products } = await fetchCatalogFromApi({
-    brand,
-    limit: limit + 1,
-  });
-
-  return products.filter((p) => p.id !== id).slice(0, limit);
+  try {
+    const data = await apiFetch<ApiProductListResponse>(
+      `/products/${id}/similar?limit=${limit}`,
+      { cache: 'no-store' },
+    );
+    return data.items.map(mapApiProductToProduct);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return [];
+    }
+    throw error;
+  }
 }
 
 export async function fetchProductsByMerchant(

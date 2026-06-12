@@ -4,12 +4,17 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { useFeaturedStores } from '@/lib/hooks/useStores';
 import BrandGrid from './BrandGrid';
+import { BrandGridSkeleton } from './brand-grid-skeleton';
 
 export default function BrandSection() {
-  const { data: brands = [] } = useFeaturedStores();
+  const { data: brands = [], isLoading } = useFeaturedStores();
 
   return (
-    <section id="brands" className="section-container section-shell scroll-mt-20">
+    <section
+      id="brands"
+      className="section-container section-shell scroll-mt-20"
+      aria-busy={isLoading}
+    >
       <div className="mb-6 flex flex-col gap-6">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <h2 className="type-heading">Utforsk merker</h2>
@@ -32,7 +37,14 @@ export default function BrandSection() {
         </div>
       </div>
 
-      <BrandGrid brands={brands} />
+      {isLoading ? (
+        <>
+          <p className="sr-only">Laster populære merker</p>
+          <BrandGridSkeleton />
+        </>
+      ) : (
+        <BrandGrid brands={brands} />
+      )}
     </section>
   );
 }

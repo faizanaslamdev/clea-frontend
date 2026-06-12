@@ -109,6 +109,21 @@ describe('resolveSendMessage', () => {
     });
   });
 
+  it('keeps anchor context for colour variant composer text', () => {
+    expect(
+      resolveSendMessage({
+        query: 'same in pink color',
+        source: 'composer',
+        activeProductId: 'prod-1',
+      }),
+    ).toEqual({
+      context: { productId: 'prod-1' },
+      anchorPreview: undefined,
+      showAsProductReference: false,
+      clearActiveProduct: false,
+    });
+  });
+
   it('keeps product context when composer reuses an anchor phrase', () => {
     expect(
       resolveSendMessage({

@@ -29,6 +29,7 @@ export function HeroSectionContent() {
         <SearchSuggestionChips
           suggestions={suggestions}
           onSelect={selectSuggestion}
+          className="search-suggestion-chips--centered"
         />
       </div>
     </div>

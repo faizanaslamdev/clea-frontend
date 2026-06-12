@@ -14,8 +14,8 @@ const heightMap = {
   lg: 'h-[260px] md:h-[388px]',
 } as const;
 
-const MAX_TILT = 12;
-const HOVER_SCALE = 1.03;
+const MAX_TILT = 6;
+const HOVER_SCALE = 1.015;
 
 export function BrandCard({ brand }: { brand: Store }) {
   const cardRef = useRef<HTMLDivElement>(null);
