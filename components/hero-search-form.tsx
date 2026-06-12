@@ -9,10 +9,12 @@ type ShopCategory = 'womens' | 'mens';
 
 export type HeroSearchVariant = 'full' | 'compact';
 export type HeroSearchSize = 'default' | 'large';
+export type HeroSearchAppearance = 'default' | 'floating';
 
 interface HeroSearchFormProps {
   variant?: HeroSearchVariant;
   size?: HeroSearchSize;
+  appearance?: HeroSearchAppearance;
   className?: string;
   idPrefix?: string;
   inert?: boolean;
@@ -21,11 +23,13 @@ interface HeroSearchFormProps {
   onValueChange?: (value: string) => void;
   onSubmitQuery?: (query: string) => void;
   submitLocked?: boolean;
+  placeholder?: string;
 }
 
 export function HeroSearchForm({
   variant = 'full',
   size = 'default',
+  appearance = 'default',
   className,
   idPrefix = 'hero-search',
   inert,
@@ -34,6 +38,7 @@ export function HeroSearchForm({
   onValueChange,
   onSubmitQuery,
   submitLocked = false,
+  placeholder = 'Beskriv hva du leter etter …',
 }: HeroSearchFormProps) {
   const [category, setCategory] = useState<ShopCategory>('mens');
   const [internalQuery, setInternalQuery] = useState('');
@@ -48,6 +53,7 @@ export function HeroSearchForm({
 
   const inputId = `${idPrefix}-query`;
   const hasText = query.trim().length > 0;
+  const glassClass = appearance === 'floating' ? 'hero-search-glass' : undefined;
 
   const navigateToChat = useCallback(
     (trimmed: string) => {
@@ -93,7 +99,7 @@ export function HeroSearchForm({
         className={cn(
           'hero-search-bar hero-search-bar--compact',
           size === 'large' && 'hero-search-bar--large',
-          submitLocked && 'hero-search-bar--locked',
+          glassClass,
           className,
         )}
         aria-busy={submitLocked}
@@ -106,21 +112,15 @@ export function HeroSearchForm({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleQueryKeyDown}
-          placeholder="Beskriv hva du leter etter …"
+          placeholder={placeholder}
           rows={1}
           className="hero-search-bar--compact__input"
           autoComplete="off"
           enterKeyHint="search"
-          disabled={submitLocked}
-          readOnly={submitLocked}
         />
         <button
           type="submit"
-          className={cn(
-            'hero-search-bar--compact__submit',
-            hasText && 'hero-search-bar--compact__submit--active',
-          )}
-          disabled={!hasText || submitLocked}
+          className="hero-search-bar--compact__submit hero-search-bar--compact__submit--active"
           aria-label="Søk"
         >
           <ArrowUp className="size-[1.125rem]" strokeWidth={2.25} />
@@ -132,7 +132,7 @@ export function HeroSearchForm({
   return (
     <div className={cn('hero-search-stack layout-inner-medium', className)}>
       <div
-        className="hero-category-toggle"
+        className={cn('hero-category-toggle', glassClass)}
         role="tablist"
         aria-label="Handlekategori"
       >
@@ -161,6 +161,7 @@ export function HeroSearchForm({
         onSubmit={handleSubmit}
         className={cn(
           'hero-search-card',
+          glassClass,
           submitLocked && 'hero-search-card--locked',
         )}
         aria-busy={submitLocked}
@@ -173,7 +174,7 @@ export function HeroSearchForm({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleQueryKeyDown}
-          placeholder="Beskriv hva du leter etter …"
+          placeholder={placeholder}
           rows={1}
           className="hero-search-card__input"
           enterKeyHint="search"
@@ -184,11 +185,7 @@ export function HeroSearchForm({
         <div className="hero-search-card__footer">
           <button
             type="submit"
-            className={cn(
-              'hero-search-card__submit',
-              hasText && 'hero-search-card__submit--active',
-            )}
-            disabled={!hasText || submitLocked}
+            className="hero-search-card__submit hero-search-card__submit--active"
             aria-label="Søk"
           >
             <ArrowUp className="size-[1.125rem]" strokeWidth={2.25} />

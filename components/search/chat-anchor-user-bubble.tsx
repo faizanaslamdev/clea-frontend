@@ -1,6 +1,10 @@
 'use client';
 
 import Image from 'next/image';
+import {
+  ANCHOR_CHEAPER_MESSAGE,
+  ANCHOR_SIMILAR_MESSAGE,
+} from '@/lib/chat/anchor-actions';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
 
 interface ChatAnchorUserBubbleProps {
@@ -8,28 +12,39 @@ interface ChatAnchorUserBubbleProps {
   actionLabel: string;
 }
 
+function anchorActionDisplayLabel(actionLabel: string): string {
+  if (actionLabel === ANCHOR_SIMILAR_MESSAGE) {
+    return 'Vis lignende';
+  }
+
+  if (actionLabel === ANCHOR_CHEAPER_MESSAGE) {
+    return 'Finn billigere';
+  }
+
+  return actionLabel;
+}
+
 export function ChatAnchorUserBubble({
   preview,
   actionLabel,
 }: ChatAnchorUserBubbleProps) {
   return (
-    <div className="search-chat-bubble__anchor-preview">
+    <div className="search-chat-anchor-ref">
       {preview.image ? (
-        <div className="search-chat-bubble__anchor-image-wrap">
+        <div className="search-chat-anchor-ref__image-card">
           <Image
             src={preview.image}
             alt=""
             fill
-            className="search-chat-bubble__anchor-image"
-            sizes="48px"
+            className="search-chat-anchor-ref__image"
+            sizes="(max-width: 768px) 176px, 200px"
             unoptimized
           />
         </div>
       ) : null}
-      <div className="search-chat-bubble__anchor-copy">
-        <p className="search-chat-bubble__anchor-title">{preview.name}</p>
-        <p className="search-chat-bubble__anchor-action">{actionLabel}</p>
-      </div>
+      <span className="search-chat-anchor-ref__pill" title={actionLabel}>
+        {anchorActionDisplayLabel(actionLabel)}
+      </span>
     </div>
   );
 }

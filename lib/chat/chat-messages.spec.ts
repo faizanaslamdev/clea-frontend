@@ -32,7 +32,9 @@ const TURN: ChatTurnResult = {
 describe('userMessageOptionsForTurn', () => {
   it('attaches anchor preview for similar action messages', () => {
     expect(
-      userMessageOptionsForTurn(ANCHOR_SIMILAR_MESSAGE, ANCHOR_PREVIEW),
+      userMessageOptionsForTurn(ANCHOR_SIMILAR_MESSAGE, {
+        anchorPreview: ANCHOR_PREVIEW,
+      }),
     ).toEqual({
       anchorProductId: ANCHOR_PREVIEW.productId,
       anchorPreview: ANCHOR_PREVIEW,
@@ -41,7 +43,9 @@ describe('userMessageOptionsForTurn', () => {
 
   it('attaches anchor preview for cheaper action messages', () => {
     expect(
-      userMessageOptionsForTurn(ANCHOR_CHEAPER_MESSAGE, ANCHOR_PREVIEW),
+      userMessageOptionsForTurn(ANCHOR_CHEAPER_MESSAGE, {
+        anchorPreview: ANCHOR_PREVIEW,
+      }),
     ).toEqual({
       anchorProductId: ANCHOR_PREVIEW.productId,
       anchorPreview: ANCHOR_PREVIEW,
@@ -50,8 +54,22 @@ describe('userMessageOptionsForTurn', () => {
 
   it('skips preview for normal search text', () => {
     expect(
-      userMessageOptionsForTurn('jakke under 800 kr', ANCHOR_PREVIEW),
+      userMessageOptionsForTurn('jakke under 800 kr', {
+        anchorPreview: ANCHOR_PREVIEW,
+      }),
     ).toBeUndefined();
+  });
+
+  it('attaches preview for custom product reference text', () => {
+    expect(
+      userMessageOptionsForTurn('med tykkere såle', {
+        anchorPreview: ANCHOR_PREVIEW,
+        showAsProductReference: true,
+      }),
+    ).toEqual({
+      anchorProductId: ANCHOR_PREVIEW.productId,
+      anchorPreview: ANCHOR_PREVIEW,
+    });
   });
 });
 

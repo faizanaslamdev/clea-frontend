@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Roboto_Mono, Playfair_Display, DM_Sans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
-import { BRAND } from '@/lib/constants/brand';
+import { BRAND, BRAND_LOGOS } from '@/lib/constants/brand';
 import './globals.css';
 import { Providers } from './providers';
 
@@ -33,6 +33,11 @@ export const metadata: Metadata = {
   },
   description: BRAND.description,
   applicationName: BRAND.name,
+  icons: {
+    icon: [{ url: BRAND_LOGOS.mark.dark, type: 'image/png' }],
+    apple: [{ url: BRAND_LOGOS.mark.dark, type: 'image/png' }],
+    shortcut: BRAND_LOGOS.mark.dark,
+  },
 };
 
 export const viewport: Viewport = {

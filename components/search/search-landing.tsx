@@ -33,7 +33,11 @@ export function SearchLanding() {
       </header>
 
       <div className="search-landing__search-wrap layout-inner-medium">
-        <HeroSearchForm variant="full" idPrefix="search-landing" />
+        <HeroSearchForm
+          variant="full"
+          appearance="floating"
+          idPrefix="search-landing"
+        />
       </div>
 
       <SearchSuggestionChips onSelect={handleSuggestion} />

@@ -6,11 +6,16 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react';
 import type { ChatAnchorKind } from '@/lib/chat/anchor-actions';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
-import { setChatAnchorBridge } from '@/lib/chat/chat-anchor-bridge';
+import {
+  getChatAnchorBridge,
+  setChatAnchorBridge,
+  subscribeChatAnchorBridge,
+} from '@/lib/chat/chat-anchor-bridge';
 
 export interface ChatAnchorContextValue {
   activeProductId: string | null;
@@ -18,6 +23,11 @@ export interface ChatAnchorContextValue {
   runAnchorAction: (
     productId: string,
     kind: ChatAnchorKind,
+    preview?: AnchorPreview,
+  ) => Promise<void>;
+  sendProductMessage: (
+    query: string,
+    productId: string,
     preview?: AnchorPreview,
   ) => Promise<void>;
   isAnchorLoading: boolean;
@@ -32,6 +42,11 @@ interface ChatAnchorProviderProps {
     kind: ChatAnchorKind,
     preview?: AnchorPreview,
   ) => Promise<void>;
+  sendProductMessage: (
+    query: string,
+    productId: string,
+    preview?: AnchorPreview,
+  ) => Promise<void>;
   isAnchorLoading?: boolean;
   activeProductId?: string | null;
   onActiveProductIdChange?: (productId: string | null) => void;
@@ -40,6 +55,7 @@ interface ChatAnchorProviderProps {
 export function ChatAnchorProvider({
   children,
   runAnchorAction,
+  sendProductMessage,
   isAnchorLoading = false,
   activeProductId: controlledActiveProductId,
   onActiveProductIdChange,
@@ -58,9 +74,16 @@ export function ChatAnchorProvider({
       activeProductId,
       setActiveProductId,
       runAnchorAction,
+      sendProductMessage,
       isAnchorLoading,
     }),
-    [activeProductId, isAnchorLoading, runAnchorAction, setActiveProductId],
+    [
+      activeProductId,
+      isAnchorLoading,
+      runAnchorAction,
+      sendProductMessage,
+      setActiveProductId,
+    ],
   );
 
   useEffect(() => {
@@ -85,4 +108,15 @@ export function useChatAnchor(): ChatAnchorContextValue {
 
 export function useChatAnchorOptional(): ChatAnchorContextValue | null {
   return useContext(ChatAnchorContext);
+}
+
+/** Chat page context when mounted; otherwise the global bridge (e.g. product modal). */
+export function useChatAnchorConnection(): ChatAnchorContextValue | null {
+  const context = useChatAnchorOptional();
+  const bridge = useSyncExternalStore(
+    subscribeChatAnchorBridge,
+    getChatAnchorBridge,
+    () => null,
+  );
+  return context ?? bridge;
 }

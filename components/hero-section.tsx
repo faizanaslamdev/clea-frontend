@@ -19,7 +19,7 @@ export function HeroSection() {
             </span>
           ))}
         </h1>
-        <HeroSearchForm variant="full" />
+        <HeroSearchForm variant="full" appearance="floating" />
       </div>
     </PageHero>
   );

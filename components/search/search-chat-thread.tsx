@@ -5,9 +5,13 @@ import { ChatAnchorUserBubble } from '@/components/search/chat-anchor-user-bubbl
 import { ProductGrid } from '@/components/product-grid';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
+import { ChatTypingIndicator } from '@/components/search/chat-typing-indicator';
 import { filterSuggestionsForAnchor } from '@/lib/chat/anchor-actions';
-import { isAnchorActionMessage } from '@/lib/chat/anchor-preview';
-import type { SearchChatMessageData } from '@/lib/chat/chat-messages';
+import {
+  isPendingAssistantMessage,
+  isProductReferenceUserMessage,
+  type SearchChatMessageData,
+} from '@/lib/chat/chat-messages';
 import { cn } from '@/lib/utils';
 
 export type SearchChatMessage = SearchChatMessageData;
@@ -51,7 +55,10 @@ export function SearchChatThread({
   const latestMessageId = messages.at(-1)?.id;
   const latestAssistantMessageId = [...messages]
     .reverse()
-    .find((message) => message.role === 'assistant')?.id;
+    .find(
+      (message) =>
+        message.role === 'assistant' && !isPendingAssistantMessage(message),
+    )?.id;
 
   useEffect(() => {
     if (messages.length === 0) return;
@@ -71,6 +78,7 @@ export function SearchChatThread({
           message.suggestions,
           anchorForChips,
         );
+        const isAnchorReference = isProductReferenceUserMessage(message);
 
         return (
           <li
@@ -87,14 +95,16 @@ export function SearchChatThread({
               className={cn(
                 'search-chat-bubble',
                 message.id === latestMessageId && 'search-chat-bubble--scroll-target',
-                message.role === 'user'
-                  ? 'search-chat-bubble--user'
-                  : 'search-chat-bubble--assistant',
+                isAnchorReference
+                  ? 'search-chat-bubble--anchor-ref'
+                  : message.role === 'user'
+                    ? 'search-chat-bubble--user'
+                    : 'search-chat-bubble--assistant',
               )}
             >
-              {message.role === 'user' &&
-              message.anchorPreview &&
-              isAnchorActionMessage(message.content) ? (
+              {isPendingAssistantMessage(message) ? (
+                <ChatTypingIndicator />
+              ) : isAnchorReference && message.anchorPreview ? (
                 <ChatAnchorUserBubble
                   preview={message.anchorPreview}
                   actionLabel={message.content}

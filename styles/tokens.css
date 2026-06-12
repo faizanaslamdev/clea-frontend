@@ -30,10 +30,29 @@
 
   --radius: 0.5rem;
 
-  --site-header-height: 4rem;
+  --site-header-height: 6rem;
   --sticky-hero-search-width: 28rem;
-  --chat-composer-width: 32rem;
-  --chat-new-chat-btn-size: 3.4rem;
+  --chat-composer-width: 34rem;
+  --chat-new-chat-btn-size: 3.25rem;
+  --chat-composer-glass-bg: linear-gradient(
+    180deg,
+    oklch(1 0 0 / 0.78) 0%,
+    oklch(0.99 0 0 / 0.52) 100%
+  );
+  --chat-composer-glass-border: oklch(1 0 0 / 0.62);
+  --chat-composer-glass-highlight: linear-gradient(
+    180deg,
+    oklch(1 0 0 / 0.72) 0%,
+    oklch(1 0 0 / 0.14) 42%,
+    transparent 58%
+  );
+  --chat-composer-glass-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.92),
+    inset 0 -0.5px 0 oklch(1 0 0 / 0.22),
+    0 0 0 1px oklch(0 0 0 / 0.035),
+    0 10px 28px oklch(0 0 0 / 0.055),
+    0 28px 56px oklch(0 0 0 / 0.04);
+  --chat-composer-glass-blur: 18px;
   --search-highlight: oklch(0.94 0.12 95);
   --search-landing-glow: oklch(0.88 0.06 280 / 0.22);
   --search-typewriter-min-height: 3rem;
@@ -141,6 +160,25 @@
 }
 
 .dark {
+  --chat-composer-glass-bg: linear-gradient(
+    180deg,
+    oklch(0.24 0 0 / 0.72) 0%,
+    oklch(0.2 0 0 / 0.48) 100%
+  );
+  --chat-composer-glass-border: oklch(1 0 0 / 0.14);
+  --chat-composer-glass-highlight: linear-gradient(
+    180deg,
+    oklch(1 0 0 / 0.16) 0%,
+    oklch(1 0 0 / 0.04) 42%,
+    transparent 58%
+  );
+  --chat-composer-glass-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.14),
+    inset 0 -0.5px 0 oklch(0 0 0 / 0.35),
+    0 0 0 1px oklch(1 0 0 / 0.06),
+    0 10px 28px oklch(0 0 0 / 0.28),
+    0 28px 56px oklch(0 0 0 / 0.18);
+
   --background: oklch(0.14 0 0);
   --foreground: oklch(0.96 0 0);
 

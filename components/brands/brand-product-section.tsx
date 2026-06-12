@@ -2,7 +2,6 @@
 
 import { ProductGrid } from '@/components/product-grid';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
-import { LoadingBlock } from '@/components/shared/loading-block';
 import { useCatalogInfinite } from '@/lib/hooks/useCatalogInfinite';
 
 interface BrandProductSectionProps {
@@ -28,7 +27,7 @@ export function BrandProductSection({
   const loaded = products.length;
 
   if (isLoading) {
-    return <LoadingBlock className="min-h-[320px]" />;
+    return null;
   }
 
   if (isError) {

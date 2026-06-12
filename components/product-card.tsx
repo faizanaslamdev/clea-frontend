@@ -3,9 +3,10 @@
 import Image from 'next/image';
 import { Product } from '@/lib/types';
 import { formatPrice, getLowestPriceStore } from '@/lib/services';
-import { useChatAnchorOptional } from '@/components/chat/chat-anchor-provider';
+import { useChatAnchorConnection } from '@/components/chat/chat-anchor-provider';
 import { useProductModal } from '@/components/product/product-modal-provider';
-import { anchorPreviewFromProduct } from '@/lib/chat/anchor-preview';
+import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
+import { cn } from '@/lib/utils';
 
 export type ProductCardVariant = 'trending' | 'detailed';
 
@@ -52,56 +53,6 @@ function useListingPrice(product: Product, storeId?: string) {
   return lowest?.price;
 }
 
-function ProductCardAnchorActions({
-  product,
-  disabled,
-}: {
-  product: Product;
-  disabled?: boolean;
-}) {
-  const chatAnchor = useChatAnchorOptional();
-  if (!chatAnchor) return null;
-
-  return (
-    <div
-      className="product-card-detailed__actions"
-      role="group"
-      aria-label="Chat-handlinger"
-    >
-      <button
-        type="button"
-        className="product-card-detailed__action"
-        disabled={disabled}
-        onClick={(event) => {
-          event.stopPropagation();
-          void chatAnchor.runAnchorAction(
-            product.id,
-            'similar',
-            anchorPreviewFromProduct(product),
-          );
-        }}
-      >
-        Vis lignende
-      </button>
-      <button
-        type="button"
-        className="product-card-detailed__action"
-        disabled={disabled}
-        onClick={(event) => {
-          event.stopPropagation();
-          void chatAnchor.runAnchorAction(
-            product.id,
-            'cheaper',
-            anchorPreviewFromProduct(product),
-          );
-        }}
-      >
-        Finn billigere
-      </button>
-    </div>
-  );
-}
-
 export function ProductCard({
   product,
   storeId,
@@ -110,9 +61,9 @@ export function ProductCard({
   enableAnchorActions = false,
 }: ProductCardProps) {
   const { openProduct } = useProductModal();
-  const chatAnchor = useChatAnchorOptional();
+  const chatAnchor = useChatAnchorConnection();
   const price = useListingPrice(product, storeId);
-  const showAnchorActions = enableAnchorActions && chatAnchor != null;
+  const showAnchorMenu = enableAnchorActions;
 
   const openDetails = () => {
     chatAnchor?.setActiveProductId(product.id);
@@ -144,18 +95,37 @@ export function ProductCard({
   }
 
   return (
-    <div className="product-card-detailed-wrap group">
-      <button
-        type="button"
-        className="product-card-detailed"
-        onClick={openDetails}
-      >
-        <ProductCardImage
-          product={product}
-          sizes={imageSizes ?? DETAILED_CARD_IMAGE_SIZES}
-        />
+    <div
+      className={cn(
+        'product-card-detailed-wrap group',
+        showAnchorMenu && 'product-card-detailed-wrap--anchorable',
+      )}
+    >
+      <div className="product-card-detailed">
+        <div className="product-card-detailed__media">
+          <button
+            type="button"
+            className="product-card-detailed__image-hit"
+            onClick={openDetails}
+          >
+            <ProductCardImage
+              product={product}
+              sizes={imageSizes ?? DETAILED_CARD_IMAGE_SIZES}
+            />
+          </button>
+          {showAnchorMenu ? (
+            <ProductCardAnchorMenu
+              product={product}
+              disabled={chatAnchor?.isAnchorLoading ?? false}
+            />
+          ) : null}
+        </div>
 
-        <div className="product-card-detailed__body">
+        <button
+          type="button"
+          className="product-card-detailed__body"
+          onClick={openDetails}
+        >
           <p className="product-card-detailed__brand">{product.brand}</p>
           <h3 className="product-card-detailed__title">{product.name}</h3>
           {price != null && (
@@ -166,14 +136,8 @@ export function ProductCard({
           <p className="product-card-detailed__shop">
             Handle hos {product.brand}
           </p>
-        </div>
-      </button>
-      {showAnchorActions ? (
-        <ProductCardAnchorActions
-          product={product}
-          disabled={chatAnchor.isAnchorLoading}
-        />
-      ) : null}
+        </button>
+      </div>
     </div>
   );
 }

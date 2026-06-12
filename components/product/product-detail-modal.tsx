@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { ArrowUpRight, Share2, X } from 'lucide-react';
+import { ArrowUpRight, ChevronLeft, ChevronRight, Share2, X } from 'lucide-react';
 import { ProductGrid } from '@/components/product-grid';
 import {
   Dialog,
@@ -12,30 +12,17 @@ import {
   DialogPortal,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { LoadingBlock } from '@/components/shared/loading-block';
 import { cn } from '@/lib/utils';
 import {
   formatPrice,
   resolveStoreIdForProduct,
 } from '@/lib/services';
-import {
-  getChatAnchorBridge,
-  subscribeChatAnchorBridge,
-} from '@/lib/chat/chat-anchor-bridge';
-import { anchorPreviewFromProduct } from '@/lib/chat/anchor-preview';
+import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
 import {
   PRODUCT_LOAD_ERROR_MESSAGE,
   PRODUCT_NOT_FOUND_MESSAGE,
 } from '@/lib/api/api-errors';
 import { useProduct, useSimilarProducts } from '@/lib/hooks/useProducts';
-
-function useChatAnchorBridge() {
-  return useSyncExternalStore(
-    subscribeChatAnchorBridge,
-    getChatAnchorBridge,
-    () => null,
-  );
-}
 
 const DESCRIPTION_PREVIEW_LENGTH = 220;
 
@@ -52,7 +39,6 @@ export function ProductDetailModal({
   open,
   onOpenChange,
 }: ProductDetailModalProps) {
-  const chatAnchor = useChatAnchorBridge();
   const {
     data: product,
     isLoading,
@@ -87,6 +73,18 @@ export function ProductDetailModal({
     setDescriptionExpanded(false);
     setGalleryIndex(0);
   }, [productId]);
+
+  const showPreviousGalleryImage = () => {
+    setGalleryIndex((current) =>
+      current === 0 ? galleryImages.length - 1 : current - 1,
+    );
+  };
+
+  const showNextGalleryImage = () => {
+    setGalleryIndex((current) =>
+      current === galleryImages.length - 1 ? 0 : current + 1,
+    );
+  };
 
   const handleShare = async () => {
     if (!product) return;
@@ -130,9 +128,7 @@ export function ProductDetailModal({
             Produktdetaljer og lignende varer
           </DialogDescription>
 
-          {isLoading ? (
-            <LoadingBlock className="m-8 h-96" />
-          ) : isError ? (
+          {isLoading ? null : isError ? (
             <ProductModalErrorState
               message={PRODUCT_LOAD_ERROR_MESSAGE}
               onClose={() => onOpenChange(false)}
@@ -152,17 +148,76 @@ export function ProductDetailModal({
                 <div className="product-detail-modal__main">
                   <div className="product-detail-modal__gallery">
                     <div className="product-detail-modal__gallery-frame">
-                      <Image
-                        src={
-                          galleryImages[galleryIndex] ?? product.image
-                        }
-                        alt={product.name}
-                        fill
-                        className="product-detail-modal__gallery-image"
-                        sizes="(max-width: 768px) 100vw, 520px"
-                        priority
-                        unoptimized
-                      />
+                      <div className="product-detail-modal__gallery-stage">
+                        <Image
+                          src={
+                            galleryImages[galleryIndex] ?? product.image
+                          }
+                          alt={product.name}
+                          width={800}
+                          height={1067}
+                          className="product-detail-modal__gallery-image"
+                          sizes="(max-width: 768px) 100vw, 520px"
+                          priority
+                          unoptimized
+                        />
+                        <ProductCardAnchorMenu
+                          product={product}
+                          className="product-detail-modal__gallery-anchor"
+                          onActionComplete={() => onOpenChange(false)}
+                        />
+                        {galleryImages.length > 1 ? (
+                          <>
+                            <button
+                              type="button"
+                              className="product-detail-modal__gallery-nav product-detail-modal__gallery-nav--prev"
+                              aria-label="Forrige bilde"
+                              onClick={showPreviousGalleryImage}
+                            >
+                              <ChevronLeft
+                                className="size-7"
+                                strokeWidth={1.5}
+                                aria-hidden
+                              />
+                            </button>
+                            <button
+                              type="button"
+                              className="product-detail-modal__gallery-nav product-detail-modal__gallery-nav--next"
+                              aria-label="Neste bilde"
+                              onClick={showNextGalleryImage}
+                            >
+                              <ChevronRight
+                                className="size-7"
+                                strokeWidth={1.5}
+                                aria-hidden
+                              />
+                            </button>
+                          </>
+                        ) : null}
+                        {galleryImages.length > 1 ? (
+                          <div
+                            className="product-detail-modal__gallery-dots"
+                            role="tablist"
+                            aria-label="Produktbilder"
+                          >
+                            {galleryImages.map((src, index) => (
+                              <button
+                                key={`${src}-dot-${index}`}
+                                type="button"
+                                role="tab"
+                                aria-selected={index === galleryIndex}
+                                aria-label={`Bilde ${index + 1} av ${galleryImages.length}`}
+                                className={cn(
+                                  'product-detail-modal__gallery-dot',
+                                  index === galleryIndex &&
+                                    'product-detail-modal__gallery-dot--active',
+                                )}
+                                onClick={() => setGalleryIndex(index)}
+                              />
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                     {galleryImages.length > 1 ? (
                       <div
@@ -240,47 +295,6 @@ export function ProductDetailModal({
                       </div>
                     ) : null}
 
-                    {chatAnchor && productId ? (
-                      <div
-                        className="product-detail-modal__chat-actions"
-                        role="group"
-                        aria-label="Chat-handlinger"
-                      >
-                        <button
-                          type="button"
-                          className="product-detail-modal__chat-action"
-                          disabled={chatAnchor.isAnchorLoading}
-                          onClick={() => {
-                            chatAnchor.setActiveProductId(productId);
-                            void chatAnchor.runAnchorAction(
-                              productId,
-                              'similar',
-                              anchorPreviewFromProduct(product),
-                            );
-                            onOpenChange(false);
-                          }}
-                        >
-                          Vis lignende
-                        </button>
-                        <button
-                          type="button"
-                          className="product-detail-modal__chat-action"
-                          disabled={chatAnchor.isAnchorLoading}
-                          onClick={() => {
-                            chatAnchor.setActiveProductId(productId);
-                            void chatAnchor.runAnchorAction(
-                              productId,
-                              'cheaper',
-                              anchorPreviewFromProduct(product),
-                            );
-                            onOpenChange(false);
-                          }}
-                        >
-                          Finn billigere
-                        </button>
-                      </div>
-                    ) : null}
-
                     <ProductDescription
                       description={product.description}
                       expanded={descriptionExpanded}
@@ -301,6 +315,7 @@ export function ProductDetailModal({
                       products={similarProducts}
                       storeId={listingStoreId ?? undefined}
                       variant="detailed"
+                      enableAnchorActions
                     />
                   </section>
                 ) : null}

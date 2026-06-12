@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { BrandLogo } from '@/components/brand-logo';
 import { HeroSearchForm } from '@/components/hero-search-form';
-import { BRAND } from '@/lib/constants/brand';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -12,7 +12,7 @@ const NAV_ITEMS = [
   { href: '/chat', label: 'Søk' },
 ] as const;
 
-const HEADER_HEIGHT = 64;
+const HEADER_HEIGHT = 96;
 const MOBILE_MAX_WIDTH = 767;
 /** Hide bottom sticky search when footer enters this zone (mobile only). */
 const STICKY_SEARCH_FOOTER_CLEARANCE_PX = 112;
@@ -134,15 +134,13 @@ export function Header() {
             </nav>
           </div>
 
-          <Link
-            href="/"
-            className={cn(
-              'site-header-wordmark site-header-wordmark--center z-[5]',
-              overHero && 'site-header-wordmark--over-hero',
-            )}
-          >
-            {BRAND.wordmark}
-          </Link>
+          <BrandLogo
+            variant="wordmark"
+            theme={overHero ? 'light' : 'dark'}
+            className="site-header-logo site-header-logo--center z-[5]"
+            imageClassName="site-header-logo__image"
+            priority
+          />
 
           <div className="site-header-right" aria-hidden />
         </div>
@@ -151,6 +149,7 @@ export function Header() {
       {isHome ? (
         <HeroSearchForm
           variant="compact"
+          appearance="floating"
           idPrefix="sticky-hero-search"
           className={cn(
             'sticky-hero-search',
@@ -161,7 +160,9 @@ export function Header() {
         />
       ) : null}
 
-      {!hasUnderlapHero && <div className="h-16 shrink-0" aria-hidden />}
+      {!hasUnderlapHero && (
+        <div className="site-header-spacer shrink-0" aria-hidden />
+      )}
     </>
   );
 }

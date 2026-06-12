@@ -4,7 +4,6 @@ import { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { ProductCarousel, type ProductCarouselHandle } from '@/components/product-carousel';
-import { LoadingBlock } from '@/components/shared/loading-block';
 import { Button } from '@/components/ui/button';
 import { BRAND } from '@/lib/constants/brand';
 import {
@@ -28,7 +27,7 @@ export function TrendingSection() {
   );
 
   if (isLoading) {
-    return <LoadingBlock className="section-container h-96" />;
+    return null;
   }
 
   return (

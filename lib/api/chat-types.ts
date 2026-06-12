@@ -8,6 +8,8 @@ export type ChatIntent =
 
 export type ProductSegment = 'fashion' | 'all';
 
+export type ShopCategory = 'mens' | 'womens';
+
 export interface CatalogQuery {
   q?: string;
   brand?: string;
@@ -23,6 +25,7 @@ export interface ChatTurnContext {
   productId?: string;
   catalog?: CatalogQuery;
   intent?: ChatIntent;
+  shopCategory?: ShopCategory;
 }
 
 export interface ChatTurnRequest {
