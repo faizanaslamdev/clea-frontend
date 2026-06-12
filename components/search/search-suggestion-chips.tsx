@@ -1,7 +1,5 @@
 'use client';
 
-import { SEARCH_SUGGESTION_CHIPS } from '@/lib/constants/search-prompts';
-
 interface SearchSuggestionChipsProps {
   onSelect: (query: string) => void;
   suggestions?: readonly string[];
@@ -11,10 +9,14 @@ interface SearchSuggestionChipsProps {
 
 export function SearchSuggestionChips({
   onSelect,
-  suggestions = SEARCH_SUGGESTION_CHIPS,
-  ariaLabel = 'Example searches',
+  suggestions = [],
+  ariaLabel = 'Forslag',
   disabled = false,
 }: SearchSuggestionChipsProps) {
+  if (suggestions.length === 0) {
+    return null;
+  }
+
   return (
     <ul className="search-suggestion-chips" aria-label={ariaLabel}>
       {suggestions.map((label) => (

@@ -470,6 +470,10 @@
     @apply flex flex-col items-center gap-5;
   }
 
+  .hero-section__suggestions {
+    @apply mx-auto mt-6 flex max-w-3xl justify-center px-4 md:mt-8;
+  }
+
   .hero-category-toggle {
     background-color: var(--hero-toggle-track);
     border: 1px solid var(--hero-toggle-track-border);

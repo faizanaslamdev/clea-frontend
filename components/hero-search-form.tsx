@@ -3,9 +3,8 @@
 import { useCallback, useState, type KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowUp } from 'lucide-react';
+import type { ShopCategory } from '@/lib/api/chat-types';
 import { cn } from '@/lib/utils';
-
-type ShopCategory = 'womens' | 'mens';
 
 export type HeroSearchVariant = 'full' | 'compact';
 export type HeroSearchSize = 'default' | 'large';
@@ -24,6 +23,8 @@ interface HeroSearchFormProps {
   onSubmitQuery?: (query: string) => void;
   submitLocked?: boolean;
   placeholder?: string;
+  shopCategory?: ShopCategory;
+  onShopCategoryChange?: (category: ShopCategory) => void;
 }
 
 export function HeroSearchForm({
@@ -39,8 +40,21 @@ export function HeroSearchForm({
   onSubmitQuery,
   submitLocked = false,
   placeholder = 'Beskriv hva du leter etter …',
+  shopCategory: controlledShopCategory,
+  onShopCategoryChange,
 }: HeroSearchFormProps) {
-  const [category, setCategory] = useState<ShopCategory>('mens');
+  const [internalShopCategory, setInternalShopCategory] =
+    useState<ShopCategory>('mens');
+  const isShopCategoryControlled = controlledShopCategory !== undefined;
+  const shopCategory = isShopCategoryControlled
+    ? controlledShopCategory
+    : internalShopCategory;
+  const setShopCategory = (next: ShopCategory) => {
+    if (!isShopCategoryControlled) {
+      setInternalShopCategory(next);
+    }
+    onShopCategoryChange?.(next);
+  };
   const [internalQuery, setInternalQuery] = useState('');
   const router = useRouter();
 
@@ -59,10 +73,10 @@ export function HeroSearchForm({
     (trimmed: string) => {
       const params = new URLSearchParams();
       if (trimmed) params.set('q', trimmed);
-      if (variant === 'full') params.set('category', category);
+      if (variant === 'full') params.set('category', shopCategory);
       router.push(`/chat?${params.toString()}`);
     },
-    [router, variant, category],
+    [router, variant, shopCategory],
   );
 
   const submitQuery = useCallback(() => {
@@ -138,14 +152,14 @@ export function HeroSearchForm({
       >
         {(['womens', 'mens'] as const).map((value) => {
           const label = value === 'womens' ? 'Dame' : 'Herre';
-          const isActive = category === value;
+          const isActive = shopCategory === value;
           return (
             <button
               key={value}
               type="button"
               role="tab"
               aria-selected={isActive}
-              onClick={() => setCategory(value)}
+              onClick={() => setShopCategory(value)}
               className={cn(
                 'hero-category-toggle__btn',
                 isActive && 'hero-category-toggle__btn--active',

@@ -1,6 +1,5 @@
-import { HeroSearchForm } from '@/components/hero-search-form';
+import { HeroSectionContent } from '@/components/hero-section-content';
 import { PageHero } from '@/components/page-hero';
-import { BRAND } from '@/lib/constants/brand';
 
 const HERO_IMAGE = '/products/hero.jpg';
 
@@ -11,16 +10,7 @@ export function HeroSection() {
       ariaLabel="Velkommen"
       contentClassName="page-hero-content--home"
     >
-      <div className="layout-inner-wide text-center">
-        <h1 className="hero-kicker">
-          {BRAND.heroTagline.map((line) => (
-            <span key={line} className="hero-kicker__line">
-              {line}
-            </span>
-          ))}
-        </h1>
-        <HeroSearchForm variant="full" appearance="floating" />
-      </div>
+      <HeroSectionContent />
     </PageHero>
   );
 }

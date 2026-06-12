@@ -1,18 +1,14 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { HeroSearchForm } from '@/components/hero-search-form';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { TypewriterText } from '@/components/shared/typewriter-text';
 import { SEARCH_HEADLINE_EXAMPLES } from '@/lib/constants/search-prompts';
+import { useLandingSuggestions } from '@/lib/hooks/useLandingSuggestions';
 
 export function SearchLanding() {
-  const router = useRouter();
-
-  const handleSuggestion = (query: string) => {
-    const params = new URLSearchParams({ q: query });
-    router.push(`/chat?${params.toString()}`);
-  };
+  const { shopCategory, setShopCategory, suggestions, selectSuggestion } =
+    useLandingSuggestions();
 
   return (
     <section className="search-landing section-container" aria-label="Søk">
@@ -37,10 +33,15 @@ export function SearchLanding() {
           variant="full"
           appearance="floating"
           idPrefix="search-landing"
+          shopCategory={shopCategory}
+          onShopCategoryChange={setShopCategory}
         />
       </div>
 
-      <SearchSuggestionChips onSelect={handleSuggestion} />
+      <SearchSuggestionChips
+        suggestions={suggestions}
+        onSelect={selectSuggestion}
+      />
     </section>
   );
 }

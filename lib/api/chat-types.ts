@@ -28,6 +28,12 @@ export interface ChatTurnContext {
   shopCategory?: ShopCategory;
 }
 
+export interface ChatSuggestionsResponse {
+  suggestions: string[];
+  locale: 'nb' | 'en';
+  shopCategory?: ShopCategory;
+}
+
 export interface ChatTurnRequest {
   message: string;
   context?: ChatTurnContext;

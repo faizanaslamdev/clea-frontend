@@ -1,6 +1,7 @@
 import { apiFetch } from '@/lib/api/backend-client';
 import { mapChatProductCardToProduct } from '@/lib/api/chat-mappers';
 import type {
+  ChatSuggestionsResponse,
   ChatTurnRequest,
   ChatTurnResponse,
   ChatTurnResult,
@@ -37,6 +38,25 @@ export function resetChatSessionId(): string {
 
   sessionStorage.removeItem(CHAT_SESSION_KEY);
   return getOrCreateChatSessionId();
+}
+
+export async function fetchChatSuggestions(params: {
+  shopCategory?: ChatSuggestionsResponse['shopCategory'];
+  locale?: ChatSuggestionsResponse['locale'];
+}): Promise<ChatSuggestionsResponse> {
+  const search = new URLSearchParams();
+  if (params.shopCategory) {
+    search.set('shopCategory', params.shopCategory);
+  }
+  if (params.locale) {
+    search.set('locale', params.locale);
+  }
+
+  const query = search.toString();
+  return apiFetch<ChatSuggestionsResponse>(
+    `/chat/suggestions${query ? `?${query}` : ''}`,
+    { cache: 'no-store' },
+  );
 }
 
 export async function fetchChatTurn(
