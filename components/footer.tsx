@@ -58,7 +58,7 @@ function FooterColumn({
 //   );
 // }
 
-export function Footer() {
+export function Footer({ showCompareCta = true }: { showCompareCta?: boolean }) {
   return (
     <footer className="site-footer" aria-label="Site footer">
       <div className="section-container relative z-10 py-16 md:py-20 lg:py-24">
@@ -115,15 +115,17 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex justify-center md:mt-20">
-          <Link href="/chat" className="footer-cta-pill group">
-            <span>Begynn å sammenligne priser</span>
-            <ArrowRight
-              className="size-4 transition-transform group-hover:translate-x-0.5"
-              strokeWidth={1.5}
-            />
-          </Link>
-        </div>
+        {showCompareCta ? (
+          <div className="mt-14 flex justify-center md:mt-20">
+            <Link href="/chat" className="footer-cta-pill group">
+              <span>Begynn å sammenligne priser</span>
+              <ArrowRight
+                className="size-4 transition-transform group-hover:translate-x-0.5"
+                strokeWidth={1.5}
+              />
+            </Link>
+          </div>
+        ) : null}
       </div>
     </footer>
   );

@@ -45,7 +45,7 @@ export function FavoriteFindsSection() {
             id="favorite-finds-heading"
             className="font-serif text-[40px] font-light leading-[1.1] tracking-tight text-foreground md:text-[56px] md:leading-[1.15]"
           >
-            Lagre <em className="italic">favoritt</em>funnene dine.
+            Lagre <em className="italic">favorittfunnene</em> dine.
           </h2>
           <p className="mx-auto mt-5 max-w-[420px] text-base font-light leading-6 text-muted-foreground md:mt-6">
             Organiser de beste funnene i samlinger. Få varsel når prisen faller.

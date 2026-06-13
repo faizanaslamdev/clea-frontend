@@ -20,7 +20,7 @@ function ChatPageLayoutInner({ children }: ChatPageLayoutProps) {
       <main className={cn('min-h-screen bg-background', 'chat-layout')}>
         {children}
       </main>
-      {!inChatSession && <Footer />}
+      {!inChatSession && <Footer showCompareCta={false} />}
     </>
   );
 }
@@ -40,7 +40,7 @@ function ChatPageLayoutFallback({ children }: ChatPageLayoutProps) {
       <main className={cn('min-h-screen bg-background', 'chat-layout')}>
         {children}
       </main>
-      <Footer />
+      <Footer showCompareCta={false} />
     </>
   );
 }
