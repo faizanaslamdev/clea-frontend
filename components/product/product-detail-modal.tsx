@@ -327,6 +327,7 @@ export function ProductDetailModal({
                         storeId={listingStoreId ?? undefined}
                         variant="detailed"
                         enableAnchorActions
+                        onAnchorActionComplete={() => onOpenChange(false)}
                       />
                     )}
                   </section>

@@ -16,6 +16,7 @@ interface ProductCardProps {
   variant?: ProductCardVariant;
   imageSizes?: string;
   enableAnchorActions?: boolean;
+  onAnchorActionComplete?: () => void;
 }
 
 const TRENDING_CARD_IMAGE_SIZES =
@@ -59,6 +60,7 @@ export function ProductCard({
   variant = 'detailed',
   imageSizes,
   enableAnchorActions = false,
+  onAnchorActionComplete,
 }: ProductCardProps) {
   const { openProduct } = useProductModal();
   const chatAnchor = useChatAnchorConnection();
@@ -117,6 +119,7 @@ export function ProductCard({
             <ProductCardAnchorMenu
               product={product}
               disabled={chatAnchor?.isAnchorLoading ?? false}
+              onActionComplete={onAnchorActionComplete}
             />
           ) : null}
         </div>
