@@ -6,8 +6,9 @@ __v0_jsx-dev-runtime.ts
 .v0-trash/
 .vercel/
 
-# Environment variables
+# Environment variables (production: set in Vercel dashboard, not in repo)
 .env*.local
+.env.prod
 
 # Common ignores
 node_modules
