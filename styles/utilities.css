@@ -729,6 +729,23 @@
     @apply opacity-90;
   }
 
+  @media (max-width: 767px) {
+    .hero-search-bar--compact.hero-search-glass
+      .hero-search-bar--compact__input:placeholder-shown,
+    .hero-search-card.hero-search-glass
+      .hero-search-card__input:placeholder-shown {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hero-search-card.hero-search-glass
+      .hero-search-card__input:placeholder-shown {
+      min-height: 3.75rem;
+      @apply pt-4 pb-3;
+    }
+  }
+
   .chat-layout {
     @apply min-h-screen;
   }
