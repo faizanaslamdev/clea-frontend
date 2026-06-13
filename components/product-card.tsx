@@ -1,8 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+import { useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/lib/types';
 import { formatPrice, getLowestPriceStore } from '@/lib/services';
+import { fetchProductById } from '@/lib/api/products';
+import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
+import { productKeys } from '@/lib/query/keys';
 import { useChatAnchorConnection } from '@/components/chat/chat-anchor-provider';
 import { useProductModal } from '@/components/product/product-modal-provider';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
@@ -54,6 +58,18 @@ function useListingPrice(product: Product, storeId?: string) {
   return lowest?.price;
 }
 
+function usePrefetchProductDetail() {
+  const queryClient = useQueryClient();
+
+  return (productId: string) => {
+    void queryClient.prefetchQuery({
+      queryKey: productKeys.detail(productId),
+      queryFn: () => fetchProductById(productId),
+      staleTime: STALE_TIME_STATIC_MS,
+    });
+  };
+}
+
 export function ProductCard({
   product,
   storeId,
@@ -64,8 +80,13 @@ export function ProductCard({
 }: ProductCardProps) {
   const { openProduct } = useProductModal();
   const chatAnchor = useChatAnchorConnection();
+  const prefetchProductDetail = usePrefetchProductDetail();
   const price = useListingPrice(product, storeId);
   const showAnchorMenu = enableAnchorActions;
+
+  const prefetchThisProduct = () => {
+    prefetchProductDetail(product.id);
+  };
 
   const openDetails = () => {
     chatAnchor?.setActiveProductId(product.id);
@@ -78,6 +99,8 @@ export function ProductCard({
         type="button"
         className="trending-product-card group"
         onClick={openDetails}
+        onMouseEnter={prefetchThisProduct}
+        onFocus={prefetchThisProduct}
       >
         <ProductCardImage
           product={product}
@@ -109,6 +132,8 @@ export function ProductCard({
             type="button"
             className="product-card-detailed__image-hit"
             onClick={openDetails}
+            onMouseEnter={prefetchThisProduct}
+            onFocus={prefetchThisProduct}
           >
             <ProductCardImage
               product={product}
@@ -128,6 +153,8 @@ export function ProductCard({
           type="button"
           className="product-card-detailed__body"
           onClick={openDetails}
+          onMouseEnter={prefetchThisProduct}
+          onFocus={prefetchThisProduct}
         >
           <p className="product-card-detailed__brand">{product.brand}</p>
           <h3 className="product-card-detailed__title">{product.name}</h3>

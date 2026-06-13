@@ -18,6 +18,7 @@ import {
   resolveStoreIdForProduct,
 } from '@/lib/services';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
+import { ProductDetailModalSkeleton } from '@/components/product/product-detail-modal-skeleton';
 import { ProductSimilarSkeleton } from '@/components/product/product-similar-skeleton';
 import {
   PRODUCT_LOAD_ERROR_MESSAGE,
@@ -132,7 +133,9 @@ export function ProductDetailModal({
             Produktdetaljer og lignende varer
           </DialogDescription>
 
-          {isLoading ? null : isError ? (
+          {isLoading ? (
+            <ProductDetailModalSkeleton onClose={() => onOpenChange(false)} />
+          ) : isError ? (
             <ProductModalErrorState
               message={PRODUCT_LOAD_ERROR_MESSAGE}
               onClose={() => onOpenChange(false)}
