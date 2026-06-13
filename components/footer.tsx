@@ -116,7 +116,7 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex justify-center md:mt-20">
-          <Link href="/brands" className="footer-cta-pill group">
+          <Link href="/chat" className="footer-cta-pill group">
             <span>Begynn å sammenligne priser</span>
             <ArrowRight
               className="size-4 transition-transform group-hover:translate-x-0.5"
