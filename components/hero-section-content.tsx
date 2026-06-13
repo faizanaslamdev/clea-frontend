@@ -6,7 +6,7 @@ import { BRAND } from '@/lib/constants/brand';
 import { useLandingSuggestions } from '@/lib/hooks/useLandingSuggestions';
 
 export function HeroSectionContent() {
-  const { shopCategory, setShopCategory, suggestions, selectSuggestion } =
+  const { shopCategory, setShopCategory, suggestions, isLoadingSuggestions, selectSuggestion } =
     useLandingSuggestions();
 
   return (
@@ -28,6 +28,7 @@ export function HeroSectionContent() {
       <div className="hero-section__suggestions">
         <SearchSuggestionChips
           suggestions={suggestions}
+          isLoading={isLoadingSuggestions}
           onSelect={selectSuggestion}
           className="search-suggestion-chips--centered"
         />

@@ -7,7 +7,7 @@ import { SEARCH_HEADLINE_EXAMPLES } from '@/lib/constants/search-prompts';
 import { useLandingSuggestions } from '@/lib/hooks/useLandingSuggestions';
 
 export function SearchLanding() {
-  const { shopCategory, setShopCategory, suggestions, selectSuggestion } =
+  const { shopCategory, setShopCategory, suggestions, isLoadingSuggestions, selectSuggestion } =
     useLandingSuggestions();
 
   return (
@@ -38,11 +38,14 @@ export function SearchLanding() {
         />
       </div>
 
-      <SearchSuggestionChips
-        suggestions={suggestions}
-        onSelect={selectSuggestion}
-        className="search-suggestion-chips--centered"
-      />
+      <div className="search-landing__suggestions">
+        <SearchSuggestionChips
+          suggestions={suggestions}
+          isLoading={isLoadingSuggestions}
+          onSelect={selectSuggestion}
+          className="search-suggestion-chips--centered"
+        />
+      </div>
     </section>
   );
 }

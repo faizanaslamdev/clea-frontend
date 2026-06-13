@@ -10,9 +10,11 @@ export function useLandingSuggestions() {
   const router = useRouter();
   const [shopCategory, setShopCategory] = useState<ShopCategory>('mens');
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
+    setIsLoadingSuggestions(true);
 
     void fetchChatSuggestions({
       shopCategory,
@@ -21,11 +23,13 @@ export function useLandingSuggestions() {
       .then((result) => {
         if (!cancelled) {
           setSuggestions(result.suggestions);
+          setIsLoadingSuggestions(false);
         }
       })
       .catch(() => {
         if (!cancelled) {
           setSuggestions([]);
+          setIsLoadingSuggestions(false);
         }
       });
 
@@ -46,6 +50,7 @@ export function useLandingSuggestions() {
     shopCategory,
     setShopCategory,
     suggestions,
+    isLoadingSuggestions,
     selectSuggestion,
   };
 }
