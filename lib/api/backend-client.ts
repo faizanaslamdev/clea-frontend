@@ -20,7 +20,11 @@ function parseApiErrorBody(text: string): ApiErrorBody | null {
 }
 
 export function getApiBaseUrl(): string {
-  return resolveApiBaseUrl(process.env);
+  // Next.js only inlines NEXT_PUBLIC_* when accessed directly — not via process.env passthrough.
+  return resolveApiBaseUrl({
+    NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  });
 }
 
 export class ApiError extends Error {
