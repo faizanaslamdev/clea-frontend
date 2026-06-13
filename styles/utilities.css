@@ -101,6 +101,19 @@
 
   .trending-product-card {
     @apply flex w-full cursor-pointer flex-col items-stretch border-0 bg-transparent p-0;
+    touch-action: pan-x pan-y;
+  }
+
+  .product-carousel__track {
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+    @apply flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth py-3 pb-6;
+  }
+
+  .product-carousel__track::-webkit-scrollbar {
+    display: none;
   }
 
   .product-card__image-wrap {
