@@ -1,7 +1,7 @@
 import { HeroSectionContent } from '@/components/hero-section-content';
 import { PageHero } from '@/components/page-hero';
 
-const HERO_IMAGE = '/products/hero.jpg';
+const HERO_IMAGE = '/products/hero.png';
 
 export function HeroSection() {
   return (
