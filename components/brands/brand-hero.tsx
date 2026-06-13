@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import { BrandVisitButton } from '@/components/brands/brand-visit-button';
 import { PageHero } from '@/components/page-hero';
 import type { Store } from '@/lib/types';
 
@@ -30,8 +29,6 @@ export function BrandHero({ brand }: BrandHeroProps) {
         ) : (
           <h1 className="brand-hero-title">{brand.name}</h1>
         )}
-
-        <BrandVisitButton brand={brand} />
       </div>
     </PageHero>
   );
