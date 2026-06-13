@@ -193,7 +193,9 @@ export function ProductCard({
           onFocus={prefetchThisProduct}
         >
           <p className="product-card-detailed__brand">{product.brand}</p>
-          <h3 className="product-card-detailed__title">{product.name}</h3>
+          <h3 className="product-card-detailed__title" title={product.name}>
+            {product.name}
+          </h3>
           {price != null && (
             <p className="product-card-detailed__price">
               {formatPrice(price, product.currency)}
