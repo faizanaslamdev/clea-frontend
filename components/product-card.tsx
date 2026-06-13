@@ -2,6 +2,10 @@
 
 import Image from 'next/image';
 import { useQueryClient } from '@tanstack/react-query';
+import {
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 import { Product } from '@/lib/types';
 import { formatPrice, getLowestPriceStore } from '@/lib/services';
 import { fetchProductById } from '@/lib/api/products';
@@ -28,6 +32,41 @@ const TRENDING_CARD_IMAGE_SIZES =
 
 const DETAILED_CARD_IMAGE_SIZES =
   '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw';
+
+function ProductCardClickTarget({
+  className,
+  onClick,
+  onMouseEnter,
+  onFocus,
+  children,
+}: {
+  className?: string;
+  onClick: () => void;
+  onMouseEnter?: () => void;
+  onFocus?: () => void;
+  children: ReactNode;
+}) {
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onClick();
+    }
+  };
+
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      className={className}
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      onMouseEnter={onMouseEnter}
+      onFocus={onFocus}
+    >
+      {children}
+    </div>
+  );
+}
 
 function ProductCardImage({
   product,
@@ -95,8 +134,7 @@ export function ProductCard({
 
   if (variant === 'trending') {
     return (
-      <button
-        type="button"
+      <ProductCardClickTarget
         className="trending-product-card group"
         onClick={openDetails}
         onMouseEnter={prefetchThisProduct}
@@ -115,7 +153,7 @@ export function ProductCard({
             </p>
           )}
         </div>
-      </button>
+      </ProductCardClickTarget>
     );
   }
 
@@ -128,8 +166,7 @@ export function ProductCard({
     >
       <div className="product-card-detailed">
         <div className="product-card-detailed__media">
-          <button
-            type="button"
+          <ProductCardClickTarget
             className="product-card-detailed__image-hit"
             onClick={openDetails}
             onMouseEnter={prefetchThisProduct}
@@ -139,7 +176,7 @@ export function ProductCard({
               product={product}
               sizes={imageSizes ?? DETAILED_CARD_IMAGE_SIZES}
             />
-          </button>
+          </ProductCardClickTarget>
           {showAnchorMenu ? (
             <ProductCardAnchorMenu
               product={product}
@@ -149,8 +186,7 @@ export function ProductCard({
           ) : null}
         </div>
 
-        <button
-          type="button"
+        <ProductCardClickTarget
           className="product-card-detailed__body"
           onClick={openDetails}
           onMouseEnter={prefetchThisProduct}
@@ -166,7 +202,7 @@ export function ProductCard({
           <p className="product-card-detailed__shop">
             Handle hos {product.brand}
           </p>
-        </button>
+        </ProductCardClickTarget>
       </div>
     </div>
   );

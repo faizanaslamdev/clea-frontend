@@ -101,6 +101,7 @@
 
   .trending-product-card {
     @apply flex w-full cursor-pointer flex-col items-stretch border-0 bg-transparent p-0;
+    touch-action: pan-y;
   }
 
   .product-card__image-wrap {
@@ -134,10 +135,12 @@
 
   .product-card-detailed__image-hit {
     @apply block w-full cursor-pointer border-0 bg-transparent p-0 text-left;
+    touch-action: pan-y;
   }
 
   .product-card-detailed__body {
     @apply flex h-[6.75rem] w-full shrink-0 cursor-pointer flex-col border-0 bg-transparent pt-3 text-left;
+    touch-action: pan-y;
   }
 
   .product-card-detailed__brand {
