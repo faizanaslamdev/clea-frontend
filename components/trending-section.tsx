@@ -28,7 +28,7 @@ export function TrendingSection() {
   );
 
   return (
-    <section className="overflow-x-hidden" aria-busy={isLoading}>
+    <section aria-busy={isLoading}>
       <div className="section-container mb-6 flex items-center justify-between">
         <h2 className="type-heading">Populært nå</h2>
         <Link
@@ -83,21 +83,19 @@ export function TrendingSection() {
         </div>
       </div>
 
-      <div className="section-container">
-        {isLoading ? (
-          <>
-            <p className="sr-only">Laster populære produkter</p>
-            <ProductCarouselSkeleton />
-          </>
-        ) : (
-          <ProductCarousel
-            ref={carouselRef}
-            products={products}
-            hideControls
-            onScrollStateChange={handleScrollState}
-          />
-        )}
-      </div>
+      {isLoading ? (
+        <div className="section-container">
+          <p className="sr-only">Laster populære produkter</p>
+          <ProductCarouselSkeleton />
+        </div>
+      ) : (
+        <ProductCarousel
+          ref={carouselRef}
+          products={products}
+          hideControls
+          onScrollStateChange={handleScrollState}
+        />
+      )}
     </section>
   );
 }

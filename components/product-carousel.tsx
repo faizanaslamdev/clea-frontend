@@ -164,14 +164,13 @@ export const ProductCarousel = forwardRef<
 <div
   ref={scrollRef}
   className={cn(
-    'flex overflow-x-auto py-3 pb-6',
+    'flex overflow-x-auto overscroll-x-contain py-3 pb-6',
     'gap-4 scroll-smooth snap-x snap-mandatory',
     '[-ms-overflow-style:none]',
     '[scrollbar-width:none]',
     '[&::-webkit-scrollbar]:hidden',
     'touch-pan-x',
-  
-    className
+    '[-webkit-overflow-scrolling:touch]',
   )}
 >
   {/* leading spacer — matches section-container padding exactly */}
