@@ -74,11 +74,12 @@ export function Header() {
   const [hideStickyNearFooter, setHideStickyNearFooter] = useState(false);
 
   const isHome = pathname === '/';
-  const hasUnderlapHero =
-    isHome || /^\/brands\/[^/]+$/.test(pathname);
+  const isBrandDetail = /^\/brands\/[^/]+$/.test(pathname);
+  const hasUnderlapHero = isHome || isBrandDetail;
   const overHero = hasUnderlapHero && !pastHero;
+  const showStickySearchBar = isHome || isBrandDetail;
   const showStickySearch =
-    isHome && pastHero && !hideStickyNearFooter;
+    showStickySearchBar && pastHero && !hideStickyNearFooter;
 
   const updateHeaderOnScroll = useCallback(() => {
     if (!hasUnderlapHero) {
@@ -88,12 +89,12 @@ export function Header() {
     }
     setPastHero(window.scrollY >= getPastHeroScrollThreshold());
 
-    if (isHome && isMobileViewport()) {
+    if (showStickySearchBar && isMobileViewport()) {
       setHideStickyNearFooter(isFooterNearStickySearch());
     } else {
       setHideStickyNearFooter(false);
     }
-  }, [hasUnderlapHero, isHome]);
+  }, [hasUnderlapHero, showStickySearchBar]);
 
   useEffect(() => {
     if (!hasUnderlapHero) {
@@ -146,11 +147,11 @@ export function Header() {
         </div>
       </header>
 
-      {isHome ? (
+      {showStickySearchBar ? (
         <HeroSearchForm
           variant="compact"
           appearance="floating"
-          idPrefix="sticky-hero-search"
+          idPrefix={isBrandDetail ? 'sticky-brand-search' : 'sticky-hero-search'}
           className={cn(
             'sticky-hero-search',
             showStickySearch && 'sticky-hero-search--visible',
