@@ -36,8 +36,7 @@ export function PartnerFeatureVisual({
         <Image
           src={visual.src}
           alt={visual.alt}
-          width={1200}
-          height={675}
+          fill
           className="partner-page__visual-image"
           sizes="(max-width: 768px) 100vw, 50vw"
           unoptimized
