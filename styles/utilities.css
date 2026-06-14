@@ -117,7 +117,7 @@
   }
 
   .partner-page__section-lead {
-    @apply mx-auto mt-4 max-w-2xl text-balance px-1 font-sans text-[15px] leading-relaxed text-muted-foreground sm:mt-5 sm:text-base md:text-lg;
+    @apply mt-4 max-w-2xl text-balance px-1 text-left font-sans text-[15px] leading-relaxed text-muted-foreground sm:mt-5 sm:text-base md:text-lg;
   }
 
   .partner-page__grid {
