@@ -37,7 +37,7 @@ export function ProductGrid({
   return (
     <div className={GRID_CLASS}>
       {products.map((product) => (
-        <div key={product.id} className="min-w-0">
+        <div key={product.id} className="h-full min-w-0">
           <ProductCard
             product={product}
             storeId={storeId}
