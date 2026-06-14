@@ -160,15 +160,15 @@
   }
 
   .partner-page__spotlight {
-    @apply grid grid-cols-1 items-stretch gap-8 py-10 sm:gap-10 sm:py-14 md:grid-cols-2 md:gap-14 md:py-20 lg:gap-20;
+    @apply grid grid-cols-1 items-stretch gap-8 py-10 sm:gap-10 sm:py-14 md:grid-cols-2 md:items-center md:gap-14 md:py-20 lg:gap-20;
   }
 
   .partner-page__spotlight-copy {
-    @apply order-1 min-w-0;
+    @apply order-1 min-w-0 md:self-center;
   }
 
   .partner-page__spotlight .partner-page__visual {
-    @apply order-2 flex h-full min-w-0;
+    @apply order-2 flex min-w-0 md:h-auto md:self-center;
   }
 
   .partner-page__spotlight--reverse .partner-page__spotlight-copy {
@@ -198,13 +198,13 @@
   }
 
   .partner-page__visual {
-    @apply h-full w-full min-w-0;
+    @apply h-full w-full min-w-0 md:h-auto;
   }
 
   .partner-page__visual-frame {
     border-radius: var(--collection-card-radius);
     box-shadow: var(--collection-card-shadow);
-    @apply relative h-full min-h-[16rem] w-full overflow-hidden sm:min-h-[20rem] md:min-h-[24rem] lg:min-h-[28rem];
+    @apply relative h-full min-h-[16rem] w-full overflow-hidden sm:min-h-[20rem] md:h-auto md:min-h-[24rem] lg:min-h-[28rem];
   }
 
   .partner-page__visual-image {
