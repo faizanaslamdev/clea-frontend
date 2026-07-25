@@ -7,10 +7,6 @@ import { ProductCarousel, type ProductCarouselHandle } from '@/components/produc
 import { ProductCarouselSkeleton } from '@/components/product/product-carousel-skeleton';
 import { Button } from '@/components/ui/button';
 import { BRAND } from '@/lib/constants/brand';
-import {
-  POPULAR_PRODUCTS_MERCHANT_NAME,
-  POPULAR_PRODUCTS_MERCHANT_SLUG,
-} from '@/lib/constants/featured';
 import { useFeaturedProducts } from '@/lib/hooks/useProducts';
 
 export function TrendingSection() {
@@ -31,11 +27,7 @@ export function TrendingSection() {
     <section aria-busy={isLoading}>
       <div className="section-container mb-6 flex items-center justify-between">
         <h2 className="type-heading">Populært nå</h2>
-        <Link
-          href={`/brands/${POPULAR_PRODUCTS_MERCHANT_SLUG}`}
-          aria-label={`Se alle fra ${POPULAR_PRODUCTS_MERCHANT_NAME}`}
-          className="md:hidden"
-        >
+        <Link href="/brands" aria-label="Se alle merker" className="md:hidden">
           <Button
             variant="outline"
             size="icon"
@@ -48,14 +40,10 @@ export function TrendingSection() {
 
       <div className="section-container mb-6 hidden md:flex items-center justify-between">
         <p className="type-subheading">
-          Populære valg fra {POPULAR_PRODUCTS_MERCHANT_NAME} — sammenlign priser
-          på {BRAND.domain}
+          Populære valg fra flere merker — sammenlign priser på {BRAND.domain}
         </p>
         <div className="flex items-center gap-4">
-          <Link
-            href={`/brands/${POPULAR_PRODUCTS_MERCHANT_SLUG}`}
-            className="type-link"
-          >
+          <Link href="/brands" className="type-link">
             Se alle
           </Link>
           <div className="flex gap-2">

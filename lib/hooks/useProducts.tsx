@@ -4,7 +4,7 @@ import {
   fetchProductById,
   fetchSimilarProducts,
 } from '@/lib/api/products';
-import { POPULAR_PRODUCTS_LIMIT } from '@/lib/constants/featured';
+import { POPULAR_PRODUCTS_LIMIT } from '@/lib/constants/popular-brands';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { productKeys } from '@/lib/query/keys';
 

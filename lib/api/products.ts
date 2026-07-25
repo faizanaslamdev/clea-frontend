@@ -1,12 +1,22 @@
 import { apiFetch, ApiError } from '@/lib/api/backend-client';
 import { mapApiProductToProduct } from '@/lib/api/mappers';
+import { fetchAllStoresFromApi } from '@/lib/api/stores';
 import type { ApiProduct, ApiProductListResponse } from '@/lib/api/types';
 import { CATALOG_PAGE_SIZE } from '@/lib/constants/catalog';
 import {
   POPULAR_PRODUCTS_LIMIT,
-  POPULAR_PRODUCTS_MERCHANT_ID,
-} from '@/lib/constants/featured';
-import type { Product, SearchResult } from '@/lib/types';
+  POPULAR_PRODUCTS_PER_BRAND,
+  POPULAR_SECTION_BRANDS,
+} from '@/lib/constants/popular-brands';
+import {
+  dedupeProductsById,
+  interleaveProductGroups,
+} from '@/lib/domain/products/popular-curation';
+import {
+  resolvePreferredStores,
+  storeHasProducts,
+} from '@/lib/domain/stores/merchant-match';
+import type { Product, SearchResult, Store } from '@/lib/types';
 
 export type ProductSegment = 'fashion' | 'all';
 
@@ -78,14 +88,59 @@ export async function fetchProductById(
   }
 }
 
-export async function fetchFeaturedProducts(
-  limit = POPULAR_PRODUCTS_LIMIT,
+async function fetchProductsForStore(
+  store: Store,
+  limit: number,
 ): Promise<Product[]> {
+  if (limit <= 0 || !storeHasProducts(store)) {
+    return [];
+  }
   const { products } = await fetchCatalogFromApi({
-    merchantId: POPULAR_PRODUCTS_MERCHANT_ID,
+    merchantId: store.id,
     limit,
   });
   return products;
+}
+
+/**
+ * Home "Populært nå" — curated from preferred brands (then other merchants),
+ * interleaved so the carousel is not a single-brand block.
+ */
+export async function fetchFeaturedProducts(
+  limit = POPULAR_PRODUCTS_LIMIT,
+): Promise<Product[]> {
+  const stores = await fetchAllStoresFromApi();
+  const preferred = resolvePreferredStores(stores, POPULAR_SECTION_BRANDS);
+  const preferredIds = new Set(preferred.map((store) => store.id));
+
+  const preferredGroups = await Promise.all(
+    preferred.map((store) =>
+      fetchProductsForStore(store, POPULAR_PRODUCTS_PER_BRAND),
+    ),
+  );
+
+  const groups: Product[][] = preferredGroups.filter(
+    (group) => group.length > 0,
+  );
+  let remaining =
+    limit - groups.reduce((sum, group) => sum + group.length, 0);
+
+  if (remaining > 0) {
+    const fallbackStores = stores
+      .filter((store) => storeHasProducts(store) && !preferredIds.has(store.id))
+      .sort((a, b) => (b.productCount ?? 0) - (a.productCount ?? 0));
+
+    for (const store of fallbackStores) {
+      if (remaining <= 0) break;
+      const take = Math.min(POPULAR_PRODUCTS_PER_BRAND, remaining);
+      const products = await fetchProductsForStore(store, take);
+      if (products.length === 0) continue;
+      groups.push(products);
+      remaining -= products.length;
+    }
+  }
+
+  return dedupeProductsById(interleaveProductGroups(groups)).slice(0, limit);
 }
 
 function calculateRelevance(product: Product, query: string): number {

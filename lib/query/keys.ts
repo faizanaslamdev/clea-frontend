@@ -6,12 +6,9 @@ export type CatalogQueryFilters = {
   segment?: 'fashion' | 'all';
 };
 
-import { POPULAR_PRODUCTS_MERCHANT_ID } from '@/lib/constants/featured';
-
 export const productKeys = {
   all: ['products'] as const,
-  featured: () =>
-    [...productKeys.all, 'featured', POPULAR_PRODUCTS_MERCHANT_ID] as const,
+  featured: () => [...productKeys.all, 'featured', 'multi-brand'] as const,
   catalog: (filters: CatalogQueryFilters) =>
     [...productKeys.all, 'catalog', filters] as const,
   detail: (id: string) => [...productKeys.all, 'detail', id] as const,
