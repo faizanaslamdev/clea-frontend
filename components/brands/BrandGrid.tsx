@@ -1,4 +1,5 @@
 import type { Store } from '@/lib/types';
+import { sortStoresWithPinned } from '@/lib/domain/stores/pin-sort';
 import BrandColumn from './BrandColumn';
 
 type Props = {
@@ -19,11 +20,12 @@ const GALLERY_SIZE_PATTERN = [
 ] as const;
 
 export default function BrandGrid({ brands }: Props) {
+  const orderedBrands = sortStoresWithPinned(brands);
   const col1: Store[] = [];
   const col2: Store[] = [];
   const col3: Store[] = [];
 
-  brands.forEach((brand, index) => {
+  orderedBrands.forEach((brand, index) => {
     const sizedBrand: Store = {
       ...brand,
       size: GALLERY_SIZE_PATTERN[index % GALLERY_SIZE_PATTERN.length],

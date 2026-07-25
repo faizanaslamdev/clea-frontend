@@ -6,7 +6,7 @@ import { PageLayout } from '@/components/layout/page-layout';
 import BrandGrid from '@/components/brands/BrandGrid';
 import { PageSearchSection } from '@/components/shared/page-search-section';
 import { useAllStores } from '@/lib/hooks/useStores';
-import { searchStores, sortStoresWithPinned } from '@/lib/services';
+import { searchStores } from '@/lib/services';
 
 function BrandsPageContent() {
   const searchParams = useSearchParams();
@@ -14,7 +14,7 @@ function BrandsPageContent() {
   const { data: brands = [] } = useAllStores();
 
   const filteredBrands = useMemo(
-    () => sortStoresWithPinned(searchStores(brandQuery, brands)),
+    () => searchStores(brandQuery, brands),
     [brandQuery, brands],
   );
 
