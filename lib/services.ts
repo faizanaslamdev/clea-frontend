@@ -13,6 +13,8 @@ export { resolveStoreFromRouteParam } from '@/lib/domain/stores/catalog';
 
 export { searchStores } from '@/lib/domain/stores/search';
 
+export { sortStoresWithPinned } from '@/lib/domain/stores/pin-sort';
+
 export { getBrandSlug, getBrandHref } from '@/lib/domain/stores/slug';
 
 export { resolveStoreIdForProduct } from '@/lib/domain/products/paths';
