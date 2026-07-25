@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { getBrandHref } from '@/lib/services';
 import type { Store } from '@/lib/types';
-import { Card } from '@/components/ui/card';
 
 const heightMap = {
   sm: 'h-[260px] md:h-[228px]',
@@ -22,23 +21,26 @@ export function BrandCard({ brand }: { brand: Store }) {
   const href = brand.href ?? getBrandHref(brand);
   const size = brand.size ?? 'md';
 
-  const handleMouseMove = useCallback((event: React.MouseEvent<HTMLAnchorElement>) => {
-    const card = cardRef.current;
-    if (!card) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const handleMouseMove = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      const card = cardRef.current;
+      if (!card) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    const rect = card.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
+      const rect = card.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
 
-    const rotateX = ((centerY - y) / centerY) * MAX_TILT;
-    const rotateY = ((x - centerX) / centerX) * MAX_TILT;
+      const rotateX = ((centerY - y) / centerY) * MAX_TILT;
+      const rotateY = ((x - centerX) / centerX) * MAX_TILT;
 
-    card.style.transition = 'transform:none';
-    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(${HOVER_SCALE}, ${HOVER_SCALE}, ${HOVER_SCALE})`;
-  }, []);
+      card.style.transition = 'transform:none';
+      card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(${HOVER_SCALE}, ${HOVER_SCALE}, ${HOVER_SCALE})`;
+    },
+    [],
+  );
 
   const handleMouseLeave = useCallback(() => {
     const card = cardRef.current;
@@ -51,13 +53,16 @@ export function BrandCard({ brand }: { brand: Store }) {
   return (
     <Link
       href={href}
-      className={cn('brand-card-tilt-wrapper relative block w-full', heightMap[size])}
+      className={cn(
+        'brand-card-tilt-wrapper relative block w-full',
+        heightMap[size],
+      )}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
-      <Card
+      <div
         ref={cardRef}
-        className="brand-card-tilt relative h-full w-full overflow-hidden p-0"
+        className="brand-card brand-card-tilt relative h-full w-full overflow-hidden rounded-xl"
       >
         {brand.coverImage ? (
           <Image
@@ -68,7 +73,9 @@ export function BrandCard({ brand }: { brand: Store }) {
             sizes="(max-width: 768px) 100vw, 33vw"
             unoptimized
           />
-        ) : null}
+        ) : (
+          <div className="absolute inset-0 bg-muted" aria-hidden />
+        )}
         <div className="absolute inset-0 bg-foreground/20" aria-hidden />
         <div className="relative flex h-full items-center justify-center p-6">
           {brand.logo ? (
@@ -88,7 +95,7 @@ export function BrandCard({ brand }: { brand: Store }) {
             </p>
           )}
         </div>
-      </Card>
+      </div>
     </Link>
   );
 }

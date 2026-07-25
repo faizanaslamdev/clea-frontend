@@ -299,6 +299,10 @@
     @apply flex flex-col gap-3 md:gap-4;
   }
 
+  .brand-card {
+    @apply bg-muted;
+  }
+
   .trending-product-card {
     @apply flex w-full cursor-pointer flex-col items-stretch border-0 bg-transparent p-0;
     touch-action: pan-x pan-y;
