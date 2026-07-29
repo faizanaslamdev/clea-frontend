@@ -8,9 +8,9 @@ type Props = {
 };
 
 export default function BrandGrid({ brands }: Props) {
-  const orderedBrands = sortStoresWithPinned(brands).map((brand, index) => ({
+  const orderedBrands = sortStoresWithPinned(brands).map((brand) => ({
     ...brand,
-    coverImage: getBrandEditorialImage(brand.name, index),
+    coverImage: getBrandEditorialImage(brand.name),
     size: 'md' as const,
   }));
   const col1: Store[] = [];

@@ -19,7 +19,6 @@ const FALLBACK_IMAGES = [
  */
 export function getBrandEditorialImage(
   brandName: string,
-  index: number,
 ): string {
   const name = brandName.trim().toLowerCase();
 
@@ -39,5 +38,9 @@ export function getBrandEditorialImage(
     return EDITORIAL_IMAGES.accessories;
   }
 
-  return FALLBACK_IMAGES[index % FALLBACK_IMAGES.length];
+  const stableIndex = Array.from(name).reduce(
+    (hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0,
+    0,
+  );
+  return FALLBACK_IMAGES[stableIndex % FALLBACK_IMAGES.length];
 }
