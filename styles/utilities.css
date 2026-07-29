@@ -1828,10 +1828,6 @@
     @apply bg-muted;
   }
 
-  .site-header-account-placeholder {
-    @apply block h-10 w-24 animate-pulse rounded-full bg-muted/70;
-  }
-
   .auth-modal {
     @apply max-h-[min(90dvh,40rem)] overflow-y-auto;
   }

@@ -58,6 +58,7 @@ describe('Header authentication entry', () => {
   });
 
   it('opens the existing sign-in modal for visitors', async () => {
+    sessionState = { data: null, isPending: true };
     await act(async () => root.render(<Header />));
 
     const login = container.querySelector<HTMLButtonElement>(
@@ -81,7 +82,7 @@ describe('Header authentication entry', () => {
 
     expect(container.querySelector('button[aria-label="Logg inn på Clea"]')).toBeNull();
     const account = container.querySelector<HTMLAnchorElement>('a[href="/account"]');
-    expect(account?.textContent).toContain('Min konto');
+    expect(account?.textContent).toContain('Ada');
     expect(account?.getAttribute('aria-label')).toContain('Ada');
   });
 });

@@ -73,7 +73,7 @@ function isFooterNearStickySearch(): boolean {
 
 export function Header() {
   const pathname = usePathname();
-  const { data: session, isPending: isSessionPending } = useSession();
+  const { data: session } = useSession();
   const { openAuthModal } = useAuthModal();
   const [pastHero, setPastHero] = useState(false);
   const [hideStickyNearFooter, setHideStickyNearFooter] = useState(false);
@@ -85,6 +85,7 @@ export function Header() {
   const showStickySearchBar = isHome || isBrandDetail;
   const showStickySearch =
     showStickySearchBar && pastHero && !hideStickyNearFooter;
+  const firstName = session?.user.name?.trim().split(/\s+/)[0] || 'Min konto';
 
   const updateHeaderOnScroll = useCallback(() => {
     if (!hasUnderlapHero) {
@@ -149,12 +150,7 @@ export function Header() {
           />
 
           <div className="site-header-right">
-            {isSessionPending ? (
-              <span
-                className="site-header-account-placeholder"
-                aria-hidden
-              />
-            ) : session?.user ? (
+            {session?.user ? (
               <Link
                 href="/account"
                 className={cn(
@@ -166,7 +162,7 @@ export function Header() {
                 aria-label={`Min konto${session.user.name ? `, ${session.user.name}` : ''}`}
               >
                 <UserRound className="size-5" strokeWidth={1.5} aria-hidden />
-                <span>Min konto</span>
+                <span>{firstName}</span>
               </Link>
             ) : (
               <button
