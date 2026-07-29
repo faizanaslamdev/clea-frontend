@@ -1,7 +1,7 @@
 'use client';
 
 import { Bell, BellOff, Check } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuthModal } from '@/components/auth/auth-provider';
 import { useSession } from '@/lib/auth/client';
@@ -26,22 +26,66 @@ export function NotifyMeButton({ productId, className }: NotifyMeButtonProps) {
   const pathname = usePathname();
   const [info, setInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [optimisticTracking, setOptimisticTracking] = useState<boolean | null>(
+    null,
+  );
+  const [confirmation, setConfirmation] = useState<
+    'added' | 'removed' | null
+  >(null);
+  const [requestPending, setRequestPending] = useState(false);
+  const clickLockedRef = useRef(false);
+  const confirmationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const isAuthed = Boolean(session?.user);
   const isVerified = Boolean(session?.user?.emailVerified);
 
   const trackQuery = useTrackByProduct(productId, isAuthed && isVerified);
   const createTrackMutation = useCreateTrack();
-  const stopTrackMutation = useStopTrack();
+  const stopTrackMutation = useStopTrack(productId);
 
-  const isTracking = Boolean(trackQuery.data?.tracking && trackQuery.data.track);
+  const isTracking = Boolean(trackQuery.data?.tracking);
+  const displayedTracking = optimisticTracking ?? isTracking;
   const activeTrackId = trackQuery.data?.track?.id;
+
+  useEffect(
+    () => () => {
+      if (confirmationTimerRef.current) {
+        clearTimeout(confirmationTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const finishConfirmation = useCallback((message: string) => {
+    setInfo(message);
+    confirmationTimerRef.current = setTimeout(() => {
+      setConfirmation(null);
+      setInfo(null);
+      confirmationTimerRef.current = null;
+    }, 1800);
+  }, []);
+
+  const giveSuccessFeedback = useCallback(() => {
+    if (
+      typeof navigator !== 'undefined' &&
+      typeof navigator.vibrate === 'function'
+    ) {
+      navigator.vibrate(8);
+    }
+  }, []);
 
   const startTracking = useCallback(async () => {
     setError(null);
+    setOptimisticTracking(true);
+    setConfirmation('added');
+    setInfo('Prisvarsel lagt til.');
     try {
       const track = await createTrackMutation.mutateAsync(productId);
-      setInfo(
+      setOptimisticTracking(null);
+      giveSuccessFeedback();
+      finishConfirmation(
         track.alreadyTracking
           ? 'Du følger allerede prisen på dette produktet.'
           : 'Vi følger prisen. Du får e-post ved prisfall.',
@@ -49,6 +93,9 @@ export function NotifyMeButton({ productId, className }: NotifyMeButtonProps) {
       clearPendingActionAfterSuccess();
       refreshPendingAction();
     } catch (err) {
+      setOptimisticTracking(null);
+      setConfirmation(null);
+      setInfo(null);
       if (err instanceof ApiError && err.status === 403) {
         openAuthModal({ view: 'verify-email' });
         return;
@@ -58,59 +105,84 @@ export function NotifyMeButton({ productId, className }: NotifyMeButtonProps) {
   }, [
     clearPendingActionAfterSuccess,
     createTrackMutation,
+    finishConfirmation,
+    giveSuccessFeedback,
     openAuthModal,
     productId,
     refreshPendingAction,
   ]);
 
   async function handleClick() {
+    if (clickLockedRef.current) return;
+    clickLockedRef.current = true;
+    if (confirmationTimerRef.current) {
+      clearTimeout(confirmationTimerRef.current);
+      confirmationTimerRef.current = null;
+    }
+    setConfirmation(null);
     setInfo(null);
     setError(null);
 
-    if (!isValidProductId(productId)) {
-      setError('Kunne ikke starte prisvarsling for dette produktet.');
-      return;
-    }
-
-    const returnTo = sanitizeSafeReturnTo(pathname, '/account/tracks');
-    const pending = {
-      type: 'track' as const,
-      productId,
-      returnTo,
-    };
-
-    if (!session) {
-      openAuthModal({
-        view: 'sign-in',
-        pendingAction: pending,
-      });
-      return;
-    }
-
-    if (!session.user.emailVerified) {
-      openAuthModal({
-        view: 'verify-email',
-        pendingAction: pending,
-      });
-      return;
-    }
-
-    if (isTracking && activeTrackId) {
-      try {
-        await stopTrackMutation.mutateAsync(activeTrackId);
-        setInfo('Prisvarsling er stoppet.');
-      } catch {
-        setError('Kunne ikke stoppe prisvarsling. Prøv igjen.');
+    try {
+      if (!isValidProductId(productId)) {
+        setError('Kunne ikke starte prisvarsling for dette produktet.');
+        return;
       }
-      return;
-    }
 
-    await startTracking();
+      const returnTo = sanitizeSafeReturnTo(pathname, '/account/tracks');
+      const pending = {
+        type: 'track' as const,
+        productId,
+        returnTo,
+      };
+
+      if (!session) {
+        openAuthModal({
+          view: 'sign-in',
+          pendingAction: pending,
+        });
+        return;
+      }
+
+      if (!session.user.emailVerified) {
+        openAuthModal({
+          view: 'verify-email',
+          pendingAction: pending,
+        });
+        return;
+      }
+
+      if (displayedTracking && activeTrackId) {
+        setRequestPending(true);
+        setOptimisticTracking(false);
+        setConfirmation('removed');
+        setInfo('Prisvarsel fjernet.');
+        try {
+          await stopTrackMutation.mutateAsync(activeTrackId);
+          setOptimisticTracking(null);
+          giveSuccessFeedback();
+          finishConfirmation('Prisvarsling er stoppet.');
+        } catch {
+          setOptimisticTracking(null);
+          setConfirmation(null);
+          setInfo(null);
+          setError('Kunne ikke stoppe prisvarsling. Prøv igjen.');
+        }
+        return;
+      }
+
+      setRequestPending(true);
+      await startTracking();
+    } finally {
+      setRequestPending(false);
+      clickLockedRef.current = false;
+    }
   }
 
   const busy =
     isSessionPending ||
     trackQuery.isLoading ||
+    requestPending ||
     createTrackMutation.isPending ||
     stopTrackMutation.isPending;
 
@@ -122,16 +194,34 @@ export function NotifyMeButton({ productId, className }: NotifyMeButtonProps) {
         onClick={() => void handleClick()}
         disabled={busy}
         aria-busy={busy}
+        data-tracking={displayedTracking}
+        data-confirmation={confirmation ?? undefined}
       >
-        {isTracking ? (
-          <BellOff className="size-4.5" strokeWidth={1.5} aria-hidden />
-        ) : info && !error ? (
-          <Check className="size-4.5" strokeWidth={1.5} aria-hidden />
-        ) : (
-          <Bell className="size-4.5" strokeWidth={1.5} aria-hidden />
-        )}
-        <span>
-          {isTracking ? 'Stopp prisvarsling' : 'Varsle meg ved prisfall'}
+        <span className="product-detail-modal__notify-icon" aria-hidden>
+          <Bell
+            className="product-detail-modal__notify-icon-item"
+            data-visible={!displayedTracking && !confirmation}
+            strokeWidth={1.5}
+          />
+          <BellOff
+            className="product-detail-modal__notify-icon-item"
+            data-visible={displayedTracking && !confirmation}
+            strokeWidth={1.5}
+          />
+          <Check
+            className="product-detail-modal__notify-icon-item"
+            data-visible={Boolean(confirmation)}
+            strokeWidth={1.5}
+          />
+        </span>
+        <span className="product-detail-modal__notify-label">
+          {confirmation === 'added'
+            ? 'Prisvarsel lagt til'
+            : confirmation === 'removed'
+              ? 'Prisvarsel fjernet'
+              : displayedTracking
+                ? 'Stopp prisvarsling'
+                : 'Varsle meg ved prisfall'}
         </span>
       </button>
       {info ? (

@@ -2019,7 +2019,36 @@
   }
 
   .product-detail-modal__notify-btn {
-    @apply flex w-full items-center justify-center gap-2 rounded-[var(--product-detail-modal-radius)] border border-border bg-background px-5 py-4 font-sans text-[15px] font-medium text-foreground transition-colors hover:bg-muted;
+    @apply flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-(--product-detail-modal-radius) border border-border bg-background px-5 py-4 font-sans text-[15px] font-medium text-foreground transition-[transform,background-color,border-color,box-shadow] duration-150 hover:bg-muted active:scale-[0.985] disabled:cursor-wait disabled:opacity-90;
+  }
+
+  .product-detail-modal__notify-btn[data-tracking='true'] {
+    @apply border-foreground/20 bg-muted/60;
+  }
+
+  .product-detail-modal__notify-btn[data-confirmation] {
+    @apply border-emerald-600/25 bg-emerald-50 text-emerald-950;
+  }
+
+  .product-detail-modal__notify-icon {
+    @apply relative size-4.5 shrink-0;
+  }
+
+  .product-detail-modal__notify-icon-item {
+    @apply absolute inset-0 size-4.5 scale-75 opacity-0 transition-[opacity,transform] duration-150;
+  }
+
+  .product-detail-modal__notify-icon-item[data-visible='true'] {
+    @apply scale-100 opacity-100;
+  }
+
+  .product-detail-modal__notify-btn[data-confirmation]
+    .product-detail-modal__notify-icon-item[data-visible='true'] {
+    animation: notify-confirm 350ms ease-out;
+  }
+
+  .product-detail-modal__notify-label {
+    @apply inline-block min-w-46 text-center;
   }
 
   .product-detail-modal__notify-info {
@@ -2028,6 +2057,34 @@
 
   .product-detail-modal__notify-error {
     @apply mt-2 text-center text-sm text-destructive;
+  }
+
+  @keyframes notify-confirm {
+    0% {
+      transform: scale(0.65);
+    }
+    65% {
+      transform: scale(1.12);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-detail-modal__notify-btn,
+    .product-detail-modal__notify-icon-item {
+      transition-duration: 0.01ms;
+    }
+
+    .product-detail-modal__notify-btn {
+      transform: none;
+    }
+
+    .product-detail-modal__notify-btn[data-confirmation]
+      .product-detail-modal__notify-icon-item[data-visible='true'] {
+      animation: none;
+    }
   }
 
   .account-tracks__header {

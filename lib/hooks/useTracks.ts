@@ -36,18 +36,37 @@ export function useCreateTrack() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (productId: string) => createTrack(productId),
-    onSuccess: (track) => {
-      void queryClient.invalidateQueries({ queryKey: trackQueryKeys.all });
-      if (track.productId) {
-        void queryClient.invalidateQueries({
-          queryKey: trackQueryKeys.byProduct(track.productId),
-        });
+    onMutate: async (productId) => {
+      const productKey = trackQueryKeys.byProduct(productId);
+      await queryClient.cancelQueries({ queryKey: productKey });
+      const previousProductState = queryClient.getQueryData(productKey);
+
+      queryClient.setQueryData(productKey, {
+        tracking: true,
+        track: null,
+      });
+
+      return { previousProductState, productId };
+    },
+    onError: (_error, _productId, context) => {
+      if (context) {
+        queryClient.setQueryData(
+          trackQueryKeys.byProduct(context.productId),
+          context.previousProductState,
+        );
       }
+    },
+    onSuccess: (track, productId) => {
+      queryClient.setQueryData(trackQueryKeys.byProduct(productId), {
+        tracking: true,
+        track,
+      });
+      void queryClient.invalidateQueries({ queryKey: trackQueryKeys.all });
     },
   });
 }
 
-export function useStopTrack() {
+export function useStopTrack(productIdHint?: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (trackId: string) => stopTrack(trackId),
@@ -65,7 +84,8 @@ export function useStopTrack() {
         );
       }
 
-      const productId = removedTrack?.productId ?? removedTrack?.product?.id;
+      const productId =
+        productIdHint ?? removedTrack?.productId ?? removedTrack?.product?.id;
       const previousProductState = productId
         ? queryClient.getQueryData(trackQueryKeys.byProduct(productId))
         : undefined;
