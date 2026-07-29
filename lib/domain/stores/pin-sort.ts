@@ -20,13 +20,14 @@ export function sortStoresWithPinned(stores: Store[]): Store[] {
   const pinned: Store[] = [];
 
   for (const config of PINNED_BRANDS) {
-    const match = available.find(
-      (store) =>
-        !usedIds.has(store.id) && matchesMerchantAliases(store, config.names),
+    const matches = available.filter(
+      (store) => matchesMerchantAliases(store, config.names),
     );
+    const match = matches.find((store) => !usedIds.has(store.id));
     if (match) {
       pinned.push(match);
-      usedIds.add(match.id);
+      // Alias variants represent the same card; keep only the first live match.
+      matches.forEach((store) => usedIds.add(store.id));
     }
   }
 

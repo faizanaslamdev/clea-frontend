@@ -1,6 +1,6 @@
 export function BrandGridSkeleton() {
-  // Matches the five-card editorial layout: 2 / 2 / 1.
-  const cardsPerColumn = [2, 2, 1] as const;
+  // Matches the current six-card editorial layout on home and `/brands`.
+  const cardsPerColumn = [2, 2, 2] as const;
 
   return (
     <div

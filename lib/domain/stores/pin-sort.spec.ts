@@ -13,17 +13,19 @@ function store(partial: Partial<Store> & Pick<Store, 'id' | 'name'>): Store {
 }
 
 describe('sortStoresWithPinned', () => {
-  it('pins NLYMAN then Nelly.com when both exist with products', () => {
+  it('pins NLYMAN, Nelly, then Ralph Lauren', () => {
     const result = sortStoresWithPinned([
       store({ id: 'z', name: 'Zalando', productCount: 100 }),
-      store({ id: 'nelly', name: 'Nelly.com', productCount: 50 }),
+      store({ id: 'ralph', name: 'Ralph Lauren NO', productCount: 90 }),
+      store({ id: 'nelly', name: 'Nelly NO', productCount: 50 }),
       store({ id: 'awin', name: 'Boozt', productCount: 80 }),
       store({ id: '19567', name: 'NLY Man NO', productCount: 200 }),
     ]);
 
     expect(result.map((s) => s.name)).toEqual([
       'NLY Man NO',
-      'Nelly.com',
+      'Nelly NO',
+      'Ralph Lauren NO',
       'Boozt',
       'Zalando',
     ]);
@@ -69,5 +71,22 @@ describe('sortStoresWithPinned', () => {
     ]);
 
     expect(result[0]?.name).toBe('nlyman');
+  });
+
+  it('does not duplicate Ralph Lauren alias variants', () => {
+    const result = sortStoresWithPinned([
+      store({ id: 'nly', name: 'NLY Man NO' }),
+      store({ id: 'nelly', name: 'Nelly NO' }),
+      store({ id: 'ralph-no', name: 'Ralph Lauren NO' }),
+      store({ id: 'ralph', name: 'Ralph Lauren' }),
+      store({ id: 'viking', name: 'Viking Footwear' }),
+    ]);
+
+    expect(result.map((store) => store.name)).toEqual([
+      'NLY Man NO',
+      'Nelly NO',
+      'Ralph Lauren NO',
+      'Viking Footwear',
+    ]);
   });
 });

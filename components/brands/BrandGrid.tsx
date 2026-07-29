@@ -1,5 +1,8 @@
 import type { Store } from '@/lib/types';
+import { PINNED_BRANDS } from '@/lib/constants/pinned-brands';
 import { sortStoresWithPinned } from '@/lib/domain/stores/pin-sort';
+import { matchesMerchantAliases } from '@/lib/domain/stores/merchant-match';
+import { getBrandHref } from '@/lib/domain/stores/slug';
 import { getBrandEditorialImage } from '@/lib/constants/brand-editorial-images';
 import BrandColumn from './BrandColumn';
 
@@ -7,18 +10,32 @@ type Props = {
   brands: Store[];
 };
 
+export function prepareBrandGridBrands(brands: Store[]): Store[] {
+  return sortStoresWithPinned(brands).map((brand) => {
+    const pinned = PINNED_BRANDS.find((config) =>
+      matchesMerchantAliases(brand, config.names),
+    );
+
+    return {
+      ...brand,
+      // Preserve the live merchant slug and existing editorial-image mapping
+      // when a feed-specific name is replaced by a customer-facing name.
+      href: brand.href ?? getBrandHref(brand),
+      name: pinned?.displayName ?? brand.name,
+      coverImage: getBrandEditorialImage(brand.name),
+      size: 'md' as const,
+    };
+  });
+}
+
 export default function BrandGrid({ brands }: Props) {
-  const orderedBrands = sortStoresWithPinned(brands).map((brand) => ({
-    ...brand,
-    coverImage: getBrandEditorialImage(brand.name),
-    size: 'md' as const,
-  }));
+  const orderedBrands = prepareBrandGridBrands(brands);
   const col1: Store[] = [];
   const col2: Store[] = [];
   const col3: Store[] = [];
 
-  // Pinned order starts with NLY Man and Nelly. Keep both in the first
-  // column so Nelly appears directly beneath NLY Man on desktop.
+  // Keep the first two pinned brands in one column. The third pinned brand
+  // starts the next column while retaining NLY Man → Nelly → Ralph DOM order.
   orderedBrands.forEach((brand, index) => {
     if (index < 2) {
       col1.push(brand);

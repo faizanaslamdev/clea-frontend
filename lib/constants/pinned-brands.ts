@@ -10,6 +10,8 @@ export type PinnedBrandConfig = {
   key: string;
   /** Exact display-name aliases (case-insensitive) */
   names: readonly string[];
+  /** Optional customer-facing name, independent of the feed merchant name. */
+  displayName?: string;
 };
 
 export const PINNED_BRANDS: readonly PinnedBrandConfig[] = [
@@ -19,8 +21,11 @@ export const PINNED_BRANDS: readonly PinnedBrandConfig[] = [
   },
   {
     key: 'nelly',
-    names: ['Nelly.com', 'Nelly'],
+    names: ['Nelly.com', 'Nelly', 'Nelly NO'],
   },
-  // Example for later:
-  // { key: 'ralph-lauren', names: ['Ralph Lauren'] },
+  {
+    key: 'ralph-lauren',
+    names: ['Ralph Lauren', 'Ralph Lauren NO'],
+    displayName: 'Ralph Lauren',
+  },
 ];
