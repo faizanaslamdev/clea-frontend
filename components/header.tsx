@@ -3,8 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { UserRound } from 'lucide-react';
 import { BrandLogo } from '@/components/brand-logo';
 import { HeroSearchForm } from '@/components/hero-search-form';
+import { useSession } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -70,6 +72,7 @@ function isFooterNearStickySearch(): boolean {
 
 export function Header() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [pastHero, setPastHero] = useState(false);
   const [hideStickyNearFooter, setHideStickyNearFooter] = useState(false);
 
@@ -143,7 +146,23 @@ export function Header() {
             priority
           />
 
-          <div className="site-header-right" aria-hidden />
+          <div className="site-header-right">
+            {session ? (
+              <Link
+                href="/account"
+                className={cn(
+                  'site-header-account-link',
+                  overHero && 'site-header-account-link--over-hero',
+                  pathname.startsWith('/account') &&
+                    'site-header-account-link--active',
+                )}
+                aria-label="Min konto"
+              >
+                <UserRound className="size-5" strokeWidth={1.5} aria-hidden />
+                <span className="sr-only">Min konto</span>
+              </Link>
+            ) : null}
+          </div>
         </div>
       </header>
 

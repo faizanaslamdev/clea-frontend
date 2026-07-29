@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { anchorDisplayLabel } from '@/lib/chat/anchor-display-label';
 import {
   ANCHOR_CHEAPER_MESSAGE,

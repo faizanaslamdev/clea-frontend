@@ -1812,4 +1812,189 @@
     @apply w-full;
   }
 
+  .site-header-right {
+    @apply flex items-center justify-end;
+  }
+
+  .site-header-account-link {
+    @apply inline-flex size-10 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:bg-muted;
+  }
+
+  .site-header-account-link--over-hero {
+    @apply border-white/30 text-white hover:bg-white/10;
+  }
+
+  .site-header-account-link--active {
+    @apply bg-muted;
+  }
+
+  .auth-modal {
+    @apply max-h-[min(90dvh,40rem)] overflow-y-auto;
+  }
+
+  .auth-modal__header {
+    @apply gap-1;
+  }
+
+  .auth-modal__title {
+    @apply font-sans text-xl font-semibold;
+  }
+
+  .auth-modal__description {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .auth-modal__body {
+    @apply mt-2;
+  }
+
+  .auth-modal__legal {
+    @apply text-center text-xs text-muted-foreground;
+  }
+
+  .auth-modal__legal-link {
+    @apply underline underline-offset-2;
+  }
+
+  .auth-form {
+    @apply flex flex-col gap-4;
+  }
+
+  .auth-form__field {
+    @apply flex flex-col gap-2;
+  }
+
+  .auth-form__actions {
+    @apply -mt-1 flex justify-end;
+  }
+
+  .auth-form__hint,
+  .auth-form__message {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .auth-form__error {
+    @apply text-sm text-destructive;
+  }
+
+  .auth-form__info {
+    @apply text-sm text-emerald-700;
+  }
+
+  .auth-form__submit {
+    @apply w-full;
+  }
+
+  .auth-form__switch {
+    @apply text-center text-sm text-muted-foreground;
+  }
+
+  .auth-form__link {
+    @apply border-0 bg-transparent p-0 font-medium text-foreground underline-offset-2 hover:underline;
+  }
+
+  .account-page__eyebrow {
+    @apply mb-2 font-sans text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground;
+  }
+
+  .account-page__card {
+    @apply mt-6 rounded-2xl border border-border bg-card p-6;
+  }
+
+  .account-page__details {
+    @apply grid gap-4;
+  }
+
+  .account-page__details dt {
+    @apply text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground;
+  }
+
+  .account-page__details dd {
+    @apply mt-1 text-base text-foreground;
+  }
+
+  .account-page__section-title {
+    @apply font-sans text-lg font-semibold;
+  }
+
+  .account-page__section-copy {
+    @apply mt-2 text-sm text-muted-foreground;
+  }
+
+  .account-page__actions {
+    @apply mt-8;
+  }
+
+  .account-page__banner {
+    @apply mt-6 flex flex-col gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .account-page__banner-title {
+    @apply font-sans text-sm font-semibold text-amber-950;
+  }
+
+  .account-page__banner-copy {
+    @apply mt-1 text-sm text-amber-900/80;
+  }
+
+  .product-detail-modal__notify {
+    @apply mt-4;
+  }
+
+  .product-detail-modal__notify-btn {
+    @apply flex w-full items-center justify-center gap-2 rounded-[var(--product-detail-modal-radius)] border border-border bg-background px-5 py-4 font-sans text-[15px] font-medium text-foreground transition-colors hover:bg-muted;
+  }
+
+  .product-detail-modal__notify-info {
+    @apply mt-2 text-center text-sm text-muted-foreground;
+  }
+
+  .product-detail-modal__notify-error {
+    @apply mt-2 text-center text-sm text-destructive;
+  }
+
+  .account-tracks__header {
+    @apply mb-4 flex items-center justify-between gap-3;
+  }
+
+  .account-tracks__empty {
+    @apply flex flex-col gap-3;
+  }
+
+  .account-tracks__list {
+    @apply flex flex-col gap-4;
+  }
+
+  .account-tracks__item {
+    @apply grid grid-cols-[72px_1fr_auto] items-start gap-3 border-b border-border pb-4 last:border-b-0 last:pb-0;
+  }
+
+  .account-tracks__image {
+    @apply h-24 w-[72px] object-cover;
+  }
+
+  .account-tracks__image-fallback {
+    @apply h-24 w-[72px] bg-muted;
+  }
+
+  .account-tracks__brand {
+    @apply text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground;
+  }
+
+  .account-tracks__name {
+    @apply mt-1 text-sm font-medium text-foreground;
+  }
+
+  .account-tracks__prices,
+  .account-tracks__merchant,
+  .account-tracks__hint,
+  .account-tracks__status,
+  .account-tracks__notified {
+    @apply mt-1 text-xs text-muted-foreground;
+  }
+
+  .account-tracks__actions {
+    @apply self-center;
+  }
+
 }

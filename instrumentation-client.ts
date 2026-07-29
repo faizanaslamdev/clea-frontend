@@ -4,6 +4,7 @@ import { scrubSentryEvent } from './lib/monitoring/sentry-scrub';
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   enabled: Boolean(process.env.NEXT_PUBLIC_SENTRY_DSN?.trim()),
+  sendDefaultPii: false,
   environment:
     process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT?.trim() ??
     process.env.NODE_ENV ??

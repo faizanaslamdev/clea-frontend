@@ -18,6 +18,7 @@ import {
   resolveStoreIdForProduct,
 } from '@/lib/services';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
+import { NotifyMeButton } from '@/components/auth/notify-me-button';
 import { ProductDetailModalSkeleton } from '@/components/product/product-detail-modal-skeleton';
 import { ProductSimilarSkeleton } from '@/components/product/product-similar-skeleton';
 import {
@@ -299,6 +300,10 @@ export function ProductDetailModal({
                           </span>
                           <ArrowUpRight className="size-5 shrink-0" strokeWidth={1.5} />
                         </a>
+                        <NotifyMeButton
+                          productId={product.id}
+                          className="product-detail-modal__notify"
+                        />
                       </div>
                     ) : null}
 

@@ -2,12 +2,16 @@
   "name": "clea",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
+  },
   "description": "",
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "tsc -p tsconfig.typecheck.json --noEmit",
+    "typecheck": "tsc -p tsconfig.typecheck.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -17,18 +21,22 @@
     "@sentry/nextjs": "^10.57.0",
     "@tanstack/react-query": "^5.100.11",
     "@vercel/analytics": "1.6.1",
+    "better-auth": "^1.6.25",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.564.0",
     "motion": "^12.40.0",
     "next": "16.2.6",
+    "pg": "^8.22.0",
     "react": "^19",
     "react-dom": "^19",
+    "resend": "^6.18.1",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.0",
     "@types/node": "^22",
+    "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "jsdom": "^26.1.0",

@@ -46,6 +46,7 @@ export async function apiFetch<T>(
 
   const response = await fetch(url, {
     ...init,
+    credentials: init?.credentials ?? 'include',
     headers: {
       Accept: 'application/json',
       ...init?.headers,
