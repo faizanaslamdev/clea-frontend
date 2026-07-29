@@ -22,6 +22,7 @@ function BrandsPageContent() {
     <div className="section-container section-shell">
       <PageSearchSection
         title="Utforsk merker"
+        description="Oppdag et kuratert utvalg av mote, tilbehør og nordiske favoritter."
         placeholder="Søk etter et merke"
         paramKey="q"
         aria-label="Søk etter et merke"

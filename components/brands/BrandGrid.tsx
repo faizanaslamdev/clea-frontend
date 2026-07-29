@@ -1,39 +1,34 @@
 import type { Store } from '@/lib/types';
 import { sortStoresWithPinned } from '@/lib/domain/stores/pin-sort';
+import { getBrandEditorialImage } from '@/lib/constants/brand-editorial-images';
 import BrandColumn from './BrandColumn';
 
 type Props = {
   brands: Store[];
 };
 
-/** Masonry gallery heights — keeps the landing brand grid visually varied. */
-const GALLERY_SIZE_PATTERN = [
-  'md',
-  'lg',
-  'sm',
-  'sm',
-  'md',
-  'lg',
-  'lg',
-  'sm',
-  'md',
-] as const;
-
 export default function BrandGrid({ brands }: Props) {
-  const orderedBrands = sortStoresWithPinned(brands);
+  const orderedBrands = sortStoresWithPinned(brands).map((brand, index) => ({
+    ...brand,
+    coverImage: getBrandEditorialImage(brand.name, index),
+    size: 'md' as const,
+  }));
   const col1: Store[] = [];
   const col2: Store[] = [];
   const col3: Store[] = [];
 
+  // Pinned order starts with NLY Man and Nelly. Keep both in the first
+  // column so Nelly appears directly beneath NLY Man on desktop.
   orderedBrands.forEach((brand, index) => {
-    const sizedBrand: Store = {
-      ...brand,
-      size: GALLERY_SIZE_PATTERN[index % GALLERY_SIZE_PATTERN.length],
-    };
+    if (index < 2) {
+      col1.push(brand);
+      return;
+    }
 
-    if (index % 3 === 0) col1.push(sizedBrand);
-    else if (index % 3 === 1) col2.push(sizedBrand);
-    else col3.push(sizedBrand);
+    const remainingIndex = index - 2;
+    if (remainingIndex % 3 === 0) col2.push(brand);
+    else if (remainingIndex % 3 === 1) col3.push(brand);
+    else col1.push(brand);
   });
 
   return (
