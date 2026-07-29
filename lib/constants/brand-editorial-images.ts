@@ -4,6 +4,7 @@ const EDITORIAL_IMAGES = {
   accessories: '/brands/editorial/03.webp',
   outdoor: '/brands/editorial/04.webp',
   viking: '/brands/editorial/viking.webp',
+  ralphLauren: '/brands/editorial/ralph-lauren.webp',
 } as const;
 
 const FALLBACK_IMAGES = [
@@ -30,6 +31,9 @@ export function getBrandEditorialImage(
   }
   if (/viking/.test(name)) {
     return EDITORIAL_IMAGES.viking;
+  }
+  if (/ralph\s+lauren/.test(name)) {
+    return EDITORIAL_IMAGES.ralphLauren;
   }
   if (/outnorth|sport|outdoor|footwear/.test(name)) {
     return EDITORIAL_IMAGES.outdoor;

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import { prepareBrandGridBrands } from './BrandGrid';
-import { getBrandEditorialImage } from '@/lib/constants/brand-editorial-images';
 import type { Store } from '@/lib/types';
 
 function store(id: string, name: string, productCount: number): Store {
@@ -36,9 +35,7 @@ describe('prepareBrandGridBrands', () => {
 
     const ralph = brands[2];
     expect(ralph?.href).toBe('/brands/ralph-lauren-no');
-    expect(ralph?.coverImage).toBe(
-      getBrandEditorialImage('Ralph Lauren NO'),
-    );
+    expect(ralph?.coverImage).toBe('/brands/editorial/ralph-lauren.webp');
     expect(brands.filter((brand) => brand.name === 'Ralph Lauren')).toHaveLength(
       1,
     );
