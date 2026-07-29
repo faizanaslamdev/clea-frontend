@@ -91,7 +91,7 @@ export function renderTransactionalEmail(options: LayoutOptions): EmailParts {
   <title>${escapeHtml(subject)}</title>
   <style>
     :root { color-scheme: light; supported-color-schemes: light; }
-    @media only screen and (max-width: 480px) {
+    @media only screen and (max-width: 520px) {
       .email-outer { padding: 12px 8px !important; }
       .email-content { padding: 8px 20px 28px !important; }
       .email-footer { padding: 18px 20px 24px !important; }
@@ -105,7 +105,7 @@ export function renderTransactionalEmail(options: LayoutOptions): EmailParts {
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f4f4f5;">
     <tr>
       <td align="center" class="email-outer" style="padding:24px 12px;">
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background-color:#ffffff;border:1px solid #e4e4e7;border-radius:16px;overflow:hidden;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background-color:#ffffff;border:1px solid #e4e4e7;border-radius:16px;overflow:hidden;">
           <tr>
             <td style="padding:28px 28px 8px;text-align:center;">
               <a href="${safeSite}" style="text-decoration:none;">
