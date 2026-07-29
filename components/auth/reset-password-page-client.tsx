@@ -1,14 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { CheckCircle2, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PageLayout } from '@/components/layout/page-layout';
+import { PasswordInput } from '@/components/auth/password-input';
 import { resetPassword } from '@/lib/auth/client';
 import { mapAuthErrorMessage } from '@/lib/auth/errors';
+import {
+  hasFieldErrors,
+  validateNewPasswordFields,
+} from '@/lib/auth/validation';
 
 export function ResetPasswordPageClient() {
   const searchParams = useSearchParams();
@@ -18,37 +23,51 @@ export function ResetPasswordPageClient() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  const [touched, setTouched] = useState({
+    password: false,
+    confirmPassword: false,
+  });
+
+  const resetErrors = validateNewPasswordFields(password, confirmPassword);
+  const isFormValid = Boolean(token) && !hasFieldErrors(resetErrors);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submittingRef.current || info) return;
+
     setError(null);
     setInfo(null);
+    setTouched({ password: true, confirmPassword: true });
 
     if (!token) {
       setError('Lenken er ugyldig eller utløpt. Be om en ny tilbakestillingslenke.');
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError('Passordene er ikke like.');
-      return;
-    }
+    if (!isFormValid) return;
 
+    submittingRef.current = true;
     setIsSubmitting(true);
 
-    const result = await resetPassword({
-      newPassword: password,
-      token,
-    });
+    try {
+      const result = await resetPassword({
+        newPassword: password,
+        token,
+      });
 
-    setIsSubmitting(false);
+      if (result.error) {
+        setError(mapAuthErrorMessage(result.error));
+        return;
+      }
 
-    if (result.error) {
-      setError(mapAuthErrorMessage(result.error));
-      return;
+      setInfo('Passordet er oppdatert. Du kan nå logge inn.');
+    } catch {
+      setError('Kunne ikke oppdatere passordet akkurat nå. Prøv igjen.');
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
-
-    setInfo('Passordet er oppdatert. Du kan nå logge inn.');
   }
 
   return (
@@ -59,42 +78,106 @@ export function ResetPasswordPageClient() {
           Velg et nytt passord for kontoen din.
         </p>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
           <div className="auth-form__field">
             <Label htmlFor="reset-password">Nytt passord</Label>
-            <Input
+            <PasswordInput
               id="reset-password"
-              type="password"
               autoComplete="new-password"
               required
               minLength={8}
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              disabled={isSubmitting || Boolean(info)}
+              aria-invalid={
+                (touched.password && Boolean(resetErrors.password)) || undefined
+              }
+              aria-describedby={
+                touched.password && resetErrors.password
+                  ? 'reset-password-error reset-password-hint'
+                  : 'reset-password-hint'
+              }
+              onBlur={() =>
+                setTouched((state) => ({ ...state, password: true }))
+              }
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setError(null);
+              }}
             />
+            {touched.password && resetErrors.password ? (
+              <p id="reset-password-error" className="auth-form__field-error">
+                {resetErrors.password}
+              </p>
+            ) : null}
+            <p id="reset-password-hint" className="auth-form__hint">
+              Bruk minst 8 tegn. Et unikt passord anbefales.
+            </p>
           </div>
 
           <div className="auth-form__field">
             <Label htmlFor="reset-password-confirm">Bekreft passord</Label>
-            <Input
+            <PasswordInput
               id="reset-password-confirm"
-              type="password"
               autoComplete="new-password"
               required
               minLength={8}
               value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
+              disabled={isSubmitting || Boolean(info)}
+              aria-invalid={
+                (touched.confirmPassword &&
+                  Boolean(resetErrors.confirmPassword)) ||
+                undefined
+              }
+              aria-describedby={
+                touched.confirmPassword && resetErrors.confirmPassword
+                  ? 'reset-confirm-error'
+                  : undefined
+              }
+              onBlur={() =>
+                setTouched((state) => ({ ...state, confirmPassword: true }))
+              }
+              onChange={(event) => {
+                setConfirmPassword(event.target.value);
+                setError(null);
+              }}
             />
+            {touched.confirmPassword && resetErrors.confirmPassword ? (
+              <p id="reset-confirm-error" className="auth-form__field-error">
+                {resetErrors.confirmPassword}
+              </p>
+            ) : null}
           </div>
 
-          {error ? <p className="auth-form__error">{error}</p> : null}
-          {info ? <p className="auth-form__info">{info}</p> : null}
+          {error ? (
+            <p className="auth-form__error" role="alert" aria-live="assertive">
+              {error}
+            </p>
+          ) : null}
+          {info ? (
+            <p className="auth-form__info" role="status" aria-live="polite">
+              {info}
+            </p>
+          ) : null}
 
           <Button
             type="submit"
             className="auth-form__submit"
-            disabled={isSubmitting}
+            disabled={!isFormValid || isSubmitting || Boolean(info)}
+            aria-busy={isSubmitting}
           >
-            {isSubmitting ? 'Lagrer…' : 'Oppdater passord'}
+            {isSubmitting ? (
+              <>
+                <LoaderCircle className="animate-spin" aria-hidden />
+                Lagrer…
+              </>
+            ) : info ? (
+              <>
+                <CheckCircle2 aria-hidden />
+                Passord oppdatert
+              </>
+            ) : (
+              'Oppdater passord'
+            )}
           </Button>
         </form>
 

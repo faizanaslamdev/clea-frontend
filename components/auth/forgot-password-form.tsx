@@ -1,11 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { requestPasswordReset } from '@/lib/auth/client';
-import { mapAuthErrorMessage } from '@/lib/auth/errors';
+import {
+  normalizeEmail,
+  validateEmail,
+} from '@/lib/auth/validation';
 
 interface ForgotPasswordFormProps {
   onBackToSignIn: () => void;
@@ -16,26 +20,40 @@ export function ForgotPasswordForm({ onBackToSignIn }: ForgotPasswordFormProps) 
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  const [isTouched, setIsTouched] = useState(false);
+
+  const emailError = validateEmail(email);
+  const isFormValid = !emailError;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submittingRef.current) return;
+
+    setIsTouched(true);
+    if (!isFormValid) return;
+
     setError(null);
     setInfo(null);
+    submittingRef.current = true;
     setIsSubmitting(true);
 
-    const result = await requestPasswordReset({
-      email: email.trim(),
-      redirectTo: '/reset-password',
-    });
-
-    setIsSubmitting(false);
-
-    if (result.error) {
-      setError(mapAuthErrorMessage(result.error));
-      return;
+    try {
+      // Always show the same completion message, whether or not the account
+      // exists. Better Auth handles the request without account enumeration.
+      await requestPasswordReset({
+        email: normalizeEmail(email),
+        redirectTo: '/reset-password',
+      });
+      setInfo(
+        'Hvis kontoen finnes, har vi sendt en e-post med instruksjoner.',
+      );
+    } catch {
+      setError('Kunne ikke sende forespørselen akkurat nå. Prøv igjen.');
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
-
-    setInfo('Hvis kontoen finnes, har vi sendt en e-post med instruksjoner.');
   }
 
   const formErrorId = 'forgot-password-form-error';
@@ -51,10 +69,22 @@ export function ForgotPasswordForm({ onBackToSignIn }: ForgotPasswordFormProps) 
           autoComplete="email"
           required
           value={email}
-          aria-invalid={Boolean(error) || undefined}
-          aria-describedby={error ? formErrorId : undefined}
-          onChange={(event) => setEmail(event.target.value)}
+          disabled={isSubmitting || Boolean(info)}
+          aria-invalid={(isTouched && Boolean(emailError)) || undefined}
+          aria-describedby={
+            isTouched && emailError ? 'forgot-password-email-error' : undefined
+          }
+          onBlur={() => setIsTouched(true)}
+          onChange={(event) => {
+            setEmail(event.target.value);
+            setError(null);
+          }}
         />
+        {isTouched && emailError ? (
+          <p id="forgot-password-email-error" className="auth-form__field-error">
+            {emailError}
+          </p>
+        ) : null}
       </div>
 
       {error ? (
@@ -68,8 +98,22 @@ export function ForgotPasswordForm({ onBackToSignIn }: ForgotPasswordFormProps) 
         </p>
       ) : null}
 
-      <Button type="submit" className="auth-form__submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Sender…' : 'Send tilbakestillingslenke'}
+      <Button
+        type="submit"
+        className="auth-form__submit"
+        disabled={!isFormValid || isSubmitting || Boolean(info)}
+        aria-busy={isSubmitting}
+      >
+        {isSubmitting ? (
+          <>
+            <LoaderCircle className="animate-spin" aria-hidden />
+            Sender…
+          </>
+        ) : info ? (
+          'E-postforespørsel sendt'
+        ) : (
+          'Send tilbakestillingslenke'
+        )}
       </Button>
 
       <p className="auth-form__switch">

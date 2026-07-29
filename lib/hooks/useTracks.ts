@@ -6,6 +6,7 @@ import {
   getTrackByProduct,
   listTracks,
   stopTrack,
+  type TrackRecord,
 } from '@/lib/api/tracks';
 
 export const trackQueryKeys = {
@@ -50,7 +51,49 @@ export function useStopTrack() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (trackId: string) => stopTrack(trackId),
-    onSuccess: () => {
+    onMutate: async (trackId) => {
+      await queryClient.cancelQueries({ queryKey: trackQueryKeys.all });
+      const previousTracks = queryClient.getQueryData<TrackRecord[]>(
+        trackQueryKeys.list(),
+      );
+      const removedTrack = previousTracks?.find((track) => track.id === trackId);
+
+      if (previousTracks) {
+        queryClient.setQueryData<TrackRecord[]>(
+          trackQueryKeys.list(),
+          previousTracks.filter((track) => track.id !== trackId),
+        );
+      }
+
+      const productId = removedTrack?.productId ?? removedTrack?.product?.id;
+      const previousProductState = productId
+        ? queryClient.getQueryData(trackQueryKeys.byProduct(productId))
+        : undefined;
+
+      if (productId) {
+        queryClient.setQueryData(trackQueryKeys.byProduct(productId), {
+          tracking: false,
+          track: null,
+        });
+      }
+
+      return { previousTracks, previousProductState, productId };
+    },
+    onError: (_error, _trackId, context) => {
+      if (context?.previousTracks) {
+        queryClient.setQueryData(
+          trackQueryKeys.list(),
+          context.previousTracks,
+        );
+      }
+      if (context?.productId && context.previousProductState) {
+        queryClient.setQueryData(
+          trackQueryKeys.byProduct(context.productId),
+          context.previousProductState,
+        );
+      }
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: trackQueryKeys.all });
     },
   });

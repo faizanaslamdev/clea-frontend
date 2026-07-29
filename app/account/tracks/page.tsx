@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function AccountTracksPage() {
   return (
     <PageLayout mainClassName="section-container section-shell py-12 md:py-16">
-      <div className="account-page mx-auto max-w-2xl">
+      <div className="account-page mx-auto max-w-5xl">
         <header className="account-page__header">
           <p className="account-page__eyebrow">Konto</p>
           <h1 className="type-heading">Prisvarsler</h1>

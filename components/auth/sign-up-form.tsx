@@ -1,16 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PasswordInput } from '@/components/auth/password-input';
 import { signUp } from '@/lib/auth/client';
 import { mapAuthErrorMessage } from '@/lib/auth/errors';
 import { resolvePostAuthReturnTo } from '@/lib/auth/return-to';
+import {
+  hasFieldErrors,
+  normalizeEmail,
+  validateSignUpFields,
+} from '@/lib/auth/validation';
 
 interface SignUpFormProps {
   onSwitchToSignIn: () => void;
-  onNeedsVerification: () => void;
+  onNeedsVerification: (email: string) => void;
 }
 
 export function SignUpForm({
@@ -20,30 +27,51 @@ export function SignUpForm({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  const [touched, setTouched] = useState({
+    email: false,
+    password: false,
+    confirmPassword: false,
+  });
+
+  const fieldErrors = validateSignUpFields(email, password, confirmPassword);
+  const isFormValid = !hasFieldErrors(fieldErrors);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submittingRef.current) return;
+
+    setTouched({ email: true, password: true, confirmPassword: true });
+    if (!isFormValid) return;
+
     setError(null);
+    submittingRef.current = true;
     setIsSubmitting(true);
 
-    const result = await signUp.email({
-      name: name.trim() || email.trim().split('@')[0] || 'Bruker',
-      email: email.trim(),
-      password,
-      callbackURL: resolvePostAuthReturnTo({ fallback: '/account' }),
-    });
+    const normalizedEmail = normalizeEmail(email);
+    try {
+      const result = await signUp.email({
+        name: name.trim() || normalizedEmail.split('@')[0] || 'Bruker',
+        email: normalizedEmail,
+        password,
+        callbackURL: resolvePostAuthReturnTo({ fallback: '/account' }),
+      });
 
-    setIsSubmitting(false);
+      if (result.error) {
+        setError(mapAuthErrorMessage(result.error));
+        return;
+      }
 
-    if (result.error) {
-      setError(mapAuthErrorMessage(result.error));
-      return;
+      onNeedsVerification(normalizedEmail);
+    } catch {
+      setError('Kunne ikke opprette kontoen akkurat nå. Prøv igjen.');
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
-
-    // Pending Notify Me action remains in sessionStorage until Phase 2 succeeds.
-    onNeedsVerification();
   }
 
   const formErrorId = 'sign-up-form-error';
@@ -57,6 +85,7 @@ export function SignUpForm({
           type="text"
           autoComplete="name"
           value={name}
+          disabled={isSubmitting}
           onChange={(event) => setName(event.target.value)}
           placeholder="Valgfritt"
         />
@@ -70,28 +99,89 @@ export function SignUpForm({
           autoComplete="email"
           required
           value={email}
-          aria-invalid={Boolean(error) || undefined}
-          aria-describedby={error ? formErrorId : undefined}
-          onChange={(event) => setEmail(event.target.value)}
+          disabled={isSubmitting}
+          aria-invalid={(touched.email && Boolean(fieldErrors.email)) || undefined}
+          aria-describedby={
+            touched.email && fieldErrors.email ? 'sign-up-email-error' : undefined
+          }
+          onBlur={() => setTouched((state) => ({ ...state, email: true }))}
+          onChange={(event) => {
+            setEmail(event.target.value);
+            setError(null);
+          }}
         />
+        {touched.email && fieldErrors.email ? (
+          <p id="sign-up-email-error" className="auth-form__field-error">
+            {fieldErrors.email}
+          </p>
+        ) : null}
       </div>
 
       <div className="auth-form__field">
         <Label htmlFor="sign-up-password">Passord</Label>
-        <Input
+        <PasswordInput
           id="sign-up-password"
-          type="password"
           autoComplete="new-password"
           required
           minLength={8}
           value={password}
-          aria-invalid={Boolean(error) || undefined}
-          aria-describedby={error ? formErrorId : 'sign-up-password-hint'}
-          onChange={(event) => setPassword(event.target.value)}
+          disabled={isSubmitting}
+          aria-invalid={
+            (touched.password && Boolean(fieldErrors.password)) || undefined
+          }
+          aria-describedby={
+            touched.password && fieldErrors.password
+              ? 'sign-up-password-error sign-up-password-hint'
+              : 'sign-up-password-hint'
+          }
+          onBlur={() => setTouched((state) => ({ ...state, password: true }))}
+          onChange={(event) => {
+            setPassword(event.target.value);
+            setError(null);
+          }}
         />
+        {touched.password && fieldErrors.password ? (
+          <p id="sign-up-password-error" className="auth-form__field-error">
+            {fieldErrors.password}
+          </p>
+        ) : null}
         <p id="sign-up-password-hint" className="auth-form__hint">
-          Minst 8 tegn
+          Bruk minst 8 tegn. Et unikt passord anbefales.
         </p>
+      </div>
+
+      <div className="auth-form__field">
+        <Label htmlFor="sign-up-password-confirm">Bekreft passord</Label>
+        <PasswordInput
+          id="sign-up-password-confirm"
+          autoComplete="new-password"
+          required
+          minLength={8}
+          value={confirmPassword}
+          disabled={isSubmitting}
+          aria-invalid={
+            (touched.confirmPassword &&
+              Boolean(fieldErrors.confirmPassword)) ||
+            undefined
+          }
+          aria-describedby={
+            touched.confirmPassword && fieldErrors.confirmPassword
+              ? 'sign-up-confirm-error'
+              : undefined
+          }
+          onBlur={() =>
+            setTouched((state) => ({ ...state, confirmPassword: true }))
+          }
+          onChange={(event) => {
+            setConfirmPassword(event.target.value);
+            setError(null);
+          }}
+        />
+        {touched.confirmPassword && fieldErrors.confirmPassword ? (
+          <p id="sign-up-confirm-error" className="auth-form__field-error">
+            {fieldErrors.confirmPassword}
+          </p>
+        ) : null}
       </div>
 
       {error ? (
@@ -100,8 +190,20 @@ export function SignUpForm({
         </p>
       ) : null}
 
-      <Button type="submit" className="auth-form__submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Oppretter konto…' : 'Opprett konto'}
+      <Button
+        type="submit"
+        className="auth-form__submit"
+        disabled={!isFormValid || isSubmitting}
+        aria-busy={isSubmitting}
+      >
+        {isSubmitting ? (
+          <>
+            <LoaderCircle className="animate-spin" aria-hidden />
+            Oppretter konto…
+          </>
+        ) : (
+          'Opprett konto'
+        )}
       </Button>
 
       <p className="auth-form__switch">

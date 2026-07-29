@@ -33,9 +33,9 @@ export function mapAuthErrorMessage(
     return 'Passordet oppfyller ikke kravene (minst 8 tegn).';
   }
 
-  if (message?.toLowerCase().includes('too many')) {
+  if (status === 429 || message?.toLowerCase().includes('too many')) {
     return 'For mange forsøk. Prøv igjen om litt.';
   }
 
-  return message || 'Noe gikk galt. Prøv igjen.';
+  return 'Noe gikk galt. Prøv igjen.';
 }

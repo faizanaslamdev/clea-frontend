@@ -46,6 +46,7 @@ export function AuthModal({
   initialView = 'sign-in',
 }: AuthModalProps) {
   const [view, setView] = useState<AuthView>(initialView);
+  const [verificationEmail, setVerificationEmail] = useState<string>();
 
   useEffect(() => {
     if (open) {
@@ -70,7 +71,10 @@ export function AuthModal({
             <SignInForm
               onSwitchToSignUp={() => setView('sign-up')}
               onForgotPassword={() => setView('forgot-password')}
-              onNeedsVerification={() => setView('verify-email')}
+              onNeedsVerification={(email) => {
+                setVerificationEmail(email);
+                setView('verify-email');
+              }}
               onSuccess={() => onOpenChange(false)}
             />
           ) : null}
@@ -78,7 +82,10 @@ export function AuthModal({
           {view === 'sign-up' ? (
             <SignUpForm
               onSwitchToSignIn={() => setView('sign-in')}
-              onNeedsVerification={() => setView('verify-email')}
+              onNeedsVerification={(email) => {
+                setVerificationEmail(email);
+                setView('verify-email');
+              }}
             />
           ) : null}
 
@@ -87,7 +94,10 @@ export function AuthModal({
           ) : null}
 
           {view === 'verify-email' ? (
-            <VerifyEmailPrompt onBackToSignIn={() => setView('sign-in')} />
+            <VerifyEmailPrompt
+              submittedEmail={verificationEmail}
+              onBackToSignIn={() => setView('sign-in')}
+            />
           ) : null}
         </div>
 
