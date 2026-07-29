@@ -2019,7 +2019,7 @@
   }
 
   .product-detail-modal__notify-btn {
-    @apply flex min-h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-(--product-detail-modal-radius) border border-border bg-background px-5 py-4 font-sans text-[15px] font-medium text-foreground transition-[transform,background-color,border-color,box-shadow] duration-150 hover:bg-muted active:scale-[0.985] disabled:cursor-wait disabled:opacity-90;
+    @apply flex min-h-14 w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-(--product-detail-modal-radius) border border-border bg-background px-5 py-4 font-sans text-[15px] font-medium text-foreground transition-[transform,background-color,border-color,box-shadow] duration-150 hover:bg-muted active:scale-[0.985] disabled:cursor-wait disabled:opacity-90;
   }
 
   .product-detail-modal__notify-btn[data-tracking='true'] {
