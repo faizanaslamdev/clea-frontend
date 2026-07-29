@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { UserRound } from 'lucide-react';
 import { BrandLogo } from '@/components/brand-logo';
 import { HeroSearchForm } from '@/components/hero-search-form';
+import { useAuthModal } from '@/components/auth/auth-provider';
 import { useSession } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 
@@ -72,7 +73,8 @@ function isFooterNearStickySearch(): boolean {
 
 export function Header() {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, isPending: isSessionPending } = useSession();
+  const { openAuthModal } = useAuthModal();
   const [pastHero, setPastHero] = useState(false);
   const [hideStickyNearFooter, setHideStickyNearFooter] = useState(false);
 
@@ -141,13 +143,18 @@ export function Header() {
           <BrandLogo
             variant="wordmark"
             theme={overHero ? 'light' : 'dark'}
-            className="site-header-logo site-header-logo--center z-[5]"
+            className="site-header-logo site-header-logo--center z-5"
             imageClassName="site-header-logo__image"
             priority
           />
 
           <div className="site-header-right">
-            {session ? (
+            {isSessionPending ? (
+              <span
+                className="site-header-account-placeholder"
+                aria-hidden
+              />
+            ) : session?.user ? (
               <Link
                 href="/account"
                 className={cn(
@@ -156,12 +163,25 @@ export function Header() {
                   pathname.startsWith('/account') &&
                     'site-header-account-link--active',
                 )}
-                aria-label="Min konto"
+                aria-label={`Min konto${session.user.name ? `, ${session.user.name}` : ''}`}
               >
                 <UserRound className="size-5" strokeWidth={1.5} aria-hidden />
-                <span className="sr-only">Min konto</span>
+                <span>Min konto</span>
               </Link>
-            ) : null}
+            ) : (
+              <button
+                type="button"
+                className={cn(
+                  'site-header-account-link',
+                  overHero && 'site-header-account-link--over-hero',
+                )}
+                onClick={() => openAuthModal({ view: 'sign-in' })}
+                aria-label="Logg inn på Clea"
+              >
+                <UserRound className="size-5" strokeWidth={1.5} aria-hidden />
+                <span>Logg inn</span>
+              </button>
+            )}
           </div>
         </div>
       </header>
