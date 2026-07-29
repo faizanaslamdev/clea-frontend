@@ -4,6 +4,7 @@ import { Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PageLayout } from '@/components/layout/page-layout';
 import BrandGrid from '@/components/brands/BrandGrid';
+import { BrandGridSkeleton } from '@/components/brands/brand-grid-skeleton';
 import { PageSearchSection } from '@/components/shared/page-search-section';
 import { useAllStores } from '@/lib/hooks/useStores';
 import { searchStores } from '@/lib/services';
@@ -11,7 +12,7 @@ import { searchStores } from '@/lib/services';
 function BrandsPageContent() {
   const searchParams = useSearchParams();
   const brandQuery = searchParams.get('q')?.trim() ?? '';
-  const { data: brands = [] } = useAllStores();
+  const { data: brands = [], isLoading } = useAllStores();
 
   const filteredBrands = useMemo(
     () => searchStores(brandQuery, brands),
@@ -28,7 +29,12 @@ function BrandsPageContent() {
         aria-label="Søk etter et merke"
       />
 
-      {brandQuery && filteredBrands.length === 0 ? (
+      {isLoading ? (
+        <>
+          <p className="sr-only">Laster merker</p>
+          <BrandGridSkeleton />
+        </>
+      ) : brandQuery && filteredBrands.length === 0 ? (
         <p className="text-center text-muted-foreground">
           Ingen merker funnet for «{brandQuery}»
         </p>
