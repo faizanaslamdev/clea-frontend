@@ -25,10 +25,12 @@ export default function BrandGrid({ brands }: Props) {
       return;
     }
 
-    const remainingIndex = index - 2;
-    if (remainingIndex % 3 === 0) col2.push(brand);
-    else if (remainingIndex % 3 === 1) col3.push(brand);
-    else col1.push(brand);
+    // Fill the shortest column so an incomplete final row stays compact.
+    // With five brands this yields 2 / 2 / 1 cards instead of 3 / 1 / 1.
+    const shortestColumn = [col1, col2, col3].reduce((shortest, column) =>
+      column.length < shortest.length ? column : shortest,
+    );
+    shortestColumn.push(brand);
   });
 
   return (
