@@ -1,33 +1,58 @@
 import { BRAND } from '@/lib/constants/brand';
 import { escapeHtml } from '@/lib/auth/html-escape';
+import {
+  AUTH_TOKEN_EXPIRES_IN_SECONDS,
+  formatTokenExpiryCopy,
+  renderTransactionalEmail,
+  type EmailParts,
+} from '@/lib/email/layout';
+import { safeHttpUrl } from '@/lib/email/safe-url';
 
 export function buildVerifyEmail({
   url,
+  expiresInSeconds = AUTH_TOKEN_EXPIRES_IN_SECONDS,
 }: {
   url: string;
-}): { subject: string; html: string; text: string } {
-  const subject = `Bekreft e-postadressen din på ${BRAND.name}`;
-  const safeUrl = escapeHtml(url);
+  expiresInSeconds?: number;
+}): EmailParts {
+  const verifiedUrl = safeHttpUrl(url);
+  if (!verifiedUrl) {
+    throw new Error('Verification email requires a valid http(s) URL.');
+  }
 
-  const text = [
-    `Hei!`,
-    ``,
-    `Bekreft e-postadressen din for å bruke prisvarsler på ${BRAND.domain}.`,
-    ``,
-    url,
-    ``,
-    `Hvis du ikke opprettet en konto, kan du ignorere denne e-posten.`,
-  ].join('\n');
+  const safeUrl = escapeHtml(verifiedUrl);
+  const expiryCopy = formatTokenExpiryCopy(expiresInSeconds);
 
-  const html = `
-    <div style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1a1a1a;">
-      <p>Hei!</p>
-      <p>Bekreft e-postadressen din for å bruke prisvarsler på <strong>${escapeHtml(BRAND.domain)}</strong>.</p>
-      <p><a href="${safeUrl}" style="display:inline-block;padding:12px 20px;background:#1a1a1a;color:#fff;text-decoration:none;border-radius:8px;">Bekreft e-post</a></p>
-      <p style="font-size:14px;color:#666;">Hvis knappen ikke virker, lim inn denne lenken i nettleseren:<br><a href="${safeUrl}">${safeUrl}</a></p>
-      <p style="font-size:14px;color:#666;">Hvis du ikke opprettet en konto, kan du ignorere denne e-posten.</p>
-    </div>
-  `.trim();
-
-  return { subject, html, text };
+  return renderTransactionalEmail({
+    subject: 'Bekreft e-postadressen din',
+    preheader: 'Bekreft e-postadressen din for å komme i gang med Clea.',
+    heading: 'Bekreft e-postadressen din',
+    bodyHtml: `
+      <p style="margin:0 0 14px;">Hei!</p>
+      <p style="margin:0 0 14px;">
+        Bekreft e-postadressen din for å logge inn på ${escapeHtml(BRAND.name)}, følge produkter
+        og få e-post når prisene går ned.
+      </p>
+      <p style="margin:0 0 14px;">${escapeHtml(expiryCopy)}</p>
+      <p style="margin:0;font-size:13px;color:#666666;">
+        Hvis knappen ikke virker, lim inn denne lenken i nettleseren:<br />
+        <a href="${safeUrl}" style="color:#111111;word-break:break-all;">${safeUrl}</a>
+      </p>
+    `,
+    bodyText: [
+      'Hei!',
+      '',
+      `Bekreft e-postadressen din for å logge inn på ${BRAND.name}, følge produkter og få e-post når prisene går ned.`,
+      '',
+      expiryCopy,
+      '',
+      verifiedUrl,
+      '',
+      'Hvis du ikke opprettet en konto, kan du ignorere denne e-posten.',
+    ],
+    cta: { href: verifiedUrl, label: 'Bekreft e-post' },
+    reason:
+      'Du mottar denne e-posten fordi det ble opprettet eller forespurt en Clea-konto med denne adressen.',
+    footerNote: 'Hvis du ikke opprettet en konto, kan du ignorere denne e-posten.',
+  });
 }

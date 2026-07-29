@@ -4,6 +4,8 @@ import { BRAND } from '@/lib/constants/brand';
 import { getAuthDatabasePool } from '@/lib/auth/database';
 import { readAuthEnv } from '@/lib/auth/env';
 import { sendTransactionalEmail } from '@/lib/email/send';
+import { AUTH_TOKEN_EXPIRES_IN_SECONDS } from '@/lib/email/layout';
+import { buildPasswordChangedEmail } from '@/lib/email/templates/password-changed';
 import { buildResetPasswordEmail } from '@/lib/email/templates/reset-password';
 import { buildVerifyEmail } from '@/lib/email/templates/verify-email';
 import { buildWelcomeEmail } from '@/lib/email/templates/welcome';
@@ -65,8 +67,19 @@ function createAuthInstance() {
       enabled: true,
       requireEmailVerification: true,
       minPasswordLength: 8,
+      resetPasswordTokenExpiresIn: AUTH_TOKEN_EXPIRES_IN_SECONDS,
       sendResetPassword: async ({ user, url }) => {
-        const template = buildResetPasswordEmail({ url });
+        const template = buildResetPasswordEmail({
+          url,
+          expiresInSeconds: AUTH_TOKEN_EXPIRES_IN_SECONDS,
+        });
+        await sendTransactionalEmail({
+          to: user.email,
+          ...template,
+        });
+      },
+      onPasswordReset: async ({ user }) => {
+        const template = buildPasswordChangedEmail({ name: user.name });
         await sendTransactionalEmail({
           to: user.email,
           ...template,
@@ -77,8 +90,12 @@ function createAuthInstance() {
       sendOnSignUp: true,
       sendOnSignIn: true,
       autoSignInAfterVerification: true,
+      expiresIn: AUTH_TOKEN_EXPIRES_IN_SECONDS,
       sendVerificationEmail: async ({ user, url }) => {
-        const template = buildVerifyEmail({ url });
+        const template = buildVerifyEmail({
+          url,
+          expiresInSeconds: AUTH_TOKEN_EXPIRES_IN_SECONDS,
+        });
         await sendTransactionalEmail({
           to: user.email,
           ...template,

@@ -1,34 +1,47 @@
 import { BRAND } from '@/lib/constants/brand';
 import { escapeHtml } from '@/lib/auth/html-escape';
+import {
+  renderTransactionalEmail,
+  type EmailParts,
+} from '@/lib/email/layout';
 
 export function buildWelcomeEmail({
   name,
 }: {
-  name: string;
-}): { subject: string; html: string; text: string } {
-  const safeName = name.trim();
+  name?: string | null;
+}): EmailParts {
+  const safeName = name?.trim() ?? '';
   const greetingText = safeName ? `Hei ${safeName}!` : 'Hei!';
-  const greetingHtml = safeName ? `Hei ${escapeHtml(safeName)}!` : 'Hei!';
-  const subject = `Velkommen til ${BRAND.name}`;
+  const greetingHtml = safeName
+    ? `Hei ${escapeHtml(safeName)}!`
+    : 'Hei!';
+  const accountUrl = `${BRAND.siteUrl}/account`;
 
-  const text = [
-    greetingText,
-    ``,
-    `E-postadressen din er bekreftet. Du kan nå logge inn og bruke kontoen din på ${BRAND.domain}.`,
-    ``,
-    `Prisvarsler aktiveres snart — vi gir deg beskjed når funksjonen er klar.`,
-    ``,
-    BRAND.siteUrl,
-  ].join('\n');
-
-  const html = `
-    <div style="font-family: system-ui, sans-serif; line-height: 1.6; color: #1a1a1a;">
-      <p>${greetingHtml}</p>
-      <p>E-postadressen din er bekreftet. Du kan nå logge inn og bruke kontoen din på <strong>${escapeHtml(BRAND.domain)}</strong>.</p>
-      <p>Prisvarsler aktiveres snart — vi gir deg beskjed når funksjonen er klar.</p>
-      <p><a href="${escapeHtml(BRAND.siteUrl)}" style="color:#1a1a1a;">Gå til ${escapeHtml(BRAND.domain)}</a></p>
-    </div>
-  `.trim();
-
-  return { subject, html, text };
+  return renderTransactionalEmail({
+    subject: 'E-postadressen din er bekreftet',
+    preheader: 'Du kan nå følge produkter og få beskjed ved prisfall.',
+    heading: 'E-postadressen din er bekreftet',
+    bodyHtml: `
+      <p style="margin:0 0 14px;">${greetingHtml}</p>
+      <p style="margin:0 0 14px;">
+        E-postadressen din er bekreftet. Du kan nå logge inn på Clea, utforske produkter,
+        følge favorittene dine og få e-post når prisen faller.
+      </p>
+      <p style="margin:0;">
+        Du administrerer prisvarsler når som helst fra kontoen din.
+      </p>
+    `,
+    bodyText: [
+      greetingText,
+      '',
+      'E-postadressen din er bekreftet. Du kan nå logge inn på Clea, utforske produkter, følge favorittene dine og få e-post når prisen faller.',
+      '',
+      'Du administrerer prisvarsler når som helst fra kontoen din.',
+      '',
+      accountUrl,
+    ],
+    cta: { href: accountUrl, label: 'Gå til kontoen din' },
+    secondaryLinks: [{ href: BRAND.siteUrl, label: 'Utforsk Clea' }],
+    reason: 'Du mottar denne e-posten fordi du nettopp bekreftet e-postadressen din på Clea.',
+  });
 }
