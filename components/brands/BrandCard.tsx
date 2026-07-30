@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
+import { getBrandEditorialPosition } from '@/lib/constants/brand-editorial-images';
 import { getBrandHref } from '@/lib/services';
 import type { Store } from '@/lib/types';
 
@@ -18,6 +19,7 @@ export function BrandCard({ brand }: { brand: Store }) {
           alt=""
           fill
           className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
+          style={{ objectPosition: getBrandEditorialPosition(brand.name) }}
           sizes="(max-width: 768px) 100vw, 33vw"
         />
       ) : (

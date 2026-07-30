@@ -7,6 +7,7 @@ interface PageHeroProps {
   children: React.ReactNode;
   contentClassName?: string;
   imageAlt?: string;
+  imagePosition?: string;
   priority?: boolean;
   variant?: 'home' | 'brand';
 }
@@ -17,6 +18,7 @@ export function PageHero({
   children,
   contentClassName,
   imageAlt = '',
+  imagePosition,
   priority = true,
   variant = 'home',
 }: PageHeroProps) {
@@ -36,6 +38,7 @@ export function PageHero({
           priority={priority}
           sizes="100vw"
           className="object-cover object-center"
+          style={imagePosition ? { objectPosition: imagePosition } : undefined}
         />
         <div className="page-hero-overlay" />
       </div>
