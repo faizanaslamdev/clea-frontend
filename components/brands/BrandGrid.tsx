@@ -22,7 +22,7 @@ export function prepareBrandGridBrands(brands: Store[]): Store[] {
       // when a feed-specific name is replaced by a customer-facing name.
       href: brand.href ?? getBrandHref(brand),
       name: pinned?.displayName ?? brand.name,
-      coverImage: getBrandEditorialImage(brand.name),
+      coverImage: getBrandEditorialImage(brand.name) ?? brand.coverImage,
       size: 'md' as const,
     };
   });

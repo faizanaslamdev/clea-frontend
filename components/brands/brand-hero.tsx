@@ -11,7 +11,7 @@ export function BrandHero({ brand }: BrandHeroProps) {
   return (
     <PageHero
       variant="brand"
-      imageSrc={getBrandEditorialImage(brand.name)}
+      imageSrc={getBrandEditorialImage(brand.name) ?? brand.coverImage}
       ariaLabel={brand.name}
       contentClassName="page-hero-content--brand"
     >

@@ -14,7 +14,7 @@ function store(id: string, name: string, productCount: number): Store {
 }
 
 describe('prepareBrandGridBrands', () => {
-  it('places and displays Ralph correctly without changing its route or image mapping', () => {
+  it('uses the supplied brand images while preserving order and routes', () => {
     const brands = prepareBrandGridBrands([
       store('outnorth', 'Outnorth NO', 65_196),
       store('384513', 'Ralph Lauren NO', 28_063),
@@ -32,12 +32,27 @@ describe('prepareBrandGridBrands', () => {
       'Outnorth NO',
       'Viking Footwear',
     ]);
+    expect(brands.map((brand) => brand.coverImage)).toEqual([
+      '/brands/editorial/nly-man.webp',
+      '/brands/editorial/nelly.webp',
+      '/brands/editorial/ralph-lauren.webp',
+      '/brands/editorial/db-journey.webp',
+      '/brands/editorial/outnorth.webp',
+      '/brands/editorial/viking.webp',
+    ]);
 
     const ralph = brands[2];
     expect(ralph?.href).toBe('/brands/ralph-lauren-no');
-    expect(ralph?.coverImage).toBe('/brands/editorial/ralph-lauren.webp');
     expect(brands.filter((brand) => brand.name === 'Ralph Lauren')).toHaveLength(
       1,
     );
+  });
+
+  it('keeps the affiliate-feed cover for an unmapped brand', () => {
+    const [brand] = prepareBrandGridBrands([
+      store('other', 'Another Store', 20),
+    ]);
+
+    expect(brand?.coverImage).toBe('/api/other.jpg');
   });
 });

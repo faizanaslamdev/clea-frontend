@@ -1,33 +1,32 @@
 const EDITORIAL_IMAGES = {
-  women: '/brands/editorial/01.webp',
-  men: '/brands/editorial/02.webp',
-  accessories: '/brands/editorial/03.webp',
-  outdoor: '/brands/editorial/04.webp',
+  dbJourney: '/brands/editorial/db-journey.webp',
+  nelly: '/brands/editorial/nelly.webp',
+  nlyMan: '/brands/editorial/nly-man.webp',
+  outnorth: '/brands/editorial/outnorth.webp',
   viking: '/brands/editorial/viking.webp',
   ralphLauren: '/brands/editorial/ralph-lauren.webp',
 } as const;
 
-const FALLBACK_IMAGES = [
-  EDITORIAL_IMAGES.women,
-  EDITORIAL_IMAGES.men,
-  EDITORIAL_IMAGES.accessories,
-  EDITORIAL_IMAGES.outdoor,
-] as const;
-
 /**
- * Curated, consistently sized imagery for the `/brands` editorial grid.
- * Product imagery remains live on the individual brand/product pages.
+ * Approved brand imagery supplied for the `/brands` editorial grid and hero.
+ * Unknown brands fall back to their live affiliate-feed product image.
  */
 export function getBrandEditorialImage(
   brandName: string,
-): string {
+): string | null {
   const name = brandName.trim().toLowerCase();
 
-  if (/nly\s?man|mens?|herre/.test(name)) {
-    return EDITORIAL_IMAGES.men;
+  if (/nly\s?man/.test(name)) {
+    return EDITORIAL_IMAGES.nlyMan;
   }
   if (/nelly/.test(name)) {
-    return EDITORIAL_IMAGES.women;
+    return EDITORIAL_IMAGES.nelly;
+  }
+  if (/db\s+journey|journey/.test(name)) {
+    return EDITORIAL_IMAGES.dbJourney;
+  }
+  if (/outnorth/.test(name)) {
+    return EDITORIAL_IMAGES.outnorth;
   }
   if (/viking/.test(name)) {
     return EDITORIAL_IMAGES.viking;
@@ -35,16 +34,6 @@ export function getBrandEditorialImage(
   if (/ralph\s+lauren/.test(name)) {
     return EDITORIAL_IMAGES.ralphLauren;
   }
-  if (/outnorth|sport|outdoor|footwear/.test(name)) {
-    return EDITORIAL_IMAGES.outdoor;
-  }
-  if (/journey|bag|accessor|shoe|sko/.test(name)) {
-    return EDITORIAL_IMAGES.accessories;
-  }
 
-  const stableIndex = Array.from(name).reduce(
-    (hash, character) => (hash * 31 + character.charCodeAt(0)) >>> 0,
-    0,
-  );
-  return FALLBACK_IMAGES[stableIndex % FALLBACK_IMAGES.length];
+  return null;
 }
