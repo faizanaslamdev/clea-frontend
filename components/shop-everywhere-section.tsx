@@ -36,6 +36,7 @@ export function ShopEverywhereSection() {
             alt=""
             fill
             className="object-cover object-center"
+            style={{ objectPosition: '50% 16%' }}
             sizes="(max-width: 768px) 100vw, 52vw"
           />
           <div className="promo-panel__image-fade" aria-hidden />
