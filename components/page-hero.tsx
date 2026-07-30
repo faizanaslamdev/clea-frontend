@@ -22,7 +22,10 @@ export function PageHero({
 }: PageHeroProps) {
   return (
     <section
-      className={cn('page-hero', variant === 'brand' && 'page-hero--brand')}
+      className={cn(
+        'page-hero',
+        variant === 'home' ? 'page-hero--home' : 'page-hero--brand',
+      )}
       aria-label={ariaLabel}
     >
       <div className="page-hero-media" aria-hidden>

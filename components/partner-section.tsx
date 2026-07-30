@@ -12,7 +12,7 @@ export default function PartnerSection() {
       <div className="flex flex-col overflow-hidden rounded-[16px] md:flex-row bg-card">
         <div className="relative aspect-square w-full flex-shrink-0 md:w-auto md:min-w-[400px] lg:min-w-[500px]">
           <Image
-            src="/products/dress.jpg"
+            src="/products/dress.webp"
             alt={`Samarbeid med ${BRAND.name}`}
             fill
             className="object-cover"

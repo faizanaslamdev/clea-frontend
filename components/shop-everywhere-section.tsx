@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { PromoTestimonialRotator } from '@/components/promo-testimonial-rotator';
 import { BRAND } from '@/lib/constants/brand';
 
-const PROMO_IMAGE = '/promo/shop-everywhere.jpg';
+const PROMO_IMAGE = '/promo/shop-everywhere.webp';
 
 export function ShopEverywhereSection() {
   return (

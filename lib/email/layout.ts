@@ -53,6 +53,7 @@ export function renderTransactionalEmail(options: LayoutOptions): EmailParts {
   const subject = sanitizeSubject(options.subject);
   const preheader = sanitizeSubject(options.preheader);
   const siteUrl = BRAND.siteUrl;
+  // Keep PNG for transactional email compatibility with legacy Outlook clients.
   const logoUrl = `${siteUrl}/logos/clea-wordmark-black.png`;
   const safeSite = escapeHtml(siteUrl);
   const safeDomain = escapeHtml(BRAND.domain);

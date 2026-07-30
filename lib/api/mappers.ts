@@ -3,7 +3,7 @@ import type { Product, ProductCategory, Store } from '@/lib/types';
 import { normalizeFeedImageUrl } from '@/lib/utils/feed-image-url';
 import { buildProductImageGallery } from '@/lib/utils/product-feed-meta';
 
-const PLACEHOLDER_IMAGE = '/products/tshirt.jpg';
+const PLACEHOLDER_IMAGE = '/products/dress.webp';
 
 function parseAmount(value: string | number | null | undefined): number {
   if (value == null) return 0;

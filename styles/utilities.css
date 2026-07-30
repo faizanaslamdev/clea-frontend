@@ -633,12 +633,32 @@
     @apply absolute inset-0;
   }
 
+  .page-hero--home .page-hero-overlay {
+    background:
+      radial-gradient(
+        circle at 50% 42%,
+        oklch(0 0 0 / 0.08) 0%,
+        oklch(0 0 0 / 0.3) 52%,
+        oklch(0 0 0 / 0.58) 100%
+      ),
+      linear-gradient(
+        180deg,
+        oklch(0 0 0 / 0.5) 0%,
+        oklch(0 0 0 / 0.2) 45%,
+        oklch(0 0 0 / 0.55) 100%
+      );
+  }
+
+  .page-hero--home .page-hero-media img {
+    transform: scale(1.015);
+  }
+
   .page-hero-content {
     @apply relative z-10 w-full;
   }
 
   .page-hero-content--home {
-    @apply pt-24 pb-[calc(4rem+100px)] md:pt-28 md:pb-[calc(6rem+100px)];
+    @apply pt-20 pb-[calc(4rem+100px)] md:pt-24 md:pb-[calc(6rem+100px)];
   }
 
   .page-hero-content--brand {
@@ -668,7 +688,8 @@
 
   .hero-kicker {
     color: var(--hero-foreground);
-    @apply mx-auto mb-10 w-full max-w-[42rem] px-4 text-balance text-center font-serif text-[1.625rem] font-light leading-[1.2] tracking-tight sm:text-4xl md:mb-12 md:text-[2.375rem] md:leading-[1.15] lg:max-w-none lg:text-[2.5rem] lg:leading-[1.15];
+    text-shadow: 0 2px 24px oklch(0 0 0 / 0.28);
+    @apply mx-auto mb-8 w-full max-w-224 px-4 text-balance text-center font-serif text-[1.75rem] font-light leading-[1.16] tracking-tight sm:text-4xl md:mb-9 md:text-[2.5rem] md:leading-[1.1] lg:text-[2.75rem];
   }
 
   .hero-kicker__line {
@@ -687,11 +708,11 @@
   }
 
   .hero-search-stack {
-    @apply flex flex-col items-center gap-5;
+    @apply flex max-w-176 flex-col items-center gap-3.5;
   }
 
   .hero-section__suggestions {
-    @apply mx-auto mt-6 flex min-h-[2.625rem] w-full max-w-3xl justify-center px-4 md:mt-8 md:min-h-[2.75rem];
+    @apply mx-auto mt-5 flex min-h-[2.625rem] w-full max-w-3xl justify-center px-4 md:mt-6 md:min-h-[2.75rem];
   }
 
   @media (max-width: 767px) {
@@ -726,7 +747,7 @@
 
   .hero-category-toggle__btn {
     color: var(--hero-toggle-inactive);
-    @apply min-w-[5.25rem] flex-1 basis-0 cursor-pointer rounded-full border-0 px-5 py-2 text-center font-sans text-sm font-medium transition-colors duration-200;
+    @apply min-w-19 flex-1 basis-0 cursor-pointer rounded-full border-0 px-4 py-1.5 text-center font-sans text-[13px] font-medium transition-colors duration-200;
   }
 
   .hero-category-toggle__btn--active {
@@ -758,7 +779,7 @@
 
   .hero-search-card__input {
     color: var(--foreground);
-    @apply min-h-[5rem] w-full resize-none border-0 bg-transparent px-5 pt-5 pb-3 font-serif text-lg font-normal leading-normal focus:outline-none focus:ring-0 md:text-xl;
+    @apply min-h-18 w-full resize-none border-0 bg-transparent px-5 pt-5 pb-2.5 font-serif text-[17px] font-normal leading-normal focus:outline-none focus:ring-0 md:min-h-19 md:px-6 md:text-xl;
   }
 
   .hero-search-card__input::placeholder {
@@ -767,7 +788,7 @@
 
   .hero-search-card__footer {
     border-top: 1px solid var(--hero-search-divider);
-    @apply flex items-center justify-end px-4 py-1.5;
+    @apply flex items-center justify-end px-3.5 py-1.5 md:px-4;
   }
 
   .hero-search-card__submit {
@@ -910,7 +931,15 @@
   }
 
   .hero-search-card.hero-search-glass {
-    @apply relative overflow-hidden rounded-[1.35rem];
+    @apply relative overflow-hidden rounded-3xl transition-[transform,border-color,box-shadow] duration-200;
+  }
+
+  .hero-search-card.hero-search-glass:focus-within {
+    border-color: oklch(1 0 0 / 0.9);
+    box-shadow:
+      0 0 0 3px oklch(1 0 0 / 0.14),
+      0 24px 60px oklch(0 0 0 / 0.2);
+    transform: translateY(-2px);
   }
 
   .hero-search-card.hero-search-glass .hero-search-card__input {
@@ -946,6 +975,19 @@
 
   .hero-search-card.hero-search-glass .hero-search-card__submit:hover {
     @apply opacity-90;
+  }
+
+  .hero-section__suggestions .search-suggestion-chips__chip {
+    border-color: oklch(1 0 0 / 0.36);
+    background-color: oklch(1 0 0 / 0.86);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    @apply px-4 py-2 text-[12px] transition-[transform,background-color,border-color,color] duration-150;
+  }
+
+  .hero-section__suggestions .search-suggestion-chips__chip:hover,
+  .hero-section__suggestions .search-suggestion-chips__chip:focus-visible {
+    transform: translateY(-1px);
   }
 
   @media (max-width: 767px) {
@@ -1301,6 +1343,12 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .hero-search-card.hero-search-glass:focus-within,
+    .hero-section__suggestions .search-suggestion-chips__chip:hover,
+    .hero-section__suggestions .search-suggestion-chips__chip:focus-visible {
+      transform: none;
+    }
+
     .hero-search-bar--compact.sticky-hero-search {
       transition: none;
     }

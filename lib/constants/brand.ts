@@ -1,13 +1,13 @@
 /** Product branding — https://clea.no */
-/** Transparent PNGs in /public/logos — used for header, footer, and favicon. */
+/** Transparent WebP assets in /public/logos — used for header and footer. */
 export const BRAND_LOGOS = {
   wordmark: {
-    dark: '/logos/clea-wordmark-black.png',
-    light: '/logos/clea-wordmark-white.png',
+    dark: '/logos/clea-wordmark-black.webp',
+    light: '/logos/clea-wordmark-white.webp',
   },
   mark: {
-    dark: '/logos/clea-mark-black.png',
-    light: '/logos/clea-mark-white.png',
+    dark: '/logos/clea-mark-black.webp',
+    light: '/logos/clea-mark-white.webp',
   },
 } as const;
 

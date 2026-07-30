@@ -4,28 +4,28 @@ import { cn } from '@/lib/utils';
 /** Full card artwork (2×2 grid + labels), 997×1265px source */
 const COLLECTION_CARDS = [
   {
-    src: '/collections/collection-fall-faves.png',
+    src: '/collections/collection-fall-faves.webp',
     alt: 'Høstfavoritter — 44 produkter',
     rotate: -4,
     overlap: 0,
     zIndex: 1,
   },
   {
-    src: '/collections/collection-winter-layers.png',
+    src: '/collections/collection-winter-layers.webp',
     alt: 'Vinterlag — 23 produkter',
     rotate: -1.5,
     overlap: -56,
     zIndex: 2,
   },
   {
-    src: '/collections/collection-holiday-wishlist.png',
+    src: '/collections/collection-holiday-wishlist.webp',
     alt: 'Juleønskeliste — 104 produkter',
     rotate: 1.5,
     overlap: -56,
     zIndex: 3,
   },
   {
-    src: '/collections/collection-going-out.png',
+    src: '/collections/collection-going-out.webp',
     alt: 'Ut på byen — 96 produkter',
     rotate: 4.5,
     overlap: -56,
