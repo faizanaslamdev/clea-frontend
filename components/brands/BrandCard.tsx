@@ -11,6 +11,7 @@ export function BrandCard({ brand }: { brand: Store }) {
   return (
     <Link
       href={href}
+      scroll
       className="brand-card group relative block aspect-4/3 w-full overflow-hidden rounded-[1.25rem]"
     >
       {brand.coverImage ? (
