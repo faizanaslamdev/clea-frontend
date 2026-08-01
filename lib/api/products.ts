@@ -1,22 +1,12 @@
 import { apiFetch, ApiError } from '@/lib/api/backend-client';
 import { mapApiProductToProduct } from '@/lib/api/mappers';
-import { fetchAllStoresFromApi } from '@/lib/api/stores';
 import type { ApiProduct, ApiProductListResponse } from '@/lib/api/types';
 import { CATALOG_PAGE_SIZE } from '@/lib/constants/catalog';
 import {
   POPULAR_PRODUCTS_LIMIT,
   POPULAR_PRODUCTS_PER_BRAND,
-  POPULAR_SECTION_BRANDS,
 } from '@/lib/constants/popular-brands';
-import {
-  dedupeProductsById,
-  interleaveProductGroups,
-} from '@/lib/domain/products/popular-curation';
-import {
-  resolvePreferredStores,
-  storeHasProducts,
-} from '@/lib/domain/stores/merchant-match';
-import type { Product, SearchResult, Store } from '@/lib/types';
+import type { Product, SearchResult } from '@/lib/types';
 
 export type ProductSegment = 'fashion' | 'all';
 
@@ -29,6 +19,9 @@ export interface FetchProductsParams {
   segment?: ProductSegment;
   limit?: number;
   offset?: number;
+  /** Cap each merchant before LIMIT — one round-trip multi-brand mix. */
+  balanceMerchants?: boolean;
+  perMerchantCandidateCap?: number;
 }
 
 function buildProductsQuery(params: FetchProductsParams): string {
@@ -37,6 +30,13 @@ function buildProductsQuery(params: FetchProductsParams): string {
   if (params.brand) search.set('brand', params.brand);
   if (params.merchantId) search.set('merchant_id', params.merchantId);
   if (params.category) search.set('category', params.category);
+  if (params.balanceMerchants) search.set('balance_merchants', 'true');
+  if (params.perMerchantCandidateCap != null) {
+    search.set(
+      'per_merchant_candidate_cap',
+      String(params.perMerchantCandidateCap),
+    );
+  }
   search.set('segment', params.segment ?? 'fashion');
   search.set('limit', String(params.limit ?? CATALOG_PAGE_SIZE));
   search.set('offset', String(params.offset ?? 0));
@@ -54,10 +54,11 @@ export interface CatalogPageResult {
 /** Deduplicated catalog cards (one per merchant style). */
 export async function fetchCatalogFromApi(
   params: FetchProductsParams = {},
+  init?: RequestInit,
 ): Promise<CatalogPageResult> {
   const qs = buildProductsQuery(params);
   const data = await apiFetch<ApiProductListResponse>(`/catalog?${qs}`, {
-    cache: 'no-store',
+    ...(init ?? { cache: 'no-store' }),
   });
   const products = data.items.map(mapApiProductToProduct);
   const loaded = data.offset + products.length;
@@ -88,59 +89,22 @@ export async function fetchProductById(
   }
 }
 
-async function fetchProductsForStore(
-  store: Store,
-  limit: number,
-): Promise<Product[]> {
-  if (limit <= 0 || !storeHasProducts(store)) {
-    return [];
-  }
-  const { products } = await fetchCatalogFromApi({
-    merchantId: store.id,
-    limit,
-  });
-  return products;
-}
-
 /**
- * Home "Populært nå" — curated from preferred brands (then other merchants),
- * interleaved so the carousel is not a single-brand block.
+ * Home "Populært nå" — one balanced catalog request (no merchants waterfall).
+ * Backend caps each merchant so the carousel mixes brands.
  */
 export async function fetchFeaturedProducts(
   limit = POPULAR_PRODUCTS_LIMIT,
 ): Promise<Product[]> {
-  const stores = await fetchAllStoresFromApi();
-  const preferred = resolvePreferredStores(stores, POPULAR_SECTION_BRANDS);
-  const preferredIds = new Set(preferred.map((store) => store.id));
-
-  const preferredGroups = await Promise.all(
-    preferred.map((store) =>
-      fetchProductsForStore(store, POPULAR_PRODUCTS_PER_BRAND),
-    ),
+  const { products } = await fetchCatalogFromApi(
+    {
+      limit,
+      balanceMerchants: true,
+      perMerchantCandidateCap: POPULAR_PRODUCTS_PER_BRAND,
+    },
+    { next: { revalidate: 120 } },
   );
-
-  const groups: Product[][] = preferredGroups.filter(
-    (group) => group.length > 0,
-  );
-  let remaining =
-    limit - groups.reduce((sum, group) => sum + group.length, 0);
-
-  if (remaining > 0) {
-    const fallbackStores = stores
-      .filter((store) => storeHasProducts(store) && !preferredIds.has(store.id))
-      .sort((a, b) => (b.productCount ?? 0) - (a.productCount ?? 0));
-
-    for (const store of fallbackStores) {
-      if (remaining <= 0) break;
-      const take = Math.min(POPULAR_PRODUCTS_PER_BRAND, remaining);
-      const products = await fetchProductsForStore(store, take);
-      if (products.length === 0) continue;
-      groups.push(products);
-      remaining -= products.length;
-    }
-  }
-
-  return dedupeProductsById(interleaveProductGroups(groups)).slice(0, limit);
+  return products;
 }
 
 function calculateRelevance(product: Product, query: string): number {

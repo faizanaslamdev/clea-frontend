@@ -1,7 +1,7 @@
 /**
- * Preferred merchants for the home "Populært nå" carousel.
- * Order = priority. Matched against live merchant_name aliases (case-insensitive).
- * Only brands present in API data with products are used — no placeholders.
+ * Preferred merchants for curated multi-brand surfaces.
+ * Home "Populært nå" now uses a single balanced `/catalog` request for speed;
+ * keep this list for future curated surfaces / docs.
  */
 import type { PinnedBrandConfig } from '@/lib/constants/pinned-brands';
 
@@ -14,11 +14,9 @@ export const POPULAR_SECTION_BRANDS: readonly PinnedBrandConfig[] = [
     key: 'nelly',
     names: ['Nelly.com', 'Nelly'],
   },
-  // Add more preferred brands here as catalog coverage grows:
-  // { key: 'ralph-lauren', names: ['Ralph Lauren'] },
 ];
 
-/** Max products taken from each preferred (or fallback) brand. */
+/** Max products taken from each merchant in the balanced popular catalog. */
 export const POPULAR_PRODUCTS_PER_BRAND = 4;
 
 /** Total products shown in the home carousel. */
