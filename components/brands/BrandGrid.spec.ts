@@ -42,7 +42,7 @@ describe('prepareBrandGridBrands', () => {
     ]);
 
     const ralph = brands[2];
-    expect(ralph?.href).toBe('/brands/ralph-lauren-no');
+    expect(ralph?.href).toBe('/brands/ralph-lauren-no?m=384513');
     expect(brands.filter((brand) => brand.name === 'Ralph Lauren')).toHaveLength(
       1,
     );

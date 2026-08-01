@@ -3,6 +3,7 @@ import { PageLayout } from '@/components/layout/page-layout';
 import { BrandHero } from '@/components/brands/brand-hero';
 import { BrandProductSection } from '@/components/brands/brand-product-section';
 import {
+  getBrandHref,
   getBrandSlug,
   resolveStoreFromRouteParam,
 } from '@/lib/services';
@@ -11,11 +12,22 @@ export const dynamic = 'force-dynamic';
 
 interface BrandPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ m?: string | string[] }>;
 }
 
-export default async function BrandPage({ params }: BrandPageProps) {
+function firstParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+export default async function BrandPage({
+  params,
+  searchParams,
+}: BrandPageProps) {
   const { slug } = await params;
-  const brand = await resolveStoreFromRouteParam(slug);
+  const query = await searchParams;
+  const merchantId = firstParam(query.m);
+  const brand = await resolveStoreFromRouteParam(slug, merchantId);
 
   if (!brand) {
     notFound();
@@ -23,7 +35,7 @@ export default async function BrandPage({ params }: BrandPageProps) {
 
   const canonicalSlug = getBrandSlug(brand);
   if (slug !== canonicalSlug) {
-    redirect(`/brands/${canonicalSlug}`);
+    redirect(getBrandHref(brand));
   }
 
   return (

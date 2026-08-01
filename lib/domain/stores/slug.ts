@@ -14,5 +14,7 @@ export function getBrandSlug(store: Store): string {
 }
 
 export function getBrandHref(store: Store): string {
-  return `/brands/${getBrandSlug(store)}`;
+  const slug = getBrandSlug(store);
+  // Include merchant id so brand-page SSR can skip the expensive merchants list.
+  return `/brands/${slug}?m=${encodeURIComponent(store.id)}`;
 }
