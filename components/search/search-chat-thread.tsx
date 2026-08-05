@@ -60,10 +60,12 @@ export function SearchChatThread({
         message.role === 'assistant' && !isPendingAssistantMessage(message),
     )?.id;
 
+  // Scroll only when a new turn is appended — not when an existing message
+  // is updated (e.g. load-more appending products to the same bubble).
   useEffect(() => {
-    if (messages.length === 0) return;
+    if (!latestMessageId) return;
     scrollToLatestMessage(latestMessageRef.current);
-  }, [messages]);
+  }, [latestMessageId]);
 
   if (messages.length === 0) {
     return null;
