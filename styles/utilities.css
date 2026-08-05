@@ -363,6 +363,10 @@
     @apply shrink-0 truncate font-sans text-[11px] font-normal uppercase tracking-[0.14em] text-muted-foreground;
   }
 
+  .product-card-detailed__merchant-badge {
+    @apply mt-1.5 inline-flex w-fit max-w-full shrink-0 truncate rounded-full border border-border/70 bg-muted/40 px-2.5 py-0.5 font-sans text-[10px] font-medium tracking-[0.04em] text-foreground/85 md:text-[11px];
+  }
+
   .product-card-detailed__title {
     @apply m-0 mt-1.5 line-clamp-2 min-w-0 max-w-full font-sans text-sm font-semibold leading-snug text-foreground md:text-[15px];
   }

@@ -24,6 +24,7 @@ interface ProductCardProps {
   variant?: ProductCardVariant;
   imageSizes?: string;
   enableAnchorActions?: boolean;
+  showMerchantLabel?: boolean;
   onAnchorActionComplete?: () => void;
 }
 
@@ -115,6 +116,7 @@ export function ProductCard({
   variant = 'detailed',
   imageSizes,
   enableAnchorActions = false,
+  showMerchantLabel = false,
   onAnchorActionComplete,
 }: ProductCardProps) {
   const { openProduct } = useProductModal();
@@ -122,6 +124,12 @@ export function ProductCard({
   const prefetchProductDetail = usePrefetchProductDetail();
   const price = useListingPrice(product, storeId);
   const showAnchorMenu = enableAnchorActions;
+  const merchantLabel = product.merchantName?.trim();
+  const showMerchantBadge = showMerchantLabel && Boolean(merchantLabel);
+  const showBrandEyebrow =
+    !showMerchantBadge ||
+    (merchantLabel != null &&
+      product.brand.trim().toLowerCase() !== merchantLabel.toLowerCase());
 
   const prefetchThisProduct = () => {
     prefetchProductDetail(product.id);
@@ -192,7 +200,14 @@ export function ProductCard({
           onMouseEnter={prefetchThisProduct}
           onFocus={prefetchThisProduct}
         >
-          <p className="product-card-detailed__brand">{product.brand}</p>
+          {showBrandEyebrow ? (
+            <p className="product-card-detailed__brand">{product.brand}</p>
+          ) : null}
+          {showMerchantBadge ? (
+            <p className="product-card-detailed__merchant-badge" title={merchantLabel}>
+              {merchantLabel}
+            </p>
+          ) : null}
           <h3 className="product-card-detailed__title" title={product.name}>
             {product.name}
           </h3>
@@ -201,9 +216,11 @@ export function ProductCard({
               {formatPrice(price, product.currency)}
             </p>
           )}
-          <p className="product-card-detailed__shop">
-            Handle hos {product.brand}
-          </p>
+          {!showMerchantBadge ? (
+            <p className="product-card-detailed__shop">
+              Handle hos {product.brand}
+            </p>
+          ) : null}
         </ProductCardClickTarget>
       </div>
     </div>

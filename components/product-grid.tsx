@@ -10,6 +10,7 @@ interface ProductGridProps {
   emptyMessage?: string;
   variant?: ProductCardVariant;
   enableAnchorActions?: boolean;
+  showMerchantLabel?: boolean;
   onAnchorActionComplete?: () => void;
 }
 
@@ -22,6 +23,7 @@ export function ProductGrid({
   emptyMessage = 'No products found',
   variant = 'detailed',
   enableAnchorActions = false,
+  showMerchantLabel = false,
   onAnchorActionComplete,
 }: ProductGridProps) {
   if (products.length === 0) {
@@ -43,6 +45,7 @@ export function ProductGrid({
             storeId={storeId}
             variant={variant}
             enableAnchorActions={enableAnchorActions}
+            showMerchantLabel={showMerchantLabel}
             onAnchorActionComplete={onAnchorActionComplete}
           />
         </div>

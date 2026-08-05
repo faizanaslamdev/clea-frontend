@@ -145,6 +145,7 @@ export function SearchChatThread({
                 <ProductGrid
                   products={message.products}
                   enableAnchorActions
+                  showMerchantLabel
                   emptyMessage={
                     message.query
                       ? `Ingen produkter funnet for «${message.query}»`
