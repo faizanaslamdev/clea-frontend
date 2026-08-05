@@ -211,13 +211,13 @@ export function useChatSession({
         !target?.catalogQuery ||
         !target.searchHasMore ||
         target.intent === 'similar_products' ||
-        target.intent === 'cheaper_alternatives'
+        target.intent === 'cheaper_alternatives' ||
+        stateRef.current.loadingMoreMessageId
       ) {
         return;
       }
 
-      const nextOffset =
-        (target.catalogQuery.offset ?? 0) + (target.searchLimit ?? 12);
+      const nextOffset = target.products?.length ?? 0;
 
       const catalogQuery = {
         ...target.catalogQuery,

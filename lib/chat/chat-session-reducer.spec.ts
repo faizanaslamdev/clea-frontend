@@ -79,6 +79,66 @@ describe('chatSessionReducer TURN_SUCCESS', () => {
   });
 });
 
+describe('chatSessionReducer LOAD_MORE', () => {
+  it('appends unique products and advances pagination state', () => {
+    const identity = createTurnIdentity();
+    const started = chatSessionReducer(initialChatSessionState, {
+      type: 'TURN_BEGIN',
+      identity,
+      query: 'shirt from Ralph Lauren',
+    });
+    const completed = chatSessionReducer(started, {
+      type: 'TURN_SUCCESS',
+      turnId: identity.turnId,
+      query: 'shirt from Ralph Lauren',
+      result: {
+        ...TURN,
+        intent: 'product_search',
+        products: [{ id: 'p1' }, { id: 'p2' }] as ChatTurnResult['products'],
+        total: 10,
+        hasMore: true,
+        catalogQuery: {
+          q: 'shirt',
+          merchantId: '384513',
+          offset: 0,
+        },
+      },
+    });
+
+    const messageId = completed.messages[1]!.id;
+    const loaded = chatSessionReducer(completed, {
+      type: 'LOAD_MORE_SUCCESS',
+      messageId,
+      catalogQuery: {
+        q: 'shirt',
+        merchantId: '384513',
+        offset: 2,
+      },
+      result: {
+        ...TURN,
+        intent: 'product_search',
+        products: [{ id: 'p2' }, { id: 'p3' }] as ChatTurnResult['products'],
+        total: 10,
+        hasMore: true,
+        offset: 2,
+        catalogQuery: {
+          q: 'shirt',
+          merchantId: '384513',
+          offset: 2,
+        },
+      },
+    });
+
+    expect(loaded.messages[1]?.products?.map((product) => product.id)).toEqual([
+      'p1',
+      'p2',
+      'p3',
+    ]);
+    expect(loaded.messages[1]?.searchHasMore).toBe(true);
+    expect(loaded.messages[1]?.catalogQuery?.offset).toBe(2);
+  });
+});
+
 describe('chatSessionReducer TURN_ERROR', () => {
   it('replaces the pending assistant with an error message', () => {
     const identity = createTurnIdentity();

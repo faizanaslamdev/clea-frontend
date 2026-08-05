@@ -1,5 +1,6 @@
 import type { CatalogQuery, ChatTurnResult } from '@/lib/api/chat-types';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
+import { dedupeProductsById } from '@/lib/domain/products/popular-curation';
 import {
   buildAssistantMessageFromTurn,
   buildOptimisticTurnMessages,
@@ -171,10 +172,10 @@ export function chatSessionReducer(
           message.id === action.messageId
             ? {
                 ...message,
-                products: [
+                products: dedupeProductsById([
                   ...(message.products ?? []),
                   ...action.result.products,
-                ],
+                ]),
                 searchTotal: action.result.total,
                 searchHasMore: action.result.hasMore,
                 searchLimit: action.result.limit,

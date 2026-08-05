@@ -10,14 +10,41 @@ export type ProductSegment = 'fashion' | 'all';
 
 export type ShopCategory = 'mens' | 'womens';
 
+export type CatalogFilterMode = 'hard' | 'soft';
+
+export type SuitableFor = 'male' | 'female' | 'unisex';
+
+export type ProductFamily =
+  | 'footwear'
+  | 'outerwear'
+  | 'knitwear'
+  | 'tops'
+  | 'bottoms'
+  | 'dresses'
+  | 'socks'
+  | 'legwear'
+  | 'gloves'
+  | 'bags'
+  | 'sleeping_bags';
+
 export interface CatalogQuery {
   q?: string;
   brand?: string;
+  brandValues?: string[];
+  brandQueryLocked?: boolean;
   category?: string;
   merchantId?: string;
   minPrice?: number;
   maxPrice?: number;
   segment?: ProductSegment;
+  suitableFor?: SuitableFor;
+  colour?: string;
+  productFamily?: ProductFamily;
+  pathPrefix?: string;
+  ontologyCategoryIds?: string[];
+  genderFilterMode?: CatalogFilterMode;
+  familyFilterMode?: CatalogFilterMode;
+  ontologyFilterMode?: CatalogFilterMode;
   offset?: number;
 }
 
