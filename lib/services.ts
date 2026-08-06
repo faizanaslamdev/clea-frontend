@@ -7,7 +7,7 @@ export {
   type ProductSearchResponse,
 } from '@/lib/domain/products/search';
 
-export { getLowestPriceStore } from '@/lib/domain/products/comparison';
+export { getListingPriceStore, getLowestPriceStore } from '@/lib/domain/products/comparison';
 
 export { resolveStoreFromRouteParam } from '@/lib/domain/stores/catalog';
 

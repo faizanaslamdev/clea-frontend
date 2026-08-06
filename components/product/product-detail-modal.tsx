@@ -15,6 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 import {
   formatPrice,
+  getListingPriceStore,
   resolveStoreIdForProduct,
 } from '@/lib/services';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
@@ -70,8 +71,13 @@ export function ProductDetailModal({
     return resolveStoreIdForProduct(product, storeId);
   }, [product, storeId]);
 
-  const listingPrice =
-    product && listingStoreId ? product.prices[listingStoreId] : undefined;
+  const listing = useMemo(() => {
+    if (!product) return null;
+    return getListingPriceStore(product, listingStoreId ?? storeId ?? undefined);
+  }, [product, listingStoreId, storeId]);
+
+  const listingPrice = listing?.price;
+  const listingInStock = listing?.inStock ?? true;
   const listingStoreName =
     product?.merchantName ?? listingStoreId ?? 'Butikk';
   const purchaseHref = product?.deepLink ?? undefined;
@@ -284,9 +290,19 @@ export function ProductDetailModal({
                       <p className="product-detail-modal__brand">{product.brand}</p>
                       <h2 className="product-detail-modal__name">{product.name}</h2>
                       {listingPrice != null ? (
-                        <p className="product-detail-modal__price">
-                          {formatPrice(listingPrice, currency)}
-                        </p>
+                        <div className="product-detail-modal__price-row">
+                          <p className="product-detail-modal__price">
+                            {formatPrice(listingPrice, currency)}
+                          </p>
+                          {!listingInStock ? (
+                            <span
+                              className="product-detail-modal__stock-badge"
+                              role="status"
+                            >
+                              Ikke på lager
+                            </span>
+                          ) : null}
+                        </div>
                       ) : (
                         <span className="product-detail-modal__price-placeholder" aria-hidden />
                       )}

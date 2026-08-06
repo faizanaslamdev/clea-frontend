@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Product } from '@/lib/types';
-import { formatPrice, getLowestPriceStore } from '@/lib/services';
+import { formatPrice, getListingPriceStore } from '@/lib/services';
 import { fetchProductById } from '@/lib/api/products';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { productKeys } from '@/lib/query/keys';
@@ -90,12 +90,28 @@ function ProductCardImage({
   );
 }
 
-function useListingPrice(product: Product, storeId?: string) {
-  const lowest = getLowestPriceStore(product);
-  if (storeId && product.prices[storeId] != null) {
-    return product.prices[storeId];
-  }
-  return lowest?.price;
+function ProductCardPrice({
+  product,
+  storeId,
+  priceClassName,
+}: {
+  product: Product;
+  storeId?: string;
+  priceClassName: string;
+}) {
+  const listing = getListingPriceStore(product, storeId);
+  if (listing == null) return null;
+
+  return (
+    <div className="product-card__price-row">
+      <p className={priceClassName}>{formatPrice(listing.price, product.currency)}</p>
+      {!listing.inStock ? (
+        <span className="product-card__stock-badge" role="status">
+          Ikke på lager
+        </span>
+      ) : null}
+    </div>
+  );
 }
 
 function usePrefetchProductDetail() {
@@ -122,7 +138,6 @@ export function ProductCard({
   const { openProduct } = useProductModal();
   const chatAnchor = useChatAnchorConnection();
   const prefetchProductDetail = usePrefetchProductDetail();
-  const price = useListingPrice(product, storeId);
   const showAnchorMenu = enableAnchorActions;
   const merchantLabel = product.merchantName?.trim();
   const showMerchantBadge = showMerchantLabel && Boolean(merchantLabel);
@@ -155,11 +170,11 @@ export function ProductCard({
 
         <div className="trending-product-card__meta">
           <p className="trending-product-card__brand">{product.brand}</p>
-          {price != null && (
-            <p className="trending-product-card__price">
-              {formatPrice(price, product.currency)}
-            </p>
-          )}
+          <ProductCardPrice
+            product={product}
+            storeId={storeId}
+            priceClassName="trending-product-card__price"
+          />
         </div>
       </ProductCardClickTarget>
     );
@@ -211,11 +226,11 @@ export function ProductCard({
           <h3 className="product-card-detailed__title" title={product.name}>
             {product.name}
           </h3>
-          {price != null && (
-            <p className="product-card-detailed__price">
-              {formatPrice(price, product.currency)}
-            </p>
-          )}
+          <ProductCardPrice
+            product={product}
+            storeId={storeId}
+            priceClassName="product-card-detailed__price"
+          />
           {!showMerchantBadge ? (
             <p className="product-card-detailed__shop">
               Handle hos {product.brand}
