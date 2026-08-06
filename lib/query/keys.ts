@@ -13,6 +13,7 @@ export const productKeys = {
     [...productKeys.all, 'catalog', filters] as const,
   detail: (id: string) => [...productKeys.all, 'detail', id] as const,
   similar: (id: string) => [...productKeys.all, 'similar', id] as const,
+  offers: (id: string) => [...productKeys.all, 'offers', id] as const,
 };
 
 export const storeKeys = {

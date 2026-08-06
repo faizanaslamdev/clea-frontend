@@ -1742,6 +1742,70 @@
     @apply flex w-full items-center justify-between gap-3 bg-foreground px-5 py-4 font-sans text-[15px] font-medium text-primary-foreground transition-opacity hover:opacity-92;
   }
 
+  .product-detail-modal__best-prices {
+    @apply flex flex-col gap-3 border-t border-border pt-5;
+  }
+
+  .product-detail-modal__best-prices-title {
+    @apply font-sans text-sm font-semibold uppercase tracking-wide text-muted-foreground;
+  }
+
+  .product-detail-modal__best-prices-list {
+    @apply flex flex-col gap-3;
+  }
+
+  .product-detail-modal__best-prices-item {
+    @apply flex flex-col gap-3 rounded-(--product-detail-modal-radius) border border-border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .product-detail-modal__best-prices-item--best {
+    @apply border-emerald-600/35 bg-emerald-50/60 dark:bg-emerald-950/20;
+  }
+
+  .product-detail-modal__best-prices-meta {
+    @apply min-w-0 flex-1;
+  }
+
+  .product-detail-modal__best-prices-merchant {
+    @apply font-sans text-[15px] font-medium text-foreground;
+  }
+
+  .product-detail-modal__best-prices-current {
+    @apply font-normal text-muted-foreground;
+  }
+
+  .product-detail-modal__best-prices-price {
+    @apply mt-1 flex flex-wrap items-center gap-2 font-sans text-lg font-semibold text-foreground;
+  }
+
+  .product-detail-modal__best-prices-badge {
+    @apply rounded-full bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white;
+  }
+
+  .product-detail-modal__best-prices-stock {
+    @apply mt-1 text-sm text-emerald-700 dark:text-emerald-400;
+  }
+
+  .product-detail-modal__best-prices-stock--out {
+    @apply text-muted-foreground;
+  }
+
+  .product-detail-modal__best-prices-cta {
+    @apply inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-(--product-detail-modal-radius) border border-border bg-background px-4 py-2.5 font-sans text-sm font-medium text-foreground transition-colors hover:bg-muted;
+  }
+
+  .product-detail-modal__best-prices-error {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .product-detail-modal__best-prices-retry {
+    @apply mt-2 rounded-md border border-border px-3 py-1.5 text-sm font-medium;
+  }
+
+  .product-detail-modal__best-prices-item--skeleton {
+    @apply border-dashed;
+  }
+
   .product-detail-modal__description {
     @apply font-sans text-[15px] leading-[1.7] text-foreground/88 md:text-base;
   }

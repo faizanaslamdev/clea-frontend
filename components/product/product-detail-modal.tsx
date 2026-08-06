@@ -26,7 +26,12 @@ import {
   PRODUCT_LOAD_ERROR_MESSAGE,
   PRODUCT_NOT_FOUND_MESSAGE,
 } from '@/lib/api/api-errors';
-import { useProduct, useSimilarProducts } from '@/lib/hooks/useProducts';
+import { useProduct, useProductOffers, useSimilarProducts } from '@/lib/hooks/useProducts';
+import {
+  ProductBestPrices,
+  ProductBestPricesError,
+  ProductBestPricesSkeleton,
+} from '@/components/product/product-best-prices';
 
 const DESCRIPTION_PREVIEW_LENGTH = 220;
 
@@ -53,6 +58,12 @@ export function ProductDetailModal({
     data: similarProducts = [],
     isLoading: isSimilarLoading,
   } = useSimilarProducts(productId ?? '', 4);
+  const {
+    data: productOffers,
+    isLoading: isOffersLoading,
+    isError: isOffersError,
+    refetch: refetchOffers,
+  } = useProductOffers(productId ?? '', Boolean(productId) && open && Boolean(product));
 
   const listingStoreId = useMemo(() => {
     if (!product) return null;
@@ -65,6 +76,9 @@ export function ProductDetailModal({
     product?.merchantName ?? listingStoreId ?? 'Butikk';
   const purchaseHref = product?.deepLink ?? undefined;
   const currency = product?.currency ?? 'NOK';
+  const showBestPrices = productOffers?.compareReady === true;
+  const showSingleStorePurchase =
+    listingPrice != null && purchaseHref && !showBestPrices;
 
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
@@ -286,7 +300,19 @@ export function ProductDetailModal({
                       </button>
                     </div>
 
-                    {listingPrice != null && purchaseHref ? (
+                    {isOffersLoading ? (
+                      <ProductBestPricesSkeleton rows={2} />
+                    ) : isOffersError ? (
+                      <ProductBestPricesError onRetry={() => void refetchOffers()} />
+                    ) : showBestPrices && productOffers ? (
+                      <ProductBestPrices
+                        offers={productOffers.offers}
+                        currency={currency}
+                        anchorProductId={product.id}
+                      />
+                    ) : null}
+
+                    {showSingleStorePurchase ? (
                       <div className="product-detail-modal__purchase">
                         <p className="product-detail-modal__purchase-label">
                           Tilgjengelig hos
@@ -307,6 +333,11 @@ export function ProductDetailModal({
                           className="product-detail-modal__notify"
                         />
                       </div>
+                    ) : showBestPrices ? (
+                      <NotifyMeButton
+                        productId={product.id}
+                        className="product-detail-modal__notify"
+                      />
                     ) : null}
 
                     <ProductDescription

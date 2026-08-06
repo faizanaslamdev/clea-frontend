@@ -38,6 +38,29 @@ export interface ApiProductListResponse {
   offset: number;
 }
 
+export interface ApiProductOffer {
+  id: string;
+  merchant_id: string | null;
+  merchant_name: string | null;
+  name: string;
+  price: number;
+  old_price: number | null;
+  currency: string;
+  in_stock: boolean;
+  deep_link: string | null;
+  size: string | null;
+  colour: string | null;
+  match_method: string | null;
+  confidence: number | null;
+}
+
+export interface ApiProductOffersResponse {
+  anchor: ApiProductOffer;
+  offers: ApiProductOffer[];
+  compareReady: boolean;
+  canonical_product_id: string | null;
+}
+
 export interface ApiMerchant {
   id: string;
   name: string;

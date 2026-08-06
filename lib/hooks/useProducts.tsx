@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   fetchFeaturedProducts,
   fetchProductById,
+  fetchProductOffers,
   fetchSimilarProducts,
 } from '@/lib/api/products';
 import { POPULAR_PRODUCTS_LIMIT } from '@/lib/constants/popular-brands';
@@ -31,5 +32,14 @@ export function useSimilarProducts(id: string, limit = 4) {
     queryFn: () => fetchSimilarProducts(id, limit),
     staleTime: STALE_TIME_STATIC_MS,
     enabled: !!id,
+  });
+}
+
+export function useProductOffers(id: string, enabled = true) {
+  return useQuery({
+    queryKey: productKeys.offers(id),
+    queryFn: () => fetchProductOffers(id),
+    staleTime: STALE_TIME_STATIC_MS,
+    enabled: !!id && enabled,
   });
 }

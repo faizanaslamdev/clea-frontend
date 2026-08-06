@@ -1,6 +1,10 @@
 import { apiFetch, ApiError } from '@/lib/api/backend-client';
 import { mapApiProductToProduct } from '@/lib/api/mappers';
-import type { ApiProduct, ApiProductListResponse } from '@/lib/api/types';
+import type {
+  ApiProduct,
+  ApiProductListResponse,
+  ApiProductOffersResponse,
+} from '@/lib/api/types';
 import { CATALOG_PAGE_SIZE } from '@/lib/constants/catalog';
 import {
   POPULAR_PRODUCTS_LIMIT,
@@ -69,6 +73,30 @@ export async function fetchCatalogFromApi(
     limit: data.limit,
     offset: data.offset,
     hasMore: loaded < data.total,
+  };
+}
+
+export type ProductOffer = ApiProductOffersResponse['offers'][number];
+
+export interface ProductOffersResult {
+  anchor: ProductOffer;
+  offers: ProductOffer[];
+  compareReady: boolean;
+  canonicalProductId: string | null;
+}
+
+export async function fetchProductOffers(
+  id: string,
+): Promise<ProductOffersResult> {
+  const data = await apiFetch<ApiProductOffersResponse>(
+    `/products/${id}/offers`,
+    { cache: 'no-store' },
+  );
+  return {
+    anchor: data.anchor,
+    offers: data.offers,
+    compareReady: data.compareReady,
+    canonicalProductId: data.canonical_product_id,
   };
 }
 
