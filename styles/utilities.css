@@ -1556,6 +1556,7 @@
 
   .product-detail-modal__scroll {
     @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .product-detail-modal__main {

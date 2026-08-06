@@ -21,6 +21,7 @@ import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-
 import { NotifyMeButton } from '@/components/auth/notify-me-button';
 import { ProductDetailModalSkeleton } from '@/components/product/product-detail-modal-skeleton';
 import { ProductSimilarSkeleton } from '@/components/product/product-similar-skeleton';
+import { useModalInteractionRecovery } from '@/lib/hooks/useModalInteractionRecovery';
 import {
   PRODUCT_LOAD_ERROR_MESSAGE,
   PRODUCT_NOT_FOUND_MESSAGE,
@@ -67,6 +68,7 @@ export function ProductDetailModal({
 
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const interactionRecoveryEpoch = useModalInteractionRecovery(open);
 
   const galleryImages =
     product?.images && product.images.length > 0
@@ -117,7 +119,7 @@ export function ProductDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogPortal>
+      <DialogPortal key={interactionRecoveryEpoch}>
         <DialogOverlay className="product-detail-modal-overlay" />
         <DialogPrimitive.Content
           className="product-detail-modal"

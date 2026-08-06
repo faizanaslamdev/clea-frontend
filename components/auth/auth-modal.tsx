@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useModalInteractionRecovery } from '@/lib/hooks/useModalInteractionRecovery';
 import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
 import { SignInForm } from '@/components/auth/sign-in-form';
 import { SignUpForm } from '@/components/auth/sign-up-form';
@@ -47,6 +48,7 @@ export function AuthModal({
 }: AuthModalProps) {
   const [view, setView] = useState<AuthView>(initialView);
   const [verificationEmail, setVerificationEmail] = useState<string>();
+  const interactionRecoveryEpoch = useModalInteractionRecovery(open);
 
   useEffect(() => {
     if (open) {
@@ -58,7 +60,11 @@ export function AuthModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="auth-modal sm:max-w-md" showCloseButton>
+      <DialogContent
+        key={interactionRecoveryEpoch}
+        className="auth-modal sm:max-w-md"
+        showCloseButton
+      >
         <DialogHeader className="auth-modal__header">
           <DialogTitle className="auth-modal__title">{copy.title}</DialogTitle>
           <DialogDescription className="auth-modal__description">
