@@ -1,6 +1,6 @@
 const EDITORIAL_IMAGES = {
+  beredd: '/brands/editorial/beredd.webp',
   dbJourney: '/brands/editorial/db-journey.webp',
-  duomain: '/brands/editorial/duomain.webp',
   nelly: '/brands/editorial/nelly.webp',
   nlyMan: '/brands/editorial/nly-man.webp',
   outnorth: '/brands/editorial/outnorth.webp',
@@ -41,8 +41,8 @@ export function getBrandEditorialImage(
   if (/ralph\s+lauren/.test(name)) {
     return EDITORIAL_IMAGES.ralphLauren;
   }
-  if (/duomain/.test(name)) {
-    return EDITORIAL_IMAGES.duomain;
+  if (/beredd/.test(name)) {
+    return EDITORIAL_IMAGES.beredd;
   }
 
   return null;
@@ -61,7 +61,7 @@ export function getBrandEditorialPosition(brandName: string): string {
   if (/outnorth/.test(name)) return '50% 28%';
   if (/viking/.test(name)) return '50% 20%';
   if (/ralph\s+lauren/.test(name)) return '50% 18%';
-  if (/duomain/.test(name)) return '50% 22%';
+  if (/beredd/.test(name)) return '50% 22%';
 
   return DEFAULT_EDITORIAL_POSITION;
 }
