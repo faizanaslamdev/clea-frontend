@@ -12,6 +12,13 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('Outnorth NO')).toBe('50% 28%');
     expect(getBrandEditorialPosition('Viking Footwear')).toBe('50% 20%');
     expect(getBrandEditorialPosition('Ralph Lauren NO')).toBe('50% 18%');
+    expect(getBrandEditorialPosition('Duomain NO')).toBe('50% 22%');
+  });
+
+  it('maps Duomain to the approved editorial asset', () => {
+    expect(getBrandEditorialImage('Duomain NO')).toBe(
+      '/brands/editorial/duomain.webp',
+    );
   });
 
   it('keeps unknown affiliate imagery centered', () => {
