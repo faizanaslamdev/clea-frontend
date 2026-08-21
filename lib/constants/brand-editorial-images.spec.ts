@@ -13,6 +13,13 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('Viking Footwear')).toBe('50% 20%');
     expect(getBrandEditorialPosition('Ralph Lauren NO')).toBe('50% 18%');
     expect(getBrandEditorialPosition('Beredd NO')).toBe('50% 22%');
+    expect(getBrandEditorialPosition('adidas NO')).toBe('50% 35%');
+  });
+
+  it('maps adidas to the approved editorial asset', () => {
+    expect(getBrandEditorialImage('adidas NO')).toBe(
+      '/brands/editorial/adidas.webp',
+    );
   });
 
   it('maps Beredd to the approved editorial asset', () => {

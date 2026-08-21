@@ -1,4 +1,5 @@
 const EDITORIAL_IMAGES = {
+  adidas: '/brands/editorial/adidas.webp',
   beredd: '/brands/editorial/beredd.webp',
   dbJourney: '/brands/editorial/db-journey.webp',
   nelly: '/brands/editorial/nelly.webp',
@@ -44,6 +45,9 @@ export function getBrandEditorialImage(
   if (/beredd/.test(name)) {
     return EDITORIAL_IMAGES.beredd;
   }
+  if (/adidas/.test(name)) {
+    return EDITORIAL_IMAGES.adidas;
+  }
 
   return null;
 }
@@ -62,6 +66,7 @@ export function getBrandEditorialPosition(brandName: string): string {
   if (/viking/.test(name)) return '50% 20%';
   if (/ralph\s+lauren/.test(name)) return '50% 18%';
   if (/beredd/.test(name)) return '50% 22%';
+  if (/adidas/.test(name)) return '50% 35%';
 
   return DEFAULT_EDITORIAL_POSITION;
 }
