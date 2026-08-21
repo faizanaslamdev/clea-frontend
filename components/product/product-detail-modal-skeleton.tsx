@@ -1,5 +1,4 @@
 import { X } from 'lucide-react';
-import { ProductSimilarSkeleton } from '@/components/product/product-similar-skeleton';
 
 interface ProductDetailModalSkeletonProps {
   onClose: () => void;
@@ -54,17 +53,6 @@ export function ProductDetailModalSkeleton({
             </div>
           </div>
         </div>
-
-        <section
-          className="product-detail-modal__similar"
-          aria-label="Lignende produkter"
-          aria-busy="true"
-        >
-          <h3 className="product-detail-modal__similar-title">
-            Lignende produkter
-          </h3>
-          <ProductSimilarSkeleton />
-        </section>
       </div>
     </>
   );
