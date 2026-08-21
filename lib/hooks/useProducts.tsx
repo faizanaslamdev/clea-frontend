@@ -26,16 +26,12 @@ export function useProduct(id: string) {
   });
 }
 
-export function useSimilarProducts(
-  id: string,
-  limit = 4,
-  enabled = true,
-) {
+export function useSimilarProducts(id: string, limit = 4) {
   return useQuery({
     queryKey: productKeys.similar(id),
     queryFn: () => fetchSimilarProducts(id, limit),
     staleTime: STALE_TIME_STATIC_MS,
-    enabled: !!id && enabled,
+    enabled: !!id,
   });
 }
 

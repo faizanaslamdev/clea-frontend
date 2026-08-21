@@ -21,6 +21,7 @@ import {
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
 import { NotifyMeButton } from '@/components/auth/notify-me-button';
 import { ProductDetailModalSkeleton } from '@/components/product/product-detail-modal-skeleton';
+import { ProductSimilarSkeleton } from '@/components/product/product-similar-skeleton';
 import {
   PRODUCT_LOAD_ERROR_MESSAGE,
   PRODUCT_NOT_FOUND_MESSAGE,
@@ -53,13 +54,10 @@ export function ProductDetailModal({
     isError,
     isFetched,
   } = useProduct(productId ?? '');
-  const similarEnabled =
-    Boolean(productId) && open && Boolean(product) && !isLoading && !isError;
-  const { data: similarProducts = [] } = useSimilarProducts(
-    productId ?? '',
-    4,
-    similarEnabled,
-  );
+  const {
+    data: similarProducts = [],
+    isLoading: isSimilarLoading,
+  } = useSimilarProducts(productId ?? '', 4);
   const {
     data: productOffers,
     isLoading: isOffersLoading,
@@ -364,21 +362,29 @@ export function ProductDetailModal({
                   </div>
                 </div>
 
-                {similarEnabled && similarProducts.length > 0 ? (
+                {isSimilarLoading || similarProducts.length > 0 ? (
                   <section
                     className="product-detail-modal__similar"
                     aria-label="Lignende produkter"
+                    aria-busy={isSimilarLoading}
                   >
                     <h3 className="product-detail-modal__similar-title">
                       Lignende produkter
                     </h3>
-                    <ProductGrid
-                      products={similarProducts}
-                      storeId={listingStoreId ?? undefined}
-                      variant="detailed"
-                      enableAnchorActions
-                      onAnchorActionComplete={() => onOpenChange(false)}
-                    />
+                    {isSimilarLoading ? (
+                      <>
+                        <p className="sr-only">Laster lignende produkter</p>
+                        <ProductSimilarSkeleton />
+                      </>
+                    ) : (
+                      <ProductGrid
+                        products={similarProducts}
+                        storeId={listingStoreId ?? undefined}
+                        variant="detailed"
+                        enableAnchorActions
+                        onAnchorActionComplete={() => onOpenChange(false)}
+                      />
+                    )}
                   </section>
                 ) : null}
               </div>
