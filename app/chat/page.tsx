@@ -1,5 +1,4 @@
-import { SearchChatView } from '@/components/search/search-chat-view';
-
+/** Route anchor for `/chat` — visible UI lives in `app/chat/layout.tsx`. */
 export default function ChatPage() {
-  return <SearchChatView />;
+  return null;
 }
