@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  fetchChatTurn,
   getOrCreateChatSessionId,
   resetChatSessionId,
 } from '@/lib/api/chat';
@@ -16,6 +15,7 @@ import {
   type ChatAnchorKind,
 } from '@/lib/chat/anchor-actions';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
+import { shouldHideChatFooter, shouldSkipConversationRestore } from '@/lib/chat/chat-footer-visibility';
 import { performChatReset } from '@/lib/chat/chat-reset';
 import { chatSessionReducer } from '@/lib/chat/chat-session-reducer';
 import {
@@ -24,8 +24,11 @@ import {
   type SendMessageInput,
 } from '@/lib/chat/chat-session-types';
 import {
+  markUrlQueryHydrated,
   persistShopCategory,
+  restoreHydratedUrlSignatures,
   restorePersistedShopCategory,
+  shouldHydrateUrlQuery,
 } from '@/lib/chat/chat-thread-persistence';
 import {
   createConversationSession,
@@ -33,12 +36,8 @@ import {
   restoreConversationSession,
   sendConversationTurn,
 } from '@/lib/chat/conversation-session';
-import {
-  consumePendingLegacyEntry,
-  savePendingLegacyEntry,
-  shouldSubmitPendingLegacyEntry,
-} from '@/lib/chat/conversation-entry-bridge';
 import { mapRestoreConversationToMessages } from '@/lib/chat/restore-conversation-messages';
+import { isPendingAssistantMessage } from '@/lib/chat/chat-messages';
 import { resolveHydratedSendSource } from '@/lib/chat/start-product-chat';
 import { resolveSendMessage } from '@/lib/chat/resolve-send-message';
 import { syncAnchorSessionForTurn } from '@/lib/chat/anchor-turn-state';
@@ -72,6 +71,9 @@ export function useChatSession({
   const sessionIdRef = useRef<string | null>(null);
   const requestGenerationRef = useRef(0);
   const legacyEntryStartedRef = useRef(false);
+  const hydratedSignaturesRef = useRef<string[]>(
+    typeof window === 'undefined' ? [] : restoreHydratedUrlSignatures(),
+  );
   const conversationSessionRef = useRef<{
     conversationId: string;
     anonymousToken: string;
@@ -81,8 +83,6 @@ export function useChatSession({
   const shopCategoryRef = useRef<ShopCategory | undefined>(
     urlShopCategory ?? restorePersistedShopCategory(),
   );
-
-  const usesServerConversation = Boolean(conversationId ?? conversationSessionRef.current);
 
   useEffect(() => {
     if (urlShopCategory) {
@@ -103,18 +103,18 @@ export function useChatSession({
     [router],
   );
 
-  const ensureConversationSession = useCallback(async () => {
-    if (conversationId) {
-      const existing = resolveConversationSession(conversationId);
-      if (!existing) {
-        throw new Error('conversation_token_missing');
-      }
+  const resolveOrCreateConversationSession = useCallback(async () => {
+    const existing =
+      conversationSessionRef.current ??
+      (conversationId ? resolveConversationSession(conversationId) : null);
+
+    if (existing) {
       conversationSessionRef.current = existing;
       return existing;
     }
 
-    if (conversationSessionRef.current) {
-      return conversationSessionRef.current;
+    if (conversationId) {
+      throw new Error('conversation_token_missing');
     }
 
     const created = await createConversationSession({
@@ -137,51 +137,19 @@ export function useChatSession({
     ) => {
       const shopCategory = shopCategoryRef.current;
       const mergedContext = shopCategory ? { ...context, shopCategory } : context;
+      const session = await resolveOrCreateConversationSession();
 
-      if (usesServerConversation || conversationSessionRef.current) {
-        const session =
-          conversationSessionRef.current ??
-          (conversationId
-            ? resolveConversationSession(conversationId)
-            : null);
-
-        if (!session) {
-          const ensured = await ensureConversationSession();
-          return sendConversationTurn({
-            message,
-            context: mergedContext,
-            conversationId: ensured.conversationId,
-            anonymousToken: ensured.anonymousToken,
-            clientTurnId: clientTurnId ?? crypto.randomUUID(),
-            sessionId: getSessionId(),
-            locale: CHAT_DEFAULT_LOCALE,
-          });
-        }
-
-        return sendConversationTurn({
-          message,
-          context: mergedContext,
-          conversationId: session.conversationId,
-          anonymousToken: session.anonymousToken,
-          clientTurnId: clientTurnId ?? crypto.randomUUID(),
-          sessionId: getSessionId(),
-          locale: CHAT_DEFAULT_LOCALE,
-        });
-      }
-
-      return fetchChatTurn({
+      return sendConversationTurn({
         message,
         context: mergedContext,
+        conversationId: session.conversationId,
+        anonymousToken: session.anonymousToken,
+        clientTurnId: clientTurnId ?? crypto.randomUUID(),
         sessionId: getSessionId(),
         locale: CHAT_DEFAULT_LOCALE,
       });
     },
-    [
-      conversationId,
-      ensureConversationSession,
-      getSessionId,
-      usesServerConversation,
-    ],
+    [getSessionId, resolveOrCreateConversationSession],
   );
 
   const sendMessage = useCallback(
@@ -193,8 +161,9 @@ export function useChatSession({
 
       const current = stateRef.current;
       const inFlight = current.activeTurn;
+      const hasPendingAssistant = current.messages.some(isPendingAssistantMessage);
 
-      if (inFlight && inFlight.query !== trimmed) {
+      if (hasPendingAssistant && inFlight && inFlight.query !== trimmed) {
         return;
       }
 
@@ -217,19 +186,6 @@ export function useChatSession({
         });
       }
 
-      if (!conversationId && !conversationSessionRef.current) {
-        try {
-          await ensureConversationSession();
-        } catch (error) {
-          dispatch({
-            type: 'TURN_ERROR',
-            turnId: inFlight?.id ?? crypto.randomUUID(),
-            errorMessage: resolveChatErrorMessage(error),
-          });
-          return;
-        }
-      }
-
       const generation = requestGenerationRef.current + 1;
       requestGenerationRef.current = generation;
 
@@ -239,6 +195,7 @@ export function useChatSession({
       if (inFlight?.query === trimmed) {
         turnId = inFlight.id;
         clientTurnId = inFlight.clientTurnId;
+        dispatch({ type: 'TURN_RETRY_PENDING', turnId: inFlight.id });
       } else {
         const identity = createTurnIdentity();
         turnId = identity.turnId;
@@ -286,12 +243,12 @@ export function useChatSession({
         });
       }
     },
-    [conversationId, ensureConversationSession, requestTurn],
+    [requestTurn],
   );
 
   const selectSuggestion = useCallback(
     (query: string, sourceMessageId: string) => {
-      if (stateRef.current.activeTurn) {
+      if (stateRef.current.messages.some(isPendingAssistantMessage)) {
         return;
       }
 
@@ -391,22 +348,8 @@ export function useChatSession({
     });
 
     sessionIdRef.current = sessionId;
-
-    void (async () => {
-      try {
-        const created = await createConversationSession({
-          locale: CHAT_DEFAULT_LOCALE,
-        });
-        conversationSessionRef.current = {
-          conversationId: created.conversationId,
-          anonymousToken: created.anonymousToken,
-        };
-        navigateToConversation(created.conversationId);
-      } catch {
-        router.replace('/chat', { scroll: false });
-      }
-    })();
-  }, [navigateToConversation, router]);
+    router.replace('/chat', { scroll: false });
+  }, [router]);
 
   const setActiveProductId = useCallback((productId: string | null) => {
     dispatch({ type: 'SET_ACTIVE_PRODUCT', productId });
@@ -418,6 +361,18 @@ export function useChatSession({
   useEffect(() => {
     if (!conversationId) {
       setRestoreStatus('idle');
+      return;
+    }
+
+    if (
+      shouldSkipConversationRestore({
+        conversationId,
+        sessionConversationId: conversationSessionRef.current?.conversationId,
+        messageCount: stateRef.current.messages.length,
+        hasActiveTurn: stateRef.current.activeTurn !== null,
+      })
+    ) {
+      setRestoreStatus('ready');
       return;
     }
 
@@ -462,73 +417,55 @@ export function useChatSession({
       return;
     }
 
+    if (
+      !shouldHydrateUrlQuery({
+        query: trimmed,
+        shopCategory: urlShopCategory,
+        messages: stateRef.current.messages,
+        hydratedSignatures: hydratedSignaturesRef.current,
+      })
+    ) {
+      return;
+    }
+
     legacyEntryStartedRef.current = true;
+    hydratedSignaturesRef.current = markUrlQueryHydrated(
+      trimmed,
+      urlShopCategory,
+    );
 
     void (async () => {
-      try {
-        const created = await createConversationSession({
-          locale: CHAT_DEFAULT_LOCALE,
-          shopCategory: urlShopCategory ?? shopCategoryRef.current,
-        });
-        conversationSessionRef.current = {
-          conversationId: created.conversationId,
-          anonymousToken: created.anonymousToken,
-        };
-
-        const clientTurnId = crypto.randomUUID();
-        savePendingLegacyEntry({
-          conversationId: created.conversationId,
-          query: trimmed,
-          shopCategory: urlShopCategory,
-          clientTurnId,
-        });
-
-        navigateToConversation(created.conversationId);
-      } catch (error) {
-        setRestoreError(resolveChatErrorMessage(error));
-      }
-    })();
-  }, [conversationId, navigateToConversation, urlQuery, urlShopCategory]);
-
-  useEffect(() => {
-    if (!conversationId || restoreStatus !== 'ready') {
-      return;
-    }
-
-    const pending = shouldSubmitPendingLegacyEntry({
-      conversationId,
-      messages: stateRef.current.messages,
-    });
-    if (!pending) {
-      return;
-    }
-
-    consumePendingLegacyEntry(conversationId);
-
-    void (async () => {
-      const anchorPreview = reconcileAnchorSessionForMessage(pending.query);
-      const source = resolveHydratedSendSource(pending.query, anchorPreview);
+      const anchorPreview = reconcileAnchorSessionForMessage(trimmed);
+      const source = resolveHydratedSendSource(trimmed, anchorPreview);
       await sendMessage({
-        query: pending.query,
+        query: trimmed,
         source,
         context: anchorPreview
           ? { productId: anchorPreview.productId }
-          : pending.shopCategory
-            ? { shopCategory: pending.shopCategory }
+          : urlShopCategory
+            ? { shopCategory: urlShopCategory }
             : undefined,
         anchorPreview,
-        clientTurnId: pending.clientTurnId,
+        clientTurnId: crypto.randomUUID(),
       });
     })();
-  }, [conversationId, restoreStatus, sendMessage]);
+  }, [conversationId, sendMessage, urlQuery, urlShopCategory]);
 
-  const isBusy = state.activeTurn !== null;
+  const isBusy = state.messages.some(isPendingAssistantMessage);
   const isRestoring = restoreStatus === 'loading';
   const showLanding =
     !conversationId &&
     state.messages.length === 0 &&
     !urlQuery.trim() &&
-    !isRestoring;
+    !isRestoring &&
+    !isBusy;
+
+  const hideFooter = shouldHideChatFooter({
+    messageCount: state.messages.length,
+    urlQuery,
+    conversationId,
+    isRestoring,
+  });
 
   return {
     messages: state.messages,
@@ -538,6 +475,7 @@ export function useChatSession({
     isRestoring,
     restoreError,
     showLanding,
+    hideFooter,
     activeProductId: state.activeProductId,
     setActiveProductId,
     loadingMoreMessageId: state.loadingMoreMessageId,

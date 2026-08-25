@@ -1,27 +1,15 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
 import { ChatAnchorProvider } from '@/components/chat/chat-anchor-provider';
 import { ChatNewChatButton } from '@/components/search/chat-new-chat-button';
 import { HeroSearchForm } from '@/components/hero-search-form';
 import { SearchChatThread } from '@/components/search/search-chat-thread';
 import { SearchLanding } from '@/components/search/search-landing';
-import { useChatSession } from '@/lib/hooks/useChatSession';
-import { parseShopCategory } from '@/lib/chat/shop-category';
+import { useChatSessionContext } from '@/lib/chat/chat-session-provider';
 
-export function SearchChatView({
-  conversationId,
-}: {
-  conversationId?: string;
-} = {}) {
-  const searchParams = useSearchParams();
-  const urlQuery = conversationId
-    ? ''
-    : (searchParams.get('q')?.trim() ?? '');
-  const urlShopCategory = parseShopCategory(searchParams.get('category'));
-
+export function SearchChatView() {
   const {
     messages,
     draft,
@@ -38,7 +26,7 @@ export function SearchChatView({
     runAnchorAction,
     loadMore,
     reset,
-  } = useChatSession({ conversationId, urlQuery, urlShopCategory });
+  } = useChatSessionContext();
 
   const sendProductMessage = useCallback(
     async (query: string, productId: string, preview?: AnchorPreview) => {

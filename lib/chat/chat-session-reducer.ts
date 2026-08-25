@@ -30,6 +30,7 @@ export type ChatSessionAction =
       result: ChatTurnResult;
     }
   | { type: 'TURN_ERROR'; turnId: string; errorMessage: string }
+  | { type: 'TURN_RETRY_PENDING'; turnId: string }
   | { type: 'SET_ACTIVE_PRODUCT'; productId: string | null }
   | { type: 'CLEAR_SUGGESTIONS'; messageId: string }
   | { type: 'LOAD_MORE_BEGIN'; messageId: string }
@@ -59,17 +60,13 @@ function findActivePendingTurn(state: ChatSessionState): ActiveTurn | null {
   return state.activeTurn;
 }
 
-function replacePendingAssistantForTurn(
+function replaceAssistantForTurn(
   messages: SearchChatMessageData[],
   turnId: string,
   assistantMessage: SearchChatMessageData,
 ): SearchChatMessageData[] {
   return messages.map((message) => {
-    if (
-      message.turnId !== turnId ||
-      message.role !== 'assistant' ||
-      !isPendingAssistantMessage(message)
-    ) {
+    if (message.turnId !== turnId || message.role !== 'assistant') {
       return message;
     }
 
@@ -119,7 +116,7 @@ export function chatSessionReducer(
     }
 
     case 'TURN_SUCCESS': {
-      const messages = replacePendingAssistantForTurn(
+      const messages = replaceAssistantForTurn(
         state.messages,
         action.turnId,
         buildAssistantMessageFromTurn(action.query, action.result),
@@ -136,7 +133,7 @@ export function chatSessionReducer(
     }
 
     case 'TURN_ERROR': {
-      const messages = replacePendingAssistantForTurn(
+      const messages = replaceAssistantForTurn(
         state.messages,
         action.turnId,
         createAssistantErrorMessage(action.errorMessage),
@@ -145,10 +142,22 @@ export function chatSessionReducer(
       return {
         ...state,
         messages,
-        activeTurn:
-          state.activeTurn?.id === action.turnId ? null : state.activeTurn,
+        // Keep activeTurn so retries reuse the same clientTurnId/query pair.
+        activeTurn: state.activeTurn,
       };
     }
+
+    case 'TURN_RETRY_PENDING':
+      return {
+        ...state,
+        messages: replaceAssistantForTurn(state.messages, action.turnId, {
+          id: '',
+          role: 'assistant',
+          content: '',
+          turnId: action.turnId,
+          status: 'pending',
+        }),
+      };
 
     case 'SET_ACTIVE_PRODUCT':
       return { ...state, activeProductId: action.productId };

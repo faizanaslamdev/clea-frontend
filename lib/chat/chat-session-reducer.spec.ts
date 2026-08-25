@@ -180,7 +180,67 @@ describe('chatSessionReducer TURN_ERROR', () => {
       errorMessage: 'Noe gikk galt.',
     });
 
-    expect(failed.activeTurn).toBeNull();
+    expect(failed.activeTurn).toEqual(started.activeTurn);
     expect(failed.messages[1]?.content).toBe('Noe gikk galt.');
+  });
+
+  it('retries the same logical turn without duplicating the user message', () => {
+    const identity = createTurnIdentity();
+    const started = chatSessionReducer(initialChatSessionState, {
+      type: 'TURN_BEGIN',
+      identity,
+      query: 'Black hoodie',
+    });
+    const failed = chatSessionReducer(started, {
+      type: 'TURN_ERROR',
+      turnId: identity.turnId,
+      errorMessage: 'Beklager, søket feilet. Prøv igjen om litt.',
+    });
+    const retryPending = chatSessionReducer(failed, {
+      type: 'TURN_RETRY_PENDING',
+      turnId: identity.turnId,
+    });
+    const succeeded = chatSessionReducer(retryPending, {
+      type: 'TURN_SUCCESS',
+      turnId: identity.turnId,
+      query: 'Black hoodie',
+      result: TURN,
+    });
+
+    expect(retryPending.messages).toHaveLength(2);
+    expect(retryPending.messages[1]?.status).toBe('pending');
+    expect(succeeded.messages.filter((m) => m.role === 'user')).toHaveLength(1);
+    expect(succeeded.messages[0]?.content).toBe('Black hoodie');
+    expect(succeeded.activeTurn).toBeNull();
+    expect(succeeded.messages[1]?.status).toBe('complete');
+  });
+
+  it('replaces a prior error assistant on successful retry for the same turn', () => {
+    const identity = createTurnIdentity();
+    let state = chatSessionReducer(initialChatSessionState, {
+      type: 'TURN_BEGIN',
+      identity,
+      query: 'Black hoodie',
+    });
+    state = chatSessionReducer(state, {
+      type: 'TURN_ERROR',
+      turnId: identity.turnId,
+      errorMessage: 'Feil',
+    });
+    const errorAssistantId = state.messages[1]?.id;
+    state = chatSessionReducer(state, {
+      type: 'TURN_RETRY_PENDING',
+      turnId: identity.turnId,
+    });
+    state = chatSessionReducer(state, {
+      type: 'TURN_SUCCESS',
+      turnId: identity.turnId,
+      query: 'Black hoodie',
+      result: TURN,
+    });
+
+    expect(state.messages[1]?.id).toBe(errorAssistantId);
+    expect(state.messages[1]?.content).toBe(TURN.reply);
+    expect(state.messages[1]?.status).toBe('complete');
   });
 });

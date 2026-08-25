@@ -1,18 +1,19 @@
 'use client';
 
-import { Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { Suspense, type ReactNode } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Footer } from '@/components/footer';
 import { Header } from '@/components/header';
+import { useChatSessionContext } from '@/lib/chat/chat-session-provider';
+import { conversationIdFromPath } from '@/lib/chat/chat-footer-visibility';
 import { cn } from '@/lib/utils';
 
 interface ChatPageLayoutProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 function ChatPageLayoutInner({ children }: ChatPageLayoutProps) {
-  const searchParams = useSearchParams();
-  const inChatSession = Boolean(searchParams.get('q')?.trim());
+  const { hideFooter } = useChatSessionContext();
 
   return (
     <>
@@ -20,7 +21,7 @@ function ChatPageLayoutInner({ children }: ChatPageLayoutProps) {
       <main className={cn('min-h-screen bg-background', 'chat-layout')}>
         {children}
       </main>
-      {!inChatSession && <Footer showCompareCta={false} />}
+      {!hideFooter && <Footer showCompareCta={false} />}
     </>
   );
 }
@@ -34,13 +35,19 @@ export function ChatPageLayout({ children }: ChatPageLayoutProps) {
 }
 
 function ChatPageLayoutFallback({ children }: ChatPageLayoutProps) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const hideFooter =
+    Boolean(conversationIdFromPath(pathname)) ||
+    Boolean(searchParams.get('q')?.trim());
+
   return (
     <>
       <Header />
       <main className={cn('min-h-screen bg-background', 'chat-layout')}>
         {children}
       </main>
-      <Footer showCompareCta={false} />
+      {!hideFooter && <Footer showCompareCta={false} />}
     </>
   );
 }
