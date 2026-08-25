@@ -5,6 +5,9 @@ import type {
   ChatTurnRequest,
   ChatTurnResponse,
   ChatTurnResult,
+  CreateConversationRequest,
+  CreateConversationResponse,
+  RestoreConversationResponse,
 } from '@/lib/api/chat-types';
 
 export type {
@@ -55,6 +58,28 @@ export async function fetchChatSuggestions(params: {
   const query = search.toString();
   return apiFetch<ChatSuggestionsResponse>(
     `/chat/suggestions${query ? `?${query}` : ''}`,
+    { cache: 'no-store' },
+  );
+}
+
+export async function createConversation(
+  request: CreateConversationRequest,
+): Promise<CreateConversationResponse> {
+  return apiFetch<CreateConversationResponse>('/chat/conversations', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+    cache: 'no-store',
+  });
+}
+
+export async function getConversation(
+  conversationId: string,
+  anonymousToken: string,
+): Promise<RestoreConversationResponse> {
+  const search = new URLSearchParams({ anonymousToken });
+  return apiFetch<RestoreConversationResponse>(
+    `/chat/conversations/${conversationId}?${search.toString()}`,
     { cache: 'no-store' },
   );
 }

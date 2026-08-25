@@ -11,9 +11,15 @@ import { SearchLanding } from '@/components/search/search-landing';
 import { useChatSession } from '@/lib/hooks/useChatSession';
 import { parseShopCategory } from '@/lib/chat/shop-category';
 
-export function SearchChatView() {
+export function SearchChatView({
+  conversationId,
+}: {
+  conversationId?: string;
+} = {}) {
   const searchParams = useSearchParams();
-  const urlQuery = searchParams.get('q')?.trim() ?? '';
+  const urlQuery = conversationId
+    ? ''
+    : (searchParams.get('q')?.trim() ?? '');
   const urlShopCategory = parseShopCategory(searchParams.get('category'));
 
   const {
@@ -21,6 +27,8 @@ export function SearchChatView() {
     draft,
     setDraft,
     isBusy,
+    isRestoring,
+    restoreError,
     showLanding,
     activeProductId,
     setActiveProductId,
@@ -30,7 +38,7 @@ export function SearchChatView() {
     runAnchorAction,
     loadMore,
     reset,
-  } = useChatSession({ urlQuery, urlShopCategory });
+  } = useChatSession({ conversationId, urlQuery, urlShopCategory });
 
   const sendProductMessage = useCallback(
     async (query: string, productId: string, preview?: AnchorPreview) => {
@@ -53,6 +61,14 @@ export function SearchChatView() {
     );
   }
 
+  if (restoreError) {
+    return (
+      <div className="chat-page chat-page--landing">
+        <p>{restoreError}</p>
+      </div>
+    );
+  }
+
   return (
     <ChatAnchorProvider
       runAnchorAction={runAnchorAction}
@@ -69,7 +85,7 @@ export function SearchChatView() {
             onLoadMoreSearch={(id) => void loadMore(id)}
             onSuggestionSelect={selectSuggestion}
             loadingMoreMessageId={loadingMoreMessageId}
-            interactionDisabled={isBusy}
+            interactionDisabled={isBusy || isRestoring}
           />
         </div>
 
@@ -84,9 +100,9 @@ export function SearchChatView() {
             value={draft}
             onValueChange={setDraft}
             onSubmitQuery={(query) => void sendMessage({ query })}
-            submitLocked={isBusy}
+            submitLocked={isBusy || isRestoring}
           />
-          <ChatNewChatButton onNewChat={reset} disabled={isBusy} />
+          <ChatNewChatButton onNewChat={reset} disabled={isBusy || isRestoring} />
         </div>
       </div>
     </ChatAnchorProvider>

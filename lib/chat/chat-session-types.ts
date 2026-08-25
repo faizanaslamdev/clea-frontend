@@ -12,6 +12,7 @@ export interface TurnIdentity {
 
 export interface ActiveTurn {
   id: string;
+  clientTurnId: string;
   query: string;
   assistantMessageId: string;
 }
@@ -37,11 +38,14 @@ export interface SendMessageInput {
   anchorPreview?: AnchorPreview;
   persistAnchor?: boolean;
   suggestionSourceAnchorProductId?: string;
+  /** Stable id for idempotent retry (legacy entry, network retry). */
+  clientTurnId?: string;
 }
 
 export function createTurnIdentity(): TurnIdentity {
+  const turnId = crypto.randomUUID();
   return {
-    turnId: crypto.randomUUID(),
+    turnId,
     userMessageId: crypto.randomUUID(),
     assistantMessageId: crypto.randomUUID(),
   };

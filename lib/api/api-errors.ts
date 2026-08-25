@@ -12,6 +12,11 @@ const CHAT_ERROR_MESSAGES_NB: Record<string, string> = {
   message_too_long: 'Meldingen er for lang. Kort den ned og prøv igjen.',
   invalid_product_id: 'Produktet finnes ikke lenger.',
   invalid_offset: 'Kunne ikke laste flere resultater. Prøv et nytt søk.',
+  conversation_token_missing:
+    'Denne samtalen finnes ikke lenger i nettleseren. Start en ny chat.',
+  conversation_not_found: 'Samtalen ble ikke funnet.',
+  conversation_expired: 'Samtalen har utløpt. Start en ny chat.',
+  invalid_anonymous_token: 'Kunne ikke gjenopprette samtalen. Start en ny chat.',
 };
 
 export function resolveChatErrorMessage(error: unknown): string {
@@ -31,6 +36,13 @@ export function resolveChatErrorMessage(error: unknown): string {
 
   if (error instanceof TypeError) {
     return 'Kunne ikke nå serveren. Sjekk nettverket og prøv igjen.';
+  }
+
+  if (error instanceof Error) {
+    const mapped = CHAT_ERROR_MESSAGES_NB[error.message];
+    if (mapped) {
+      return mapped;
+    }
   }
 
   return CHAT_SEARCH_ERROR_MESSAGE;

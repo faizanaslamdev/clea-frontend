@@ -66,6 +66,51 @@ export interface ChatTurnRequest {
   context?: ChatTurnContext;
   sessionId?: string;
   locale?: 'nb' | 'en';
+  conversationId?: string;
+  anonymousToken?: string;
+  clientTurnId?: string;
+}
+
+export interface CreateConversationRequest {
+  locale?: 'nb' | 'en';
+  shopCategory?: ShopCategory;
+}
+
+export interface CreateConversationResponse {
+  conversationId: string;
+  anonymousToken: string;
+  locale: 'nb' | 'en';
+  shopCategory?: ShopCategory;
+}
+
+export interface RestoreConversationTurn {
+  seq: number;
+  role: 'user' | 'assistant';
+  message: string;
+  clientTurnId?: string;
+  reply?: string;
+  intent?: ChatIntent;
+  products?: ChatProductCard[];
+  total?: number;
+  limit?: number;
+  offset?: number;
+  hasMore?: boolean;
+  catalogQuery?: CatalogQuery;
+  anchorProductId?: string;
+  suggestions?: string[];
+  turnSeq?: number;
+  degraded?: boolean;
+}
+
+export interface RestoreConversationResponse {
+  conversationId: string;
+  locale: 'nb' | 'en';
+  shopCategory?: ShopCategory;
+  activeSearchIntent: Record<string, unknown>;
+  pendingClarifySlots: string[] | null;
+  lastCatalogQuery?: CatalogQuery;
+  turns: RestoreConversationTurn[];
+  hasMoreCatalog: boolean;
 }
 
 /** Wire shape from POST /chat/turn products[] */
@@ -114,6 +159,8 @@ export interface ChatTurnResponse {
   catalogQuery?: CatalogQuery;
   anchorProductId?: string;
   suggestions?: string[];
+  conversationId?: string;
+  turnSeq?: number;
   meta?: {
     usedFallback: boolean;
     degraded?: boolean;

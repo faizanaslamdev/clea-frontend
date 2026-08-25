@@ -40,6 +40,7 @@ export type ChatSessionAction =
       catalogQuery: CatalogQuery;
     }
   | { type: 'LOAD_MORE_ERROR'; errorMessage: string }
+  | { type: 'RESTORE_SUCCESS'; messages: SearchChatMessageData[] }
   | { type: 'RESET' };
 
 function findActivePendingTurn(state: ChatSessionState): ActiveTurn | null {
@@ -110,6 +111,7 @@ export function chatSessionReducer(
         messages: [...state.messages, userMessage, assistantMessage],
         activeTurn: {
           id: action.identity.turnId,
+          clientTurnId: action.identity.turnId,
           query,
           assistantMessageId: action.identity.assistantMessageId,
         },
@@ -194,6 +196,14 @@ export function chatSessionReducer(
           ...state.messages,
           createAssistantErrorMessage(action.errorMessage),
         ],
+      };
+
+    case 'RESTORE_SUCCESS':
+      return {
+        ...state,
+        messages: action.messages,
+        activeTurn: null,
+        loadingMoreMessageId: null,
       };
 
     case 'RESET':

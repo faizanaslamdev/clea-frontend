@@ -139,6 +139,32 @@ describe('chatSessionReducer LOAD_MORE', () => {
   });
 });
 
+describe('chatSessionReducer RESTORE_SUCCESS', () => {
+  it('replaces messages from server restore and clears in-flight state', () => {
+    const identity = createTurnIdentity();
+    const started = chatSessionReducer(initialChatSessionState, {
+      type: 'TURN_BEGIN',
+      identity,
+      query: 'pending',
+    });
+
+    const restored = chatSessionReducer(started, {
+      type: 'RESTORE_SUCCESS',
+      messages: [
+        {
+          id: 'user-restored',
+          role: 'user',
+          content: 'hello',
+        },
+      ],
+    });
+
+    expect(restored.messages).toHaveLength(1);
+    expect(restored.activeTurn).toBeNull();
+    expect(restored.loadingMoreMessageId).toBeNull();
+  });
+});
+
 describe('chatSessionReducer TURN_ERROR', () => {
   it('replaces the pending assistant with an error message', () => {
     const identity = createTurnIdentity();
