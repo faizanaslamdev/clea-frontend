@@ -17,9 +17,15 @@ describe('performChatReset', () => {
     const resetSessionId = vi.fn(() => 'sess_new123');
     const clearAnchor = vi.fn(clearAnchorTurnContext);
 
-    const result = performChatReset({ resetSessionId, clearAnchor });
+    const clearThreadPersistence = vi.fn();
+    const result = performChatReset({
+      resetSessionId,
+      clearAnchor,
+      clearThreadPersistence,
+    });
 
     expect(clearAnchor).toHaveBeenCalledOnce();
+    expect(clearThreadPersistence).toHaveBeenCalledOnce();
     expect(resetSessionId).toHaveBeenCalledOnce();
     expect(result.sessionId).toBe('sess_new123');
     expect(sessionStorage.getItem('clea-chat-anchor')).toBeNull();

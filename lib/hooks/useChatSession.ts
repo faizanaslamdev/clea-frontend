@@ -22,6 +22,15 @@ import {
   initialChatSessionState,
   type SendMessageInput,
 } from '@/lib/chat/chat-session-types';
+import {
+  markUrlQueryHydrated,
+  persistChatThread,
+  persistShopCategory,
+  restoreHydratedUrlSignatures,
+  restorePersistedChatThread,
+  restorePersistedShopCategory,
+  shouldHydrateUrlQuery,
+} from '@/lib/chat/chat-thread-persistence';
 import { resolveHydratedSendSource } from '@/lib/chat/start-product-chat';
 import { resolveSendMessage } from '@/lib/chat/resolve-send-message';
 import { syncAnchorSessionForTurn } from '@/lib/chat/anchor-turn-state';
@@ -29,10 +38,18 @@ import { CHAT_DEFAULT_LOCALE } from '@/lib/constants/chat';
 import type { ShopCategory } from '@/lib/api/chat-types';
 
 export interface UseChatSessionOptions {
-  /** Initial `?q=` from the URL — triggers the first turn once. */
+  /** Initial `?q=` from the URL — entry point only, not live conversation state. */
   urlQuery?: string;
   /** Initial `?category=` from the homepage gender tab. */
   urlShopCategory?: ShopCategory;
+}
+
+function initializeChatSessionState() {
+  if (typeof window === 'undefined') {
+    return initialChatSessionState;
+  }
+
+  return restorePersistedChatThread() ?? initialChatSessionState;
 }
 
 export function useChatSession({
@@ -43,6 +60,7 @@ export function useChatSession({
   const [state, dispatch] = useReducer(
     chatSessionReducer,
     initialChatSessionState,
+    initializeChatSessionState,
   );
   const [draft, setDraft] = useState('');
 
@@ -51,14 +69,23 @@ export function useChatSession({
 
   const sessionIdRef = useRef<string | null>(null);
   const requestGenerationRef = useRef(0);
-  const hydratedUrlQueryRef = useRef<string | null>(null);
-  const shopCategoryRef = useRef<ShopCategory | undefined>(urlShopCategory);
+  const hydratedSignaturesRef = useRef<string[]>(
+    typeof window === 'undefined' ? [] : restoreHydratedUrlSignatures(),
+  );
+  const shopCategoryRef = useRef<ShopCategory | undefined>(
+    urlShopCategory ?? restorePersistedShopCategory(),
+  );
 
   useEffect(() => {
     if (urlShopCategory) {
       shopCategoryRef.current = urlShopCategory;
+      persistShopCategory(urlShopCategory);
     }
   }, [urlShopCategory]);
+
+  useEffect(() => {
+    persistChatThread(state, shopCategoryRef.current);
+  }, [state]);
 
   const getSessionId = useCallback(() => {
     sessionIdRef.current ??= getOrCreateChatSessionId();
@@ -250,7 +277,7 @@ export function useChatSession({
 
   const reset = useCallback(() => {
     requestGenerationRef.current += 1;
-    hydratedUrlQueryRef.current = null;
+    hydratedSignaturesRef.current = [];
     shopCategoryRef.current = undefined;
     dispatch({ type: 'RESET' });
     setDraft('');
@@ -276,17 +303,20 @@ export function useChatSession({
 
   useEffect(() => {
     const trimmed = urlQuery.trim();
+    const shopCategory = shopCategoryRef.current;
 
-    if (!trimmed) {
-      hydratedUrlQueryRef.current = null;
+    if (
+      !shouldHydrateUrlQuery({
+        query: trimmed,
+        shopCategory,
+        messages: stateRef.current.messages,
+        hydratedSignatures: hydratedSignaturesRef.current,
+      })
+    ) {
       return;
     }
 
-    if (hydratedUrlQueryRef.current === trimmed) {
-      return;
-    }
-
-    hydratedUrlQueryRef.current = trimmed;
+    hydratedSignaturesRef.current = markUrlQueryHydrated(trimmed, shopCategory);
 
     const anchorPreview = reconcileAnchorSessionForMessage(trimmed);
     const source = resolveHydratedSendSource(trimmed, anchorPreview);
@@ -302,7 +332,8 @@ export function useChatSession({
   }, [sendMessage, urlQuery]);
 
   const isBusy = state.activeTurn !== null;
-  const showLanding = !urlQuery.trim() && state.messages.length === 0;
+  const showLanding = state.messages.length === 0 && !urlQuery.trim();
+
   return {
     messages: state.messages,
     draft,
