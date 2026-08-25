@@ -159,21 +159,6 @@ export function markUrlQueryHydrated(
   return next;
 }
 
-export function restorePersistedShopCategory(): ShopCategory | undefined {
-  return readStorage<ShopCategory>(CHAT_SHOP_CATEGORY_STORAGE_KEY) ?? undefined;
-}
-
-export function persistShopCategory(shopCategory?: ShopCategory): void {
-  if (!shopCategory) {
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.removeItem(CHAT_SHOP_CATEGORY_STORAGE_KEY);
-    }
-    return;
-  }
-
-  writeStorage(CHAT_SHOP_CATEGORY_STORAGE_KEY, shopCategory);
-}
-
 export function clearChatThreadPersistence(): void {
   if (typeof window === 'undefined') {
     return;
@@ -181,5 +166,6 @@ export function clearChatThreadPersistence(): void {
 
   window.sessionStorage.removeItem(CHAT_THREAD_STORAGE_KEY);
   window.sessionStorage.removeItem(CHAT_URL_HYDRATED_STORAGE_KEY);
+  // Legacy shop-category persistence — cleared so stale mens/womens cannot leak.
   window.sessionStorage.removeItem(CHAT_SHOP_CATEGORY_STORAGE_KEY);
 }

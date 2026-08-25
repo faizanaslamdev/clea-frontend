@@ -6,6 +6,7 @@ import {
 } from '@/lib/chat/anchor-actions';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
 import { isAnchorActionMessage } from '@/lib/chat/anchor-preview';
+import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import type { SendMessageSource } from '@/lib/chat/resolve-send-message';
 
 export function resolveHydratedSendSource(
@@ -40,8 +41,7 @@ export function startProductChatFromAnchor(
       : undefined,
   );
 
-  const params = new URLSearchParams({ q: options.query });
-  router.push(`/chat?${params.toString()}`);
+  navigateToChatEntry(router, { query: options.query });
   options.onComplete?.();
 }
 

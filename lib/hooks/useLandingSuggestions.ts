@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchChatSuggestions } from '@/lib/api/chat';
 import type { ShopCategory } from '@/lib/api/chat-types';
+import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { LANDING_SUGGESTIONS_LOCALE } from '@/lib/constants/chat';
 
 export function useLandingSuggestions() {
@@ -40,10 +41,9 @@ export function useLandingSuggestions() {
 
   const selectSuggestion = useCallback(
     (query: string) => {
-      const params = new URLSearchParams({ q: query, category: shopCategory });
-      router.push(`/chat?${params.toString()}`);
+      navigateToChatEntry(router, { query });
     },
-    [router, shopCategory],
+    [router],
   );
 
   return {

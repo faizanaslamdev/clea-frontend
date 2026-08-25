@@ -25,9 +25,7 @@ import {
 } from '@/lib/chat/chat-session-types';
 import {
   markUrlQueryHydrated,
-  persistShopCategory,
   restoreHydratedUrlSignatures,
-  restorePersistedShopCategory,
   shouldHydrateUrlQuery,
 } from '@/lib/chat/chat-thread-persistence';
 import {
@@ -47,7 +45,8 @@ export interface UseChatSessionOptions {
   conversationId?: string;
   /** Legacy entry-only `?q=` from /chat — not used on /chat/{id}. */
   urlQuery?: string;
-  urlShopCategory?: ShopCategory;
+  /** Legacy entry-only `?category=` — backward-compatible shop context from URL. */
+  legacyShopCategory?: ShopCategory;
 }
 
 type RestoreStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -55,7 +54,7 @@ type RestoreStatus = 'idle' | 'loading' | 'ready' | 'error';
 export function useChatSession({
   conversationId,
   urlQuery = '',
-  urlShopCategory,
+  legacyShopCategory,
 }: UseChatSessionOptions = {}) {
   const router = useRouter();
   const [state, dispatch] = useReducer(chatSessionReducer, initialChatSessionState);
@@ -80,16 +79,13 @@ export function useChatSession({
   } | null>(
     conversationId ? resolveConversationSession(conversationId) : null,
   );
-  const shopCategoryRef = useRef<ShopCategory | undefined>(
-    urlShopCategory ?? restorePersistedShopCategory(),
-  );
+  const shopCategoryRef = useRef<ShopCategory | undefined>(legacyShopCategory);
 
   useEffect(() => {
-    if (urlShopCategory) {
-      shopCategoryRef.current = urlShopCategory;
-      persistShopCategory(urlShopCategory);
+    if (legacyShopCategory) {
+      shopCategoryRef.current = legacyShopCategory;
     }
-  }, [urlShopCategory]);
+  }, [legacyShopCategory]);
 
   const getSessionId = useCallback(() => {
     sessionIdRef.current ??= getOrCreateChatSessionId();
@@ -389,7 +385,6 @@ export function useChatSession({
 
         if (restored.shopCategory) {
           shopCategoryRef.current = restored.shopCategory;
-          persistShopCategory(restored.shopCategory);
         }
 
         dispatch({
@@ -420,7 +415,7 @@ export function useChatSession({
     if (
       !shouldHydrateUrlQuery({
         query: trimmed,
-        shopCategory: urlShopCategory,
+        shopCategory: legacyShopCategory,
         messages: stateRef.current.messages,
         hydratedSignatures: hydratedSignaturesRef.current,
       })
@@ -431,7 +426,7 @@ export function useChatSession({
     legacyEntryStartedRef.current = true;
     hydratedSignaturesRef.current = markUrlQueryHydrated(
       trimmed,
-      urlShopCategory,
+      legacyShopCategory,
     );
 
     void (async () => {
@@ -442,14 +437,14 @@ export function useChatSession({
         source,
         context: anchorPreview
           ? { productId: anchorPreview.productId }
-          : urlShopCategory
-            ? { shopCategory: urlShopCategory }
+          : legacyShopCategory
+            ? { shopCategory: legacyShopCategory }
             : undefined,
         anchorPreview,
         clientTurnId: crypto.randomUUID(),
       });
     })();
-  }, [conversationId, sendMessage, urlQuery, urlShopCategory]);
+  }, [conversationId, legacyShopCategory, sendMessage, urlQuery]);
 
   const isBusy = state.messages.some(isPendingAssistantMessage);
   const isRestoring = restoreStatus === 'loading';

@@ -4,6 +4,7 @@ import { useCallback, useState, type KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowUp } from 'lucide-react';
 import type { ShopCategory } from '@/lib/api/chat-types';
+import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { cn } from '@/lib/utils';
 
 export type HeroSearchVariant = 'full' | 'compact';
@@ -71,12 +72,9 @@ export function HeroSearchForm({
 
   const navigateToChat = useCallback(
     (trimmed: string) => {
-      const params = new URLSearchParams();
-      if (trimmed) params.set('q', trimmed);
-      if (variant === 'full') params.set('category', shopCategory);
-      router.push(`/chat?${params.toString()}`);
+      navigateToChatEntry(router, { query: trimmed });
     },
-    [router, variant, shopCategory],
+    [router],
   );
 
   const submitQuery = useCallback(() => {
