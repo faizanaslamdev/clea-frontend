@@ -1,12 +1,25 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { ChatAnchorUserBubble } from '@/components/search/chat-anchor-user-bubble';
 import { ProductGrid } from '@/components/product-grid';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
 import { ChatTypingIndicator } from '@/components/search/chat-typing-indicator';
 import { filterSuggestionsForAnchor } from '@/lib/chat/anchor-actions';
+import {
+  CHAT_RESULTS_INTRINSIC_REVEAL_CLASS,
+  clearRevealOnTransitionEnd,
+  prefersReducedResultsMotion,
+  shouldUseIntrinsicResultsReveal,
+  trackFreshResultsReveal,
+  type IntrinsicResultsRevealTarget,
+} from '@/lib/chat/chat-results-reveal';
 import {
   isPendingAssistantMessage,
   isProductReferenceUserMessage,
@@ -52,6 +65,12 @@ export function SearchChatThread({
   interactionDisabled = false,
 }: SearchChatThreadProps) {
   const latestMessageRef = useRef<HTMLDivElement>(null);
+  const pendingAssistantMessageIdRef = useRef<string | null>(null);
+  const revealTargetRef = useRef<IntrinsicResultsRevealTarget | null>(null);
+  const activeRevealNodeRef = useRef<HTMLDivElement | null>(null);
+  const expandAnimationFrameRef = useRef<number | null>(null);
+  const mountedRef = useRef(true);
+  const [, bumpRevealRender] = useState(0);
   const latestMessageId = messages.at(-1)?.id;
   const latestAssistantMessageId = [...messages]
     .reverse()
@@ -59,6 +78,121 @@ export function SearchChatThread({
       (message) =>
         message.role === 'assistant' && !isPendingAssistantMessage(message),
     )?.id;
+
+  const freshResultsReveal = trackFreshResultsReveal(
+    messages,
+    pendingAssistantMessageIdRef.current,
+    revealTargetRef.current?.messageId ?? null,
+  );
+
+  if (
+    freshResultsReveal.newlyRevealedMessageId &&
+    !prefersReducedResultsMotion() &&
+    revealTargetRef.current?.messageId !==
+      freshResultsReveal.newlyRevealedMessageId
+  ) {
+    revealTargetRef.current = {
+      messageId: freshResultsReveal.newlyRevealedMessageId,
+      collapsed: true,
+    };
+  }
+
+  pendingAssistantMessageIdRef.current =
+    freshResultsReveal.nextPendingAssistantMessageId;
+
+  const revealTarget = revealTargetRef.current;
+  const reduceMotion = prefersReducedResultsMotion();
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (expandAnimationFrameRef.current != null) {
+        cancelAnimationFrame(expandAnimationFrameRef.current);
+        expandAnimationFrameRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      revealTargetRef.current = null;
+      pendingAssistantMessageIdRef.current = null;
+      bumpRevealRender((value) => value + 1);
+    }
+  }, [messages.length]);
+
+  useLayoutEffect(() => {
+    const target = revealTargetRef.current;
+    if (!target?.collapsed || prefersReducedResultsMotion()) {
+      return;
+    }
+
+    if (expandAnimationFrameRef.current != null) {
+      return;
+    }
+
+    const { messageId } = target;
+    expandAnimationFrameRef.current = requestAnimationFrame(() => {
+      expandAnimationFrameRef.current = null;
+      if (!mountedRef.current) {
+        return;
+      }
+
+      if (revealTargetRef.current?.messageId === messageId) {
+        revealTargetRef.current = { messageId, collapsed: false };
+        bumpRevealRender((value) => value + 1);
+      }
+    });
+
+    return () => {
+      if (expandAnimationFrameRef.current != null) {
+        cancelAnimationFrame(expandAnimationFrameRef.current);
+        expandAnimationFrameRef.current = null;
+      }
+    };
+  }, [messages, freshResultsReveal.newlyRevealedMessageId]);
+
+  useLayoutEffect(() => {
+    const target = revealTargetRef.current;
+    const node = activeRevealNodeRef.current;
+    if (!target || target.collapsed || !node) {
+      return;
+    }
+
+    const finalizeReveal = () => {
+      if (revealTargetRef.current?.messageId !== target.messageId) {
+        return;
+      }
+
+      revealTargetRef.current = null;
+      bumpRevealRender((value) => value + 1);
+    };
+
+    const onTransitionEnd = (event: Event) => {
+      if (event.target !== node) {
+        return;
+      }
+
+      const propertyName =
+        'propertyName' in event
+          ? String((event as Event & { propertyName?: string }).propertyName ?? '')
+          : '';
+
+      if (
+        clearRevealOnTransitionEnd(
+          revealTargetRef.current,
+          target.messageId,
+          propertyName,
+        ) === null
+      ) {
+        finalizeReveal();
+      }
+    };
+
+    node.addEventListener('transitionend', onTransitionEnd);
+    return () => node.removeEventListener('transitionend', onTransitionEnd);
+  }, [revealTarget?.messageId, revealTarget?.collapsed]);
 
   // Scroll only when a new turn is appended — not when an existing message
   // is updated (e.g. load-more appending products to the same bubble).
@@ -81,6 +215,49 @@ export function SearchChatThread({
           anchorForChips,
         );
         const isAnchorReference = isProductReferenceUserMessage(message);
+        const useIntrinsicReveal =
+          !reduceMotion &&
+          shouldUseIntrinsicResultsReveal(message.id, revealTarget);
+        const isIntrinsicCollapsed =
+          useIntrinsicReveal && revealTarget?.collapsed === true;
+
+        const resultsContent =
+          message.role === 'assistant' &&
+          message.products &&
+          message.products.length > 0 ? (
+            <div
+              className="search-chat-thread__results"
+              aria-label={
+                message.query
+                  ? `Produkter for «${message.query}»`
+                  : 'Søkeresultater'
+              }
+            >
+              {message.searchTotal != null && message.searchTotal > 0 ? (
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Viser {message.products.length} av {message.searchTotal}{' '}
+                  produkter
+                </p>
+              ) : null}
+              <ProductGrid
+                products={message.products}
+                enableAnchorActions
+                showMerchantLabel
+                emptyMessage={
+                  message.query
+                    ? `Ingen produkter funnet for «${message.query}»`
+                    : 'Ingen produkter funnet'
+                  }
+              />
+              {shouldShowLoadMore(message) && onLoadMoreSearch ? (
+                <LoadMoreButton
+                  onClick={() => onLoadMoreSearch(message.id)}
+                  loading={loadingMoreMessageId === message.id}
+                  disabled={interactionDisabled}
+                />
+              ) : null}
+            </div>
+          ) : null;
 
         return (
           <li
@@ -128,41 +305,22 @@ export function SearchChatThread({
                 onSelect={(query) => onSuggestionSelect(query, message.id)}
               />
             ) : null}
-            {message.role === 'assistant' &&
-            message.products &&
-            message.products.length > 0 ? (
+            {resultsContent && useIntrinsicReveal ? (
               <div
-                className="search-chat-thread__results"
-                aria-label={
-                  message.query
-                    ? `Produkter for «${message.query}»`
-                    : 'Søkeresultater'
-                }
+                ref={activeRevealNodeRef}
+                className={cn(
+                  CHAT_RESULTS_INTRINSIC_REVEAL_CLASS,
+                  isIntrinsicCollapsed &&
+                    'search-chat-thread__results-reveal--collapsed',
+                )}
               >
-                {message.searchTotal != null && message.searchTotal > 0 ? (
-                  <p className="mb-4 text-sm text-muted-foreground">
-                    Viser {message.products.length} av {message.searchTotal} produkter
-                  </p>
-                ) : null}
-                <ProductGrid
-                  products={message.products}
-                  enableAnchorActions
-                  showMerchantLabel
-                  emptyMessage={
-                    message.query
-                      ? `Ingen produkter funnet for «${message.query}»`
-                      : 'Ingen produkter funnet'
-                  }
-                />
-                {shouldShowLoadMore(message) && onLoadMoreSearch ? (
-                  <LoadMoreButton
-                    onClick={() => onLoadMoreSearch(message.id)}
-                    loading={loadingMoreMessageId === message.id}
-                    disabled={interactionDisabled}
-                  />
-                ) : null}
+                <div className="search-chat-thread__results-reveal-inner">
+                  {resultsContent}
+                </div>
               </div>
-            ) : null}
+            ) : (
+              resultsContent
+            )}
           </li>
         );
       })}
