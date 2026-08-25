@@ -21,6 +21,7 @@ export function ChatSessionProvider({ children }: { children: ReactNode }) {
   const session = useChatSession({
     conversationId,
     urlQuery: entryBootstrap.query,
+    entryId: entryBootstrap.entryId,
     legacyShopCategory: entryBootstrap.legacyShopCategory,
   });
 

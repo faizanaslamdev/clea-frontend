@@ -1,9 +1,9 @@
 import type { ShopCategory } from '@/lib/api/chat-types';
 import type { SearchChatMessageData } from '@/lib/chat/chat-messages';
 import type { ChatSessionState } from '@/lib/chat/chat-session-types';
+import { clearBootstrapEntryState } from '@/lib/chat/chat-bootstrap-entry';
 
 export const CHAT_THREAD_STORAGE_KEY = 'clea-chat-thread-v1';
-export const CHAT_URL_HYDRATED_STORAGE_KEY = 'clea-chat-url-hydrated-v1';
 export const CHAT_SHOP_CATEGORY_STORAGE_KEY = 'clea-chat-shop-category-v1';
 
 export interface PersistedChatThread {
@@ -11,20 +11,6 @@ export interface PersistedChatThread {
   messages: SearchChatMessageData[];
   activeProductId: string | null;
   shopCategory?: ShopCategory;
-}
-
-export interface PersistedUrlHydration {
-  version: 1;
-  /** `${query}|${shopCategory ?? ''}` signatures already sent to the API. */
-  signatures: string[];
-}
-
-export function buildUrlHydrationSignature(
-  query: string,
-  shopCategory?: ShopCategory,
-): string {
-  const normalizedQuery = query.trim().toLowerCase();
-  return `${normalizedQuery}|${shopCategory ?? ''}`;
 }
 
 export function threadContainsUserQuery(
@@ -37,29 +23,6 @@ export function threadContainsUserQuery(
       message.role === 'user' &&
       message.content.trim().toLowerCase() === normalized,
   );
-}
-
-export function shouldHydrateUrlQuery(input: {
-  query: string;
-  shopCategory?: ShopCategory;
-  messages: SearchChatMessageData[];
-  hydratedSignatures: readonly string[];
-}): boolean {
-  const trimmed = input.query.trim();
-  if (!trimmed) {
-    return false;
-  }
-
-  const signature = buildUrlHydrationSignature(trimmed, input.shopCategory);
-  if (input.hydratedSignatures.includes(signature)) {
-    return false;
-  }
-
-  if (threadContainsUserQuery(input.messages, trimmed)) {
-    return false;
-  }
-
-  return true;
 }
 
 function readStorage<T>(key: string): T | null {
@@ -131,41 +94,13 @@ export function persistChatThread(
   writeStorage(CHAT_THREAD_STORAGE_KEY, payload);
 }
 
-export function restoreHydratedUrlSignatures(): string[] {
-  const persisted = readStorage<PersistedUrlHydration>(
-    CHAT_URL_HYDRATED_STORAGE_KEY,
-  );
-  if (!persisted || persisted.version !== 1 || !Array.isArray(persisted.signatures)) {
-    return [];
-  }
-  return persisted.signatures;
-}
-
-export function markUrlQueryHydrated(
-  query: string,
-  shopCategory?: ShopCategory,
-): string[] {
-  const signature = buildUrlHydrationSignature(query, shopCategory);
-  const existing = restoreHydratedUrlSignatures();
-  if (existing.includes(signature)) {
-    return existing;
-  }
-
-  const next = [...existing, signature];
-  writeStorage(CHAT_URL_HYDRATED_STORAGE_KEY, {
-    version: 1,
-    signatures: next,
-  } satisfies PersistedUrlHydration);
-  return next;
-}
-
 export function clearChatThreadPersistence(): void {
   if (typeof window === 'undefined') {
     return;
   }
 
   window.sessionStorage.removeItem(CHAT_THREAD_STORAGE_KEY);
-  window.sessionStorage.removeItem(CHAT_URL_HYDRATED_STORAGE_KEY);
   // Legacy shop-category persistence — cleared so stale mens/womens cannot leak.
   window.sessionStorage.removeItem(CHAT_SHOP_CATEGORY_STORAGE_KEY);
+  clearBootstrapEntryState();
 }

@@ -1,40 +1,54 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { resolveSendMessage } from '@/lib/chat/resolve-send-message';
 import {
   buildChatEntryUrl,
   parseChatEntryBootstrap,
 } from '@/lib/chat/chat-entry';
 import {
-  buildUrlHydrationSignature,
-  markUrlQueryHydrated,
-  shouldHydrateUrlQuery,
-} from '@/lib/chat/chat-thread-persistence';
+  completeBootstrapEntry,
+  savePendingBootstrapEntry,
+  shouldHydrateBootstrapEntry,
+  tryClaimBootstrapEntry,
+} from '@/lib/chat/chat-bootstrap-entry';
 
 /**
  * Entry-point contract matrix (unit-level).
  * Full hook/e2e coverage lives alongside these invariants.
  */
 describe('chat entry matrix contracts', () => {
-  it('A homepage typed query: query-only URL, no category param', () => {
-    expect(buildChatEntryUrl({ query: 'Svart hettegenser' })).toBe(
-      '/chat?q=Svart+hettegenser',
-    );
+  beforeEach(() => {
+    sessionStorage.clear();
   });
 
-  it('B homepage suggestion: query-only URL even when suggestions were fetched for mens', () => {
-    const url = buildChatEntryUrl({ query: 'Herresko til løping' });
-    expect(url).toBe('/chat?q=Herresko+til+l%C3%B8ping');
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it('A homepage typed query: query+entry URL, no category param', () => {
+    expect(
+      buildChatEntryUrl({ query: 'Svart hettegenser', entryId: 'entry-1' }),
+    ).toBe('/chat?q=Svart+hettegenser&entry=entry-1');
+  });
+
+  it('B homepage suggestion: query+entry URL even when suggestions were fetched for mens', () => {
+    const url = buildChatEntryUrl({
+      query: 'Herresko til løping',
+      entryId: 'entry-1',
+    });
+    expect(url).toBe('/chat?q=Herresko+til+l%C3%B8ping&entry=entry-1');
     expect(url).not.toContain('category=');
   });
 
-  it('C empty-chat suggestion uses the same query-only URL shape', () => {
-    expect(buildChatEntryUrl({ query: 'Regnjakke' })).not.toContain('category=');
+  it('C empty-chat suggestion uses the same query+entry URL shape', () => {
+    expect(
+      buildChatEntryUrl({ query: 'Regnjakke', entryId: 'entry-1' }),
+    ).not.toContain('category=');
   });
 
-  it('D header search uses query-only URL', () => {
-    expect(buildChatEntryUrl({ query: 'Vinterjakke' })).toBe(
-      '/chat?q=Vinterjakke',
-    );
+  it('D header search uses query+entry URL', () => {
+    expect(
+      buildChatEntryUrl({ query: 'Vinterjakke', entryId: 'entry-1' }),
+    ).toBe('/chat?q=Vinterjakke&entry=entry-1');
   });
 
   it('E direct /chat?q= bootstrap has no legacy shop category', () => {
@@ -95,15 +109,21 @@ describe('chat entry matrix contracts', () => {
     expect(resolved.context).toEqual({ productId: 'prod-99' });
   });
 
-  it('K refresh before promotion: signature blocks duplicate hydration', () => {
-    const signature = buildUrlHydrationSignature('Herresko til løping');
+  it('K refresh before promotion: same entry claim blocks duplicate hydration', () => {
+    savePendingBootstrapEntry({
+      entryId: 'entry-1',
+      query: 'Herresko til løping',
+      clientTurnId: 'turn-1',
+    });
+    tryClaimBootstrapEntry('entry-1');
+
     expect(
-      shouldHydrateUrlQuery({
+      shouldHydrateBootstrapEntry({
+        entryId: 'entry-1',
         query: 'Herresko til løping',
         messages: [],
-        hydratedSignatures: [signature],
       }),
-    ).toBe(false);
+    ).toBe('skip');
   });
 
   it('K refresh after promotion: conversation path ignores q param bootstrap', () => {
@@ -112,45 +132,69 @@ describe('chat entry matrix contracts', () => {
     ).toBe('');
   });
 
-  it('L legacy and generic signatures differ to avoid cross-mode duplicate suppression', () => {
-    expect(buildUrlHydrationSignature('Herresko til løping')).toBe(
-      'herresko til løping|',
-    );
-    expect(buildUrlHydrationSignature('Herresko til løping', 'mens')).toBe(
-      'herresko til løping|mens',
-    );
+  it('L repeat intentional same query uses a new entry id and hydrates again', () => {
+    savePendingBootstrapEntry({
+      entryId: 'entry-1',
+      query: 'Herresko til løping',
+      clientTurnId: 'turn-1',
+    });
+    completeBootstrapEntry('entry-1');
+
+    savePendingBootstrapEntry({
+      entryId: 'entry-2',
+      query: 'Herresko til løping',
+      clientTurnId: 'turn-2',
+    });
+
+    expect(
+      shouldHydrateBootstrapEntry({
+        entryId: 'entry-2',
+        query: 'Herresko til løping',
+        messages: [],
+      }),
+    ).toBe('hydrate');
   });
 
-  it('M Strict Mode / effect re-run: signature recorded before async send', () => {
-    const query = 'Herresko til løping';
+  it('M Strict Mode / effect re-run: entry claim recorded before async send', () => {
+    savePendingBootstrapEntry({
+      entryId: 'entry-1',
+      query: 'Herresko til løping',
+      clientTurnId: 'turn-1',
+    });
 
     expect(
-      shouldHydrateUrlQuery({
-        query,
+      shouldHydrateBootstrapEntry({
+        entryId: 'entry-1',
+        query: 'Herresko til løping',
         messages: [],
-        hydratedSignatures: [],
       }),
-    ).toBe(true);
+    ).toBe('hydrate');
 
-    const signatures = markUrlQueryHydrated(query);
+    expect(tryClaimBootstrapEntry('entry-1')).not.toBeNull();
 
     expect(
-      shouldHydrateUrlQuery({
-        query,
+      shouldHydrateBootstrapEntry({
+        entryId: 'entry-1',
+        query: 'Herresko til løping',
         messages: [],
-        hydratedSignatures: signatures,
       }),
-    ).toBe(false);
+    ).toBe('skip');
   });
 
-  it('N explicit legacy shop context uses distinct hydration signature', () => {
+  it('N explicit legacy shop context is stored on the pending bootstrap entry', () => {
+    savePendingBootstrapEntry({
+      entryId: 'entry-legacy',
+      query: 'Black hoodie',
+      legacyShopCategory: 'mens',
+      clientTurnId: 'turn-legacy',
+    });
+
     expect(
-      shouldHydrateUrlQuery({
+      shouldHydrateBootstrapEntry({
+        entryId: 'entry-legacy',
         query: 'Black hoodie',
-        shopCategory: 'mens',
         messages: [],
-        hydratedSignatures: [buildUrlHydrationSignature('Black hoodie')],
       }),
-    ).toBe(true);
+    ).toBe('hydrate');
   });
 });

@@ -11,7 +11,6 @@ import type { ChatTurnContext, ShopCategory } from '@/lib/api/chat-types';
 import {
   anchorMessageForKind,
   clearAnchorTurnContext,
-  reconcileAnchorSessionForMessage,
   type ChatAnchorKind,
 } from '@/lib/chat/anchor-actions';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
@@ -24,10 +23,14 @@ import {
   type SendMessageInput,
 } from '@/lib/chat/chat-session-types';
 import {
-  markUrlQueryHydrated,
-  restoreHydratedUrlSignatures,
-  shouldHydrateUrlQuery,
-} from '@/lib/chat/chat-thread-persistence';
+  anchorPreviewFromPendingEntry,
+  completeBootstrapEntry,
+  createLegacyBootstrapEntry,
+  releaseBootstrapEntryClaim,
+  shouldHydrateBootstrapEntry,
+  tryClaimBootstrapEntry,
+} from '@/lib/chat/chat-bootstrap-entry';
+import { buildLegacyChatEntryUrl } from '@/lib/chat/chat-entry';
 import {
   createConversationSession,
   resolveConversationSession,
@@ -45,6 +48,8 @@ export interface UseChatSessionOptions {
   conversationId?: string;
   /** Legacy entry-only `?q=` from /chat — not used on /chat/{id}. */
   urlQuery?: string;
+  /** Unique bootstrap entry id from `?entry=` — one per external navigation. */
+  entryId?: string;
   /** Legacy entry-only `?category=` — backward-compatible shop context from URL. */
   legacyShopCategory?: ShopCategory;
 }
@@ -54,6 +59,7 @@ type RestoreStatus = 'idle' | 'loading' | 'ready' | 'error';
 export function useChatSession({
   conversationId,
   urlQuery = '',
+  entryId,
   legacyShopCategory,
 }: UseChatSessionOptions = {}) {
   const router = useRouter();
@@ -63,6 +69,7 @@ export function useChatSession({
     conversationId ? 'loading' : 'idle',
   );
   const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [bootstrapUnavailable, setBootstrapUnavailable] = useState(false);
 
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -70,9 +77,7 @@ export function useChatSession({
   const sessionIdRef = useRef<string | null>(null);
   const requestGenerationRef = useRef(0);
   const legacyEntryStartedRef = useRef(false);
-  const hydratedSignaturesRef = useRef<string[]>(
-    typeof window === 'undefined' ? [] : restoreHydratedUrlSignatures(),
-  );
+  const legacyEnsureEntryIdRef = useRef<string | null>(null);
   const conversationSessionRef = useRef<{
     conversationId: string;
     anonymousToken: string;
@@ -328,6 +333,7 @@ export function useChatSession({
   const reset = useCallback(() => {
     requestGenerationRef.current += 1;
     legacyEntryStartedRef.current = false;
+    legacyEnsureEntryIdRef.current = null;
     conversationSessionRef.current = null;
     shopCategoryRef.current = undefined;
     dispatch({ type: 'RESET' });
@@ -408,50 +414,98 @@ export function useChatSession({
 
   useEffect(() => {
     const trimmed = urlQuery.trim();
-    if (conversationId || !trimmed || legacyEntryStartedRef.current) {
+    if (conversationId || !trimmed) {
+      setBootstrapUnavailable(false);
       return;
     }
 
-    if (
-      !shouldHydrateUrlQuery({
-        query: trimmed,
-        shopCategory: legacyShopCategory,
-        messages: stateRef.current.messages,
-        hydratedSignatures: hydratedSignaturesRef.current,
-      })
-    ) {
+    if (!entryId) {
+      if (!legacyEnsureEntryIdRef.current) {
+        const legacyEntry = createLegacyBootstrapEntry({
+          query: trimmed,
+          legacyShopCategory,
+        });
+        legacyEnsureEntryIdRef.current = legacyEntry.entryId;
+        router.replace(
+          buildLegacyChatEntryUrl({
+            query: trimmed,
+            entryId: legacyEntry.entryId,
+            legacyShopCategory,
+          }),
+          { scroll: false },
+        );
+      }
+      setBootstrapUnavailable(false);
+      return;
+    }
+
+    const hydrationDecision = shouldHydrateBootstrapEntry({
+      entryId,
+      query: trimmed,
+      messages: stateRef.current.messages,
+    });
+
+    if (hydrationDecision === 'unavailable') {
+      setBootstrapUnavailable(true);
+      return;
+    }
+
+    setBootstrapUnavailable(false);
+
+    if (hydrationDecision === 'skip' || legacyEntryStartedRef.current) {
+      return;
+    }
+
+    const claimed = tryClaimBootstrapEntry(entryId);
+    if (!claimed) {
       return;
     }
 
     legacyEntryStartedRef.current = true;
-    hydratedSignaturesRef.current = markUrlQueryHydrated(
-      trimmed,
-      legacyShopCategory,
-    );
+
+    const anchorPreview = anchorPreviewFromPendingEntry(claimed);
+    const shopCategory =
+      claimed.legacyShopCategory ?? legacyShopCategory ?? undefined;
+
+    if (shopCategory) {
+      shopCategoryRef.current = shopCategory;
+    }
 
     void (async () => {
-      const anchorPreview = reconcileAnchorSessionForMessage(trimmed);
-      const source = resolveHydratedSendSource(trimmed, anchorPreview);
-      await sendMessage({
-        query: trimmed,
-        source,
-        context: anchorPreview
-          ? { productId: anchorPreview.productId }
-          : legacyShopCategory
-            ? { shopCategory: legacyShopCategory }
-            : undefined,
-        anchorPreview,
-        clientTurnId: crypto.randomUUID(),
-      });
+      try {
+        const source = resolveHydratedSendSource(trimmed, anchorPreview);
+        await sendMessage({
+          query: trimmed,
+          source,
+          context: anchorPreview
+            ? { productId: anchorPreview.productId }
+            : shopCategory
+              ? { shopCategory }
+              : undefined,
+          anchorPreview,
+          clientTurnId: claimed.clientTurnId,
+        });
+        completeBootstrapEntry(entryId);
+      } catch {
+        releaseBootstrapEntryClaim(entryId);
+        legacyEntryStartedRef.current = false;
+      }
     })();
-  }, [conversationId, legacyShopCategory, sendMessage, urlQuery]);
+  }, [
+    conversationId,
+    entryId,
+    legacyShopCategory,
+    router,
+    sendMessage,
+    urlQuery,
+  ]);
 
   const isBusy = state.messages.some(isPendingAssistantMessage);
   const isRestoring = restoreStatus === 'loading';
   const showLanding =
     !conversationId &&
     state.messages.length === 0 &&
-    !urlQuery.trim() &&
+    (!urlQuery.trim() || bootstrapUnavailable) &&
     !isRestoring &&
     !isBusy;
 

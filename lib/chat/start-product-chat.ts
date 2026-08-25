@@ -41,7 +41,17 @@ export function startProductChatFromAnchor(
       : undefined,
   );
 
-  navigateToChatEntry(router, { query: options.query });
+  navigateToChatEntry(router, {
+    query: options.query,
+    productId: options.productId,
+    anchorPreview: options.preview
+      ? {
+          name: options.preview.name,
+          image: options.preview.image,
+          brand: options.preview.brand,
+        }
+      : undefined,
+  });
   options.onComplete?.();
 }
 
