@@ -15,6 +15,8 @@ import { useChatAnchorConnection } from '@/components/chat/chat-anchor-provider'
 import { useProductModal } from '@/components/product/product-modal-provider';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
 import { cn } from '@/lib/utils';
+import type { EngagementSurface } from '@/lib/api/engagement';
+import { useEngagementTracking } from '@/lib/hooks/useEngagementTracking';
 
 export type ProductCardVariant = 'trending' | 'detailed';
 
@@ -26,6 +28,7 @@ interface ProductCardProps {
   enableAnchorActions?: boolean;
   showMerchantLabel?: boolean;
   onAnchorActionComplete?: () => void;
+  engagementSurface?: EngagementSurface;
 }
 
 const TRENDING_CARD_IMAGE_SIZES =
@@ -134,10 +137,13 @@ export function ProductCard({
   enableAnchorActions = false,
   showMerchantLabel = false,
   onAnchorActionComplete,
+  engagementSurface,
 }: ProductCardProps) {
   const { openProduct } = useProductModal();
   const chatAnchor = useChatAnchorConnection();
   const prefetchProductDetail = usePrefetchProductDetail();
+  const engagement = useEngagementTracking(engagementSurface ?? 'catalog');
+  const trackEngagement = engagementSurface ? engagement : null;
   const showAnchorMenu = enableAnchorActions;
   const merchantLabel = product.merchantName?.trim();
   const showMerchantBadge = showMerchantLabel && Boolean(merchantLabel);
@@ -151,8 +157,9 @@ export function ProductCard({
   };
 
   const openDetails = () => {
+    trackEngagement?.trackCardClick(product.id);
     chatAnchor?.setActiveProductId(product.id);
-    openProduct(product.id, storeId);
+    openProduct(product.id, storeId, engagementSurface);
   };
 
   if (variant === 'trending') {

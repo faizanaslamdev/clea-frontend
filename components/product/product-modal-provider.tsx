@@ -10,13 +10,20 @@ import {
 } from 'react';
 import { ProductDetailModal } from './product-detail-modal';
 
+import type { EngagementSurface } from '@/lib/api/engagement';
+
 type ProductModalTarget = {
   productId: string;
   storeId?: string;
+  engagementSurface?: EngagementSurface;
 };
 
 type ProductModalContextValue = {
-  openProduct: (productId: string, storeId?: string) => void;
+  openProduct: (
+    productId: string,
+    storeId?: string,
+    engagementSurface?: EngagementSurface,
+  ) => void;
   closeProduct: () => void;
   isOpen: boolean;
 };
@@ -26,9 +33,16 @@ const ProductModalContext = createContext<ProductModalContextValue | null>(null)
 export function ProductModalProvider({ children }: { children: ReactNode }) {
   const [target, setTarget] = useState<ProductModalTarget | null>(null);
 
-  const openProduct = useCallback((productId: string, storeId?: string) => {
-    setTarget({ productId, storeId });
-  }, []);
+  const openProduct = useCallback(
+    (
+      productId: string,
+      storeId?: string,
+      engagementSurface?: EngagementSurface,
+    ) => {
+      setTarget({ productId, storeId, engagementSurface });
+    },
+    [],
+  );
 
   const closeProduct = useCallback(() => {
     setTarget(null);
@@ -49,6 +63,7 @@ export function ProductModalProvider({ children }: { children: ReactNode }) {
       <ProductDetailModal
         productId={target?.productId ?? null}
         storeId={target?.storeId}
+        engagementSurface={target?.engagementSurface ?? 'product_page'}
         open={target != null}
         onOpenChange={(open: boolean) => {
           if (!open) closeProduct();

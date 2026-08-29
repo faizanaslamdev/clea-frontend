@@ -9,12 +9,14 @@ interface ProductBestPricesProps {
   offers: ProductOffer[];
   currency: string;
   anchorProductId: string;
+  onOutboundClick?: (productId: string) => void;
 }
 
 export function ProductBestPrices({
   offers,
   currency,
   anchorProductId,
+  onOutboundClick,
 }: ProductBestPricesProps) {
   const sorted = [...offers].sort((a, b) => {
     if (a.in_stock !== b.in_stock) {
@@ -79,6 +81,7 @@ export function ProductBestPrices({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="product-detail-modal__best-prices-cta"
+                  onClick={() => onOutboundClick?.(offer.id)}
                 >
                   <span>Gå til butikk</span>
                   <ArrowUpRight className="size-4 shrink-0" strokeWidth={1.5} />

@@ -8,7 +8,7 @@ export type CatalogQueryFilters = {
 
 export const productKeys = {
   all: ['products'] as const,
-  featured: () => [...productKeys.all, 'featured', 'multi-brand'] as const,
+  featured: () => [...productKeys.all, 'featured', 'popular-now'] as const,
   catalog: (filters: CatalogQueryFilters) =>
     [...productKeys.all, 'catalog', filters] as const,
   detail: (id: string) => [...productKeys.all, 'detail', id] as const,

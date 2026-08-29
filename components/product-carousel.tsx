@@ -15,6 +15,7 @@ import type { Product } from '@/lib/types';
 import { ProductCard } from '@/components/product-card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import type { EngagementSurface } from '@/lib/api/engagement';
 
 export interface ProductCarouselHandle {
   scrollLeft: () => void;
@@ -33,13 +34,16 @@ type ProductCarouselProps = {
   className?: string;
   hideControls?: boolean;
   onScrollStateChange?: (state: CarouselScrollState) => void;
+  engagementSurface?: EngagementSurface;
+  onProductImpression?: (productId: string) => void;
 };
 
 export const ProductCarousel = forwardRef<
   ProductCarouselHandle,
   ProductCarouselProps
->(({ products, className, hideControls = false, onScrollStateChange }, ref) => {
+>(({ products, className, hideControls = false, onScrollStateChange, engagementSurface, onProductImpression }, ref) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const impressionObserverRef = useRef<IntersectionObserver | null>(null);
 
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -80,6 +84,39 @@ export const ProductCarousel = forwardRef<
       window.removeEventListener('resize', updateScrollState);
     };
   }, [products.length, updateScrollState]);
+
+  useEffect(() => {
+    if (!onProductImpression) {
+      return;
+    }
+
+    impressionObserverRef.current?.disconnect();
+    impressionObserverRef.current = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) {
+            continue;
+          }
+          const productId = entry.target.getAttribute('data-product-id');
+          if (productId) {
+            onProductImpression(productId);
+          }
+        }
+      },
+      { root: scrollRef.current, threshold: 0.6 },
+    );
+
+    const observer = impressionObserverRef.current;
+    const slides =
+      scrollRef.current?.querySelectorAll<HTMLElement>('[data-product-slide]') ??
+      [];
+
+    for (const slide of slides) {
+      observer.observe(slide);
+    }
+
+    return () => observer.disconnect();
+  }, [products, onProductImpression]);
 
   const scrollByOne = useCallback((direction: 'left' | 'right') => {
     const el = scrollRef.current;
@@ -172,6 +209,7 @@ export const ProductCarousel = forwardRef<
     <div
       key={product.id}
       data-product-slide
+      data-product-id={product.id}
       className={cn(
         'flex w-[210px] shrink-0 snap-start flex-col px-0.5 py-1 md:w-[270px]',
       )}
@@ -180,6 +218,7 @@ export const ProductCarousel = forwardRef<
         product={product}
         variant="trending"
         imageSizes="(max-width: 768px) 210px, 270px"
+        engagementSurface={engagementSurface}
       />
     </div>
   ))}

@@ -26,6 +26,8 @@ import {
   PRODUCT_LOAD_ERROR_MESSAGE,
   PRODUCT_NOT_FOUND_MESSAGE,
 } from '@/lib/api/api-errors';
+import type { EngagementSurface } from '@/lib/api/engagement';
+import { useEngagementTracking } from '@/lib/hooks/useEngagementTracking';
 import { useProduct, useProductOffers, useSimilarProducts } from '@/lib/hooks/useProducts';
 import {
   ProductBestPrices,
@@ -38,6 +40,7 @@ const DESCRIPTION_PREVIEW_LENGTH = 220;
 interface ProductDetailModalProps {
   productId: string | null;
   storeId?: string;
+  engagementSurface?: EngagementSurface;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -45,6 +48,7 @@ interface ProductDetailModalProps {
 export function ProductDetailModal({
   productId,
   storeId,
+  engagementSurface = 'product_page',
   open,
   onOpenChange,
 }: ProductDetailModalProps) {
@@ -64,6 +68,8 @@ export function ProductDetailModal({
     isError: isOffersError,
     refetch: refetchOffers,
   } = useProductOffers(productId ?? '', Boolean(productId) && open && Boolean(product));
+  const { trackDetailView, trackOutboundClick } =
+    useEngagementTracking(engagementSurface);
 
   const listingStoreId = useMemo(() => {
     if (!product) return null;
@@ -99,6 +105,12 @@ export function ProductDetailModal({
     setDescriptionExpanded(false);
     setGalleryIndex(0);
   }, [productId]);
+
+  useEffect(() => {
+    if (open && productId) {
+      trackDetailView(productId);
+    }
+  }, [open, productId, trackDetailView]);
 
   const showPreviousGalleryImage = () => {
     setGalleryIndex((current) =>
@@ -323,6 +335,9 @@ export function ProductDetailModal({
                         offers={productOffers.offers}
                         currency={currency}
                         anchorProductId={product.id}
+                        onOutboundClick={(offerProductId) =>
+                          trackOutboundClick(offerProductId)
+                        }
                       />
                     ) : null}
 
@@ -336,6 +351,7 @@ export function ProductDetailModal({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="product-detail-modal__purchase-btn"
+                          onClick={() => trackOutboundClick(product.id)}
                         >
                           <span>
                             {listingStoreName} · {formatPrice(listingPrice, currency)}

@@ -8,7 +8,6 @@ import type {
 import { CATALOG_PAGE_SIZE } from '@/lib/constants/catalog';
 import {
   POPULAR_PRODUCTS_LIMIT,
-  POPULAR_PRODUCTS_PER_BRAND,
 } from '@/lib/constants/popular-brands';
 import type { Product, SearchResult } from '@/lib/types';
 
@@ -118,21 +117,20 @@ export async function fetchProductById(
 }
 
 /**
- * Home "Populært nå" — one balanced catalog request (no merchants waterfall).
- * Backend caps each merchant so the carousel mixes brands.
+ * Home "Populært nå" — platform-level popularity with discovery cold-start.
  */
 export async function fetchFeaturedProducts(
   limit = POPULAR_PRODUCTS_LIMIT,
 ): Promise<Product[]> {
-  const { products } = await fetchCatalogFromApi(
-    {
-      limit,
-      balanceMerchants: true,
-      perMerchantCandidateCap: POPULAR_PRODUCTS_PER_BRAND,
-    },
+  const search = new URLSearchParams();
+  search.set('limit', String(limit));
+  search.set('offset', '0');
+
+  const data = await apiFetch<ApiProductListResponse>(
+    `/catalog/popular-now?${search.toString()}`,
     { next: { revalidate: 120 } },
   );
-  return products;
+  return data.items.map(mapApiProductToProduct);
 }
 
 function calculateRelevance(product: Product, query: string): number {

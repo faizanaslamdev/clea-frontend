@@ -8,12 +8,14 @@ import { ProductCarouselSkeleton } from '@/components/product/product-carousel-s
 import { Button } from '@/components/ui/button';
 import { BRAND } from '@/lib/constants/brand';
 import { useFeaturedProducts } from '@/lib/hooks/useProducts';
+import { useEngagementTracking } from '@/lib/hooks/useEngagementTracking';
 
 export function TrendingSection() {
   const carouselRef = useRef<ProductCarouselHandle>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
   const { data: products = [], isLoading } = useFeaturedProducts();
+  const { trackImpression } = useEngagementTracking('popular_now');
 
   const handleScrollState = useCallback(
     (state: { canScrollLeft: boolean; canScrollRight: boolean }) => {
@@ -81,6 +83,8 @@ export function TrendingSection() {
           ref={carouselRef}
           products={products}
           hideControls
+          engagementSurface="popular_now"
+          onProductImpression={trackImpression}
           onScrollStateChange={handleScrollState}
         />
       )}
