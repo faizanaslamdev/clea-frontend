@@ -41,9 +41,9 @@ export function useLandingSuggestions() {
 
   const selectSuggestion = useCallback(
     (query: string) => {
-      navigateToChatEntry(router, { query });
+      navigateToChatEntry(router, { query, shopCategory });
     },
-    [router],
+    [router, shopCategory],
   );
 
   return {

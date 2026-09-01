@@ -72,9 +72,9 @@ export function HeroSearchForm({
 
   const navigateToChat = useCallback(
     (trimmed: string) => {
-      navigateToChatEntry(router, { query: trimmed });
+      navigateToChatEntry(router, { query: trimmed, shopCategory });
     },
-    [router],
+    [router, shopCategory],
   );
 
   const submitQuery = useCallback(() => {

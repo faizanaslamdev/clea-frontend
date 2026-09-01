@@ -21,9 +21,22 @@ export interface BootstrapPendingEntry {
   query: string;
   productId?: string;
   anchorPreview?: Omit<AnchorPreview, 'productId'>;
+  /** Homepage gender tab at navigation time (Dame/Herre). */
+  shopCategory?: ShopCategory;
+  /** Legacy shareable URL `?category=` — kept for backward compatibility. */
   legacyShopCategory?: ShopCategory;
   clientTurnId: string;
   createdAt: number;
+}
+
+/** Resolve shop context from bootstrap entry; URL legacy category wins when present. */
+export function resolveBootstrapShopCategory(
+  entry: Pick<BootstrapPendingEntry, 'shopCategory' | 'legacyShopCategory'>,
+  urlLegacyShopCategory?: ShopCategory,
+): ShopCategory | undefined {
+  return (
+    urlLegacyShopCategory ?? entry.shopCategory ?? entry.legacyShopCategory
+  );
 }
 
 interface BootstrapClaimedEntry {
@@ -197,6 +210,7 @@ export function createLegacyBootstrapEntry(input: {
   return savePendingBootstrapEntry({
     entryId,
     query: input.query.trim(),
+    shopCategory: input.legacyShopCategory,
     legacyShopCategory: input.legacyShopCategory,
     clientTurnId,
   });

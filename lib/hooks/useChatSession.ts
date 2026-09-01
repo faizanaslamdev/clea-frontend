@@ -27,10 +27,15 @@ import {
   completeBootstrapEntry,
   createLegacyBootstrapEntry,
   releaseBootstrapEntryClaim,
+  resolveBootstrapShopCategory,
   shouldHydrateBootstrapEntry,
   tryClaimBootstrapEntry,
 } from '@/lib/chat/chat-bootstrap-entry';
 import { buildLegacyChatEntryUrl } from '@/lib/chat/chat-entry';
+import {
+  buildBootstrapHydrationContext,
+  mergeShopCategoryIntoTurnContext,
+} from '@/lib/chat/bootstrap-send-context';
 import {
   createConversationSession,
   resolveConversationSession,
@@ -137,7 +142,10 @@ export function useChatSession({
       clientTurnId?: string,
     ) => {
       const shopCategory = shopCategoryRef.current;
-      const mergedContext = shopCategory ? { ...context, shopCategory } : context;
+      const mergedContext = mergeShopCategoryIntoTurnContext(
+        shopCategory,
+        context,
+      );
       const session = await resolveOrCreateConversationSession();
 
       return sendConversationTurn({
@@ -464,8 +472,10 @@ export function useChatSession({
     legacyEntryStartedRef.current = true;
 
     const anchorPreview = anchorPreviewFromPendingEntry(claimed);
-    const shopCategory =
-      claimed.legacyShopCategory ?? legacyShopCategory ?? undefined;
+    const shopCategory = resolveBootstrapShopCategory(
+      claimed,
+      legacyShopCategory,
+    );
 
     if (shopCategory) {
       shopCategoryRef.current = shopCategory;
@@ -477,11 +487,10 @@ export function useChatSession({
         await sendMessage({
           query: trimmed,
           source,
-          context: anchorPreview
-            ? { productId: anchorPreview.productId }
-            : shopCategory
-              ? { shopCategory }
-              : undefined,
+          context: buildBootstrapHydrationContext({
+            shopCategory,
+            anchorPreview,
+          }),
           anchorPreview,
           clientTurnId: claimed.clientTurnId,
         });

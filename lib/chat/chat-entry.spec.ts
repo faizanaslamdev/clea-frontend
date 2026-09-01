@@ -55,6 +55,24 @@ describe('navigateToChatEntry', () => {
       clientTurnId: 'turn-1',
     });
   });
+
+  it('stores homepage shopCategory on bootstrap without URL category param', () => {
+    vi.stubGlobal('crypto', {
+      randomUUID: vi
+        .fn()
+        .mockReturnValueOnce('entry-w')
+        .mockReturnValueOnce('turn-w'),
+    });
+    const push = vi.fn();
+    navigateToChatEntry({ push } as never, {
+      query: 'Løpesko',
+      shopCategory: 'womens',
+    });
+    expect(getPendingBootstrapEntry('entry-w')).toMatchObject({
+      shopCategory: 'womens',
+    });
+    expect(push.mock.calls[0]?.[0]).not.toContain('category=');
+  });
 });
 
 describe('parseChatEntryBootstrap', () => {

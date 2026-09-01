@@ -20,8 +20,7 @@ describe('legacy shop category sessionStorage lifecycle', () => {
   it('does not read stale shop category when starting a generic query-only entry', () => {
     sessionStorage.setItem(CHAT_SHOP_CATEGORY_STORAGE_KEY, JSON.stringify('mens'));
 
-    // New sessions no longer restore shop category from sessionStorage.
-    // Legacy URL `category=` is the only entry-time shop context source.
+    // Shop context travels via bootstrap entry shopCategory, not sessionStorage.
     expect(sessionStorage.getItem(CHAT_SHOP_CATEGORY_STORAGE_KEY)).toBe(
       JSON.stringify('mens'),
     );

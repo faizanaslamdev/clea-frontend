@@ -181,7 +181,24 @@ describe('chat entry matrix contracts', () => {
     ).toBe('skip');
   });
 
-  it('N explicit legacy shop context is stored on the pending bootstrap entry', () => {
+  it('N explicit homepage shop context is stored on the pending bootstrap entry', () => {
+    savePendingBootstrapEntry({
+      entryId: 'entry-home',
+      query: 'Black hoodie',
+      shopCategory: 'mens',
+      clientTurnId: 'turn-home',
+    });
+
+    expect(
+      shouldHydrateBootstrapEntry({
+        entryId: 'entry-home',
+        query: 'Black hoodie',
+        messages: [],
+      }),
+    ).toBe('hydrate');
+  });
+
+  it('O legacy shop context remains on legacyShopCategory field', () => {
     savePendingBootstrapEntry({
       entryId: 'entry-legacy',
       query: 'Black hoodie',

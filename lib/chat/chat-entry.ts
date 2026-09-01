@@ -8,6 +8,8 @@ export interface ChatEntryNavigation {
   query: string;
   productId?: string;
   anchorPreview?: Omit<AnchorPreview, 'productId'>;
+  /** Homepage gender tab (Dame/Herre) — stored in session bootstrap, not the URL. */
+  shopCategory?: ShopCategory;
 }
 
 /** Parsed bootstrap state from `/chat` search params (legacy `category` supported). */
@@ -20,8 +22,9 @@ export interface ChatEntryBootstrap {
 
 /**
  * Build a shareable Chat entry URL for new navigations.
- * New links intentionally omit `category=` — shop context must not be inferred
- * from landing presentation; legacy incoming URLs remain supported separately.
+ * New links intentionally omit `category=` — shop context travels in session
+ * bootstrap (`shopCategory` on the pending entry). Legacy `?category=` URLs
+ * remain supported separately.
  */
 export function buildChatEntryUrl(
   input: ChatEntryNavigation & { entryId: string },
@@ -78,6 +81,7 @@ export function navigateToChatEntry(
     query: trimmed,
     productId: input.productId,
     anchorPreview: input.anchorPreview,
+    shopCategory: input.shopCategory,
     clientTurnId,
   });
 
