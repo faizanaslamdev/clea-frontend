@@ -38,6 +38,11 @@ interface CategorySectionProps {
    * own 96px into a 192px void -- daydream.ing's shop page runs ~32-56px
    * between these blocks (measured on the live site). */
   compact?: boolean;
+  /** 'carousel' (default) is the homepage's swipeable row. 'grid' wraps the
+   * cards into rows instead -- what /shop wants, matching daydream.ing's own
+   * shop page, where every category is visible at once rather than hidden
+   * behind a sideways scroll. */
+  layout?: 'carousel' | 'grid';
 }
 
 export function CategorySection({
@@ -45,6 +50,7 @@ export function CategorySection({
   suitableFor,
   shopCategory,
   compact = false,
+  layout = 'carousel',
 }: CategorySectionProps = {}) {
   const router = useRouter();
   const { data: categories = [], isLoading } = useCategoryPreviews(suitableFor);
@@ -61,6 +67,39 @@ export function CategorySection({
   if (!isLoading && categories.length === 0) {
     return null;
   }
+
+  const cards = (
+    <>
+          {isLoading
+            ? skeletonEntries.map((entry) => (
+                <div
+                  key={entry.id}
+                  role="listitem"
+                  className="category-fan-card category-fan-card--skeleton snap-start shrink-0"
+                  style={
+                    {
+                      '--cat-from': entry.accentFrom,
+                      '--cat-to': entry.accentTo,
+                    } as React.CSSProperties
+                  }
+                >
+                  <div className="category-fan-card__stack">
+                    <div className="category-fan-card__photo category-fan-card__photo--center category-fan-card__photo--skeleton" />
+                  </div>
+                </div>
+              ))
+            : categories.map((category) => (
+                <CategoryFanCard
+                  key={category.id}
+                  category={category}
+                  eyebrow={eyebrow}
+                  onSelect={() =>
+                    navigateToChatEntry(router, { query: category.query, shopCategory })
+                  }
+                />
+              ))}
+    </>
+  );
 
   return (
     <section
@@ -89,36 +128,22 @@ export function CategorySection({
         )}
       </div>
 
-      <div className="category-carousel__track" role="list">
-        {isLoading
-          ? skeletonEntries.map((entry) => (
-              <div
-                key={entry.id}
-                role="listitem"
-                className="category-fan-card category-fan-card--skeleton snap-start shrink-0"
-                style={
-                  {
-                    '--cat-from': entry.accentFrom,
-                    '--cat-to': entry.accentTo,
-                  } as React.CSSProperties
-                }
-              >
-                <div className="category-fan-card__stack">
-                  <div className="category-fan-card__photo category-fan-card__photo--center category-fan-card__photo--skeleton" />
-                </div>
-              </div>
-            ))
-          : categories.map((category) => (
-              <CategoryFanCard
-                key={category.id}
-                category={category}
-                eyebrow={eyebrow}
-                onSelect={() =>
-                  navigateToChatEntry(router, { query: category.query, shopCategory })
-                }
-              />
-            ))}
-      </div>
+      {layout === 'grid' ? (
+        /* Grid mode sits inside the normal page gutters; the carousel
+           deliberately bleeds past them, so it brings its own. */
+        <div className="section-container">
+          <div
+            className="category-carousel__track category-carousel__track--grid"
+            role="list"
+          >
+            {cards}
+          </div>
+        </div>
+      ) : (
+        <div className="category-carousel__track" role="list">
+          {cards}
+        </div>
+      )}
     </section>
   );
 }

@@ -707,6 +707,72 @@ async function fetchShopCategoryPreviews(
     }
   }
 
+  // Last resort: both passes above stay pinned to one merchant (Nelly /
+  // NLY Man) and the audience filter, so a shelf that retailer doesn't carry
+  // drops out of the grid entirely -- Dame lost "Skjorter", Herre lost
+  // "Vesker", each leaving a hole in the 4-column layout. Widen out, first
+  // across all merchants for this audience, then across the catalog, so the
+  // count stays fixed at SHOP_CATEGORY_GRID_COUNT.
+  const stillMissing = entries.filter((entry) => !byId.has(entry.id));
+
+  if (stillMissing.length > 0) {
+    const widened = await mapPool(stillMissing, 3, async (entry) => {
+      const previewQ = previewQueryForEntry(entry);
+      const base = {
+        ...(previewQ
+          ? { q: previewQ }
+          : entry.family
+            ? { productFamily: entry.family }
+            : {}),
+        limit: Math.max(CATEGORY_PREVIEW_PHOTO_COUNT * 2, 12),
+        balanceMerchants: true,
+      };
+
+      // Both attempts in flight at once -- this runs inside the page's
+      // blocking prefetch, so a sequential retry shows up directly as an
+      // empty grid on screen. Still prefers the on-audience result.
+      const attempts = await Promise.all(
+        [{ ...base, suitableFor }, base].map(async (filters) => {
+          try {
+            const { products } = await fetchCatalogFromApi(filters, {
+              next: { revalidate: 120 },
+            });
+            return products;
+          } catch {
+            return [] as Product[];
+          }
+        }),
+      );
+
+      for (const products of attempts) {
+        const usable = products.filter(
+          (product) => product.image && !usedImages.has(product.image),
+        );
+        const ranked = rankProductsForCategoryTile(
+          usable.filter((product) =>
+            productMatchesShopEntry(product, entry, previewQ),
+          ),
+          entry.family,
+          previewQ,
+        );
+        const picked = (ranked.length > 0 ? ranked : usable).slice(
+          0,
+          CATEGORY_PREVIEW_PHOTO_COUNT,
+        );
+        const preview = toCategoryPreview(entry, picked);
+        if (preview) {
+          picked.forEach((product) => usedImages.add(product.image));
+          return preview;
+        }
+      }
+      return null;
+    });
+
+    for (const preview of widened) {
+      if (preview) byId.set(preview.id, preview);
+    }
+  }
+
   return entries
     .map((entry) => byId.get(entry.id) ?? null)
     .filter((entry): entry is CategoryPreview => entry !== null);

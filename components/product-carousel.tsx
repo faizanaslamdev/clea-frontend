@@ -202,9 +202,6 @@ export const ProductCarousel = forwardRef<
   ref={scrollRef}
   className="product-carousel__track"
 >
-  {/* leading spacer — matches section-container padding exactly */}
-  <div className="shrink-0 w-5 md:w-6 lg:w-10 xl:w-14" />
-
   {products.map((product) => (
     <div
       key={product.id}
@@ -223,8 +220,6 @@ export const ProductCarousel = forwardRef<
     </div>
   ))}
 
-  {/* trailing spacer */}
-  <div className="shrink-0 w-5 md:w-6 lg:w-10 xl:w-14" />
 </div>
     </div>
   );

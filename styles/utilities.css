@@ -352,7 +352,24 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
     touch-action: pan-x pan-y;
-    @apply flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth py-3 pb-6;
+    @apply flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth py-3 pb-6 pl-8 pr-8 scroll-pl-8 scroll-pr-8 sm:gap-5 sm:pl-10 sm:pr-10 sm:scroll-pl-10 sm:scroll-pr-10 md:pl-14 md:pr-14 md:scroll-pl-14 md:scroll-pr-14 lg:pl-16 lg:pr-16 lg:scroll-pl-16 lg:scroll-pr-16 xl:pl-20 xl:pr-20 xl:scroll-pl-20 xl:scroll-pr-20;
+    /* Same edge fade as .category-carousel__track, so "Populært nå" and
+       "Hva leter du etter?" dissolve into the page edge identically instead
+       of one cutting off hard. */
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 1rem,
+      #000 calc(100% - 1rem),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 1rem,
+      #000 calc(100% - 1rem),
+      transparent 100%
+    );
   }
 
   .product-carousel__track::-webkit-scrollbar {
@@ -1771,6 +1788,19 @@
     }
   }
 
+  /* Phones swipe the row, so the arrows are a mouse-only affordance -- and
+     with no room to sit outside the track they land directly on top of a
+     chip (measured at 430px: the right-hand button covered the middle of
+     "Bukser & nederdeler"). The fades go with them: they exist to sit behind
+     those buttons, so on their own they just wash a chip out for no visible
+     reason. A swipeable row needs neither. */
+  @media (max-width: 767px) {
+    .shop-category-tabs__scroll-btn,
+    .shop-category-tabs__fade {
+      display: none;
+    }
+  }
+
   .shop-category-tabs__chip {
     border: 1px solid var(--border);
     background-color: var(--card);
@@ -3082,6 +3112,28 @@
 
   /* --- Category fan carousel (studied from daydream.ing's                --- */
   /* --- "What are you shopping for?" tinted-card + photo-fan section)    --- */
+
+  /* /shop shows every category at once instead of hiding them behind a
+     sideways scroll (daydream.ing's shop page does the same). Descendant
+     selectors on purpose: .category-fan-card fixes its own width and height
+     for the carousel, and an equal-specificity override would lose. */
+  .category-carousel__track--grid {
+    touch-action: auto;
+    scroll-padding-left: 0;
+    /* The carousel masks its first/last 1rem so cards dissolve at the
+       scrollport edge. In a grid there's nothing scrolling past, so it just
+       fades the outer columns -- reads as a white wash down both sides. */
+    -webkit-mask-image: none;
+    mask-image: none;
+    @apply mx-0 grid snap-none grid-cols-2 gap-3 overflow-visible px-0 pb-0 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-5;
+  }
+
+  .category-carousel__track--grid .category-fan-card {
+    /* Ratio measured off daydream.ing's own category tiles (~0.84). */
+    aspect-ratio: 5 / 6;
+    height: auto;
+    @apply w-auto min-w-0 shrink;
+  }
 
   .category-fan-card {
     background-image: linear-gradient(135deg, var(--cat-from), var(--cat-to));

@@ -55,6 +55,7 @@ function ShopPageContent() {
 
       <CategorySection
         compact
+        layout="grid"
         showLink={false}
         suitableFor={suitableFor}
         shopCategory={shopCategory}
