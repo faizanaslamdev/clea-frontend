@@ -319,6 +319,19 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
       value += 2;
     }
     if (
+      family === 'outerwear' &&
+      /skinn|leather|skinnjakke|leather\s*jacket/.test(name)
+    ) {
+      value += 4;
+    }
+    if (
+      family === 'outerwear' &&
+      /skinn|leather/.test(preview) &&
+      /softshell|gore|rain|regn|fleece/.test(name)
+    ) {
+      value -= 3;
+    }
+    if (
       family === 'underwear' &&
       /bra|bh|bralette|truse|undertøy|bikini|lingerie|boxers|briefs/.test(name)
     ) {

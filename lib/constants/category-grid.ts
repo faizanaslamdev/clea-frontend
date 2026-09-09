@@ -64,8 +64,8 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   {
     family: 'outerwear',
     label: 'Ytterjakker',
-    query: 'Vis meg ytterjakker',
-    previewQ: 'jakke',
+    query: 'Vis meg skinnjakke',
+    previewQ: 'skinnjakke',
     accentFrom: '#3c3f45',
     accentTo: '#1c1e21',
   },
