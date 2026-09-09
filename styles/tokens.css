@@ -121,6 +121,13 @@
   --hero-toggle-inactive: var(--muted-foreground);
   --hero-toggle-active-bg: var(--foreground);
   --hero-toggle-active-fg: var(--primary-foreground);
+  /* Lighter than --hero-toggle-inactive on purpose -- daydream.ing's own
+     nav pill (Explore/Shop/Favorites) uses a noticeably lighter inactive
+     gray (~45% black) than its Womens/Mens toggle does (~65% black),
+     confirmed on the live site via computed styles. Same track/active
+     tokens as the toggle above, but this one inactive color needed its
+     own value instead of reusing --hero-toggle-inactive. */
+  --header-nav-inactive: oklch(0.6 0 0);
   --hero-search-divider: var(--border);
   --hero-search-placeholder: var(--muted-foreground);
   --hero-search-submit-bg: var(--foreground);

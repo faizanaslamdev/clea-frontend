@@ -829,9 +829,13 @@
     @apply inline-flex items-center gap-0 rounded-full p-1;
   }
 
+  /* text-sm (14px) + tracking-tight -- daydream.ing's own Womens/Mens
+     toggle runs at 14px/500 with -0.28px letter-spacing (~-0.02em, matches
+     Tailwind's tracking-tight); this was a size smaller (13px) and default
+     tracking, reading slightly looser than the reference next to it. */
   .hero-category-toggle__btn {
     color: var(--hero-toggle-inactive);
-    @apply min-w-19 flex-1 basis-0 cursor-pointer rounded-full border-0 px-4 py-1.5 text-center font-sans text-[13px] font-medium transition-colors duration-200;
+    @apply min-w-19 flex-1 basis-0 cursor-pointer rounded-full border-0 px-4 py-1.5 text-center font-sans text-sm font-medium tracking-tight transition-colors duration-200;
   }
 
   .hero-category-toggle__btn--active {
@@ -1741,20 +1745,54 @@
     @apply border-0 shadow-none;
   }
 
+  /* Pill-grouped nav (Handle/Merker/Sok) -- studied from daydream.ing's own
+     top-left "Explore/Shop/Favorites" nav: a rounded track (reusing the
+     same muted-track/border tokens as the Dame/Herre toggle below, so the
+     two read as one design system) holding bold labels that differ ONLY by
+     color between the current page and the rest -- confirmed on the live
+     site via computed styles: font-weight 700 on every label regardless of
+     state, text-ink-900 (~92% black) on the active one, text-ink-400 (~45%
+     black) on the rest. The previous version here had no such distinction
+     at all (`--active` only set opacity-100, which every link already had
+     by default) -- Handle/Merker/Sok looked identical no matter which page
+     you were on. */
+  /* Pure white (--card), not the grayish --hero-toggle-track -- checked
+     against the live daydream.ing pill directly (lab(100 0 0) background,
+     i.e. pure white, vs its own Womens/Mens toggle which IS grayish
+     off-white). The two references are different shades on daydream.ing
+     itself, so this pill and the Dame/Herre toggle below intentionally
+     don't match each other either. */
+  .site-header-nav {
+    background-color: var(--card);
+    border: 1px solid var(--hero-toggle-track-border);
+    @apply inline-flex items-center gap-0.5 rounded-full p-1;
+  }
+
+  .site-header-nav--over-hero {
+    background-color: transparent;
+    border-color: transparent;
+  }
+
   .site-header-nav-link {
-    @apply text-sm font-normal text-foreground transition-opacity hover:opacity-65 md:text-[15px];
+    color: var(--header-nav-inactive);
+    @apply cursor-pointer rounded-full px-3.5 py-1.5 text-[13px] font-bold tracking-tight transition-colors duration-200 hover:text-foreground sm:px-4;
   }
 
   .site-header-nav-link--active {
-    @apply opacity-100;
+    color: var(--foreground);
   }
 
   .site-header-nav-link--over-hero {
     color: var(--hero-foreground);
+    opacity: 0.7;
   }
 
   .site-header-nav-link--over-hero:hover {
-    @apply opacity-80;
+    opacity: 1;
+  }
+
+  .site-header-nav-link--over-hero.site-header-nav-link--active {
+    opacity: 1;
   }
 
   .site-header-logo--center {
@@ -2935,11 +2973,14 @@
   /* --- Feature tabs (studied from daydream.ing's "Meet Daydream"          --- */
   /* --- Explore/Chat/Save/Refine tab showcase)                             --- */
 
-  /* Mobile: keep all 4 labels on ONE row (nowrap) but spread them across
-     the full content width so they don't read as glued together. From sm+
-     we go back to centered clustered gaps like the desktop reference. */
+  /* Mobile: one row, spread across full width. Laptop+: centered tabs, but
+     the tablist itself stays w-full so the MAIN border-b divider spans the
+     whole content column (daydream), not only the clustered labels. */
+  /* Mobile: one row, spaced across full width. Laptop+: centered tabs with
+     the MAIN border-b at ~75% of the content column (daydream-like), not
+     full bleed and not shrink-wrapped to the labels alone. */
   .feature-tabs__tablist {
-    @apply flex w-full flex-nowrap items-center justify-between gap-0 border-b border-border sm:w-auto sm:justify-center sm:gap-x-7 md:gap-x-9;
+    @apply mx-auto flex w-full flex-nowrap items-center justify-between gap-0 self-stretch border-b border-border sm:w-[75%] sm:justify-center sm:gap-x-7 sm:self-center md:gap-x-9;
   }
 
   .feature-tabs__tab {

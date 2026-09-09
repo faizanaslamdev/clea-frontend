@@ -10,10 +10,17 @@ import { useAuthModal } from '@/components/auth/auth-provider';
 import { useSession } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 
+/* Explore/Shop/Brands -- daydream.ing's own header nav is Explore/Shop/
+   Favorites; Clea doesn't have a favorites concept in the header today, so
+   Merker (Brands) takes that third slot. Utforsk (Explore) links home --
+   the homepage IS Clea's explore experience (search landing, feature
+   tabs, categories). Sok (Search) was dropped from here: search already
+   lives in the hero search box and the sticky compact bar, so a separate
+   nav entry for it was redundant with Utforsk pointing at the same page. */
 const NAV_ITEMS = [
+  { href: '/', label: 'Utforsk' },
   { href: '/shop', label: 'Handle' },
   { href: '/brands', label: 'Merker' },
-  { href: '/chat', label: 'Søk' },
 ] as const;
 
 const HEADER_HEIGHT = 96;
@@ -24,7 +31,6 @@ const STICKY_SEARCH_FOOTER_CLEARANCE_PX = 112;
 function isNavActive(href: string, pathname: string): boolean {
   if (href === '/shop') return pathname.startsWith('/shop');
   if (href === '/brands') return pathname.startsWith('/brands');
-  if (href === '/chat') return pathname.startsWith('/chat');
   return pathname === href;
 }
 
@@ -138,7 +144,13 @@ export function Header() {
       >
         <div className="site-header-bar">
           <div className="site-header-left">
-            <nav className="flex items-center gap-2 sm:gap-6 md:gap-8" aria-label="Hovedmeny">
+            <nav
+              className={cn(
+                'site-header-nav',
+                overHero && 'site-header-nav--over-hero',
+              )}
+              aria-label="Hovedmeny"
+            >
               {NAV_ITEMS.map((item) => (
                 <NavLink
                   key={item.href}
