@@ -3277,21 +3277,22 @@
     box-shadow:
       0 14px 34px color-mix(in oklch, black 18%, transparent),
       0 2px 8px color-mix(in oklch, black 10%, transparent);
-    animation:
-      feature-tabs-item-fade 480ms cubic-bezier(0.4, 0, 0.2, 1) both,
-      feature-tabs-hero-press 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 480ms both;
+    animation: feature-tabs-item-fade 480ms cubic-bezier(0.4, 0, 0.2, 1) both;
     @apply relative w-[180px] rounded-lg border border-border bg-card p-2.5;
   }
 
-  /* The "as if it had just been clicked" beat: settles in, then a quick
-     press-down/release, timed to finish right as the fan photos above
-     start flying out from behind it (860ms). */
-  @keyframes feature-tabs-hero-press {
+  /* Click-feel lives on the "Flere lignende" chip only — the hero card
+     stays still while the badge presses in/out like a button tap, timed
+     to finish right as the fan photos start flying out (860ms). */
+  @keyframes feature-tabs-badge-press {
     0% {
       transform: scale(1);
     }
-    45% {
-      transform: scale(0.94);
+    40% {
+      transform: scale(0.88);
+    }
+    70% {
+      transform: scale(1.05);
     }
     100% {
       transform: scale(1);
@@ -3307,6 +3308,8 @@
     color: var(--foreground);
     backdrop-filter: blur(6px);
     box-shadow: 0 2px 8px color-mix(in oklch, black 10%, transparent);
+    transform-origin: center;
+    animation: feature-tabs-badge-press 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 480ms both;
     @apply absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full border border-border/60 px-2.5 py-1.5 font-sans text-[10px] font-bold;
   }
 
@@ -3319,6 +3322,7 @@
     .feature-tabs__row-photo,
     .feature-tabs__compare-fan-photo,
     .feature-tabs__compare-hero,
+    .feature-tabs__compare-hero-badge,
     .feature-tabs__prompt,
     .feature-tabs__ai-bubble,
     .feature-tabs__photo-zoom,
