@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight } from 'lucide-react';
 import { AiSparkIcon } from '@/components/icons/ai-spark-icon';
 import { cn } from '@/lib/utils';
@@ -14,7 +15,9 @@ import { useCategoryPreviews, useFeaturedProducts, useSimilarProducts } from '@/
 import { useAllStores } from '@/lib/hooks/useStores';
 import type { ProductFamily } from '@/lib/api/chat-types';
 import type { CategoryPreview } from '@/lib/api/products';
+import { fetchCatalogFromApi } from '@/lib/api/products';
 import { TRENDING_DISPLAY_LIMIT } from '@/lib/constants/popular-brands';
+import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 
 type TabKey = 'explore' | 'chat' | 'save' | 'compare';
 
@@ -110,7 +113,19 @@ const TABS: readonly { key: TabKey; label: string }[] = [
   { key: 'compare', label: 'Sammenlign' },
 ];
 
-const CHAT_EXAMPLE_QUERY = 'Finn meg ferieklare sandaler til sommeren';
+const CHAT_EXAMPLE_QUERY =
+  'Lette sandaler til ferie — gjerne under 800 kr';
+
+/** Warm assistant reply shown in the Chat tab demo (not a live LLM turn). */
+const CHAT_EXAMPLE_REPLY =
+  'Her er noen sommerklare sandaler til deg — stilige, lette og fra flere butikker.';
+
+/** Catalog lookup so Chat-tab product photos match the demo query. */
+const CHAT_DEMO_PHOTO = {
+  brand: 'nelly',
+  q: 'sandal',
+  limit: 4,
+} as const;
 
 /** Relative offsets for the small photos fanned around the Compare tab own
  * hero card -- studied from daydream.ing own Refine tab markup (screen
@@ -174,6 +189,18 @@ export function FeatureTabsSection() {
   const { data: categories = [] } = useCategoryPreviews();
   const { data: featuredProducts = [] } = useFeaturedProducts();
   const { data: stores = [] } = useAllStores();
+  const { data: chatDemoProducts = [] } = useQuery({
+    queryKey: ['products', 'feature-tabs-chat-demo', CHAT_DEMO_PHOTO],
+    queryFn: async () => {
+      const { products } = await fetchCatalogFromApi({
+        brand: CHAT_DEMO_PHOTO.brand,
+        q: CHAT_DEMO_PHOTO.q,
+        limit: CHAT_DEMO_PHOTO.limit,
+      });
+      return products.filter((product) => Boolean(product.image)).slice(0, 4);
+    },
+    staleTime: STALE_TIME_STATIC_MS,
+  });
 
   // Prefer a strong fashion hero (kjoler → topper → sko) so Sammenlign
   // fans real similar products around something shoppable, not a random
@@ -245,7 +272,17 @@ export function FeatureTabsSection() {
   // "Populært nå" carousel displays (TRENDING_DISPLAY_LIMIT) -- the tail is
   // reserved for here so Chat/Save previews don't repeat that carousel.
   const remainingFeaturedProducts = featuredProducts.slice(TRENDING_DISPLAY_LIMIT);
-  const chatProducts = remainingFeaturedProducts.slice(0, 4);
+  const chatProducts =
+    chatDemoProducts.length > 0
+      ? chatDemoProducts
+      : remainingFeaturedProducts.slice(0, 4);
+  const chatStoreCount = new Set(
+    chatProducts.map((product) => product.merchantName ?? product.brand),
+  ).size;
+  const chatReply =
+    chatStoreCount > 1
+      ? `Her er noen sommerklare sandaler til deg — stilige, lette og fra ${chatStoreCount} butikker.`
+      : CHAT_EXAMPLE_REPLY;
   const priceDropProducts = remainingFeaturedProducts.filter(
     (product) => product.priceHistory.length > 1,
   );
@@ -392,8 +429,7 @@ export function FeatureTabsSection() {
                   <div className="flex flex-col gap-4 pt-1">
                     {chatStage >= 2 && (
                       <p className="feature-tabs__ai-bubble" style={revealStyle(0)}>
-                        Fant {chatProducts.length} treff fra{' '}
-                        {new Set(chatProducts.map((p) => p.merchantName ?? p.brand)).size} butikker.
+                        {chatReply}
                       </p>
                     )}
                     {chatStage >= 3 && (
@@ -509,7 +545,7 @@ export function FeatureTabsSection() {
               <>
                 <h3 className="feature-tabs__copy-heading">Spør oss, vi finner det.</h3>
                 <p className="feature-tabs__copy-body">
-                  Beskriv det du leter etter i egne ord — anledning, merke eller budsjett. AI-søket finner varene på tvers av alle butikker.
+                  Skriv som du snakker — anledning, stil eller budsjett. Vi finner matchene på tvers av butikker, uten at du må filtrere deg frem.
                 </p>
                 <button type="button" className="feature-tabs__cta feature-tabs__cta--button" onClick={handleChatCta}>
                   Start et søk

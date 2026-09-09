@@ -3143,7 +3143,7 @@
   .feature-tabs__prompt {
     background-color: var(--foreground);
     color: var(--primary-foreground);
-    @apply max-w-[36ch] self-end rounded-full px-5 py-3 font-sans text-sm font-medium leading-snug;
+    @apply max-w-[38ch] self-end rounded-full px-5 py-3.5 font-sans text-sm font-medium leading-snug tracking-[-0.01em] shadow-[0_8px_24px_rgba(0,0,0,0.12)];
   }
 
   /* Same bg-muted/rounded-2xl language as the real chat feature own
@@ -3153,11 +3153,11 @@
   .feature-tabs__ai-bubble {
     background-color: var(--muted);
     color: var(--foreground);
-    @apply max-w-[32ch] self-start rounded-2xl px-4 py-2.5 font-sans text-[13px] leading-relaxed;
+    @apply max-w-[36ch] self-start rounded-2xl px-4 py-3 font-sans text-[13.5px] leading-relaxed tracking-[-0.01em] shadow-[0_4px_16px_rgba(0,0,0,0.04)];
   }
 
   .feature-tabs__row {
-    @apply flex gap-2 sm:gap-3;
+    @apply flex gap-2.5 sm:gap-3;
   }
 
   /* 4 cards at the old fixed max-w-28 (112px) never fit a 375px viewport
@@ -3165,7 +3165,7 @@
      available width against that fixed size. Scales down at the smallest
      breakpoint instead of overflowing the section. */
   .feature-tabs__row-photo {
-    @apply relative aspect-[3/4] w-full max-w-16 shrink-0 overflow-hidden rounded-lg bg-muted sm:max-w-24 md:max-w-28;
+    @apply relative aspect-[3/4] w-full max-w-[4.5rem] shrink-0 overflow-hidden rounded-xl bg-muted shadow-[0_2px_10px_rgba(0,0,0,0.06)] sm:max-w-24 md:max-w-28;
   }
 
   /* Prisvarsel (price-drop alert) -- a slow continuous marquee moving
