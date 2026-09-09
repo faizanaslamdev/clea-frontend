@@ -203,11 +203,11 @@ const VISUAL_REVEAL_DELAY_MS = 0;
  * loops back to the first after the last. */
 const AUTO_ADVANCE_MS = 7000;
 
-/** Chat visual still stages in three beats, but tightly so the tab doesn't
- * feel idle after a click. */
-const CHAT_PROMPT_DELAY_MS = 80;
-const CHAT_CAPTION_DELAY_MS = 220;
-const CHAT_PRODUCTS_DELAY_MS = 400;
+/** Chat visual reveals in three beats: query → reply → photos, with a
+ * short pause between each so the demo reads as a real conversation. */
+const CHAT_PROMPT_DELAY_MS = 320;
+const CHAT_CAPTION_DELAY_MS = 700;
+const CHAT_PRODUCTS_DELAY_MS = 1150;
 
 /** Sets the CSS custom property that staggers each item's entrance --
  * daydream.ing's own photo grid loads in one image at a time rather than

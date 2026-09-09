@@ -3349,14 +3349,14 @@
      appearing at once (--reveal-index is set per item in the markup). A CSS
      *animation*, not a transition, so it plays the instant the item mounts. */
   .feature-tabs__row-photo {
-    animation: feature-tabs-item-reveal 280ms cubic-bezier(0.4, 0, 0.2, 1) both;
-    animation-delay: calc(var(--reveal-index, 0) * 40ms);
+    animation: feature-tabs-item-reveal 480ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation-delay: calc(var(--reveal-index, 0) * 90ms);
   }
 
   .feature-tabs__prompt,
   .feature-tabs__ai-bubble {
-    animation: feature-tabs-item-fade 240ms cubic-bezier(0.4, 0, 0.2, 1) both;
-    animation-delay: calc(var(--reveal-index, 0) * 40ms);
+    animation: feature-tabs-item-fade 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation-delay: calc(var(--reveal-index, 0) * 90ms);
   }
 
   @keyframes feature-tabs-item-reveal {
@@ -3488,15 +3488,13 @@
   }
 
   .feature-tabs__row {
-    @apply flex gap-2.5 sm:gap-3;
+    @apply flex w-full gap-2 sm:gap-3;
   }
 
-  /* 4 cards at the old fixed max-w-28 (112px) never fit a 375px viewport
-     (4 * 112 + 3 gaps > 480px) -- confirmed by measuring the panel's own
-     available width against that fixed size. Scales down at the smallest
-     breakpoint instead of overflowing the section. */
+  /* Mobile: equal-width flex so 4 photos fill the panel (old max-w-[4.5rem]
+     read too tiny). sm+ keep fixed max widths. */
   .feature-tabs__row-photo {
-    @apply relative aspect-[3/4] w-full max-w-[4.5rem] shrink-0 overflow-hidden rounded-xl bg-muted shadow-[0_2px_10px_rgba(0,0,0,0.06)] sm:max-w-24 md:max-w-28;
+    @apply relative aspect-[3/4] min-w-0 flex-1 overflow-hidden rounded-xl bg-muted shadow-[0_2px_10px_rgba(0,0,0,0.06)] sm:max-w-24 sm:flex-none md:max-w-28;
   }
 
   /* Prisvarsel (price-drop alert) -- a slow continuous marquee moving
