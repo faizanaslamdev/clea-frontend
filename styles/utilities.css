@@ -913,8 +913,11 @@
     @apply pointer-events-none absolute -inset-x-6 -inset-y-6 -z-10 rounded-[2rem] opacity-80 blur-3xl;
   }
 
+  /* Reserve two chip rows on md+ so Dame↔Herre suggestion swaps never change
+     section height (wrap count / label length used to shove UI below). Mobile
+     stays a single horizontal scroller — one-row min-height is enough. */
   .hero-section__suggestions {
-    @apply mx-auto mt-5 flex min-h-[2.625rem] w-full max-w-3xl justify-center px-4 md:mt-6 md:min-h-[2.75rem];
+    @apply mx-auto mt-5 flex min-h-[2.625rem] w-full max-w-3xl items-start justify-center px-4 md:mt-6 md:min-h-[5.75rem];
   }
 
   @media (max-width: 767px) {
@@ -1691,7 +1694,7 @@
   }
 
   .search-landing__suggestions {
-    @apply mx-auto flex min-h-[2.625rem] w-full max-w-3xl justify-center px-4 md:min-h-[2.75rem];
+    @apply mx-auto flex min-h-[2.625rem] w-full max-w-3xl items-start justify-center px-4 md:min-h-[5.75rem];
   }
 
   .search-suggestion-chips {

@@ -16,12 +16,14 @@ export function SearchSuggestionChips({
   onSelect,
   suggestions = [],
   isLoading = false,
-  skeletonCount = 3,
+  skeletonCount = 6,
   ariaLabel = 'Forslag',
   disabled = false,
   className,
 }: SearchSuggestionChipsProps) {
-  if (isLoading) {
+  // Prefer keeping real chips visible over skeleton when the parent still
+  // has a previous list (toggle refresh). Skeleton only for cold first paint.
+  if (isLoading && suggestions.length === 0) {
     return (
       <ul
         className={cn('search-suggestion-chips', className)}
