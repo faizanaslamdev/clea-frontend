@@ -15,9 +15,10 @@ import { useCategoryPreviews, useFeaturedProducts, useSimilarProducts } from '@/
 import { useAllStores } from '@/lib/hooks/useStores';
 import type { ProductFamily } from '@/lib/api/chat-types';
 import type { CategoryPreview } from '@/lib/api/products';
-import { fetchCatalogFromApi } from '@/lib/api/products';
+import { fetchCatalogFromApi, fetchFeaturedProducts } from '@/lib/api/products';
 import { TRENDING_DISPLAY_LIMIT } from '@/lib/constants/popular-brands';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
+import type { Product } from '@/lib/types';
 
 type TabKey = 'explore' | 'chat' | 'save' | 'compare';
 
@@ -104,6 +105,56 @@ function buildExploreColumns(
   }
 
   return columns;
+}
+
+/** Curate Prisvarsel cards: real drops, fashion-looking photos, no lingerie. */
+function curatePriceAlertProducts(products: readonly Product[]): Product[] {
+  const scored = products
+    .map((product) => {
+      if (product.priceHistory.length < 2) return null;
+      const [before, after] = product.priceHistory;
+      if (!before || !after || before.price <= after.price) return null;
+      const dropPercent = Math.round(
+        ((before.price - after.price) / before.price) * 100,
+      );
+      if (dropPercent < 20) return null;
+
+      const name = product.name.toLowerCase();
+      const image = product.image.toLowerCase();
+      if (
+        /bra|bh|bralette|truse|bikini|undertøy|lingerie|panty|boxers|briefs/.test(
+          name,
+        )
+      ) {
+        return null;
+      }
+      if (/kids|barn|teens|isbjörn/.test(name)) return null;
+
+      let score = dropPercent;
+      if (image.includes('occtoo-media.com')) score += 25;
+      if (image.includes('ralphlauren.scene7.com')) score += 20;
+      if (image.includes('cdn.shopify.com')) score += 10;
+      if (/jeans|jakke|jacket|kjole|dress|genser|sweater|sko|sandal|veske/.test(name)) {
+        score += 12;
+      }
+      if (image.includes('fjellsport') || image.includes('outnorth')) score -= 8;
+
+      return { product, score, dropPercent };
+    })
+    .filter((row): row is { product: Product; score: number; dropPercent: number } =>
+      Boolean(row),
+    )
+    .sort((a, b) => b.score - a.score);
+
+  const seen = new Set<string>();
+  const curated: Product[] = [];
+  for (const row of scored) {
+    if (seen.has(row.product.image)) continue;
+    seen.add(row.product.image);
+    curated.push(row.product);
+    if (curated.length >= 10) break;
+  }
+  return curated;
 }
 
 const TABS: readonly { key: TabKey; label: string }[] = [
@@ -201,6 +252,14 @@ export function FeatureTabsSection() {
     },
     staleTime: STALE_TIME_STATIC_MS,
   });
+  const { data: priceAlertProducts = [] } = useQuery({
+    queryKey: ['products', 'feature-tabs-price-alerts'],
+    queryFn: async () => {
+      const products = await fetchFeaturedProducts(48);
+      return curatePriceAlertProducts(products);
+    },
+    staleTime: STALE_TIME_STATIC_MS,
+  });
 
   // Prefer a strong fashion hero (kjoler → topper → sko) so Sammenlign
   // fans real similar products around something shoppable, not a random
@@ -283,9 +342,10 @@ export function FeatureTabsSection() {
     chatStoreCount > 1
       ? `Her er noen sommerklare sandaler til deg — stilige, lette og fra ${chatStoreCount} butikker.`
       : CHAT_EXAMPLE_REPLY;
-  const priceDropProducts = remainingFeaturedProducts.filter(
-    (product) => product.priceHistory.length > 1,
-  );
+  const priceDropProducts =
+    priceAlertProducts.length > 0
+      ? priceAlertProducts
+      : curatePriceAlertProducts(featuredProducts);
   const compareHeroImage =
     compareHeroCategory?.images[0] ?? remainingFeaturedProducts[0]?.image;
   const compareFanPhotos = (() => {

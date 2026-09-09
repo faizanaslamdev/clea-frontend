@@ -21,15 +21,15 @@ export const SEARCH_HEADLINE_EXAMPLES = [
  */
 export const SEARCH_PLACEHOLDER_EXAMPLES: Record<ShopCategory, readonly string[]> = {
   womens: [
-    'Bryllupsgjest-kjole til en sommerfest',
+    'Kjole til sommerbryllup',
     'Ferieklare sandaler til sommeren',
     'Strikkegenser i myk ull til høsten',
     'Sort skinnjakke i mellomstørrelse',
     'En veske som passer til alt',
   ],
   mens: [
-    'Vinterjakke til herre under 1500 kr',
-    'Alt fra Ralph Lauren, på tvers av butikker',
+    'Herrejakke under 1500 kr',
+    'Ralph Lauren på tvers av butikker',
     'Joggesko til hverdagsbruk',
     'Ullgenser til kontordagen',
     'Chinos som funker til jobb og fest',
