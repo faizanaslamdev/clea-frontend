@@ -1674,16 +1674,6 @@
     }
   }
 
-  /* Phones swipe the row, so the arrows are a mouse-only affordance -- and
-     with no room to sit outside the track they landed directly on top of a
-     chip (measured at 430px: the right-hand button covered the middle of
-     "Bukser & nederdeler"). The edge fades still signal there's more. */
-  @media (max-width: 767px) {
-    .shop-category-tabs__scroll-btn {
-      display: none;
-    }
-  }
-
   .shop-category-tabs__chip {
     border: 1px solid var(--border);
     background-color: var(--card);
