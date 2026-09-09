@@ -845,10 +845,9 @@
   }
 
   .page-hero-content--home {
-    /* Extra clearance below the fixed header, which now always shows its
-       background on home (no longer transparent-at-top) -- the previous
-       pt-16/md:pt-20 read as too tight against that visible header bar. */
-    @apply pt-24 pb-16 md:pt-28 md:pb-20 lg:pt-32 lg:pb-24;
+    /* Extra clearance below the fixed header on mobile — headline needs a
+       little more air above it than the shared pt-24 read. */
+    @apply pt-28 pb-16 md:pt-28 md:pb-20 lg:pt-32 lg:pb-24;
   }
 
   .page-hero-content--brand {
