@@ -1,6 +1,6 @@
 export function BrandGridSkeleton() {
-  // Matches the current nine-card editorial layout on home and `/brands`.
-  const cardsPerColumn = [3, 3, 3] as const;
+  // Matches the expanded editorial brands grid (incl. beauty/watches merchants).
+  const cardsPerColumn = [4, 4, 4] as const;
 
   return (
     <div
