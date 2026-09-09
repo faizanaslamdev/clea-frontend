@@ -1,6 +1,11 @@
-import type { ProductFamily } from '@/lib/api/chat-types';
+import type { ProductFamily, SuitableFor } from '@/lib/api/chat-types';
 
 export interface CategoryGridEntry {
+  /**
+   * Stable React / preview key. Required when the same ProductFamily appears
+   * twice with different labels (e.g. T-skjorter + Skjorter both use `tops`).
+   */
+  id: string;
   family: ProductFamily;
   /** Customer-facing Norwegian label shown on the tile. */
   label: string;
@@ -23,24 +28,13 @@ export interface CategoryGridEntry {
 }
 
 /**
- * Homepage "shop by category" carousel — a small fanned photo stack per
- * family on a distinct tinted gradient card (studied from daydream.ing's
- * "What are you shopping for?" section). Fetched live so the tile photos
- * reflect real current inventory.
- *
- * `sleeping_bags` is the one ProductFamily left out on purpose: a live
- * catalog check (GET /catalog?product_family=sleeping_bags) returned 0
- * products, so it would render an empty/dropped tile -- not just a "niche"
- * call. The others (including socks/legwear/gloves, added after the same
- * check turned up hundreds to 1000+ real products each) are all backed by
- * genuine current inventory.
- *
- * previewQ / previewBrand steer tile photos toward the most impressive
- * in-stock looks (midi dresses, jeans, leather jackets, fashion sandals)
- * while the visible label stays a broad family name.
+ * Homepage "shop by category" carousel — mixed audience. Shop page uses
+ * `categoryGridForShop` instead so Dame/Herre swap labels + photos while
+ * keeping the same card count (Daydream Womens/Mens pattern).
  */
 export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   {
+    id: 'dresses',
     family: 'dresses',
     label: 'Kjoler',
     query: 'Vis meg kjoler',
@@ -49,6 +43,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#432934',
   },
   {
+    id: 'tops',
     family: 'tops',
     label: 'Topper',
     query: 'Vis meg topper',
@@ -58,6 +53,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#1f2938',
   },
   {
+    id: 'knitwear',
     family: 'knitwear',
     label: 'Strikk',
     query: 'Vis meg strikkegensere',
@@ -67,6 +63,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#5f3826',
   },
   {
+    id: 'bottoms',
     family: 'bottoms',
     label: 'Bukser & nederdeler',
     query: 'Vis meg jeans',
@@ -76,6 +73,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#584a20',
   },
   {
+    id: 'outerwear',
     family: 'outerwear',
     label: 'Ytterjakker',
     query: 'Vis meg skinnjakke',
@@ -84,6 +82,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#1c1e21',
   },
   {
+    id: 'underwear',
     family: 'underwear',
     label: 'Undertøy & BH',
     query: 'Vis meg undertøy og BH',
@@ -92,6 +91,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#4a2a3a',
   },
   {
+    id: 'footwear',
     family: 'footwear',
     label: 'Sko',
     query: 'Vis meg sandaler',
@@ -101,6 +101,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#1f3126',
   },
   {
+    id: 'bags',
     family: 'bags',
     label: 'Vesker',
     query: 'Vis meg vesker',
@@ -109,6 +110,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#22303f',
   },
   {
+    id: 'gloves',
     family: 'gloves',
     label: 'Hansker',
     query: 'Vis meg hansker',
@@ -117,6 +119,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#29303a',
   },
   {
+    id: 'socks',
     family: 'socks',
     label: 'Sokker',
     query: 'Vis meg ullsokker',
@@ -125,6 +128,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#163531',
   },
   {
+    id: 'legwear',
     family: 'legwear',
     label: 'Strømpebukser',
     query: 'Vis meg leggings',
@@ -133,3 +137,233 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentTo: '#2e2138',
   },
 ] as const;
+
+/** Dame shop chips + "Hva leter du etter" — same length as male list.
+ * Categories are chosen so a single Nelly merchant pool can fill all 11
+ * tiles (no slow per-family gap fetches on /shop reload). */
+export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] = [
+  {
+    id: 'dresses',
+    family: 'dresses',
+    label: 'Kjoler',
+    query: 'Vis meg kjoler',
+    previewQ: 'kjole',
+    accentFrom: '#7d5468',
+    accentTo: '#432934',
+  },
+  {
+    id: 'tops',
+    family: 'tops',
+    label: 'Topper',
+    query: 'Vis meg topper',
+    previewQ: 'top',
+    accentFrom: '#3d5068',
+    accentTo: '#1f2938',
+  },
+  {
+    id: 'blouses',
+    family: 'tops',
+    label: 'Bluser',
+    query: 'Vis meg bluser',
+    previewQ: 'bluse',
+    accentFrom: '#436384',
+    accentTo: '#22303f',
+  },
+  {
+    id: 'knitwear',
+    family: 'knitwear',
+    label: 'Strikk',
+    query: 'Vis meg strikkegensere',
+    previewQ: 'genser',
+    accentFrom: '#b06a45',
+    accentTo: '#5f3826',
+  },
+  {
+    id: 'jeans',
+    family: 'bottoms',
+    label: 'Jeans',
+    query: 'Vis meg jeans',
+    previewQ: 'jeans',
+    accentFrom: '#a4883f',
+    accentTo: '#584a20',
+  },
+  {
+    id: 'pants',
+    family: 'bottoms',
+    label: 'Bukser',
+    query: 'Vis meg bukser',
+    previewQ: 'bukse',
+    accentFrom: '#3f5b48',
+    accentTo: '#1f3126',
+  },
+  {
+    id: 'skirts',
+    family: 'bottoms',
+    label: 'Skjørt',
+    query: 'Vis meg skjørt',
+    previewQ: 'skjørt',
+    accentFrom: '#5c4470',
+    accentTo: '#2e2138',
+  },
+  {
+    id: 'outerwear',
+    family: 'outerwear',
+    label: 'Ytterjakker',
+    query: 'Vis meg jakker',
+    previewQ: 'jakke',
+    accentFrom: '#3c3f45',
+    accentTo: '#1c1e21',
+  },
+  {
+    id: 'underwear',
+    family: 'underwear',
+    label: 'Undertøy & BH',
+    query: 'Vis meg undertøy og BH',
+    previewQ: 'bra',
+    accentFrom: '#8a4f6d',
+    accentTo: '#4a2a3a',
+  },
+  {
+    id: 'footwear',
+    family: 'footwear',
+    label: 'Sko',
+    query: 'Vis meg sko',
+    previewQ: 'sko',
+    accentFrom: '#2f6b64',
+    accentTo: '#163531',
+  },
+  {
+    id: 'sneakers',
+    family: 'footwear',
+    label: 'Sneakers',
+    query: 'Vis meg sneakers',
+    previewQ: 'sneaker',
+    accentFrom: '#52606d',
+    accentTo: '#29303a',
+  },
+] as const;
+
+/**
+ * Herre shop chips + cards — Daydream Mens pattern: same slot count as
+ * Dame, filled from the NLY Man merchant pool so Dame/Herre swaps content
+ * without adding/removing cards or firing 11 family catalog queries.
+ */
+export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
+  {
+    id: 'tees',
+    family: 'tops',
+    label: 'T-skjorter',
+    query: 'Vis meg t-skjorter',
+    previewQ: 't-shirt',
+    accentFrom: '#3d5068',
+    accentTo: '#1f2938',
+  },
+  {
+    id: 'shirts',
+    family: 'tops',
+    label: 'Skjorter',
+    query: 'Vis meg skjorter',
+    previewQ: 'skjorte',
+    accentFrom: '#b06a45',
+    accentTo: '#5f3826',
+  },
+  {
+    id: 'knitwear',
+    family: 'knitwear',
+    label: 'Gensere',
+    query: 'Vis meg gensere',
+    previewQ: 'genser',
+    accentFrom: '#a4883f',
+    accentTo: '#584a20',
+  },
+  {
+    id: 'hoodies',
+    family: 'knitwear',
+    label: 'Hoodies',
+    query: 'Vis meg hoodies',
+    previewQ: 'hoodie',
+    accentFrom: '#3c3f45',
+    accentTo: '#1c1e21',
+  },
+  {
+    id: 'pants',
+    family: 'bottoms',
+    label: 'Bukser',
+    query: 'Vis meg bukser',
+    previewQ: 'bukse',
+    accentFrom: '#436384',
+    accentTo: '#22303f',
+  },
+  {
+    id: 'jeans',
+    family: 'bottoms',
+    label: 'Jeans',
+    query: 'Vis meg jeans',
+    previewQ: 'jeans',
+    accentFrom: '#3f5b48',
+    accentTo: '#1f3126',
+  },
+  {
+    id: 'shorts',
+    family: 'bottoms',
+    label: 'Shorts',
+    query: 'Vis meg shorts',
+    previewQ: 'shorts',
+    accentFrom: '#5c4470',
+    accentTo: '#2e2138',
+  },
+  {
+    id: 'outerwear',
+    family: 'outerwear',
+    label: 'Ytterjakker',
+    query: 'Vis meg jakker',
+    previewQ: 'jakke',
+    accentFrom: '#52606d',
+    accentTo: '#29303a',
+  },
+  {
+    id: 'vests',
+    family: 'outerwear',
+    label: 'Vester',
+    query: 'Vis meg vester',
+    previewQ: 'vest',
+    accentFrom: '#7d5468',
+    accentTo: '#432934',
+  },
+  {
+    id: 'footwear',
+    family: 'footwear',
+    label: 'Sko',
+    query: 'Vis meg sko',
+    previewQ: 'sko',
+    accentFrom: '#2f6b64',
+    accentTo: '#163531',
+  },
+  {
+    id: 'sneakers',
+    family: 'footwear',
+    label: 'Sneakers',
+    query: 'Vis meg sneakers',
+    previewQ: 'sneaker',
+    accentFrom: '#8a4f6d',
+    accentTo: '#4a2a3a',
+  },
+] as const;
+
+if (SHOP_CATEGORY_GRID_FEMALE.length !== SHOP_CATEGORY_GRID_MALE.length) {
+  throw new Error(
+    `Shop category grids must match length (female ${SHOP_CATEGORY_GRID_FEMALE.length} vs male ${SHOP_CATEGORY_GRID_MALE.length})`,
+  );
+}
+
+/** Fixed card/chip count for Dame and Herre on /shop. */
+export const SHOP_CATEGORY_GRID_COUNT = SHOP_CATEGORY_GRID_FEMALE.length;
+
+/** Shop Dame/Herre grids — equal length so the carousel never reflows. */
+export function categoryGridForShop(
+  suitableFor: SuitableFor,
+): readonly CategoryGridEntry[] {
+  return suitableFor === 'male'
+    ? SHOP_CATEGORY_GRID_MALE
+    : SHOP_CATEGORY_GRID_FEMALE;
+}

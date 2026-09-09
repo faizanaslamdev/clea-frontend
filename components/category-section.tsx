@@ -7,7 +7,10 @@ import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { useCategoryPreviews } from '@/lib/hooks/useProducts';
-import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
+import {
+  CATEGORY_GRID_ENTRIES,
+  categoryGridForShop,
+} from '@/lib/constants/category-grid';
 import type { CategoryPreview } from '@/lib/api/products';
 import type { ProductFamily, ShopCategory, SuitableFor } from '@/lib/api/chat-types';
 
@@ -23,7 +26,8 @@ interface CategorySectionProps {
   /** Filters tile preview photos (and underlying inventory) to one
    * audience -- wired up from the Dame/Herre toggle on /shop. Omitted
    * (or undefined) shows the unfiltered "Alle" mix, matching the
-   * homepage's existing behavior. */
+   * homepage's existing behavior. On /shop this also selects the
+   * gender-specific category list (equal card count, Daydream pattern). */
   suitableFor?: SuitableFor;
   /** Carried into the chat query on tile click so it continues the same
    * gendered browsing context set by /shop's Dame/Herre toggle. */
@@ -44,6 +48,15 @@ export function CategorySection({
 }: CategorySectionProps = {}) {
   const router = useRouter();
   const { data: categories = [], isLoading } = useCategoryPreviews(suitableFor);
+  const skeletonEntries = suitableFor
+    ? categoryGridForShop(suitableFor)
+    : CATEGORY_GRID_ENTRIES;
+  const eyebrow =
+    shopCategory === 'mens'
+      ? 'Herreklær'
+      : shopCategory === 'womens'
+        ? 'Dameklær'
+        : 'Kategori';
 
   if (!isLoading && categories.length === 0) {
     return null;
@@ -78,9 +91,9 @@ export function CategorySection({
 
       <div className="category-carousel__track" role="list">
         {isLoading
-          ? CATEGORY_GRID_ENTRIES.map((entry) => (
+          ? skeletonEntries.map((entry) => (
               <div
-                key={entry.label}
+                key={entry.id}
                 role="listitem"
                 className="category-fan-card category-fan-card--skeleton snap-start shrink-0"
                 style={
@@ -97,8 +110,9 @@ export function CategorySection({
             ))
           : categories.map((category) => (
               <CategoryFanCard
-                key={category.label}
+                key={category.id}
                 category={category}
+                eyebrow={eyebrow}
                 onSelect={() =>
                   navigateToChatEntry(router, { query: category.query, shopCategory })
                 }
@@ -111,9 +125,11 @@ export function CategorySection({
 
 function CategoryFanCard({
   category,
+  eyebrow,
   onSelect,
 }: {
   category: CategoryPreview;
+  eyebrow: string;
   onSelect: () => void;
 }) {
   const [center, left, right] = category.images;
@@ -136,7 +152,7 @@ function CategoryFanCard({
         } as React.CSSProperties
       }
     >
-      <p className="category-fan-card__eyebrow">Kategori</p>
+      <p className="category-fan-card__eyebrow">{eyebrow}</p>
       <h3 className="category-fan-card__label">{category.label}</h3>
 
       <div className="category-fan-card__stack">

@@ -249,6 +249,7 @@ export async function fetchProductsByMerchant(
 
 
 export interface CategoryPreview {
+  id: string;
   family: ProductFamily;
   label: string;
   query: string;
@@ -267,9 +268,11 @@ export interface CategoryPreview {
 /** How many of each category's images the tile itself displays (center + 2 fan). */
 export const CATEGORY_SECTION_DISPLAY_COUNT = 3;
 
-/** Total fetched per category — extra beyond CATEGORY_SECTION_DISPLAY_COUNT
- *  is spare headroom for FeatureTabsSection to reuse without duplicating. */
+/** Total fetched per category — tile uses 3; spare headroom for FeatureTabs. */
 const CATEGORY_PREVIEW_PHOTO_COUNT = 6;
+
+/** Cap parallel catalog calls so shop's 11 tiles don't trip the API throttle. */
+const CATEGORY_PREVIEW_CONCURRENCY = 4;
 
 /** Pull a catalog `q` from "Vis meg …" chat copy when no explicit previewQ. */
 function previewQueryForEntry(entry: CategoryGridEntry): string | undefined {
@@ -278,6 +281,30 @@ function previewQueryForEntry(entry: CategoryGridEntry): string | undefined {
   }
   const match = entry.query.match(/^vis meg\s+(.+)$/i);
   return match?.[1]?.trim() || undefined;
+}
+
+async function mapPool<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await mapper(items[index]);
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    () => worker(),
+  );
+  await Promise.all(workers);
+  return results;
 }
 
 /**
@@ -390,30 +417,222 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
 }
 
 /**
- * Representative in-stock products per homepage category tile — enough to
- * fan a small photo stack the way daydream.ing does, plus spare headroom
- * (see CATEGORY_PREVIEW_PHOTO_COUNT). A family with no matching products is
- * silently dropped — the carousel renders whatever it actually has real
- * inventory for.
+ * Representative in-stock products per category tile.
+ *
+ * Shop (gender set): one fast merchant pool (~Nelly / NLY Man), then assign
+ * photos to the fixed 11 cards — avoids 11 slow family queries + throttle
+ * cascades on reload. Sparse families gap-fill with a small concurrent pool.
+ *
+ * Homepage (no gender): capped per-family fetches as before.
  */
 export async function fetchCategoryPreviews(
   entries: readonly CategoryGridEntry[],
   suitableFor?: 'male' | 'female' | 'unisex',
 ): Promise<CategoryPreview[]> {
-  const results = await Promise.all(
-    entries.map(async (entry) => {
+  if (suitableFor === 'male' || suitableFor === 'female') {
+    return fetchShopCategoryPreviews(entries, suitableFor);
+  }
+  return fetchHomepageCategoryPreviews(entries);
+}
+
+const SHOP_PREVIEW_MERCHANT_ID: Record<'male' | 'female', string> = {
+  female: '19563', // Nelly NO
+  male: '19567', // NLY Man NO
+};
+
+function productBlob(product: Product): string {
+  return `${product.name} ${product.productType ?? ''} ${product.categoryPath ?? ''}`.toLowerCase();
+}
+
+function productMatchesShopEntry(
+  product: Product,
+  entry: CategoryGridEntry,
+  previewQ?: string,
+): boolean {
+  const blob = productBlob(product);
+  if (previewQ) {
+    const tokens = previewQ
+      .toLowerCase()
+      .split(/[^a-z0-9æøåäöü]+/i)
+      .filter((token) => token.length >= 3);
+    if (tokens.some((token) => blob.includes(token))) {
+      // Guard common false-positives from short tokens (e.g. "boot" in Bootcut).
+      if (
+        entry.family === 'footwear' &&
+        /bootcut|jeans/.test(blob) &&
+        !/sandal|sneaker|sko|shoe|boot\b|pensko|loafer/.test(blob)
+      ) {
+        return false;
+      }
+      if (
+        entry.family === 'tops' &&
+        /bikini|bra|\bbh\b|badetøy|swim/.test(blob)
+      ) {
+        return false;
+      }
+      return true;
+    }
+  }
+
+  switch (entry.family) {
+    case 'dresses':
+      return /kjole|dress/.test(blob);
+    case 'tops':
+      return (
+        /bluse|blouse|\btop\b|t-shirt|\btee\b|skjorte|\bshirt\b/.test(blob) &&
+        !/bikini|bra|\bbh\b|badetøy|swim/.test(blob)
+      );
+    case 'knitwear':
+      return /genser|sweater|hoodie|strikk|knit|cardigan/.test(blob);
+    case 'bottoms':
+      return /jeans|bukse|pants|nederdel|skirt|chino|short/.test(blob);
+    case 'outerwear':
+      return /jakke|jacket|coat|puffer|parkas|blazer|vester|\bvest\b/.test(blob);
+    case 'underwear':
+      return /bra|\bbh\b|bralette|truse|boxer|undertøy|briefs|panty/.test(blob);
+    case 'footwear':
+      return /sandal|sneaker|\bsko\b|shoe|\bboot\b|loafer|pensko/.test(blob);
+    case 'bags':
+      return /veske|\bbag\b|clutch|tote|handleveske/.test(blob);
+    case 'legwear':
+      return /legging|strømpe|tights/.test(blob);
+    case 'socks':
+      return /sokk|sock/.test(blob);
+    case 'gloves':
+      return /hanske|glove/.test(blob);
+    default:
+      return false;
+  }
+}
+
+function pickShopEntryProducts(
+  pool: readonly Product[],
+  entry: CategoryGridEntry,
+  usedImages: Set<string>,
+): Product[] {
+  const previewQ = previewQueryForEntry(entry);
+  const candidates = pool.filter(
+    (product) =>
+      Boolean(product.image) &&
+      !usedImages.has(product.image) &&
+      productMatchesShopEntry(product, entry, previewQ),
+  );
+  return rankProductsForCategoryTile(
+    candidates,
+    entry.family,
+    previewQ,
+  ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
+}
+
+function toCategoryPreview(
+  entry: CategoryGridEntry,
+  ranked: Product[],
+): CategoryPreview | null {
+  const [first] = ranked;
+  if (!first) return null;
+  return {
+    id: entry.id,
+    family: entry.family,
+    label: entry.label,
+    query: entry.query,
+    accentFrom: entry.accentFrom,
+    accentTo: entry.accentTo,
+    images: ranked.map((product) => product.image),
+    productId: first.id,
+  };
+}
+
+async function fetchShopCategoryPreviews(
+  entries: readonly CategoryGridEntry[],
+  suitableFor: 'male' | 'female',
+): Promise<CategoryPreview[]> {
+  let pool: Product[] = [];
+  try {
+    const page = await fetchCatalogFromApi(
+      {
+        merchantId: SHOP_PREVIEW_MERCHANT_ID[suitableFor],
+        suitableFor,
+        limit: 80,
+        balanceMerchants: false,
+      },
+      { next: { revalidate: 120 } },
+    );
+    pool = page.products;
+  } catch {
+    pool = [];
+  }
+
+  const usedImages = new Set<string>();
+  const byId = new Map<string, CategoryPreview>();
+  const gaps: CategoryGridEntry[] = [];
+
+  for (const entry of entries) {
+    const ranked = pickShopEntryProducts(pool, entry, usedImages);
+    const preview = toCategoryPreview(entry, ranked);
+    if (preview) {
+      ranked.forEach((product) => usedImages.add(product.image));
+      byId.set(entry.id, preview);
+    } else {
+      gaps.push(entry);
+    }
+  }
+
+  if (gaps.length > 0) {
+    const merchantId = SHOP_PREVIEW_MERCHANT_ID[suitableFor];
+    const gapResults = await mapPool(gaps, 3, async (entry) => {
+      const previewQ = previewQueryForEntry(entry);
+      try {
+        const { products } = await fetchCatalogFromApi(
+          {
+            merchantId,
+            ...(previewQ ? { q: previewQ } : { productFamily: entry.family }),
+            suitableFor,
+            limit: CATEGORY_PREVIEW_PHOTO_COUNT,
+            balanceMerchants: false,
+          },
+          { next: { revalidate: 120 } },
+        );
+        const ranked = rankProductsForCategoryTile(
+          products.filter((product) => !usedImages.has(product.image)),
+          entry.family,
+          previewQ,
+        ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
+        const preview = toCategoryPreview(entry, ranked);
+        ranked.forEach((product) => usedImages.add(product.image));
+        return preview;
+      } catch {
+        return null;
+      }
+    });
+
+    for (const preview of gapResults) {
+      if (preview) byId.set(preview.id, preview);
+    }
+  }
+
+  return entries
+    .map((entry) => byId.get(entry.id) ?? null)
+    .filter((entry): entry is CategoryPreview => entry !== null);
+}
+
+async function fetchHomepageCategoryPreviews(
+  entries: readonly CategoryGridEntry[],
+): Promise<CategoryPreview[]> {
+  const results = await mapPool(
+    entries,
+    CATEGORY_PREVIEW_CONCURRENCY,
+    async (entry) => {
       const previewQ = previewQueryForEntry(entry);
 
-      const load = async (gender?: 'male' | 'female' | 'unisex') => {
+      const load = async (opts: { brand?: string }) => {
         try {
           const { products } = await fetchCatalogFromApi(
             {
               productFamily: entry.family,
               ...(previewQ ? { q: previewQ } : {}),
-              ...(entry.previewBrand ? { brand: entry.previewBrand } : {}),
-              ...(gender ? { suitableFor: gender } : {}),
-              limit: Math.max(CATEGORY_PREVIEW_PHOTO_COUNT * 2, 12),
-              balanceMerchants: !entry.previewBrand,
+              ...(opts.brand ? { brand: opts.brand } : {}),
+              limit: CATEGORY_PREVIEW_PHOTO_COUNT,
+              balanceMerchants: false,
             },
             { next: { revalidate: 120 } },
           );
@@ -427,28 +646,15 @@ export async function fetchCategoryPreviews(
         }
       };
 
-      // Switching Dame/Herre swaps the photos inside the tiles, never the
-      // number of tiles -- so a family this audience has no stock in (say
-      // Kjoler under Herre) falls back to the unfiltered shot instead of
-      // silently dropping the card and reflowing the whole row.
-      let ranked = suitableFor ? await load(suitableFor) : [];
-      if (ranked.length === 0) {
-        ranked = await load();
+      let ranked = await load(
+        entry.previewBrand ? { brand: entry.previewBrand } : {},
+      );
+      if (ranked.length === 0 && entry.previewBrand) {
+        ranked = await load({});
       }
 
-      const [first] = ranked;
-      if (!first) return null;
-
-      return {
-        family: entry.family,
-        label: entry.label,
-        query: entry.query,
-        accentFrom: entry.accentFrom,
-        accentTo: entry.accentTo,
-        images: ranked.map((product) => product.image),
-        productId: first.id,
-      } satisfies CategoryPreview;
-    }),
+      return toCategoryPreview(entry, ranked);
+    },
   );
 
   return results.filter((entry): entry is CategoryPreview => entry !== null);
@@ -531,27 +737,24 @@ async function fetchTrendingLookSupplements(
   suitableFor?: 'male' | 'female' | 'unisex',
 ): Promise<Product[]> {
   const gender = suitableFor === 'unisex' ? undefined : suitableFor;
+  const merchantId =
+    suitableFor === 'male'
+      ? SHOP_PREVIEW_MERCHANT_ID.male
+      : SHOP_PREVIEW_MERCHANT_ID.female;
   const queries =
     suitableFor === 'male'
-      ? [
-          { q: 'jakke', brand: 'nly man' },
-          { q: 'hoodie', brand: 'nly man' },
-          { q: 'jeans', brand: 'nly man' },
-        ]
-      : [
-          { q: 'kjole', brand: 'nelly' },
-          { q: 'bluse', brand: 'nelly' },
-          { q: 'jakke', brand: 'nelly' },
-        ];
+      ? [{ q: 'jakke' }, { q: 'hoodie' }, { q: 'jeans' }]
+      : [{ q: 'kjole' }, { q: 'bluse' }, { q: 'jakke' }];
 
   const pages = await Promise.all(
-    queries.map(({ q, brand }) =>
+    queries.map(({ q }) =>
       fetchCatalogFromApi(
         {
           q,
-          brand,
+          merchantId,
           ...(gender ? { suitableFor: gender } : {}),
           limit: 8,
+          balanceMerchants: false,
         },
         { next: { revalidate: 120 } },
       ).catch(() => ({ products: [] as Product[] })),
@@ -563,21 +766,18 @@ async function fetchTrendingLookSupplements(
 
 /**
  * Three real, in-stock, gender-filtered products for /shop's "Populært
- * akkurat nå" magazine section. Prefers popular-now fashion shots, then
- * supplements with Nelly / NLY Man catalog queries so the three cards are
- * not all jeans or outdoor packshots from merchant-balanced catalog.
+ * akkurat nå". Uses fast brand catalog queries only — popular-now ranks a
+ * large candidate pool and commonly takes several seconds, which made the
+ * whole shop reload feel stuck behind one endpoint.
  */
 export async function fetchTrendingLooks(
   suitableFor?: 'male' | 'female' | 'unisex',
   count = 3,
 ): Promise<Product[]> {
-  const [popular, supplements] = await Promise.all([
-    fetchFeaturedProducts(Math.max(count * 12, 40)),
-    fetchTrendingLookSupplements(suitableFor),
-  ]);
+  const supplements = await fetchTrendingLookSupplements(suitableFor);
 
   const byId = new Map<string, Product>();
-  for (const product of [...popular, ...supplements]) {
+  for (const product of supplements) {
     if (!byId.has(product.id)) byId.set(product.id, product);
   }
 
@@ -613,10 +813,6 @@ export async function fetchTrendingLooks(
     if (family !== 'other') usedFamilies.add(family);
   }
 
-  // One family per card is a nice-to-have; three cards is not. Dame/Herre
-  // must change what's in the row, never how long it is, so each fallback
-  // drops one constraint at a time: family variety, then the audience
-  // filter, then the quality gate.
   fillFrom(ranked);
 
   if (picked.length < count) {

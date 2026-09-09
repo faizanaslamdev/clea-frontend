@@ -5,12 +5,13 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
-import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
-import type { ShopCategory } from '@/lib/api/chat-types';
+import { categoryGridForShop } from '@/lib/constants/category-grid';
+import type { ShopCategory, SuitableFor } from '@/lib/api/chat-types';
 
 interface ShopCategoryTabsProps {
-  /** Current Dame/Herre toggle state -- carried into the chat query so a
-   * chip click continues the same gendered browsing context. */
+  /** Current Dame/Herre toggle — picks the gender-specific chip list and
+   * is carried into chat so a chip click keeps the same browsing context. */
+  suitableFor: SuitableFor;
   shopCategory?: ShopCategory;
   className?: string;
 }
@@ -25,8 +26,8 @@ const SCROLL_EDGE_SLACK_PX = 4;
  * Horizontally-scrollable category chip row for the /shop page. Each chip
  * is a launcher straight into chat with that category's query (same as
  * the "Top categories" fan cards below it) -- not an in-page filter, since
- * /shop has no product grid of its own to filter. Reuses the homepage's
- * family list and Norwegian labels so the two stay in sync.
+ * /shop has no product grid of its own to filter. Dame/Herre each get
+ * their own equal-length chip list (Daydream Womens/Mens pattern).
  *
  * Scroll arrows -- studied from daydream.ing's own category chip row: it
  * never wraps to a second row at any screen width, and a circular chevron
@@ -35,8 +36,13 @@ const SCROLL_EDGE_SLACK_PX = 4;
  * just a plain horizontal scroller with a scrollBy trigger, not a custom
  * carousel widget -- confirmed on the live site.
  */
-export function ShopCategoryTabs({ shopCategory, className }: ShopCategoryTabsProps) {
+export function ShopCategoryTabs({
+  suitableFor,
+  shopCategory,
+  className,
+}: ShopCategoryTabsProps) {
   const router = useRouter();
+  const entries = categoryGridForShop(suitableFor);
   const trackRef = useRef<HTMLUListElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -53,6 +59,7 @@ export function ShopCategoryTabs({ shopCategory, className }: ShopCategoryTabsPr
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
+    el.scrollTo({ left: 0 });
     updateScrollState();
 
     const resizeObserver = new ResizeObserver(updateScrollState);
@@ -65,7 +72,7 @@ export function ShopCategoryTabs({ shopCategory, className }: ShopCategoryTabsPr
       el.removeEventListener('scroll', updateScrollState);
       window.removeEventListener('resize', updateScrollState);
     };
-  }, [updateScrollState]);
+  }, [suitableFor, updateScrollState]);
 
   const scrollByStep = (delta: number) => {
     trackRef.current?.scrollBy({ left: delta, behavior: 'smooth' });
@@ -78,8 +85,8 @@ export function ShopCategoryTabs({ shopCategory, className }: ShopCategoryTabsPr
         className={cn('shop-category-tabs', className)}
         aria-label="Kategorier"
       >
-        {CATEGORY_GRID_ENTRIES.map((entry) => (
-          <li key={entry.family}>
+        {entries.map((entry) => (
+          <li key={entry.id}>
             <button
               type="button"
               className="shop-category-tabs__chip"

@@ -1674,6 +1674,16 @@
     }
   }
 
+  /* Phones swipe the row, so the arrows are a mouse-only affordance -- and
+     with no room to sit outside the track they landed directly on top of a
+     chip (measured at 430px: the right-hand button covered the middle of
+     "Bukser & nederdeler"). The edge fades still signal there's more. */
+  @media (max-width: 767px) {
+    .shop-category-tabs__scroll-btn {
+      display: none;
+    }
+  }
+
   .shop-category-tabs__chip {
     border: 1px solid var(--border);
     background-color: var(--card);
@@ -1876,6 +1886,53 @@
 
   .site-header-logo__image {
     @apply h-[4.5rem] w-auto sm:h-20 md:h-[5.5rem];
+  }
+
+  /* Phones: the pill nav, the centred wordmark and the account button can't
+     share one 96px row. Measured at 430px the nav pill (228px wide) ran 65px
+     into the centred logo, leaving only its last letter visible -- and the
+     squeeze only gets worse at 390/375/360, since the three together need
+     ~430px before any gaps. So stack them the way daydream.ing's own mobile
+     header does: wordmark on top, nav directly under it, account pinned to
+     the right of the top row. Fits inside the existing 96px header
+     (44 + 2 + 42 = 88), so --site-header-height and the spacer that reserves
+     space for it are both untouched. */
+  @media (max-width: 639px) {
+    /* The wordmark and the account button are both absolutely placed, so
+       the nav pill is the only child left in flow: park it on the lower
+       row, horizontally centred by the bar's own items-center. */
+    .site-header-bar {
+      flex-direction: column;
+      justify-content: flex-end;
+      padding-bottom: 4px;
+    }
+
+    .site-header-left {
+      padding-left: 0;
+    }
+
+    /* Deliberately keeps the base rule's position:absolute and its
+       -50%/-50% translate -- this only moves the anchor point up to the
+       middle of the 44px wordmark row (4px top inset + half of 44). Fighting
+       the translate itself is a losing game: Tailwind v4 sets the standalone
+       `translate` property, and overrides of it kept getting rewritten out
+       of the compiled sheet. */
+    .site-header-logo--center {
+      top: 26px;
+    }
+
+    .site-header-logo__image {
+      height: 2.75rem;
+    }
+
+    /* Top half of the bar, so it lines up with the wordmark row rather than
+       the nav row underneath it. */
+    .site-header-right {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 50%;
+    }
   }
 
   .site-footer-logo__image {

@@ -7,7 +7,10 @@ import {
   fetchSimilarProducts,
   fetchTrendingLooks,
 } from '@/lib/api/products';
-import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
+import {
+  CATEGORY_GRID_ENTRIES,
+  categoryGridForShop,
+} from '@/lib/constants/category-grid';
 import { POPULAR_PRODUCTS_LIMIT } from '@/lib/constants/popular-brands';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { productKeys } from '@/lib/query/keys';
@@ -22,13 +25,16 @@ export function useFeaturedProducts(limit = POPULAR_PRODUCTS_LIMIT) {
 }
 
 export function useCategoryPreviews(suitableFor?: SuitableFor) {
+  const entries = suitableFor
+    ? categoryGridForShop(suitableFor)
+    : CATEGORY_GRID_ENTRIES;
+
   return useQuery({
     queryKey: productKeys.categoryGrid(suitableFor),
-    queryFn: () => fetchCategoryPreviews(CATEGORY_GRID_ENTRIES, suitableFor),
+    queryFn: () => fetchCategoryPreviews(entries, suitableFor),
     staleTime: STALE_TIME_STATIC_MS,
-    // Flipping Dame/Herre keeps the cards that are already on screen until
-    // the new audience's photos land, so the row swaps its contents in
-    // place instead of collapsing to skeletons and back.
+    // Dame↔Herre keeps the previous 11 cards on screen until the matching
+    // audience lands — count never collapses mid-toggle.
     placeholderData: keepPreviousData,
   });
 }
