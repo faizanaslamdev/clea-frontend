@@ -3491,10 +3491,11 @@
     @apply flex w-full gap-2 sm:gap-3;
   }
 
-  /* Mobile: equal-width flex so 4 photos fill the panel (old max-w-[4.5rem]
-     read too tiny). sm+ keep fixed max widths. */
+  /* Mobile: flex-1 so 4 photos fill the panel wider than the old 4.5rem.
+     sm+: explicit width (fill images have no intrinsic size — max-w alone
+     collapses the card). */
   .feature-tabs__row-photo {
-    @apply relative aspect-[3/4] min-w-0 flex-1 overflow-hidden rounded-xl bg-muted shadow-[0_2px_10px_rgba(0,0,0,0.06)] sm:max-w-24 sm:flex-none md:max-w-28;
+    @apply relative aspect-[3/4] min-w-0 flex-1 overflow-hidden rounded-xl bg-muted shadow-[0_2px_10px_rgba(0,0,0,0.06)] sm:w-24 sm:flex-none md:w-28;
   }
 
   /* Prisvarsel (price-drop alert) -- a slow continuous marquee moving
