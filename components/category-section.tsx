@@ -11,10 +11,7 @@ import type { CategoryPreview } from '@/lib/api/products';
 import type { ProductFamily } from '@/lib/api/chat-types';
 
 /** Packshot-heavy tiles: contain so products aren't cropped in the 3:4 frame. */
-const CONTAIN_FIT_FAMILIES = new Set<ProductFamily>([
-  'knitwear',
-  'gloves',
-]);
+const CONTAIN_FIT_FAMILIES = new Set<ProductFamily>(['gloves']);
 
 export function CategorySection() {
   const router = useRouter();
