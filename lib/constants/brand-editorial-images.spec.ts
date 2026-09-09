@@ -23,17 +23,16 @@ describe('brand editorial image presentation', () => {
     );
   });
 
-  it('maps Papique NO and Urverket to approved editorial assets', () => {
+  it('maps Papique NO, Urverket, and Sephora SE to approved editorial assets', () => {
     expect(getBrandEditorialImage('Papique NO')).toBe(
       '/brands/editorial/papique.webp',
     );
     expect(getBrandEditorialImage('Urverket')).toBe(
       '/brands/editorial/urverket.jpg',
     );
-  });
-
-  it('does not map Sephora until an approved editorial asset is supplied', () => {
-    expect(getBrandEditorialImage('Sephora SE')).toBeNull();
+    expect(getBrandEditorialImage('Sephora SE')).toBe(
+      '/brands/editorial/sephora.png',
+    );
   });
 
   it('does not map ended Beredd partnership to editorial assets', () => {

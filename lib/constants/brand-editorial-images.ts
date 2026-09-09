@@ -8,6 +8,7 @@ const EDITORIAL_IMAGES = {
   ralphLauren: '/brands/editorial/ralph-lauren.webp',
   papique: '/brands/editorial/papique.webp',
   urverket: '/brands/editorial/urverket.jpg',
+  sephora: '/brands/editorial/sephora.png',
 } as const;
 
 const DEFAULT_EDITORIAL_POSITION = '50% 50%';
@@ -52,6 +53,9 @@ export function getBrandEditorialImage(
   if (/urverket/.test(name)) {
     return EDITORIAL_IMAGES.urverket;
   }
+  if (/sephora/.test(name)) {
+    return EDITORIAL_IMAGES.sephora;
+  }
 
   return null;
 }
@@ -72,6 +76,7 @@ export function getBrandEditorialPosition(brandName: string): string {
   if (/adidas/.test(name)) return '50% 35%';
   if (/papique/.test(name)) return '50% 45%';
   if (/urverket/.test(name)) return '50% 40%';
+  if (/sephora/.test(name)) return '50% 35%';
 
   return DEFAULT_EDITORIAL_POSITION;
 }
