@@ -303,12 +303,17 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
     if (/kids|barn|teens|isbjörn|buddy tee/.test(name)) value -= 5;
     if (image.includes('outnorth') || image.includes('fjellsport')) value -= 1;
     if (family === 'footwear' && image.endsWith('.png')) value -= 1;
-    if (family === 'knitwear' && /tank|tee|t-shirt|skjorte/.test(name)) value -= 2;
+    if (family === 'knitwear' && /tank|tee|t-shirt|skjorte|fleece teddy/.test(name)) {
+      value -= 3;
+    }
     if (
       family === 'knitwear' &&
-      /strikk|knit|genser|sweater|jumper|hoodie/.test(name)
+      /strikk|knit|genser|sweater|jumper|cardigan|hoodie/.test(name)
     ) {
-      value += 3;
+      value += 4;
+    }
+    if (family === 'knitwear' && /haglöfs|haglofs|ortovox|mid jacket|sunpack/.test(name)) {
+      value -= 3;
     }
     if (family === 'tops' && /bluse|blouse|top|skjorte|shirt/.test(name)) {
       value += 3;
