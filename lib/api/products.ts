@@ -250,7 +250,8 @@ export async function fetchProductsByMerchant(
 
 export interface CategoryPreview {
   id: string;
-  family: ProductFamily;
+  /** Present for apparel tiles; omitted for beauty/accessories shelves. */
+  family?: ProductFamily;
   label: string;
   query: string;
   accentFrom: string;
@@ -313,7 +314,7 @@ async function mapPool<T, R>(
  */
 function rankProductsForCategoryTile<T extends { image: string; name: string }>(
   products: T[],
-  family: ProductFamily,
+  family?: ProductFamily,
   previewQ?: string,
 ): T[] {
   const preview = (previewQ ?? '').toLowerCase();
@@ -329,6 +330,7 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
     if (image.includes('cdn.shopify.com')) value += 2;
     if (/kids|barn|teens|isbjörn|buddy tee/.test(name)) value -= 5;
     if (image.includes('outnorth') || image.includes('fjellsport')) value -= 1;
+    if (!family) return value;
     if (family === 'footwear' && image.endsWith('.png')) value -= 1;
     if (family === 'knitwear' && /tank|tee|t-shirt|skjorte|fleece teddy/.test(name)) {
       value -= 3;
