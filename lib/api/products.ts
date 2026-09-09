@@ -330,6 +330,29 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
     if (image.includes('cdn.shopify.com')) value += 2;
     if (/kids|barn|teens|isbjörn|buddy tee/.test(name)) value -= 5;
     if (image.includes('outnorth') || image.includes('fjellsport')) value -= 1;
+
+    // Beauty shelf tiles have no apparel family — steer toward clean product
+    // packshots (mascara/lipstick) and away from gift-set / candle noise.
+    const beautyFocused =
+      /mascara|leppestift|lipstick|makeup|sminke|hudpleie|parfyme|beauty|blush|foundation/.test(
+        preview,
+      );
+    if (beautyFocused) {
+      if (image.includes('media.sephora.eu')) value += 6;
+      if (image.includes('cdn.shopify.com')) value += 2;
+      if (
+        /mascara|leppestift|lipstick|foundation|blush|concealer|rouge|eyeliner/.test(
+          name,
+        )
+      ) {
+        value += 4;
+      }
+      if (/gavesett|gift set|holiday trio|coffret|duftlys|candle/.test(name)) {
+        value -= 5;
+      }
+      return value;
+    }
+
     if (!family) return value;
     if (family === 'footwear' && image.endsWith('.png')) value -= 1;
     if (family === 'knitwear' && /tank|tee|t-shirt|skjorte|fleece teddy/.test(name)) {
