@@ -3633,13 +3633,15 @@
      alone, its "Flere lignende" badge gives a small press/bounce as if it
      had just been clicked, and only then do the fanned photos fly out
      from behind it -- not all four pieces fading in together. */
+  /* Compare sequence — paced beats so each step reads clearly:
+     hero lands → pause → badge press → pause → fan photos one-by-one. */
   .feature-tabs__compare-fan-photo {
     left: 50%;
     top: 50%;
     width: 92px;
     box-shadow: 0 4px 14px color-mix(in oklch, black 12%, transparent);
-    animation: feature-tabs-fan-in 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
-    animation-delay: calc(780ms + (var(--reveal-index, 0) * 95ms));
+    animation: feature-tabs-fan-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(1450ms + (var(--reveal-index, 0) * 140ms));
     @apply absolute rounded-md border border-border bg-card p-1.5;
   }
 
@@ -3663,11 +3665,11 @@
     box-shadow:
       0 14px 34px color-mix(in oklch, black 18%, transparent),
       0 2px 8px color-mix(in oklch, black 10%, transparent);
-    animation: feature-tabs-item-fade 480ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation: feature-tabs-item-fade 650ms cubic-bezier(0.4, 0, 0.2, 1) 180ms both;
     @apply relative w-[180px] rounded-lg border border-border bg-card p-2.5;
   }
 
-  /* Badge press finishes just as the fan photos start flying out (~780ms). */
+  /* Badge press after hero settles; fans start right as the press ends. */
   @keyframes feature-tabs-badge-press {
     0% {
       transform: scale(1);
@@ -3693,7 +3695,7 @@
     backdrop-filter: blur(6px);
     box-shadow: 0 2px 8px color-mix(in oklch, black 10%, transparent);
     transform-origin: center;
-    animation: feature-tabs-badge-press 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 420ms both;
+    animation: feature-tabs-badge-press 550ms cubic-bezier(0.34, 1.56, 0.64, 1) 900ms both;
     @apply absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full border border-border/60 px-2.5 py-1.5 font-sans text-[10px] font-bold;
   }
 
