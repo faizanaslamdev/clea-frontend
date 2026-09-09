@@ -20,7 +20,7 @@ export function BrandProductSection({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useCatalogInfinite({ merchantId });
+  } = useCatalogInfinite({ merchantId, segment: 'all' });
 
   const products = data?.pages.flatMap((page) => page.products) ?? [];
   const total = data?.pages[0]?.total ?? 0;

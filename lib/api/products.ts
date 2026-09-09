@@ -20,7 +20,7 @@ export interface FetchProductsParams {
   brand?: string;
   merchantId?: string;
   category?: string;
-  /** Defaults to fashion — clothing/accessories only */
+  /** Defaults to fashion for discovery; merchant-scoped pages default to all */
   segment?: ProductSegment;
   limit?: number;
   offset?: number;
@@ -49,7 +49,13 @@ function buildProductsQuery(params: FetchProductsParams): string {
       String(params.perMerchantCandidateCap),
     );
   }
-  search.set('segment', params.segment ?? 'fashion');
+  // Merchant brand/store pages must show that merchant's full sellable
+  // catalog (beauty, watches, …). Fashion remains the default only for
+  // unscoped discovery so apparel search stays clean.
+  search.set(
+    'segment',
+    params.segment ?? (params.merchantId ? 'all' : 'fashion'),
+  );
   search.set('limit', String(params.limit ?? CATALOG_PAGE_SIZE));
   search.set('offset', String(params.offset ?? 0));
   return search.toString();
@@ -243,7 +249,11 @@ export async function fetchProductsByMerchant(
   merchantId: string,
   limit = 48,
 ): Promise<Product[]> {
-  const { products } = await fetchCatalogFromApi({ merchantId, limit });
+  const { products } = await fetchCatalogFromApi({
+    merchantId,
+    limit,
+    segment: 'all',
+  });
   return products;
 }
 
