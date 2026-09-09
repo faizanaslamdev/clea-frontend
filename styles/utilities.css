@@ -3345,18 +3345,40 @@
     @apply justify-start;
   }
 
-  /* Each photo/card fades in on its own beat instead of the whole grid
-     appearing at once (--reveal-index is set per item in the markup). A CSS
-     *animation*, not a transition, so it plays the instant the item mounts. */
+  /* Chat bubbles: message-app entrance (user from right, assistant from left). */
+  .feature-tabs__prompt {
+    animation: feature-tabs-msg-user 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .feature-tabs__ai-bubble {
+    animation: feature-tabs-msg-assistant 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
   .feature-tabs__row-photo {
     animation: feature-tabs-item-reveal 480ms cubic-bezier(0.4, 0, 0.2, 1) both;
     animation-delay: calc(var(--reveal-index, 0) * 90ms);
   }
 
-  .feature-tabs__prompt,
-  .feature-tabs__ai-bubble {
-    animation: feature-tabs-item-fade 420ms cubic-bezier(0.4, 0, 0.2, 1) both;
-    animation-delay: calc(var(--reveal-index, 0) * 90ms);
+  @keyframes feature-tabs-msg-user {
+    from {
+      opacity: 0;
+      transform: translate(12px, 10px) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  @keyframes feature-tabs-msg-assistant {
+    from {
+      opacity: 0;
+      transform: translate(-12px, 10px) scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
   }
 
   @keyframes feature-tabs-item-reveal {
@@ -3485,6 +3507,40 @@
     background-color: var(--muted);
     color: var(--foreground);
     @apply max-w-[36ch] self-start rounded-2xl px-4 py-3 font-sans text-[13.5px] leading-relaxed tracking-[-0.01em] shadow-[0_4px_16px_rgba(0,0,0,0.04)];
+  }
+
+  /* Typing dots while waiting for the assistant reply — classic chat cadence. */
+  .feature-tabs__typing {
+    background-color: var(--muted);
+    animation: feature-tabs-msg-assistant 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    @apply inline-flex items-center gap-1.5 self-start rounded-2xl px-4 py-3.5 shadow-[0_4px_16px_rgba(0,0,0,0.04)];
+  }
+
+  .feature-tabs__typing-dot {
+    background-color: color-mix(in oklch, var(--foreground) 45%, transparent);
+    animation: feature-tabs-typing-bounce 1.05s ease-in-out infinite;
+    @apply size-1.5 rounded-full;
+  }
+
+  .feature-tabs__typing-dot:nth-child(2) {
+    animation-delay: 150ms;
+  }
+
+  .feature-tabs__typing-dot:nth-child(3) {
+    animation-delay: 300ms;
+  }
+
+  @keyframes feature-tabs-typing-bounce {
+    0%,
+    60%,
+    100% {
+      opacity: 0.35;
+      transform: translateY(0);
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
   }
 
   .feature-tabs__row {
@@ -3653,6 +3709,8 @@
     .feature-tabs__compare-hero-badge,
     .feature-tabs__prompt,
     .feature-tabs__ai-bubble,
+    .feature-tabs__typing,
+    .feature-tabs__typing-dot,
     .feature-tabs__photo-zoom,
     .feature-tabs__explore-track--up,
     .feature-tabs__explore-track--down,

@@ -203,11 +203,11 @@ const VISUAL_REVEAL_DELAY_MS = 0;
  * loops back to the first after the last. */
 const AUTO_ADVANCE_MS = 7000;
 
-/** Chat visual reveals in three beats: query → reply → photos, with a
- * short pause between each so the demo reads as a real conversation. */
-const CHAT_PROMPT_DELAY_MS = 320;
-const CHAT_CAPTION_DELAY_MS = 700;
-const CHAT_PRODUCTS_DELAY_MS = 1150;
+/** Chat demo plays like a real thread: user send → typing → reply → photos. */
+const CHAT_PROMPT_DELAY_MS = 280;
+const CHAT_TYPING_DELAY_MS = 720;
+const CHAT_CAPTION_DELAY_MS = 1550;
+const CHAT_PRODUCTS_DELAY_MS = 2300;
 
 /** Sets the CSS custom property that staggers each item's entrance --
  * daydream.ing's own photo grid loads in one image at a time rather than
@@ -226,8 +226,9 @@ export function FeatureTabsSection() {
   const [visualLoaded, setVisualLoaded] = useState(true);
   const revealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const advanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [chatStage, setChatStage] = useState<0 | 1 | 2 | 3>(0);
+  const [chatStage, setChatStage] = useState<0 | 1 | 2 | 3 | 4>(0);
   const chatPromptTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chatTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatCaptionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const chatProductsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -295,23 +296,23 @@ export function FeatureTabsSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  // Chat tab reveal: nothing shows the instant the tab activates -- the
-  // user query bubble fades in first (right side), then the AI response
-  // bubble (left side), then the product photos, each on its own delay.
-  // Resets and restarts every time the tab becomes active, whether from a
-  // click or from the auto-advance cycle above.
+  // Chat tab: message-app cadence — user bubble, typing dots, assistant
+  // reply, then product strip. Restarts on every tab activation.
   useEffect(() => {
     if (chatPromptTimeoutRef.current) clearTimeout(chatPromptTimeoutRef.current);
+    if (chatTypingTimeoutRef.current) clearTimeout(chatTypingTimeoutRef.current);
     if (chatCaptionTimeoutRef.current) clearTimeout(chatCaptionTimeoutRef.current);
     if (chatProductsTimeoutRef.current) clearTimeout(chatProductsTimeoutRef.current);
     setChatStage(0);
     if (activeTab === 'chat') {
       chatPromptTimeoutRef.current = setTimeout(() => setChatStage(1), CHAT_PROMPT_DELAY_MS);
-      chatCaptionTimeoutRef.current = setTimeout(() => setChatStage(2), CHAT_CAPTION_DELAY_MS);
-      chatProductsTimeoutRef.current = setTimeout(() => setChatStage(3), CHAT_PRODUCTS_DELAY_MS);
+      chatTypingTimeoutRef.current = setTimeout(() => setChatStage(2), CHAT_TYPING_DELAY_MS);
+      chatCaptionTimeoutRef.current = setTimeout(() => setChatStage(3), CHAT_CAPTION_DELAY_MS);
+      chatProductsTimeoutRef.current = setTimeout(() => setChatStage(4), CHAT_PRODUCTS_DELAY_MS);
     }
     return () => {
       if (chatPromptTimeoutRef.current) clearTimeout(chatPromptTimeoutRef.current);
+      if (chatTypingTimeoutRef.current) clearTimeout(chatTypingTimeoutRef.current);
       if (chatCaptionTimeoutRef.current) clearTimeout(chatCaptionTimeoutRef.current);
       if (chatProductsTimeoutRef.current) clearTimeout(chatProductsTimeoutRef.current);
     };
@@ -493,19 +494,27 @@ export function FeatureTabsSection() {
                 {activeTab === 'chat' && (
                   <div className="feature-tabs__visual--chat min-h-0 w-full gap-4 overflow-hidden">
                     {chatStage >= 1 && (
-                      <p className="feature-tabs__prompt" style={revealStyle(0)}>
-                        {CHAT_EXAMPLE_QUERY}
-                      </p>
+                      <p className="feature-tabs__prompt">{CHAT_EXAMPLE_QUERY}</p>
                     )}
-                    {chatProducts.length > 0 && chatStage >= 2 && (
-                      <p className="feature-tabs__ai-bubble" style={revealStyle(0)}>
-                        {chatReply}
-                      </p>
+                    {chatStage === 2 && (
+                      <div className="feature-tabs__typing" aria-hidden>
+                        <span className="feature-tabs__typing-dot" />
+                        <span className="feature-tabs__typing-dot" />
+                        <span className="feature-tabs__typing-dot" />
+                      </div>
                     )}
                     {chatProducts.length > 0 && chatStage >= 3 && (
+                      <p className="feature-tabs__ai-bubble">{chatReply}</p>
+                    )}
+                    {chatProducts.length > 0 && chatStage >= 4 && (
                       <div className="feature-tabs__row" role="list" aria-label="Søkeresultater">
                         {chatProducts.map((product, i) => (
-                          <div key={product.id} className="feature-tabs__row-photo" style={revealStyle(i)} role="listitem">
+                          <div
+                            key={product.id}
+                            className="feature-tabs__row-photo"
+                            style={revealStyle(i)}
+                            role="listitem"
+                          >
                             <Image
                               src={product.image}
                               alt={toDisplayCase(product.name)}
