@@ -190,11 +190,9 @@ const COMPARE_FAN_POSITIONS: readonly { x: string; y: string; r: string }[] = [
   { x: '170%', y: '0%', r: '13deg' },
 ];
 
-/** How long the skeleton holds before the real visual fades in -- matches
- * the beat observed on daydream.ing's own tab switch (screen-recorded and
- * frame-stepped: the right-hand copy swaps instantly, the left-hand visual
- * briefly shows a placeholder before the real content resolves in). */
-const VISUAL_REVEAL_DELAY_MS = 260;
+/** Instant tab switch — no skeleton hold. Content mounts immediately so the
+ * tab bar feels responsive on click (mobile + laptop). */
+const VISUAL_REVEAL_DELAY_MS = 0;
 
 /** How long each tab stays active before auto-advancing to the next one.
  * daydream.ing's own tabs cycle on their own -- confirmed by screen-recording
@@ -205,15 +203,11 @@ const VISUAL_REVEAL_DELAY_MS = 260;
  * loops back to the first after the last. */
 const AUTO_ADVANCE_MS = 7000;
 
-/** The Chat visual reveals in three separate beats, none of them instant:
- * the tab activates on an empty visual, then the user query bubble fades
- * in on the right (like a message the user just sent), then the AI
- * response bubble fades in on the left, then the product photos --
- * matches how our own live chat page actually plays out a real search,
- * instead of dumping everything on screen the moment the tab switches. */
-const CHAT_PROMPT_DELAY_MS = 750;
-const CHAT_CAPTION_DELAY_MS = 1100;
-const CHAT_PRODUCTS_DELAY_MS = 1950;
+/** Chat visual still stages in three beats, but tightly so the tab doesn't
+ * feel idle after a click. */
+const CHAT_PROMPT_DELAY_MS = 80;
+const CHAT_CAPTION_DELAY_MS = 220;
+const CHAT_PRODUCTS_DELAY_MS = 400;
 
 /** Sets the CSS custom property that staggers each item's entrance --
  * daydream.ing's own photo grid loads in one image at a time rather than
@@ -275,6 +269,12 @@ export function FeatureTabsSection() {
   const goToTab = (next: TabKey) => {
     if (next === activeTab) return;
     setActiveTab(next);
+    // Keep visual mounted — zero-delay path skips the skeleton flash so
+    // clicks feel immediate. (Delay constant left for easy tuning.)
+    if (VISUAL_REVEAL_DELAY_MS <= 0) {
+      setVisualLoaded(true);
+      return;
+    }
     setVisualLoaded(false);
     if (revealTimeoutRef.current) clearTimeout(revealTimeoutRef.current);
     revealTimeoutRef.current = setTimeout(() => setVisualLoaded(true), VISUAL_REVEAL_DELAY_MS);
@@ -409,12 +409,6 @@ export function FeatureTabsSection() {
               activeTab === 'chat' && 'feature-tabs__visual--top',
             )}
           >
-            {activeTab === 'chat' && chatStage >= 1 && (
-              <p className="feature-tabs__prompt" style={revealStyle(0)}>
-                {CHAT_EXAMPLE_QUERY}
-              </p>
-            )}
-
             {!visualLoaded ? (
               <div className="feature-tabs__skeleton" aria-hidden>
                 {activeTab === 'explore' && (
@@ -428,6 +422,17 @@ export function FeatureTabsSection() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+                {activeTab === 'chat' && (
+                  <div className="feature-tabs__visual--chat gap-4">
+                    <div className="ml-auto h-10 w-[70%] max-w-[38ch] animate-pulse rounded-full bg-muted" />
+                    <div className="h-16 w-[85%] max-w-[36ch] animate-pulse rounded-2xl bg-muted" />
+                    <div className="feature-tabs__row">
+                      {Array.from({ length: 4 }, (_, i) => (
+                        <div key={i} className="feature-tabs__row-photo animate-pulse bg-muted" />
+                      ))}
+                    </div>
                   </div>
                 )}
                 {activeTab === 'save' && (
@@ -485,14 +490,19 @@ export function FeatureTabsSection() {
                   </div>
                 )}
 
-                {activeTab === 'chat' && chatProducts.length > 0 && (
-                  <div className="flex flex-col gap-4 pt-1">
-                    {chatStage >= 2 && (
+                {activeTab === 'chat' && (
+                  <div className="feature-tabs__visual--chat min-h-0 w-full gap-4 overflow-hidden">
+                    {chatStage >= 1 && (
+                      <p className="feature-tabs__prompt" style={revealStyle(0)}>
+                        {CHAT_EXAMPLE_QUERY}
+                      </p>
+                    )}
+                    {chatProducts.length > 0 && chatStage >= 2 && (
                       <p className="feature-tabs__ai-bubble" style={revealStyle(0)}>
                         {chatReply}
                       </p>
                     )}
-                    {chatStage >= 3 && (
+                    {chatProducts.length > 0 && chatStage >= 3 && (
                       <div className="feature-tabs__row" role="list" aria-label="Søkeresultater">
                         {chatProducts.map((product, i) => (
                           <div key={product.id} className="feature-tabs__row-photo" style={revealStyle(i)} role="listitem">
