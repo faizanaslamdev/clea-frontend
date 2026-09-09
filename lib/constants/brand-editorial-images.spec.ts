@@ -12,7 +12,6 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('Outnorth NO')).toBe('50% 28%');
     expect(getBrandEditorialPosition('Viking Footwear')).toBe('50% 20%');
     expect(getBrandEditorialPosition('Ralph Lauren NO')).toBe('50% 18%');
-    expect(getBrandEditorialPosition('Beredd NO')).toBe('50% 22%');
     expect(getBrandEditorialPosition('adidas NO')).toBe('50% 35%');
   });
 
@@ -22,10 +21,8 @@ describe('brand editorial image presentation', () => {
     );
   });
 
-  it('maps Beredd to the approved editorial asset', () => {
-    expect(getBrandEditorialImage('Beredd NO')).toBe(
-      '/brands/editorial/beredd.webp',
-    );
+  it('does not map ended Beredd partnership to editorial assets', () => {
+    expect(getBrandEditorialImage('Beredd NO')).toBeNull();
   });
 
   it('keeps unknown affiliate imagery centered', () => {

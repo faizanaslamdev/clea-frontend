@@ -458,7 +458,7 @@ function productMatchesShopEntry(
   if (shelf === 'beauty') {
     return (
       product.category === 'Beauty' ||
-      /hudpleie|beauty|serum|mascara|lipstick|makeup|skjønnhet|shampoo|creme|krem/.test(
+      /hudpleie|hudvård|beauty|serum|mascara|lipstick|makeup|sminke|skjønnhet|shampoo|schampo|sjampo|parfym|parfyme|perfume|fragrance|creme|krem|ansikt|foundation|concealer/.test(
         blob,
       )
     );
@@ -467,7 +467,7 @@ function productMatchesShopEntry(
     if (/veske|\bbag\b|clutch|tote/.test(blob)) return false;
     return (
       product.category === 'Accessories' ||
-      /smykke|jewel|bracelet|øredobb|earring|belte|\bbelt\b|cap|hatt|skjerf|scarf|solbrille/.test(
+      /smykke|jewel|bracelet|øredobb|earring|belte|\bbelt\b|cap|hatt|skjerf|scarf|solbrille|klokke|watch|watches|accessoir/.test(
         blob,
       )
     );

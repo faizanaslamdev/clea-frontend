@@ -18,12 +18,21 @@ function mapCategory(category: string | null): ProductCategory {
     c.includes('skjønnhet') ||
     c.includes('cosmetic') ||
     c.includes('makeup') ||
+    c.includes('sminke') ||
     c.includes('serum') ||
-    c.includes('hudpleie')
+    c.includes('hudpleie') ||
+    c.includes('hudvård') ||
+    c.includes('parfym') ||
+    c.includes('parfyme') ||
+    c.includes('fragrance') ||
+    c.includes('perfume') ||
+    c.includes('skincare')
   ) {
     return 'Beauty';
   }
   if (
+    c.includes('watch') ||
+    c.includes('klokke') ||
     c.includes('accessor') ||
     c.includes('tilbehør') ||
     c.includes('cap') ||

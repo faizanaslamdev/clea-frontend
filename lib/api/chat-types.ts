@@ -26,7 +26,13 @@ export type ProductFamily =
   | 'legwear'
   | 'gloves'
   | 'bags'
-  | 'sleeping_bags';
+  | 'sleeping_bags'
+  | 'makeup'
+  | 'fragrance'
+  | 'skincare'
+  | 'beauty'
+  | 'watches'
+  | 'accessories';
 
 export interface CatalogQuery {
   q?: string;

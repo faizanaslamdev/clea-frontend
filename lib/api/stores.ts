@@ -5,7 +5,9 @@ import { FEATURED_MERCHANT_LIMIT } from '@/lib/constants/featured';
 import type { Store } from '@/lib/types';
 
 function merchantsUrl(limit: number): string {
-  return `/merchants?limit=${limit}&segment=fashion`;
+  // Include beauty/watches merchants (Sephora, Papique, Urverket) — fashion
+  // segment alone excludes their catalog rows.
+  return `/merchants?limit=${limit}&segment=all`;
 }
 
 export async function fetchAllStoresFromApi(): Promise<Store[]> {
