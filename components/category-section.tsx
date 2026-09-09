@@ -15,7 +15,6 @@ const CONTAIN_FIT_FAMILIES = new Set<ProductFamily>([
   'tops',
   'knitwear',
   'bottoms',
-  'outerwear',
   'gloves',
   'footwear',
 ]);
