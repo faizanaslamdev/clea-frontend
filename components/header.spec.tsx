@@ -9,8 +9,10 @@ let sessionState: {
   isPending: boolean;
 };
 
+let currentPathname = '/about';
+
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/about',
+  usePathname: () => currentPathname,
 }));
 
 vi.mock('next/link', () => ({
@@ -50,6 +52,7 @@ describe('Header authentication entry', () => {
     root = createRoot(container);
     openAuthModal.mockReset();
     sessionState = { data: null, isPending: false };
+    currentPathname = '/about';
   });
 
   afterEach(async () => {
@@ -84,5 +87,33 @@ describe('Header authentication entry', () => {
     const account = container.querySelector<HTMLAnchorElement>('a[href="/account"]');
     expect(account?.textContent).toContain('Ada');
     expect(account?.getAttribute('aria-label')).toContain('Ada');
+  });
+});
+
+describe('Header background', () => {
+  let container: HTMLDivElement;
+  let root: Root;
+
+  beforeEach(() => {
+    (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT =
+      true;
+    container = document.createElement('div');
+    document.body.append(container);
+    root = createRoot(container);
+    sessionState = { data: null, isPending: false };
+    currentPathname = '/';
+    window.scrollTo(0, 0);
+  });
+
+  afterEach(async () => {
+    await act(async () => root.unmount());
+    container.remove();
+  });
+
+  it('renders the scrolled background immediately on home, before any scroll', async () => {
+    await act(async () => root.render(<Header />));
+
+    const header = container.querySelector('header');
+    expect(header?.className).toContain('site-header--scrolled');
   });
 });

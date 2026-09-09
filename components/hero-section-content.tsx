@@ -3,6 +3,7 @@
 import { HeroSearchForm } from '@/components/hero-search-form';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { BRAND } from '@/lib/constants/brand';
+import { SEARCH_PLACEHOLDER_EXAMPLES } from '@/lib/constants/search-prompts';
 import { useLandingSuggestions } from '@/lib/hooks/useLandingSuggestions';
 
 export function HeroSectionContent() {
@@ -18,13 +19,16 @@ export function HeroSectionContent() {
           </span>
         ))}
       </h1>
-      <HeroSearchForm
-        variant="full"
-        appearance="floating"
-        idPrefix="home-hero"
-        shopCategory={shopCategory}
-        onShopCategoryChange={setShopCategory}
-      />
+      <div className="hero-search-glow">
+        <HeroSearchForm
+          variant="full"
+          appearance="floating"
+          idPrefix="home-hero"
+          shopCategory={shopCategory}
+          onShopCategoryChange={setShopCategory}
+          animatedPlaceholderPhrases={SEARCH_PLACEHOLDER_EXAMPLES[shopCategory]}
+        />
+      </div>
       <div className="hero-section__suggestions">
         <SearchSuggestionChips
           suggestions={suggestions}

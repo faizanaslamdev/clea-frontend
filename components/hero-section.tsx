@@ -1,15 +1,9 @@
 import { HeroSectionContent } from '@/components/hero-section-content';
 import { PageHero } from '@/components/page-hero';
 
-const HERO_IMAGE = '/products/hero.webp';
-
 export function HeroSection() {
   return (
-    <PageHero
-      imageSrc={HERO_IMAGE}
-      ariaLabel="Velkommen"
-      contentClassName="page-hero-content--home"
-    >
+    <PageHero ariaLabel="Velkommen" contentClassName="page-hero-content--home">
       <HeroSectionContent />
     </PageHero>
   );

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowUp } from 'lucide-react';
 import type { ShopCategory } from '@/lib/api/chat-types';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
+import { TypewriterText } from '@/components/shared/typewriter-text';
 import { cn } from '@/lib/utils';
 
 export type HeroSearchVariant = 'full' | 'compact';
@@ -24,6 +25,12 @@ interface HeroSearchFormProps {
   onSubmitQuery?: (query: string) => void;
   submitLocked?: boolean;
   placeholder?: string;
+  /** When given (and the field is empty), cycles through these as an
+   *  animated multi-line placeholder instead of the static `placeholder`
+   *  text -- same type/delete/next-phrase effect as the search-landing
+   *  headline above it, so the two feel like one system instead of a
+   *  static box under an animated one. Only wired up for variant="full". */
+  animatedPlaceholderPhrases?: readonly string[];
   shopCategory?: ShopCategory;
   onShopCategoryChange?: (category: ShopCategory) => void;
 }
@@ -41,6 +48,7 @@ export function HeroSearchForm({
   onSubmitQuery,
   submitLocked = false,
   placeholder = 'Beskriv hva du leter etter …',
+  animatedPlaceholderPhrases,
   shopCategory: controlledShopCategory,
   onShopCategoryChange,
 }: HeroSearchFormProps) {
@@ -181,18 +189,27 @@ export function HeroSearchForm({
         <label htmlFor={inputId} className="sr-only">
           Beskriv hva du leter etter
         </label>
-        <textarea
-          id={inputId}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleQueryKeyDown}
-          placeholder={placeholder}
-          rows={1}
-          className="hero-search-card__input"
-          enterKeyHint="search"
-          disabled={submitLocked}
-          readOnly={submitLocked}
-        />
+        <div className="hero-search-card__field">
+          {animatedPlaceholderPhrases && animatedPlaceholderPhrases.length > 0 && !hasText ? (
+            <TypewriterText
+              phrases={animatedPlaceholderPhrases}
+              className="hero-search-card__placeholder"
+              showCursor
+            />
+          ) : null}
+          <textarea
+            id={inputId}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleQueryKeyDown}
+            placeholder={animatedPlaceholderPhrases ? undefined : placeholder}
+            rows={1}
+            className="hero-search-card__input"
+            enterKeyHint="search"
+            disabled={submitLocked}
+            readOnly={submitLocked}
+          />
+        </div>
 
         <div className="hero-search-card__footer">
           <button

@@ -8,7 +8,7 @@ const FOOTER_LINKS = {
   discover: [
     { href: '/brands', label: 'Alle merker' },
     { href: '/chat', label: 'AI-søk' },
-    { href: '/#brands', label: 'Utvalgte merker' },
+    { href: '/shop', label: 'Handle' },
   ],
   company: [
     { href: '/about', label: 'Om oss' },

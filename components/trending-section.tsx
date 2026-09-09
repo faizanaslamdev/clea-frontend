@@ -7,6 +7,7 @@ import { ProductCarousel, type ProductCarouselHandle } from '@/components/produc
 import { ProductCarouselSkeleton } from '@/components/product/product-carousel-skeleton';
 import { Button } from '@/components/ui/button';
 import { BRAND } from '@/lib/constants/brand';
+import { TRENDING_DISPLAY_LIMIT } from '@/lib/constants/popular-brands';
 import { useFeaturedProducts } from '@/lib/hooks/useProducts';
 import { useEngagementTracking } from '@/lib/hooks/useEngagementTracking';
 
@@ -14,7 +15,11 @@ export function TrendingSection() {
   const carouselRef = useRef<ProductCarouselHandle>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
-  const { data: products = [], isLoading } = useFeaturedProducts();
+  const { data: allProducts = [], isLoading } = useFeaturedProducts();
+  // The fetched pool is larger than what this carousel shows -- the
+  // leftover tail is reused by FeatureTabsSection so it doesn't repeat
+  // products already visible here.
+  const products = allProducts.slice(0, TRENDING_DISPLAY_LIMIT);
   const { trackImpression } = useEngagementTracking('popular_now');
 
   const handleScrollState = useCallback(
@@ -26,9 +31,9 @@ export function TrendingSection() {
   );
 
   return (
-    <section aria-busy={isLoading}>
-      <div className="section-container mb-6 flex items-center justify-between">
-        <h2 className="type-heading">Populært nå</h2>
+    <section className="section-shell" aria-busy={isLoading}>
+      <div className="section-container mb-8 flex items-center justify-between md:mb-10">
+        <h2 className="type-heading-section">Populært nå</h2>
         <Link href="/brands" aria-label="Se alle merker" className="md:hidden">
           <Button
             variant="outline"
@@ -40,7 +45,7 @@ export function TrendingSection() {
         </Link>
       </div>
 
-      <div className="section-container mb-6 hidden md:flex items-center justify-between">
+      <div className="section-container mb-8 hidden items-center justify-between md:mb-10 md:flex">
         <p className="type-subheading">
           Populære valg fra flere merker — sammenlign priser på {BRAND.domain}
         </p>

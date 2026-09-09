@@ -7,12 +7,25 @@
     @apply text-4xl font-serif leading-11 md:leading-16 font-light text-foreground md:text-[56px];
   }
 
-  .type-subheading {
-    @apply text-base font-sans leading-5 md:leading-4 font-light text-muted-foreground;
+  /* Homepage/section H2 scale — sized against daydream.ing's own on-page
+     section headings. Their boldest tier ("Fashion obsessed, made for
+     you.", "Trending searches.") measures 32px/48px at weight 700 — that's
+     the one to match visual presence with, since a lighter weight reads
+     smaller even at the same pixel size. .type-heading stays reserved for
+     actual page titles (h1s like /shop, /account/tracks, brand pages). */
+  .type-heading-section {
+    @apply text-[28px] font-serif font-bold leading-9 text-foreground md:text-[40px] md:leading-[52px];
   }
 
+  .type-subheading {
+    @apply text-base font-sans leading-5 font-light text-muted-foreground md:leading-6;
+  }
+
+  /* Sized against daydream.ing's own eyebrow labels (measured: 11px,
+     weight 700, uppercase, ~0.08em tracking) — .category-fan-card__eyebrow
+     already matches this; this brings the section-level eyebrows in line. */
   .type-eyebrow {
-    @apply font-mono text-[14px] md:text-base leading-6 uppercase font-normal text-muted-foreground;
+    @apply font-mono text-[11px] md:text-xs leading-4 md:leading-5 uppercase font-semibold tracking-[0.08em] text-muted-foreground;
   }
 
   .type-title-sm {
@@ -130,7 +143,10 @@
   .partner-page__card-row {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    @apply -mx-4 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-2 sm:-mx-5 sm:mt-10 sm:gap-4 sm:px-5 md:mx-0 md:mt-12 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 xl:grid-cols-5;
+    /* scroll-px-* mirrors px-* so snap-mandatory doesn't eat the inset on
+       mount -- see the identical fix + root-cause note on
+       .category-carousel__track above. */
+    @apply -mx-4 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-2 scroll-px-4 sm:-mx-5 sm:mt-10 sm:gap-4 sm:px-5 sm:scroll-px-5 md:mx-0 md:mt-12 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 xl:grid-cols-5;
   }
 
   .partner-page__card-row::-webkit-scrollbar {
@@ -308,6 +324,18 @@
     touch-action: pan-x pan-y;
   }
 
+  /* Bounded card chrome for homepage trending-product tiles only — the
+     shared .product-card__image-wrap stays untouched everywhere else
+     (catalog grids, product modal, best-prices panel). */
+  .trending-product-card .product-card__image-wrap {
+    @apply rounded-[14px] border border-border;
+    box-shadow: var(--hero-search-shadow);
+  }
+
+  .trending-product-card:hover .product-card__image-wrap {
+    border-color: color-mix(in oklch, var(--foreground) 18%, var(--border));
+  }
+
   .product-carousel__track {
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: none;
@@ -317,6 +345,45 @@
   }
 
   .product-carousel__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-carousel__track {
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+    /* Real scroll-padding, not a spacer child — guarantees the first/last
+       card sits inset from the true viewport edge, matching
+       .section-container's own horizontal padding scale (plus a bit extra
+       so the carousel reads as more open than the text above it).
+       NOTE: plain padding alone isn't enough here -- with snap-mandatory,
+       Chrome snaps a "start"-aligned card flush to the scrollport edge and
+       treats the padding-created space as not a valid resting position, so
+       the container settles at scrollLeft equal to the padding width and
+       the inset is invisible on load (verified: forcing scrollLeft back to
+       0 snaps straight back). The scroll-pl / scroll-pr utilities below
+       (the actual CSS scroll-padding property) are what the snap algorithm
+       reads, so they have to mirror the same pl / pr scale for the inset
+       to actually render. */
+    @apply flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-smooth py-3 pb-6 pl-8 pr-8 scroll-pl-8 scroll-pr-8 sm:gap-5 sm:pl-10 sm:pr-10 sm:scroll-pl-10 sm:scroll-pr-10 md:pl-14 md:pr-14 md:scroll-pl-14 md:scroll-pr-14 lg:pl-16 lg:pr-16 lg:scroll-pl-16 lg:scroll-pr-16 xl:pl-20 xl:pr-20 xl:scroll-pl-20 xl:scroll-pr-20;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 1rem,
+      #000 calc(100% - 1rem),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 1rem,
+      #000 calc(100% - 1rem),
+      transparent 100%
+    );
+  }
+
+  .category-carousel__track::-webkit-scrollbar {
     display: none;
   }
 
@@ -389,10 +456,6 @@
 
   .product-card-detailed__price {
     @apply font-sans text-sm font-medium text-foreground md:text-[15px];
-  }
-
-  .product-card-detailed__shop {
-    @apply mt-1 shrink-0 truncate font-sans text-[11px] font-normal uppercase tracking-[0.12em] text-muted-foreground;
   }
 
   .product-card-detailed-wrap {
@@ -653,24 +716,10 @@
     @apply absolute inset-0;
   }
 
-  .page-hero--home .page-hero-overlay {
-    background:
-      radial-gradient(
-        circle at 50% 42%,
-        oklch(0 0 0 / 0.08) 0%,
-        oklch(0 0 0 / 0.3) 52%,
-        oklch(0 0 0 / 0.58) 100%
-      ),
-      linear-gradient(
-        180deg,
-        oklch(0 0 0 / 0.5) 0%,
-        oklch(0 0 0 / 0.2) 45%,
-        oklch(0 0 0 / 0.55) 100%
-      );
-  }
-
-  .page-hero--home .page-hero-media img {
-    transform: scale(1.015);
+  .page-hero--home {
+    /* No photo on the home hero any more — size to content instead of the
+       tall photo-oriented min-heights the base .page-hero rule sets. */
+    min-height: 0;
   }
 
   .page-hero-content {
@@ -678,7 +727,10 @@
   }
 
   .page-hero-content--home {
-    @apply pt-20 pb-[calc(4rem+100px)] md:pt-24 md:pb-[calc(6rem+100px)];
+    /* Extra clearance below the fixed header, which now always shows its
+       background on home (no longer transparent-at-top) -- the previous
+       pt-16/md:pt-20 read as too tight against that visible header bar. */
+    @apply pt-24 pb-16 md:pt-28 md:pb-20 lg:pt-32 lg:pb-24;
   }
 
   .page-hero-content--brand {
@@ -707,9 +759,11 @@
   }
 
   .hero-kicker {
-    color: var(--hero-foreground);
-    text-shadow: 0 2px 24px oklch(0 0 0 / 0.28);
-    @apply mx-auto mb-8 w-full max-w-224 px-4 text-balance text-center font-serif text-[1.75rem] font-light leading-[1.16] tracking-tight sm:text-4xl md:mb-9 md:text-[2.5rem] md:leading-[1.1] lg:text-[2.75rem];
+    color: var(--foreground);
+    /* daydream.ing's own hero H1 ("Shop 10,000+ fashion brands through one
+       chat.") measures font-weight 500 (medium), not the font-light (300)
+       this had -- confirmed via computed styles on the live site. */
+    @apply mx-auto mb-8 w-full max-w-224 px-4 text-balance text-center font-serif text-[1.75rem] font-medium leading-[1.16] tracking-tight sm:text-4xl md:mb-9 md:text-[2.5rem] md:leading-[1.1] lg:text-[2.75rem];
   }
 
   .hero-kicker__line {
@@ -729,6 +783,16 @@
 
   .hero-search-stack {
     @apply flex max-w-176 flex-col items-center gap-3.5;
+  }
+
+  .hero-search-glow {
+    @apply relative;
+  }
+
+  .hero-search-glow::before {
+    content: '';
+    background: var(--search-landing-glow);
+    @apply pointer-events-none absolute -inset-x-6 -inset-y-6 -z-10 rounded-[2rem] opacity-80 blur-3xl;
   }
 
   .hero-section__suggestions {
@@ -797,6 +861,18 @@
   }
 
 
+  /* Stacks the real textarea and the animated-placeholder overlay in the
+     same grid cell (instead of position:absolute + hand-matched top/left
+     offsets) so they always share one box -- same width, same wrapping --
+     with no risk of the overlay drifting out of sync with the real field. */
+  .hero-search-card__field {
+    @apply relative grid w-full;
+  }
+
+  .hero-search-card__field > * {
+    grid-area: 1 / 1;
+  }
+
   .hero-search-card__input {
     color: var(--foreground);
     @apply min-h-18 w-full resize-none border-0 bg-transparent px-5 pt-5 pb-2.5 font-serif text-[17px] font-normal leading-normal focus:outline-none focus:ring-0 md:min-h-19 md:px-6 md:text-xl;
@@ -804,6 +880,29 @@
 
   .hero-search-card__input::placeholder {
     color: var(--hero-search-placeholder);
+  }
+
+  /* Same padding/font as .hero-search-card__input above so the animated
+     phrase wraps exactly where real typed text would -- sitting in the
+     same grid cell (not absolutely positioned) is what keeps the two
+     genuinely in sync rather than just visually close. Overrides
+     TypewriterText's own inline-flex/nowrap default (built for the
+     single-line headline use) with a block flex that wraps normally. */
+  .hero-search-card__placeholder {
+    color: var(--hero-search-placeholder);
+    @apply pointer-events-none min-h-18 w-full px-5 pt-5 pb-2.5 font-serif text-[17px] font-normal leading-normal md:min-h-19 md:px-6 md:text-xl;
+  }
+
+  .hero-search-card__placeholder.typewriter-text {
+    @apply flex max-w-full items-start whitespace-normal;
+  }
+
+  .hero-search-card__placeholder .typewriter-text__content {
+    @apply whitespace-normal;
+  }
+
+  .hero-search-card__placeholder .typewriter-text__cursor {
+    @apply mt-1;
   }
 
   .hero-search-card__footer {
@@ -951,15 +1050,18 @@
   }
 
   .hero-search-card.hero-search-glass {
-    @apply relative overflow-hidden rounded-3xl transition-[transform,border-color,box-shadow] duration-200;
+    @apply relative overflow-hidden rounded-3xl transition-[border-color,box-shadow] duration-200;
   }
 
+  /* No transform/translate here on purpose -- an earlier version lifted
+     the card 2px on focus, which reads as the whole search box jumping
+     position the instant you click into it. Border + shadow still give a
+     clear focus state without moving anything. */
   .hero-search-card.hero-search-glass:focus-within {
     border-color: oklch(1 0 0 / 0.9);
     box-shadow:
       0 0 0 3px oklch(1 0 0 / 0.14),
       0 24px 60px oklch(0 0 0 / 0.2);
-    transform: translateY(-2px);
   }
 
   .hero-search-card.hero-search-glass .hero-search-card__input {
@@ -971,6 +1073,14 @@
   }
 
   .dark .hero-search-card.hero-search-glass .hero-search-card__input::placeholder {
+    color: oklch(0.68 0 0);
+  }
+
+  .hero-search-card.hero-search-glass .hero-search-card__placeholder {
+    color: oklch(0.58 0 0);
+  }
+
+  .dark .hero-search-card.hero-search-glass .hero-search-card__placeholder {
     color: oklch(0.68 0 0);
   }
 
@@ -995,19 +1105,6 @@
 
   .hero-search-card.hero-search-glass .hero-search-card__submit:hover {
     @apply opacity-90;
-  }
-
-  .hero-section__suggestions .search-suggestion-chips__chip {
-    border-color: oklch(1 0 0 / 0.36);
-    background-color: oklch(1 0 0 / 0.86);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    @apply px-4 py-2 text-[12px] transition-[transform,background-color,border-color,color] duration-150;
-  }
-
-  .hero-section__suggestions .search-suggestion-chips__chip:hover,
-  .hero-section__suggestions .search-suggestion-chips__chip:focus-visible {
-    transform: translateY(-1px);
   }
 
   @media (max-width: 767px) {
@@ -1161,6 +1258,140 @@
     }
   }
 
+  /* Per-card stagger for product results that arrive live in /chat — the
+     wrapper above already animates the whole grid in as a block; this adds
+     a subtle cascading entrance to the individual cards inside it. Scoped to
+     the intrinsic-reveal (freshly-completed search) state only, so restored
+     conversation history never replays the animation, and it inherits the
+     reduced-motion opt-out from useIntrinsicReveal never rendering this
+     wrapper class for those users. */
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div {
+    animation: search-chat-results-card-in 420ms cubic-bezier(0.22, 1, 0.36, 1)
+      both;
+  }
+
+  @keyframes search-chat-results-card-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(2) {
+    animation-delay: 45ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(3) {
+    animation-delay: 90ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(4) {
+    animation-delay: 135ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(5) {
+    animation-delay: 180ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(6) {
+    animation-delay: 225ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(7) {
+    animation-delay: 270ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(8) {
+    animation-delay: 315ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(9) {
+    animation-delay: 360ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(10) {
+    animation-delay: 405ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(11) {
+    animation-delay: 450ms;
+  }
+  .search-chat-thread__results-reveal:not(
+      .search-chat-thread__results-reveal--collapsed
+    )
+    .search-chat-thread__results
+    .grid
+    > div:nth-child(n + 12) {
+    animation-delay: 495ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .search-chat-thread__results-reveal
+      .search-chat-thread__results
+      .grid
+      > div {
+      animation: none;
+    }
+  }
+
   .search-chat-bubble {
     @apply max-w-[min(100%,28rem)] rounded-2xl px-4 py-3 text-sm leading-relaxed md:text-[15px];
   }
@@ -1175,41 +1406,64 @@
     color: var(--foreground);
   }
 
+  .search-chat-bubble--error {
+    background-color: color-mix(in oklch, var(--destructive) 8%, var(--muted));
+    border: 1px solid color-mix(in oklch, var(--destructive) 22%, transparent);
+  }
+
+  .search-chat-bubble__error-text {
+    @apply flex items-start gap-2;
+  }
+
+  .search-chat-bubble__error-icon {
+    @apply mt-0.5 size-4 shrink-0 text-destructive;
+  }
+
   .chat-typing-indicator {
-    @apply inline-flex items-center gap-1 py-0.5;
+    @apply inline-flex items-center gap-2 py-0.5;
   }
 
-  .chat-typing-indicator__dot {
-    @apply size-1.5 rounded-full bg-current opacity-40;
-    animation: chat-typing-bounce 1.2s ease-in-out infinite;
+  .chat-typing-indicator__icon {
+    @apply size-3.5 shrink-0 text-foreground;
+    animation: chat-typing-icon-pulse 1.8s ease-in-out infinite;
   }
 
-  .chat-typing-indicator__dot:nth-child(2) {
-    animation-delay: 0.15s;
+  .chat-typing-indicator__label {
+    @apply font-sans text-sm text-muted-foreground;
+    animation: chat-typing-label-fade 400ms ease-out;
   }
 
-  .chat-typing-indicator__dot:nth-child(3) {
-    animation-delay: 0.3s;
-  }
-
-  @keyframes chat-typing-bounce {
+  @keyframes chat-typing-icon-pulse {
     0%,
-    60%,
     100% {
-      transform: translateY(0);
-      opacity: 0.35;
+      opacity: 0.45;
+      transform: scale(0.92);
     }
 
-    30% {
-      transform: translateY(-3px);
-      opacity: 0.9;
+    50% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes chat-typing-label-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .chat-typing-indicator__dot {
+    .chat-typing-indicator__icon {
       animation: none;
-      opacity: 0.6;
+      opacity: 0.8;
+    }
+
+    .chat-typing-indicator__label {
+      animation: none;
     }
   }
 
@@ -1326,6 +1580,42 @@
     @apply justify-center;
   }
 
+  .shop-category-tabs {
+    @apply -mx-4 flex list-none gap-2.5 overflow-x-auto p-0 px-4 pb-1;
+    scrollbar-width: none;
+  }
+
+  .shop-category-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .shop-category-tabs {
+      @apply mx-0 flex-wrap overflow-visible px-0 pb-0;
+    }
+  }
+
+  .shop-category-tabs__chip {
+    border: 1px solid var(--border);
+    background-color: var(--card);
+    color: var(--foreground);
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      color 200ms ease;
+    @apply shrink-0 cursor-pointer whitespace-nowrap rounded-full px-4 py-2 font-sans text-[13px] font-medium leading-snug;
+  }
+
+  .shop-category-tabs__chip:hover {
+    border-color: var(--foreground);
+  }
+
+  .shop-category-tabs__chip--active {
+    background-color: var(--foreground);
+    border-color: var(--foreground);
+    color: var(--primary-foreground);
+  }
+
   .search-suggestion-chips__chip {
     border: 1px solid var(--border);
     background-color: var(--card);
@@ -1392,12 +1682,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .hero-search-card.hero-search-glass:focus-within,
-    .hero-section__suggestions .search-suggestion-chips__chip:hover,
-    .hero-section__suggestions .search-suggestion-chips__chip:focus-visible {
-      transform: none;
-    }
-
     .hero-search-bar--compact.sticky-hero-search {
       transition: none;
     }
@@ -1421,7 +1705,7 @@
   }
 
   .site-header-right {
-    @apply relative z-20 flex shrink-0 items-center pr-4 md:pr-5;
+    @apply relative z-20 flex shrink-0 items-center justify-end pr-4 md:pr-5;
   }
 
   .site-header--over-hero-scrolled {
@@ -1617,9 +1901,49 @@
     @apply relative flex min-h-[26rem] flex-1 items-center justify-center overflow-hidden md:absolute md:inset-0 md:min-h-0;
   }
 
+  /* The stage carries a definite height + aspect-ratio (matching the
+     800x1067 passed to next/image) so its box -- and therefore where the
+     nav arrows/dots/AI-spark button land, since they're positioned
+     absolute against it -- is fully determined by CSS alone, before any
+     image bytes exist.
+
+     This used to live on .gallery-image instead (height: auto, width:
+     auto, max-height, aspect-ratio) with .gallery-stage as a plain
+     inline-block shrink-wrapping it. That looks reasonable but is a
+     circular sizing case the browser can't resolve without an intrinsic
+     image size: inline-block's shrink-to-fit width depends on the img's
+     preferred width, and the img's width (itself auto) depends on the
+     stage's width to resolve against -- with real pixels not decoded
+     yet there's no intrinsic size to break the cycle, so the browser
+     collapsed the whole stage to 0x0 until the photo finished loading,
+     and every absolutely-positioned control on it clumped at the
+     frame's centered point in the meantime. Giving the stage a real
+     `height` (not just a max-height) makes one axis genuinely definite,
+     so `aspect-ratio` can resolve the width immediately -- no image
+     bytes required -- and the child image just fills that box at 100%. */
   .product-detail-modal__gallery-stage {
+    height: min(26rem, 72dvh);
+    aspect-ratio: 800 / 1067;
     line-height: 0;
-    @apply relative inline-block max-w-full;
+    @apply relative max-w-full;
+  }
+
+  @media (min-width: 768px) {
+    .product-detail-modal__gallery-stage {
+      height: min(36rem, 72dvh);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .product-detail-modal__gallery-stage {
+      height: min(40rem, 72dvh);
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .product-detail-modal__gallery-stage {
+      height: min(44rem, 72dvh);
+    }
   }
 
   .product-detail-modal__gallery-frame:has(.product-card-anchor-menu--open),
@@ -1642,26 +1966,7 @@
   }
 
   .product-detail-modal__gallery-image {
-    max-height: min(26rem, 72dvh);
-    @apply block h-auto w-auto max-w-full object-contain;
-  }
-
-  @media (min-width: 768px) {
-    .product-detail-modal__gallery-image {
-      max-height: min(36rem, 72dvh);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .product-detail-modal__gallery-image {
-      max-height: min(40rem, 72dvh);
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .product-detail-modal__gallery-image {
-      max-height: min(44rem, 72dvh);
-    }
+    @apply block size-full object-contain;
   }
 
   .product-detail-modal__gallery-nav {
@@ -1804,8 +2109,17 @@
     @apply flex flex-col gap-3 border-t border-border pt-5;
   }
 
+  .product-detail-modal__best-prices-header {
+    @apply flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1;
+  }
+
   .product-detail-modal__best-prices-title {
     @apply font-sans text-sm font-semibold uppercase tracking-wide text-muted-foreground;
+  }
+
+  .product-detail-modal__best-prices-savings {
+    color: var(--deal);
+    @apply font-sans text-sm font-semibold;
   }
 
   .product-detail-modal__best-prices-list {
@@ -1813,11 +2127,11 @@
   }
 
   .product-detail-modal__best-prices-item {
-    @apply flex flex-col gap-3 rounded-(--product-detail-modal-radius) border border-border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between;
+    @apply flex flex-col gap-3 rounded-(--product-detail-modal-radius) border border-border bg-muted/30 p-4 transition-colors sm:flex-row sm:items-center sm:justify-between;
   }
 
   .product-detail-modal__best-prices-item--best {
-    @apply border-emerald-600/35 bg-emerald-50/60 dark:bg-emerald-950/20;
+    @apply border-transparent;
   }
 
   .product-detail-modal__best-prices-meta {
@@ -1836,16 +2150,8 @@
     @apply mt-1 flex flex-wrap items-center gap-2 font-sans text-lg font-semibold text-foreground;
   }
 
-  .product-detail-modal__best-prices-badge {
-    @apply rounded-full bg-emerald-600 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white;
-  }
-
-  .product-detail-modal__best-prices-stock {
-    @apply mt-1 text-sm text-emerald-700 dark:text-emerald-400;
-  }
-
   .product-detail-modal__best-prices-stock--out {
-    @apply text-muted-foreground;
+    @apply rounded-full bg-muted px-2 py-0.5 font-sans text-[10px] font-semibold uppercase tracking-wide text-muted-foreground;
   }
 
   .product-detail-modal__best-prices-cta {
@@ -1985,10 +2291,6 @@
 
   .brand-card-skeleton {
     @apply w-full;
-  }
-
-  .site-header-right {
-    @apply flex items-center justify-end;
   }
 
   .site-header-account-link {
@@ -2405,4 +2707,677 @@
     @apply mt-3 w-1/2;
   }
 
+  /* --- Scroll reveal (studied from daydream.ing's section-entrance fades) --- */
+
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-on-scroll--visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal-on-scroll {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* --- Hero search "breathing" glow (daydream.ing's hero-chat-input-breathe) --- */
+
+  @keyframes hero-search-glow-breathe {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .hero-search-glow::before {
+    animation: hero-search-glow-breathe 8s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-search-glow::before {
+      animation: none;
+      opacity: 0.85;
+    }
+  }
+
+  /* --- Brand hero Ken Burns (daydream.ing's ken-burns-zoom) --- */
+
+  @keyframes page-hero-ken-burns {
+    0% {
+      transform: scale(1.06);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .page-hero-media__ken-burns {
+    animation: page-hero-ken-burns 18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-hero-media__ken-burns {
+      animation: none;
+    }
+  }
+
+  /* --- Brand wordmark marquee (daydream.ing's brand-name ticker rows) --- */
+
+  .brand-marquee {
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 8%,
+      #000 92%,
+      transparent 100%
+    );
+    @apply overflow-hidden border-y border-border py-4;
+  }
+
+  .brand-marquee__track {
+    width: max-content;
+    animation: brand-marquee-scroll 60s linear infinite;
+    @apply flex items-center gap-8;
+  }
+
+  .brand-marquee:hover .brand-marquee__track {
+    animation-play-state: paused;
+  }
+
+  .brand-marquee__item {
+    @apply shrink-0 font-serif text-base font-light italic text-muted-foreground/70 md:text-lg;
+  }
+
+  @keyframes brand-marquee-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-33.3333%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brand-marquee__track {
+      animation: none;
+    }
+  }
+
+  /* --- Category fan carousel (studied from daydream.ing's                --- */
+  /* --- "What are you shopping for?" tinted-card + photo-fan section)    --- */
+
+  .category-fan-card {
+    background-image: linear-gradient(135deg, var(--cat-from), var(--cat-to));
+    @apply relative flex w-[210px] shrink-0 cursor-pointer flex-col overflow-hidden rounded-[1.25rem] px-5 pb-5 pt-5 sm:w-[240px] sm:px-6 sm:pb-6 sm:pt-6;
+    /* Card height tuned against daydream.ing's own reference cards
+       (aspect ~0.83, photo stack filling ~60% of card height): the
+       photo-stack is bottom-anchored with a fixed size (see
+       .category-fan-card__photo below), so a taller card just adds dead
+       gradient space above the photos instead of making them bigger.
+       Shortened from 320/360px to close that gap without touching the
+       photo sizing itself. */
+    height: 268px;
+  }
+
+  @media (min-width: 640px) {
+    .category-fan-card {
+      height: 300px;
+    }
+  }
+
+  .category-fan-card:focus-visible {
+    @apply outline-2 outline-offset-2 outline-white/80;
+  }
+
+  .category-fan-card__eyebrow {
+    color: color-mix(in oklch, white 65%, transparent);
+    @apply font-sans text-[10px] font-semibold uppercase tracking-[0.16em];
+  }
+
+  .category-fan-card__label {
+    @apply mt-1.5 font-serif text-xl font-normal leading-tight text-white sm:text-2xl;
+  }
+
+  .category-fan-card__stack {
+    @apply relative mt-4 flex-1;
+  }
+
+  .category-fan-card__photo {
+    left: 50%;
+    width: 64%;
+    animation: category-fan-float 5s ease-in-out infinite;
+    box-shadow: 0 8px 24px color-mix(in oklch, black 25%, transparent);
+    transition:
+      transform 450ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 300ms ease;
+    @apply absolute bottom-0 aspect-[3/4] overflow-hidden rounded-xl bg-card;
+  }
+
+  .category-fan-card__photo--center {
+    transform: translateX(-50%);
+    z-index: 3;
+  }
+
+  .category-fan-card__photo--left {
+    transform: translateX(calc(-50% - 32%)) translateY(6%) rotate(-9deg) scale(0.88);
+    filter: saturate(0.85) brightness(0.9);
+    animation-delay: -1.6s;
+    z-index: 1;
+  }
+
+  .category-fan-card__photo--right {
+    transform: translateX(calc(-50% + 32%)) translateY(6%) rotate(9deg) scale(0.88);
+    filter: saturate(0.85) brightness(0.9);
+    animation-delay: -3.2s;
+    z-index: 2;
+  }
+
+  .group:hover .category-fan-card__photo--center,
+  .group:focus-visible .category-fan-card__photo--center {
+    transform: translateX(-50%) translateY(-4%) scale(1.05);
+  }
+
+  .group:hover .category-fan-card__photo--left,
+  .group:focus-visible .category-fan-card__photo--left {
+    transform: translateX(calc(-50% - 40%)) translateY(2%) rotate(-13deg) scale(0.9);
+    filter: saturate(0.95) brightness(0.96);
+  }
+
+  .group:hover .category-fan-card__photo--right,
+  .group:focus-visible .category-fan-card__photo--right {
+    transform: translateX(calc(-50% + 40%)) translateY(2%) rotate(13deg) scale(0.9);
+    filter: saturate(0.95) brightness(0.96);
+  }
+
+  .category-fan-card__photo--skeleton {
+    animation: none;
+    background-color: color-mix(in oklch, white 25%, transparent);
+    transform: translateX(-50%);
+  }
+
+  @keyframes category-fan-float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -5px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .category-fan-card__photo {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  /* --- Feature tabs (studied from daydream.ing's "Meet Daydream"          --- */
+  /* --- Explore/Chat/Save/Refine tab showcase)                             --- */
+
+  .feature-tabs__tablist {
+    @apply flex flex-wrap items-center justify-center gap-x-5 gap-y-2 border-b border-border sm:gap-x-7 md:gap-x-9;
+  }
+
+  .feature-tabs__tab {
+    color: var(--muted-foreground);
+    /* daydream.ing's own tab labels (Explore/Chat/Save/Refine) run in their
+       sans UI face, not the serif used for section headings -- font-serif
+       here was a mismatch against the reference. Font weight is fixed at
+       font-medium for every tab, active or not -- checked against the live
+       site's own computed styles (font-weight: 500 on all four tab labels
+       regardless of active state; only `color` differs, transitioning over
+       300ms). The previous font-semibold-on-active here changed each
+       label's rendered width on click, nudging the other tab labels
+       sideways -- that layout jump was reading as a cheap "blink" instead
+       of a clean color crossfade. */
+    @apply relative cursor-pointer border-0 bg-transparent px-1 pb-6 font-sans text-lg font-medium transition-colors duration-300 ease-out sm:text-xl md:text-2xl md:pb-7;
+  }
+
+  .feature-tabs__tab--active {
+    color: var(--foreground);
+  }
+
+  /* Auto-advance countdown: daydream.ing's own tabs cycle on their own (no
+     click involved -- confirmed by screen-recording the live site and
+     watching the active tab change while the cursor sat still). Under the
+     active tab there are actually three lines stacked, not one: the
+     full-width divider below the whole tablist, a light-gray *track* the
+     exact width of the active label, and a black *fill* on top of that
+     track that grows over the same duration as the JS timer below -- so the
+     unfilled portion of the countdown stays visibly light-gray instead of
+     turning invisible against the white page (confirmed by pixel-measuring
+     a screenshot: a solid black run immediately followed by a ~224-gray
+     run, together spanning exactly the active label's width). */
+  .feature-tabs__tab--active::before {
+    content: '';
+    background-color: var(--border);
+    @apply absolute inset-x-0 -bottom-px block h-[2px];
+  }
+
+  .feature-tabs__tab-progress {
+    background-color: var(--foreground);
+    transform: scaleX(0);
+    animation-name: feature-tabs-progress;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    @apply absolute inset-x-0 -bottom-px block h-[2px] origin-left;
+  }
+
+  @keyframes feature-tabs-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  .feature-tabs__panel {
+    @apply grid grid-cols-1 items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16;
+  }
+
+  /* Fixed min-height (matches the tallest tab -- Explore own column
+     height) so switching tabs never changes the section own height and
+     shifts everything below it -- shorter tabs just center within the box
+     instead of collapsing it. */
+  .feature-tabs__visual {
+    @apply relative flex min-h-[360px] min-w-0 flex-col justify-center gap-4 sm:min-h-[440px] lg:min-h-[520px];
+  }
+
+  /* Chat reveals in stages (query, then response, then products) -- top
+     anchor it so each new stage adds height below the others instead of
+     recentering the whole block and pushing earlier messages upward. */
+  .feature-tabs__visual--top {
+    @apply justify-start;
+  }
+
+  .feature-tabs__skeleton {
+    @apply flex flex-col gap-4;
+  }
+
+  /* Each photo/card fades in on its own beat instead of the whole grid
+     appearing at once (--reveal-index is set per item in the markup). A CSS
+     *animation*, not a transition, so it plays the instant the item mounts. */
+  .feature-tabs__row-photo {
+    animation: feature-tabs-item-reveal 560ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation-delay: calc(var(--reveal-index, 0) * 130ms);
+  }
+
+  .feature-tabs__prompt,
+  .feature-tabs__ai-bubble {
+    animation: feature-tabs-item-fade 560ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation-delay: calc(var(--reveal-index, 0) * 130ms);
+  }
+
+  @keyframes feature-tabs-item-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes feature-tabs-item-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Slow, ambient zoom on the photos themselves while a tab sits idle. */
+  .feature-tabs__photo-zoom {
+    animation: feature-tabs-kenburns 9s ease-in-out infinite alternate;
+  }
+
+  @keyframes feature-tabs-kenburns {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.06);
+    }
+  }
+
+  .feature-tabs__copy {
+    @apply flex flex-col items-start gap-4 text-left;
+  }
+
+  .feature-tabs__copy-heading {
+    @apply font-serif text-2xl font-semibold leading-tight text-foreground md:text-[28px];
+  }
+
+  .feature-tabs__copy-body {
+    @apply max-w-[42ch] font-sans text-base leading-6 text-muted-foreground;
+  }
+
+  .feature-tabs__cta {
+    color: var(--primary-foreground);
+    background-color: var(--foreground);
+    @apply inline-flex cursor-pointer items-center gap-1.5 rounded-full border-0 px-5 py-2.5 font-sans text-sm font-medium transition-opacity duration-150 hover:opacity-85;
+  }
+
+  /* Explore -- three vertical photo columns on a continuous scroll (studied
+     from daydream.ing own explore visual): the left and right columns
+     drift slowly upward, the middle column drifts slowly downward. Each
+     track renders its photo list twice back to back and animates exactly
+     -50 percent of its own height, so the loop has no visible seam. A soft
+     mask fades every column edge into the surrounding panel instead of
+     clipping photos abruptly at the top and bottom. */
+  .feature-tabs__explore-grid {
+    @apply grid grid-cols-3 gap-3 sm:gap-4;
+  }
+
+  .feature-tabs__explore-col {
+    mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
+    @apply relative h-[360px] overflow-hidden rounded-lg sm:h-[440px] lg:h-[520px];
+  }
+
+  .feature-tabs__explore-track {
+    @apply flex flex-col gap-3 sm:gap-4;
+  }
+
+  .feature-tabs__explore-track--up {
+    animation: feature-tabs-marquee-up 132s linear infinite;
+  }
+
+  .feature-tabs__explore-track--down {
+    animation: feature-tabs-marquee-down 110s linear infinite;
+  }
+
+  @keyframes feature-tabs-marquee-up {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-50%);
+    }
+  }
+
+  @keyframes feature-tabs-marquee-down {
+    from {
+      transform: translateY(-50%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  .feature-tabs__explore-photo {
+    @apply relative aspect-[3/4] shrink-0 overflow-hidden rounded-lg bg-muted;
+  }
+
+  /* Chat — prompt pill + result strip */
+  .feature-tabs__visual--chat {
+    @apply flex flex-col items-start gap-4;
+  }
+
+  /* Right-aligned like a message the user just sent, matching how our own
+     live chat page shows the query bubble against the AI response below it. */
+  .feature-tabs__prompt {
+    background-color: var(--foreground);
+    color: var(--primary-foreground);
+    @apply max-w-[36ch] self-end rounded-full px-5 py-3 font-sans text-sm font-medium leading-snug;
+  }
+
+  /* Same bg-muted/rounded-2xl language as the real chat feature own
+     .search-chat-bubble--assistant, so this demo bubble genuinely matches
+     production instead of only approximating it. No icon -- the real chat
+     page design has no AI avatar either. */
+  .feature-tabs__ai-bubble {
+    background-color: var(--muted);
+    color: var(--foreground);
+    @apply max-w-[32ch] self-start rounded-2xl px-4 py-2.5 font-sans text-[13px] leading-relaxed;
+  }
+
+  .feature-tabs__row {
+    @apply flex gap-2 sm:gap-3;
+  }
+
+  /* 4 cards at the old fixed max-w-28 (112px) never fit a 375px viewport
+     (4 * 112 + 3 gaps > 480px) -- confirmed by measuring the panel's own
+     available width against that fixed size. Scales down at the smallest
+     breakpoint instead of overflowing the section. */
+  .feature-tabs__row-photo {
+    @apply relative aspect-[3/4] w-full max-w-16 shrink-0 overflow-hidden rounded-lg bg-muted sm:max-w-24 md:max-w-28;
+  }
+
+  /* Prisvarsel (price-drop alert) -- a slow continuous marquee moving
+     right to left, same technique as Explore own vertical columns but
+     rotated: the track renders its card list twice back to back and
+     animates exactly -50 percent of its own width, so the loop has no
+     visible seam. Only products whose priceHistory actually carries two
+     points (a real price drop the API reported -- see buildPriceHistory
+     in lib/api/mappers.ts) ever appear here, never a placeholder claim on
+     products that have not actually dropped. */
+  .feature-tabs__pricealert-row {
+    mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent);
+    @apply relative w-full overflow-hidden;
+  }
+
+  .feature-tabs__pricealert-track {
+    animation: feature-tabs-marquee-left 114s linear infinite;
+    @apply flex w-max gap-3 sm:gap-4;
+  }
+
+  @keyframes feature-tabs-marquee-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .feature-tabs__pricealert-card {
+    @apply flex w-32 shrink-0 flex-col gap-1.5 sm:w-36;
+  }
+
+  .feature-tabs__pricealert-photo {
+    @apply relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-muted;
+  }
+
+  .feature-tabs__pricealert-badge {
+    background-color: var(--deal, var(--foreground));
+    color: var(--primary-foreground);
+    @apply absolute left-2 top-2 rounded-full px-2 py-0.5 font-mono text-[10px] font-semibold;
+  }
+
+  .feature-tabs__pricealert-name {
+    @apply truncate font-sans text-[13px] font-medium text-foreground;
+  }
+
+  .feature-tabs__pricealert-price {
+    @apply flex items-baseline gap-1.5 font-sans text-[13px];
+  }
+
+  .feature-tabs__pricealert-price-old {
+    color: var(--muted-foreground);
+    @apply text-xs line-through;
+  }
+
+  .feature-tabs__pricealert-price-new {
+    color: var(--deal, var(--foreground));
+    @apply font-semibold;
+  }
+
+  /* Compare -- daydream.ing own Refine-tab treatment: several small
+     tilted photos fanned around one larger hero card carrying the "more
+     like this" badge, each animating outward from the center on mount
+     (a horizontal mask fades the outermost photos into the panel instead
+     of clipping them abruptly, since some fan out past the column edge). */
+  .feature-tabs__compare-stage {
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    @apply relative flex h-[260px] w-full items-center justify-center overflow-hidden sm:h-[300px];
+  }
+
+  /* Compare/Refine sequence -- rebuilt to match what the site owner
+     actually described watching on daydream.ing's live Refine tab (our
+     own earlier "studied frame-by-frame" comments on this section turned
+     out not to hold up under a fresh look, so this one is driven by that
+     direct report instead of a re-guess): the hero card lands first and
+     alone, its "Flere lignende" badge gives a small press/bounce as if it
+     had just been clicked, and only then do the fanned photos fly out
+     from behind it -- not all four pieces fading in together. */
+  .feature-tabs__compare-fan-photo {
+    left: 50%;
+    top: 50%;
+    width: 92px;
+    box-shadow: 0 4px 14px color-mix(in oklch, black 12%, transparent);
+    animation: feature-tabs-fan-in 780ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(860ms + (var(--reveal-index, 0) * 100ms));
+    @apply absolute rounded-md border border-border bg-card p-1.5;
+  }
+
+  .feature-tabs__compare-fan-photo-inner {
+    @apply relative aspect-[3/4] overflow-hidden rounded-sm bg-muted;
+  }
+
+  @keyframes feature-tabs-fan-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.55);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) translate(var(--fan-x), var(--fan-y)) rotate(var(--fan-r));
+    }
+  }
+
+  .feature-tabs__compare-hero {
+    z-index: 2;
+    box-shadow:
+      0 14px 34px color-mix(in oklch, black 18%, transparent),
+      0 2px 8px color-mix(in oklch, black 10%, transparent);
+    animation:
+      feature-tabs-item-fade 480ms cubic-bezier(0.4, 0, 0.2, 1) both,
+      feature-tabs-hero-press 420ms cubic-bezier(0.34, 1.56, 0.64, 1) 480ms both;
+    @apply relative w-[180px] rounded-lg border border-border bg-card p-2.5;
+  }
+
+  /* The "as if it had just been clicked" beat: settles in, then a quick
+     press-down/release, timed to finish right as the fan photos above
+     start flying out from behind it (860ms). */
+  @keyframes feature-tabs-hero-press {
+    0% {
+      transform: scale(1);
+    }
+    45% {
+      transform: scale(0.94);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .feature-tabs__compare-hero-photo {
+    @apply relative aspect-[3/4] overflow-hidden rounded-md bg-muted;
+  }
+
+  .feature-tabs__compare-hero-badge {
+    background-color: color-mix(in oklch, var(--background) 85%, transparent);
+    color: var(--foreground);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px color-mix(in oklch, black 10%, transparent);
+    @apply absolute bottom-2 left-2 inline-flex items-center gap-1.5 rounded-full border border-border/60 px-2.5 py-1.5 font-sans text-[10px] font-bold;
+  }
+
+  .feature-tabs__compare-hero-badge svg {
+    @apply size-3;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .feature-tabs__tab-progress,
+    .feature-tabs__row-photo,
+    .feature-tabs__compare-fan-photo,
+    .feature-tabs__compare-hero,
+    .feature-tabs__prompt,
+    .feature-tabs__ai-bubble,
+    .feature-tabs__photo-zoom,
+    .feature-tabs__explore-track--up,
+    .feature-tabs__explore-track--down,
+    .feature-tabs__pricealert-track {
+      animation: none;
+    }
+  }
+
+  /* --- Search-by cards: reuse the category carousel own tinted-          --- */
+  /* --- gradient language (--cat-from/--cat-to) instead of a flat muted   --- */
+  /* --- fill -- ties this section to the carousel above it and gives     --- */
+  /* --- each card a distinct color per query type. A single tilted       --- */
+  /* --- product photo (same floating-card treatment as                   --- */
+  /* --- .category-fan-card__photo above) keeps the card from reading as  --- */
+  /* --- an empty flat-color block.                                       --- */
+  .search-by-card {
+    background-image: linear-gradient(135deg, var(--cat-from), var(--cat-to));
+    @apply transition-transform duration-300 ease-out hover:-translate-y-0.5;
+  }
+
+  .search-by-card__eyebrow {
+    color: color-mix(in oklch, white 70%, transparent);
+    @apply relative font-mono text-[0.65rem] font-medium uppercase tracking-[0.18em];
+  }
+
+  .search-by-card__query {
+    @apply relative max-w-[24ch] text-balance font-serif text-xl italic leading-snug text-white md:text-2xl;
+  }
+
+  .search-by-card__arrow {
+    @apply relative flex size-11 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition-colors group-hover:bg-white group-hover:text-foreground;
+  }
+
+  .search-by-card__photo {
+    box-shadow: 0 8px 24px color-mix(in oklch, black 30%, transparent);
+    transform: rotate(-6deg);
+    transition:
+      transform 450ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 300ms ease;
+    @apply relative aspect-[3/4] w-20 shrink-0 self-center overflow-hidden rounded-xl bg-white/10 sm:w-28 md:w-32;
+  }
+
+  .search-by-card:nth-child(even) .search-by-card__photo {
+    transform: rotate(6deg);
+  }
+
+  .group:hover .search-by-card__photo,
+  .group:focus-visible .search-by-card__photo {
+    transform: rotate(0deg) scale(1.06);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .search-by-card__photo {
+      transition: none;
+    }
+  }
+
+  /* --- Trending searches: the chips sit inside their own soft, rounded --- */
+  /* --- surface instead of floating on bare page background.           --- */
 }

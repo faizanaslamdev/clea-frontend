@@ -10,6 +10,8 @@ import {
   POPULAR_PRODUCTS_LIMIT,
 } from '@/lib/constants/popular-brands';
 import type { Product, SearchResult } from '@/lib/types';
+import type { ProductFamily } from '@/lib/api/chat-types';
+import type { CategoryGridEntry } from '@/lib/constants/category-grid';
 
 export type ProductSegment = 'fashion' | 'all';
 
@@ -25,6 +27,8 @@ export interface FetchProductsParams {
   /** Cap each merchant before LIMIT — one round-trip multi-brand mix. */
   balanceMerchants?: boolean;
   perMerchantCandidateCap?: number;
+  /** Normalized product family (footwear, dresses, ...) — see chat ontology. */
+  productFamily?: ProductFamily;
 }
 
 function buildProductsQuery(params: FetchProductsParams): string {
@@ -33,6 +37,7 @@ function buildProductsQuery(params: FetchProductsParams): string {
   if (params.brand) search.set('brand', params.brand);
   if (params.merchantId) search.set('merchant_id', params.merchantId);
   if (params.category) search.set('category', params.category);
+  if (params.productFamily) search.set('product_family', params.productFamily);
   if (params.balanceMerchants) search.set('balance_merchants', 'true');
   if (params.perMerchantCandidateCap != null) {
     search.set(
@@ -238,3 +243,68 @@ export async function fetchProductsByMerchant(
   return products;
 }
 
+
+export interface CategoryPreview {
+  family: ProductFamily;
+  label: string;
+  query: string;
+  accentFrom: string;
+  accentTo: string;
+  /** Up to CATEGORY_PREVIEW_PHOTO_COUNT in-stock product photos — [0] is
+   *  the front/center card for the category tile fan (images 0-2; see
+   *  CATEGORY_SECTION_DISPLAY_COUNT), [1] and [2] fan out behind it. Any
+   *  images beyond that are extra headroom reused by FeatureTabsSection's
+   *  Explore/Compare tabs so they don't repeat the same photos already
+   *  shown by the category tile. Always has at least 1 entry. */
+  images: string[];
+  productId: string;
+}
+
+/** How many of each category's images the tile itself displays (center + 2 fan). */
+export const CATEGORY_SECTION_DISPLAY_COUNT = 3;
+
+/** Total fetched per category — extra beyond CATEGORY_SECTION_DISPLAY_COUNT
+ *  is spare headroom for FeatureTabsSection to reuse without duplicating. */
+const CATEGORY_PREVIEW_PHOTO_COUNT = 6;
+
+/**
+ * Representative in-stock products per homepage category tile — enough to
+ * fan a small photo stack the way daydream.ing does, plus spare headroom
+ * (see CATEGORY_PREVIEW_PHOTO_COUNT). A family with no matching products is
+ * silently dropped — the carousel renders whatever it actually has real
+ * inventory for.
+ */
+export async function fetchCategoryPreviews(
+  entries: readonly CategoryGridEntry[],
+): Promise<CategoryPreview[]> {
+  const results = await Promise.all(
+    entries.map(async (entry) => {
+      try {
+        const { products } = await fetchCatalogFromApi(
+          {
+            productFamily: entry.family,
+            limit: CATEGORY_PREVIEW_PHOTO_COUNT,
+            balanceMerchants: true,
+          },
+          { next: { revalidate: 120 } },
+        );
+        const [first] = products;
+        if (!first) return null;
+
+        return {
+          family: entry.family,
+          label: entry.label,
+          query: entry.query,
+          accentFrom: entry.accentFrom,
+          accentTo: entry.accentTo,
+          images: products.map((product) => product.image),
+          productId: first.id,
+        } satisfies CategoryPreview;
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  return results.filter((entry): entry is CategoryPreview => entry !== null);
+}

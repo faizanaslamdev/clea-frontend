@@ -1,14 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import { HeroSearchForm } from '@/components/hero-search-form';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { TypewriterText } from '@/components/shared/typewriter-text';
-import { SEARCH_HEADLINE_EXAMPLES } from '@/lib/constants/search-prompts';
+import { SEARCH_HEADLINE_EXAMPLES, SEARCH_PLACEHOLDER_EXAMPLES } from '@/lib/constants/search-prompts';
 import { useLandingSuggestions } from '@/lib/hooks/useLandingSuggestions';
 
 export function SearchLanding() {
   const { shopCategory, setShopCategory, suggestions, isLoadingSuggestions, selectSuggestion } =
     useLandingSuggestions();
+  // Controlled here (instead of left uncontrolled inside HeroSearchForm) so
+  // the headline's type/delete/next-phrase loop can see it and freeze --
+  // otherwise it kept cycling underneath whatever the user was typing.
+  const [query, setQuery] = useState('');
 
   return (
     <section className="search-landing section-container" aria-label="Søk">
@@ -20,6 +25,7 @@ export function SearchLanding() {
             className="search-landing__typewriter"
             contentClassName="search-landing__highlight"
             showCursor
+            paused={query.trim().length > 0}
           />
         </h1>
         <p className="search-landing__subtext">
@@ -33,8 +39,11 @@ export function SearchLanding() {
           variant="full"
           appearance="floating"
           idPrefix="search-landing"
+          value={query}
+          onValueChange={setQuery}
           shopCategory={shopCategory}
           onShopCategoryChange={setShopCategory}
+          animatedPlaceholderPhrases={SEARCH_PLACEHOLDER_EXAMPLES[shopCategory]}
         />
       </div>
 

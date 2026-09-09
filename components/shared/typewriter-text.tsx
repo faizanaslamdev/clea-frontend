@@ -14,6 +14,11 @@ interface TypewriterTextProps {
   typingMs?: number;
   deletingMs?: number;
   pauseMs?: number;
+  /** Freezes the cycle on whatever phrase/text is currently showing --
+   *  used to stop the type/delete/next-phrase loop once the user has
+   *  started typing their own query, instead of it looping forever
+   *  underneath what they're doing. */
+  paused?: boolean;
 }
 
 export function TypewriterText({
@@ -26,13 +31,14 @@ export function TypewriterText({
   typingMs = 52,
   deletingMs = 32,
   pauseMs = 2400,
+  paused = false,
 }: TypewriterTextProps) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [text, setText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    if (phrases.length === 0) return;
+    if (phrases.length === 0 || paused) return;
 
     const full = phrases[phraseIndex] ?? '';
     let timeoutId: number;
@@ -55,7 +61,7 @@ export function TypewriterText({
     }
 
     return () => window.clearTimeout(timeoutId);
-  }, [text, isDeleting, phraseIndex, phrases, typingMs, deletingMs, pauseMs]);
+  }, [text, isDeleting, phraseIndex, phrases, typingMs, deletingMs, pauseMs, paused]);
 
   const full = phrases[phraseIndex] ?? '';
   const isTyping = !isDeleting && text.length < full.length;

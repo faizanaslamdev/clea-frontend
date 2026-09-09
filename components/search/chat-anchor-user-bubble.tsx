@@ -23,7 +23,6 @@ export function ChatAnchorUserBubble({
             fill
             className="search-chat-anchor-ref__image"
             sizes="(max-width: 768px) 176px, 200px"
-            unoptimized
           />
         </div>
       ) : null}

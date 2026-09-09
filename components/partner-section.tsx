@@ -23,7 +23,7 @@ export default function PartnerSection() {
         <div className="flex w-full flex-col justify-center gap-7 bg-muted px-8 py-12 md:flex-1 md:gap-[28px] md:px-[80px] md:py-[80px] lg:px-[110px]">
           <p className="type-eyebrow text-muted-foreground">FOR MERKER</p>
 
-          <h2 className="type-heading">Oppdag og belønn toppshoppere</h2>
+          <h2 className="type-heading-section">Oppdag og belønn toppshoppere</h2>
 
           <p className="type-subheading max-w-[720px]">
             Vis frem produktene dine i trending-feeds, eksklusive tilbud og

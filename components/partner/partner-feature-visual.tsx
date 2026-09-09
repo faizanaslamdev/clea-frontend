@@ -39,7 +39,6 @@ export function PartnerFeatureVisual({
           fill
           className="partner-page__visual-image"
           sizes="(max-width: 768px) 100vw, 50vw"
-          unoptimized
         />
       </div>
     </div>

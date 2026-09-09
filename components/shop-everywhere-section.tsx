@@ -18,7 +18,7 @@ export function ShopEverywhereSection() {
 
           <h2
             id="shop-everywhere-heading"
-            className="type-heading max-w-[14ch] text-balance"
+            className="type-heading-section max-w-[14ch] text-balance"
           >
             Bruk {BRAND.name} uansett hvor du handler
           </h2>

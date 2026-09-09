@@ -1,5 +1,6 @@
 'use client';
 
+import { CircleAlert } from 'lucide-react';
 import {
   useEffect,
   useLayoutEffect,
@@ -279,6 +280,7 @@ export function SearchChatThread({
                   : message.role === 'user'
                     ? 'search-chat-bubble--user'
                     : 'search-chat-bubble--assistant',
+                message.isError && 'search-chat-bubble--error',
               )}
             >
               {isPendingAssistantMessage(message) ? (
@@ -288,6 +290,11 @@ export function SearchChatThread({
                   preview={message.anchorPreview}
                   actionLabel={message.content}
                 />
+              ) : message.isError ? (
+                <p className="search-chat-bubble__error-text">
+                  <CircleAlert aria-hidden className="search-chat-bubble__error-icon" />
+                  <span>{message.content}</span>
+                </p>
               ) : (
                 <p>{message.content}</p>
               )}

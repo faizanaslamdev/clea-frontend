@@ -15,9 +15,9 @@ export default function BrandSection() {
       className="section-container section-shell scroll-mt-20"
       aria-busy={isLoading}
     >
-      <div className="mb-6 flex flex-col gap-6">
+      <div className="mb-8 flex flex-col gap-6 md:mb-10">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <h2 className="type-heading">Utforsk merker</h2>
+          <h2 className="type-heading-section">Utforsk merker</h2>
           <p className="type-subheading md:max-w-[35%] md:text-right">
             Utforsk produkter fra merker du kjenner, og oppdag nye merker du vil
             elske.

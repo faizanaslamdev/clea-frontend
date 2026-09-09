@@ -19,4 +19,4 @@ export { getBrandSlug, getBrandHref } from '@/lib/domain/stores/slug';
 
 export { resolveStoreIdForProduct } from '@/lib/domain/products/paths';
 
-export { formatPrice } from '@/lib/domain/format';
+export { formatPrice, toDisplayCase } from '@/lib/domain/format';

@@ -25,15 +25,28 @@ export function ProductBestPrices({
     return a.price - b.price;
   });
 
-  const cheapestInStockId =
-    sorted.find((offer) => offer.in_stock)?.id ?? sorted[0]?.id;
+  const inStockOffers = sorted.filter((offer) => offer.in_stock);
+  const cheapest = inStockOffers[0] ?? sorted[0];
+  const mostExpensive = inStockOffers[inStockOffers.length - 1];
+  const cheapestInStockId = cheapest?.id;
+  const savings =
+    inStockOffers.length > 1 && mostExpensive
+      ? mostExpensive.price - cheapest.price
+      : 0;
 
   return (
     <section
       className="product-detail-modal__best-prices"
       aria-label="Beste priser"
     >
-      <h3 className="product-detail-modal__best-prices-title">Beste priser</h3>
+      <div className="product-detail-modal__best-prices-header">
+        <h3 className="product-detail-modal__best-prices-title">Beste priser</h3>
+        {savings > 0 ? (
+          <p className="product-detail-modal__best-prices-savings">
+            Spar opptil {formatPrice(savings, currency)}
+          </p>
+        ) : null}
+      </div>
       <ul className="product-detail-modal__best-prices-list">
         {sorted.map((offer) => {
           const isCheapest = offer.id === cheapestInStockId && offer.in_stock;
@@ -44,7 +57,7 @@ export function ProductBestPrices({
               key={offer.id}
               className={cn(
                 'product-detail-modal__best-prices-item',
-                isCheapest && 'product-detail-modal__best-prices-item--best',
+                isCheapest && 'product-detail-modal__best-prices-item--best comparison-row-best',
               )}
             >
               <div className="product-detail-modal__best-prices-meta">
@@ -60,19 +73,13 @@ export function ProductBestPrices({
                 <p className="product-detail-modal__best-prices-price">
                   {formatPrice(offer.price, offer.currency ?? currency)}
                   {isCheapest ? (
-                    <span className="product-detail-modal__best-prices-badge">
-                      Laveste pris
+                    <span className="badge-deal-mini">Laveste pris</span>
+                  ) : null}
+                  {!offer.in_stock ? (
+                    <span className="product-detail-modal__best-prices-stock--out">
+                      Ikke på lager
                     </span>
                   ) : null}
-                </p>
-                <p
-                  className={cn(
-                    'product-detail-modal__best-prices-stock',
-                    !offer.in_stock &&
-                      'product-detail-modal__best-prices-stock--out',
-                  )}
-                >
-                  {offer.in_stock ? 'På lager' : 'Ikke på lager'}
                 </p>
               </div>
               {offer.deep_link ? (

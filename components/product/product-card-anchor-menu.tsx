@@ -228,6 +228,7 @@ export function ProductCardAnchorMenu({
       <button
         type="button"
         className="product-card-anchor-menu__trigger"
+        title="Åpne produktforslag"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         aria-haspopup="dialog"

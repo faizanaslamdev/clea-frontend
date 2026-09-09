@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Product } from '@/lib/types';
-import { formatPrice, getListingPriceStore } from '@/lib/services';
+import { formatPrice, getListingPriceStore, toDisplayCase } from '@/lib/services';
 import { fetchProductById } from '@/lib/api/products';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { productKeys } from '@/lib/query/keys';
@@ -83,11 +83,10 @@ function ProductCardImage({
     <div className="product-card__image-wrap">
       <Image
         src={product.image}
-        alt={product.name}
+        alt={toDisplayCase(product.name)}
         fill
         className="product-card__image"
         sizes={sizes}
-        unoptimized
       />
     </div>
   );
@@ -230,19 +229,14 @@ export function ProductCard({
               {merchantLabel}
             </p>
           ) : null}
-          <h3 className="product-card-detailed__title" title={product.name}>
-            {product.name}
+          <h3 className="product-card-detailed__title" title={toDisplayCase(product.name)}>
+            {toDisplayCase(product.name)}
           </h3>
           <ProductCardPrice
             product={product}
             storeId={storeId}
             priceClassName="product-card-detailed__price"
           />
-          {!showMerchantBadge ? (
-            <p className="product-card-detailed__shop">
-              Handle hos {product.brand}
-            </p>
-          ) : null}
         </ProductCardClickTarget>
       </div>
     </div>

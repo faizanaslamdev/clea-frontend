@@ -43,7 +43,7 @@ export function FavoriteFindsSection() {
         <div className="layout-inner-wide text-center">
           <h2
             id="favorite-finds-heading"
-            className="font-serif text-[40px] font-light leading-[1.1] tracking-tight text-foreground md:text-[56px] md:leading-[1.15]"
+            className="type-heading-section"
           >
             Lagre <em className="italic">favorittfunnene</em> dine.
           </h2>

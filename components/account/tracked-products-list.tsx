@@ -28,7 +28,6 @@ function TrackImage({ src, name }: { src: string | null; name: string }) {
           fill
           sizes="(max-width: 640px) 100vw, 144px"
           className="account-tracks__image"
-          unoptimized
           onError={() => setHasError(true)}
         />
       ) : (

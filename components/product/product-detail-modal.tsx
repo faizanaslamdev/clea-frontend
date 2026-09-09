@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { toDisplayCase } from '@/lib/services';
 import {
   formatPrice,
   getListingPriceStore,
@@ -128,8 +129,8 @@ export function ProductDetailModal({
     if (!product) return;
     const url = typeof window !== 'undefined' ? window.location.href : '';
     const shareData = {
-      title: product.name,
-      text: `${product.brand} — ${product.name}`,
+      title: toDisplayCase(product.name),
+      text: `${product.brand} — ${toDisplayCase(product.name)}`,
       url,
     };
 
@@ -159,7 +160,7 @@ export function ProductDetailModal({
             {isLoading
               ? 'Laster produkt'
               : product
-                ? `${product.brand} ${product.name}`
+                ? `${product.brand} ${toDisplayCase(product.name)}`
                 : 'Produkt'}
           </DialogTitle>
           <DialogDescription className="sr-only">
@@ -193,13 +194,12 @@ export function ProductDetailModal({
                           src={
                             galleryImages[galleryIndex] ?? product.image
                           }
-                          alt={product.name}
+                          alt={toDisplayCase(product.name)}
                           width={800}
                           height={1067}
                           className="product-detail-modal__gallery-image"
                           sizes="(max-width: 768px) 100vw, 520px"
                           priority
-                          unoptimized
                         />
                         <ProductCardAnchorMenu
                           product={product}
@@ -287,7 +287,6 @@ export function ProductDetailModal({
                               width={72}
                               height={96}
                               className="product-detail-modal__thumb-image"
-                              unoptimized
                             />
                           </button>
                         ))}
@@ -298,7 +297,7 @@ export function ProductDetailModal({
                   <div className="product-detail-modal__info">
                     <div className="product-detail-modal__intro">
                       <p className="product-detail-modal__brand">{product.brand}</p>
-                      <h2 className="product-detail-modal__name">{product.name}</h2>
+                      <h2 className="product-detail-modal__name">{toDisplayCase(product.name)}</h2>
                       {listingPrice != null ? (
                         <div className="product-detail-modal__price-row">
                           <p className="product-detail-modal__price">

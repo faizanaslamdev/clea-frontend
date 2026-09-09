@@ -2,7 +2,8 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface PageHeroProps {
-  imageSrc: string;
+  /** Only rendered for variant="brand" — the home hero has no photo. */
+  imageSrc?: string;
   ariaLabel: string;
   children: React.ReactNode;
   contentClassName?: string;
@@ -22,6 +23,8 @@ export function PageHero({
   priority = true,
   variant = 'home',
 }: PageHeroProps) {
+  const showMedia = variant === 'brand' && !!imageSrc;
+
   return (
     <section
       className={cn(
@@ -30,18 +33,20 @@ export function PageHero({
       )}
       aria-label={ariaLabel}
     >
-      <div className="page-hero-media" aria-hidden>
-        <Image
-          src={imageSrc}
-          alt={imageAlt}
-          fill
-          priority={priority}
-          sizes="100vw"
-          className="object-cover object-center"
-          style={imagePosition ? { objectPosition: imagePosition } : undefined}
-        />
-        <div className="page-hero-overlay" />
-      </div>
+      {showMedia ? (
+        <div className="page-hero-media" aria-hidden>
+          <Image
+            src={imageSrc as string}
+            alt={imageAlt}
+            fill
+            priority={priority}
+            sizes="100vw"
+            className="page-hero-media__ken-burns object-cover object-center"
+            style={imagePosition ? { objectPosition: imagePosition } : undefined}
+          />
+          <div className="page-hero-overlay" />
+        </div>
+      ) : null}
 
       <div className={cn('page-hero-content section-container', contentClassName)}>
         {children}

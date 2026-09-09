@@ -11,6 +11,7 @@ import { useSession } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
+  { href: '/shop', label: 'Handle' },
   { href: '/brands', label: 'Merker' },
   { href: '/chat', label: 'Søk' },
 ] as const;
@@ -21,6 +22,7 @@ const MOBILE_MAX_WIDTH = 767;
 const STICKY_SEARCH_FOOTER_CLEARANCE_PX = 112;
 
 function isNavActive(href: string, pathname: string): boolean {
+  if (href === '/shop') return pathname.startsWith('/shop');
   if (href === '/brands') return pathname.startsWith('/brands');
   if (href === '/chat') return pathname.startsWith('/chat');
   return pathname === href;
@@ -81,7 +83,15 @@ export function Header() {
   const isHome = pathname === '/';
   const isBrandDetail = /^\/brands\/[^/]+$/.test(pathname);
   const hasUnderlapHero = isHome || isBrandDetail;
-  const overHero = hasUnderlapHero && !pastHero;
+  // Only brand pages still have a dark photo hero underneath — the home
+  // hero is a plain background now, so its header stays in its normal
+  // (dark logo/text) theme instead of switching to the light-over-photo one.
+  const overHero = isBrandDetail && !pastHero;
+  // Home no longer has a photo hero to be transparent over, so its header
+  // background should render immediately, not wait for the hero-height
+  // scroll threshold below (that threshold still gates the sticky search
+  // bar reveal on home/brand pages, which is unrelated and unchanged).
+  const showHeaderBackground = pastHero || isHome;
   const showStickySearchBar = isHome || isBrandDetail;
   const showStickySearch =
     showStickySearchBar && pastHero && !hideStickyNearFooter;
@@ -122,13 +132,13 @@ export function Header() {
       <header
         className={cn(
           'site-header',
-          pastHero && 'site-header--scrolled',
+          showHeaderBackground && 'site-header--scrolled',
           overHero && 'site-header--over-hero-scrolled',
         )}
       >
         <div className="site-header-bar">
           <div className="site-header-left">
-            <nav className="flex items-center gap-6 md:gap-8" aria-label="Hovedmeny">
+            <nav className="flex items-center gap-2 sm:gap-6 md:gap-8" aria-label="Hovedmeny">
               {NAV_ITEMS.map((item) => (
                 <NavLink
                   key={item.href}

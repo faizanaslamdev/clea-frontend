@@ -22,6 +22,8 @@ export interface SearchChatMessageData {
   anchorPreview?: AnchorPreview;
   suggestions?: string[];
   degraded?: boolean;
+  /** True for the synthetic assistant message shown when a turn request fails. */
+  isError?: boolean;
 }
 
 function createMessage(
@@ -152,7 +154,10 @@ export function buildAssistantMessageFromTurn(
 export function createAssistantErrorMessage(
   errorReply: string,
 ): SearchChatMessageData {
-  return createMessage('assistant', errorReply, { status: 'complete' });
+  return createMessage('assistant', errorReply, {
+    status: 'complete',
+    isError: true,
+  });
 }
 
 /** Completed user + assistant pair (e.g. URL hydration without optimistic flow). */
