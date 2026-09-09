@@ -43,9 +43,8 @@ function apparel(
 }
 
 /**
- * Homepage "shop by category" carousel — same taxonomy as Dame shop so
- * home and /shop stay aligned. Shop page swaps Dame/Herre lists via
- * `categoryGridForShop` (equal length, Daydream pattern).
+ * Homepage "shop by category" carousel. /shop uses a shorter Dame/Herre
+ * list via `categoryGridForShop` (8 shelves).
  */
 export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   apparel({
@@ -166,14 +165,91 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   },
 ] as const;
 
-/** Dame shop chips + cards — same 12 slots as Herre. */
-export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] =
-  CATEGORY_GRID_ENTRIES;
-
 /**
- * Herre shop — same count/order as Dame; Kjoler → Shorts so menswear stays
- * coherent while Beauty/Accessories stay shared shelves.
+ * /shop only — trimmed to 8 shelves (client request). Homepage keeps the
+ * fuller `CATEGORY_GRID_ENTRIES` carousel above.
  */
+export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] = [
+  apparel({
+    id: 'jeans-bukser',
+    family: 'bottoms',
+    label: 'Jeans & bukser',
+    query: 'Vis meg jeans og bukser',
+    previewQ: 'jeans',
+    previewBrand: 'nelly',
+    accentFrom: '#a4883f',
+    accentTo: '#584a20',
+  }),
+  apparel({
+    id: 'tees',
+    family: 'tops',
+    label: 'T-skjorter',
+    query: 'Vis meg t-skjorter',
+    previewQ: 't-shirt',
+    previewBrand: 'nelly',
+    accentFrom: '#3d5068',
+    accentTo: '#1f2938',
+  }),
+  apparel({
+    id: 'tops',
+    family: 'tops',
+    label: 'Topper',
+    query: 'Vis meg topper',
+    previewQ: 'top',
+    previewBrand: 'nelly',
+    accentFrom: '#436384',
+    accentTo: '#22303f',
+  }),
+  apparel({
+    id: 'outerwear',
+    family: 'outerwear',
+    label: 'Jakker',
+    query: 'Vis meg jakker',
+    previewQ: 'jakke',
+    accentFrom: '#3c3f45',
+    accentTo: '#1c1e21',
+  }),
+  apparel({
+    id: 'footwear',
+    family: 'footwear',
+    label: 'Sko',
+    query: 'Vis meg sko',
+    previewQ: 'sko',
+    previewBrand: 'nelly',
+    accentFrom: '#2f6b64',
+    accentTo: '#163531',
+  }),
+  apparel({
+    id: 'knitwear',
+    family: 'knitwear',
+    label: 'Genser & strikk',
+    query: 'Vis meg gensere og strikk',
+    previewQ: 'genser',
+    previewBrand: 'nelly',
+    accentFrom: '#b06a45',
+    accentTo: '#5f3826',
+  }),
+  {
+    id: 'beauty',
+    shelf: 'beauty',
+    label: 'Beauty',
+    query: 'Vis meg sminke og makeup',
+    previewQ: 'mascara',
+    accentFrom: '#9a6b5c',
+    accentTo: '#4f342c',
+  },
+  apparel({
+    id: 'bags',
+    family: 'bags',
+    label: 'Vesker',
+    query: 'Vis meg vesker',
+    previewQ: 'veske',
+    accentFrom: '#52606d',
+    accentTo: '#29303a',
+  }),
+];
+
+/** Herre /shop — same 8 shelves/order as Dame so the grid never reflows. */
 export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
   apparel({
     id: 'jeans-bukser',
@@ -183,15 +259,6 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     previewQ: 'jeans',
     accentFrom: '#a4883f',
     accentTo: '#584a20',
-  }),
-  apparel({
-    id: 'shorts',
-    family: 'bottoms',
-    label: 'Shorts',
-    query: 'Vis meg shorts',
-    previewQ: 'shorts',
-    accentFrom: '#7d5468',
-    accentTo: '#432934',
   }),
   apparel({
     id: 'tees',
@@ -212,19 +279,10 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     accentTo: '#22303f',
   }),
   apparel({
-    id: 'knitwear',
-    family: 'knitwear',
-    label: 'Gensere & strikk',
-    query: 'Vis meg gensere og strikk',
-    previewQ: 'genser',
-    accentFrom: '#b06a45',
-    accentTo: '#5f3826',
-  }),
-  apparel({
     id: 'outerwear',
     family: 'outerwear',
-    label: 'Ytterjakker',
-    query: 'Vis meg ytterjakker',
+    label: 'Jakker',
+    query: 'Vis meg jakker',
     previewQ: 'jakke',
     accentFrom: '#3c3f45',
     accentTo: '#1c1e21',
@@ -239,31 +297,13 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     accentTo: '#163531',
   }),
   apparel({
-    id: 'bags',
-    family: 'bags',
-    label: 'Vesker',
-    query: 'Vis meg vesker',
-    previewQ: 'veske',
-    accentFrom: '#52606d',
-    accentTo: '#29303a',
-  }),
-  apparel({
-    id: 'shirts',
-    family: 'tops',
-    label: 'Skjorter',
-    query: 'Vis meg skjorter',
-    previewQ: 'shirt',
-    accentFrom: '#5c4470',
-    accentTo: '#2e2138',
-  }),
-  apparel({
-    id: 'underwear',
-    family: 'underwear',
-    label: 'Undertøy',
-    query: 'Vis meg undertøy',
-    previewQ: 'boxers',
-    accentFrom: '#8a4f6d',
-    accentTo: '#4a2a3a',
+    id: 'knitwear',
+    family: 'knitwear',
+    label: 'Genser & strikk',
+    query: 'Vis meg gensere og strikk',
+    previewQ: 'genser',
+    accentFrom: '#b06a45',
+    accentTo: '#5f3826',
   }),
   {
     id: 'beauty',
@@ -274,16 +314,16 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     accentFrom: '#9a6b5c',
     accentTo: '#4f342c',
   },
-  {
-    id: 'accessories',
-    shelf: 'accessories',
-    label: 'Accessories',
-    query: 'Vis meg klokker og accessories',
-    previewQ: 'klokke',
-    accentFrom: '#6b5a3e',
-    accentTo: '#342c1e',
-  },
-] as const;
+  apparel({
+    id: 'bags',
+    family: 'bags',
+    label: 'Vesker',
+    query: 'Vis meg vesker',
+    previewQ: 'veske',
+    accentFrom: '#52606d',
+    accentTo: '#29303a',
+  }),
+];
 
 if (SHOP_CATEGORY_GRID_FEMALE.length !== SHOP_CATEGORY_GRID_MALE.length) {
   throw new Error(
