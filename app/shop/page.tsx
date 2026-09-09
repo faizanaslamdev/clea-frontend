@@ -7,41 +7,38 @@ import {
 } from '@/lib/api/products';
 import { categoryGridForShop } from '@/lib/constants/category-grid';
 import { productKeys } from '@/lib/query/keys';
-import { parseShopGenderParam } from '@/lib/shop/shop-gender';
 import type { SuitableFor } from '@/lib/api/chat-types';
 
 /** Keep shop previews fresh without a full client waterfall on every visit. */
 export const revalidate = 120;
 
-async function prefetchShopData(suitableFor: SuitableFor) {
-  const queryClient = new QueryClient();
-  const entries = categoryGridForShop(suitableFor);
+const SHOP_AUDIENCES: readonly SuitableFor[] = ['female', 'male'];
 
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: productKeys.categoryGrid(suitableFor),
-      queryFn: () => fetchCategoryPreviews(entries, suitableFor),
+/** Prefetch Dame + Herre together so gender toggle is cache-hit instant. */
+async function prefetchShopData() {
+  const queryClient = new QueryClient();
+
+  await Promise.all(
+    SHOP_AUDIENCES.flatMap((suitableFor) => {
+      const entries = categoryGridForShop(suitableFor);
+      return [
+        queryClient.prefetchQuery({
+          queryKey: productKeys.categoryGrid(suitableFor),
+          queryFn: () => fetchCategoryPreviews(entries, suitableFor),
+        }),
+        queryClient.prefetchQuery({
+          queryKey: productKeys.trending(suitableFor),
+          queryFn: () => fetchTrendingLooks(suitableFor, 3),
+        }),
+      ];
     }),
-    queryClient.prefetchQuery({
-      queryKey: productKeys.trending(suitableFor),
-      queryFn: () => fetchTrendingLooks(suitableFor, 3),
-    }),
-  ]);
+  );
 
   return dehydrate(queryClient);
 }
 
-export default async function ShopPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ gender?: string | string[] }>;
-}) {
-  const params = await searchParams;
-  const genderRaw = Array.isArray(params.gender)
-    ? params.gender[0]
-    : params.gender;
-  const suitableFor = parseShopGenderParam(genderRaw ?? null);
-  const state = await prefetchShopData(suitableFor);
+export default async function ShopPage() {
+  const state = await prefetchShopData();
 
   return (
     <HydrationBoundary state={state}>

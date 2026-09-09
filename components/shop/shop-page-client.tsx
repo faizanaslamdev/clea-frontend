@@ -1,12 +1,25 @@
 'use client';
 
-import { Suspense, useCallback } from 'react';
+import {
+  Suspense,
+  startTransition,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { CategorySection } from '@/components/category-section';
 import { ShopCategoryTabs } from '@/components/shop/shop-category-tabs';
 import { ShopGenderToggle } from '@/components/shop/shop-gender-toggle';
 import { ShopTrendingSection } from '@/components/shop/shop-trending-section';
+import {
+  fetchCategoryPreviews,
+  fetchTrendingLooks,
+} from '@/lib/api/products';
 import type { SuitableFor } from '@/lib/api/chat-types';
+import { categoryGridForShop } from '@/lib/constants/category-grid';
+import { productKeys } from '@/lib/query/keys';
 import {
   parseShopGenderParam,
   shopCategoryFor,
@@ -17,17 +30,44 @@ function ShopPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
-  const suitableFor = parseShopGenderParam(searchParams.get('gender'));
+  const urlGender = parseShopGenderParam(searchParams.get('gender'));
+  // Optimistic local gender — update the toggle immediately; URL syncs after.
+  const [suitableFor, setSuitableFor] = useState<SuitableFor>(urlGender);
   const shopCategory = shopCategoryFor(suitableFor);
+
+  useEffect(() => {
+    setSuitableFor(urlGender);
+  }, [urlGender]);
+
+  // Warm the opposite audience in the background (covers cold client cache).
+  useEffect(() => {
+    for (const audience of ['female', 'male'] as const) {
+      const entries = categoryGridForShop(audience);
+      void queryClient.prefetchQuery({
+        queryKey: productKeys.categoryGrid(audience),
+        queryFn: () => fetchCategoryPreviews(entries, audience),
+      });
+      void queryClient.prefetchQuery({
+        queryKey: productKeys.trending(audience),
+        queryFn: () => fetchTrendingLooks(audience, 3),
+      });
+    }
+  }, [queryClient]);
 
   const handleGenderSelect = useCallback(
     (value: SuitableFor) => {
+      if (value === suitableFor) return;
+      setSuitableFor(value);
       const params = new URLSearchParams(searchParams.toString());
       params.set('gender', shopGenderParamFor(value));
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      const href = `${pathname}?${params.toString()}`;
+      startTransition(() => {
+        router.replace(href, { scroll: false });
+      });
     },
-    [pathname, router, searchParams],
+    [pathname, router, searchParams, suitableFor],
   );
 
   return (
