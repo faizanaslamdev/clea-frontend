@@ -28,10 +28,10 @@ describe('brand editorial image presentation', () => {
       '/brands/editorial/papique.webp',
     );
     expect(getBrandEditorialImage('Urverket')).toBe(
-      '/brands/editorial/urverket.jpg',
+      '/brands/editorial/urverket.webp',
     );
     expect(getBrandEditorialImage('Sephora SE')).toBe(
-      '/brands/editorial/sephora.png',
+      '/brands/editorial/sephora.webp',
     );
   });
 

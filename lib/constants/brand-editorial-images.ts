@@ -7,8 +7,8 @@ const EDITORIAL_IMAGES = {
   viking: '/brands/editorial/viking.webp',
   ralphLauren: '/brands/editorial/ralph-lauren.webp',
   papique: '/brands/editorial/papique.webp',
-  urverket: '/brands/editorial/urverket.jpg',
-  sephora: '/brands/editorial/sephora.png',
+  urverket: '/brands/editorial/urverket.webp',
+  sephora: '/brands/editorial/sephora.webp',
 } as const;
 
 const DEFAULT_EDITORIAL_POSITION = '50% 50%';
