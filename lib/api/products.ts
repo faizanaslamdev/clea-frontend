@@ -650,7 +650,11 @@ async function fetchShopCategoryPreviews(
     if (preview) {
       ranked.forEach((product) => usedImages.add(product.image));
       byId.set(entry.id, preview);
-    } else {
+    }
+    // Fan cards need 3 photos; a thin pool hit (e.g. only 2 skjorter in
+    // Nelly's first page) used to skip gap-fill entirely and leave a
+    // half-empty tile. Refill anything below the display count.
+    if (!preview || preview.images.length < CATEGORY_SECTION_DISPLAY_COUNT) {
       gaps.push(entry);
     }
   }
@@ -660,6 +664,11 @@ async function fetchShopCategoryPreviews(
     const gapResults = await mapPool(gaps, 3, async (entry) => {
       const previewQ = previewQueryForEntry(entry);
       const isShelf = entry.shelf === 'beauty' || entry.shelf === 'accessories';
+      const existing = byId.get(entry.id);
+      const need = CATEGORY_PREVIEW_PHOTO_COUNT - (existing?.images.length ?? 0);
+      if (need <= 0) {
+        return existing ?? null;
+      }
       try {
         const { products } = await fetchCatalogFromApi(
           {
@@ -680,25 +689,44 @@ async function fetchShopCategoryPreviews(
         const ranked = rankProductsForCategoryTile(
           products.filter(
             (product) =>
+              Boolean(product.image) &&
               !usedImages.has(product.image) &&
               productMatchesShopEntry(product, entry, previewQ),
           ),
           entry.family,
           previewQ,
-        ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
+        ).slice(0, need);
         // Shelf gap fills can be sparse — accept ranked catalog hits even if
         // the name heuristic is strict.
         const fallback =
           ranked.length > 0
             ? ranked
             : products
-                .filter((product) => !usedImages.has(product.image))
-                .slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
-        const preview = toCategoryPreview(entry, fallback);
+                .filter(
+                  (product) =>
+                    Boolean(product.image) && !usedImages.has(product.image),
+                )
+                .slice(0, need);
+        const mergedImages = [
+          ...(existing?.images ?? []),
+          ...fallback.map((product) => product.image),
+        ].slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
+        if (mergedImages.length === 0) {
+          return existing ?? null;
+        }
         fallback.forEach((product) => usedImages.add(product.image));
-        return preview;
+        return {
+          id: entry.id,
+          family: entry.family,
+          label: entry.label,
+          query: entry.query,
+          accentFrom: entry.accentFrom,
+          accentTo: entry.accentTo,
+          images: mergedImages,
+          productId: existing?.productId ?? fallback[0]?.id,
+        };
       } catch {
-        return null;
+        return existing ?? null;
       }
     });
 
@@ -713,11 +741,19 @@ async function fetchShopCategoryPreviews(
   // "Vesker", each leaving a hole in the 4-column layout. Widen out, first
   // across all merchants for this audience, then across the catalog, so the
   // count stays fixed at SHOP_CATEGORY_GRID_COUNT.
-  const stillMissing = entries.filter((entry) => !byId.has(entry.id));
-
+  const stillMissing = entries.filter((entry) => {
+    const preview = byId.get(entry.id);
+    return !preview || preview.images.length < CATEGORY_SECTION_DISPLAY_COUNT;
+  });
   if (stillMissing.length > 0) {
     const widened = await mapPool(stillMissing, 3, async (entry) => {
       const previewQ = previewQueryForEntry(entry);
+      const existing = byId.get(entry.id);
+      const need =
+        CATEGORY_SECTION_DISPLAY_COUNT - (existing?.images.length ?? 0);
+      if (need <= 0) {
+        return existing ?? null;
+      }
       const base = {
         ...(previewQ
           ? { q: previewQ }
@@ -755,17 +791,27 @@ async function fetchShopCategoryPreviews(
           entry.family,
           previewQ,
         );
-        const picked = (ranked.length > 0 ? ranked : usable).slice(
-          0,
-          CATEGORY_PREVIEW_PHOTO_COUNT,
-        );
-        const preview = toCategoryPreview(entry, picked);
-        if (preview) {
-          picked.forEach((product) => usedImages.add(product.image));
-          return preview;
+        const picked = (ranked.length > 0 ? ranked : usable).slice(0, need);
+        if (picked.length === 0) {
+          continue;
         }
+        picked.forEach((product) => usedImages.add(product.image));
+        const mergedImages = [
+          ...(existing?.images ?? []),
+          ...picked.map((product) => product.image),
+        ].slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
+        return {
+          id: entry.id,
+          family: entry.family,
+          label: entry.label,
+          query: entry.query,
+          accentFrom: entry.accentFrom,
+          accentTo: entry.accentTo,
+          images: mergedImages,
+          productId: existing?.productId ?? picked[0]?.id,
+        };
       }
-      return null;
+      return existing ?? null;
     });
 
     for (const preview of widened) {

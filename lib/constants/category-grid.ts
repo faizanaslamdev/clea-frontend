@@ -130,7 +130,9 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     family: 'tops',
     label: 'Skjorter',
     query: 'Vis meg skjorter',
-    previewQ: 'skjorte',
+    // English "shirt" hits Nelly/NLY feed titles; "skjorte" alone undersupplies
+    // Dame fan photos. Chat copy stays Norwegian above.
+    previewQ: 'shirt',
     previewBrand: 'nelly',
     accentFrom: '#5c4470',
     accentTo: '#2e2138',
@@ -250,7 +252,7 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     family: 'tops',
     label: 'Skjorter',
     query: 'Vis meg skjorter',
-    previewQ: 'skjorte',
+    previewQ: 'shirt',
     accentFrom: '#5c4470',
     accentTo: '#2e2138',
   }),
