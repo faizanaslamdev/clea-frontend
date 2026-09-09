@@ -67,6 +67,11 @@ export function normalizeFeedImageUrl(
 
   let cleaned = unwrapProductserveProxy(url.trim());
   cleaned = stripResizeQueryParams(cleaned);
+  // Merchant feeds sometimes emit http:// CDN URLs; next/image remotePatterns
+  // are https-only, and the CDNs accept TLS.
+  if (/^http:\/\//i.test(cleaned)) {
+    cleaned = `https://${cleaned.slice('http://'.length)}`;
+  }
 
   return cleaned || null;
 }

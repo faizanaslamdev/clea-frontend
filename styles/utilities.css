@@ -617,7 +617,7 @@
 
   .promo-panel__image-fade {
     background: var(--promo-image-fade);
-    @apply pointer-events-none absolute inset-x-0 bottom-0 h-[42%];
+    @apply pointer-events-none absolute inset-x-0 bottom-0 h-[46%];
   }
 
   /* Compact band inside the fade — tight padding so the quote sits on the

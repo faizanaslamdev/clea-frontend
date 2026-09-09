@@ -31,10 +31,11 @@ const nextConfig = {
     // throws is skipped entirely (see the `NODE_ENV !== 'production'` guard
     // in next/dist/shared/lib/image-loader.js) and /_next/image just 400s
     // for that one image, i.e. a single broken photo, not a page crash.
-    remotePatterns: IMAGE_HOSTS.map((hostname) => ({
-      protocol: 'https',
-      hostname,
-    })),
+    remotePatterns: IMAGE_HOSTS.flatMap((hostname) => [
+      { protocol: 'https', hostname },
+      // Some feed cover URLs still arrive as http:// (e.g. Sephora placeholders).
+      { protocol: 'http', hostname },
+    ]),
   },
   async redirects() {
     return [

@@ -148,19 +148,28 @@
      over it, more than half the photo was washed out -- the model's legs and
      the suitcase had disappeared entirely. Ends higher and starts softer, so
      the quote still reads while the picture survives. */
+  /* Only a soft blend above the quote now. The readable backdrop is the
+     testimonial card's own scrim below, which is exactly as tall as the
+     text -- tying contrast to the text box instead of to a percentage of
+     the photo, so the fade's height can never again strand the first line
+     of a quote on bare photo. */
   --promo-image-fade: linear-gradient(
     to top,
-    var(--card) 0%,
-    color-mix(in oklch, var(--card) 92%, transparent) 28%,
-    color-mix(in oklch, var(--card) 45%, transparent) 58%,
+    color-mix(in oklch, var(--card) 85%, transparent) 0%,
+    color-mix(in oklch, var(--card) 80%, transparent) 55%,
     transparent 100%
   );
+  /* Carries the contrast. Near-opaque behind the text and falling off
+     within the card's own top padding, so the ramp lands on empty space
+     instead of across the first line of the quote. */
+  /* Strong edge to edge across the card: the quote's first line sits right
+     at the card's top edge, so any ramp inside the card lands across text.
+     The transition to bare photo happens in --promo-image-fade above it. */
   --promo-testimonial-scrim: linear-gradient(
     to top,
-    oklch(1 0 0 / 0.55) 0%,
-    oklch(1 0 0 / 0.28) 55%,
-    oklch(1 0 0 / 0.08) 85%,
-    transparent 100%
+    var(--card) 0%,
+    color-mix(in oklch, var(--card) 95%, transparent) 70%,
+    color-mix(in oklch, var(--card) 88%, transparent) 100%
   );
 
   --deal: var(--foreground);

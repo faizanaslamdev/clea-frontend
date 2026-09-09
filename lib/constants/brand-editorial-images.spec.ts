@@ -13,12 +13,27 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('Viking Footwear')).toBe('50% 20%');
     expect(getBrandEditorialPosition('Ralph Lauren NO')).toBe('50% 18%');
     expect(getBrandEditorialPosition('adidas NO')).toBe('50% 35%');
+    expect(getBrandEditorialPosition('Papique NO')).toBe('50% 45%');
+    expect(getBrandEditorialPosition('Urverket')).toBe('50% 40%');
   });
 
   it('maps adidas to the approved editorial asset', () => {
     expect(getBrandEditorialImage('adidas NO')).toBe(
       '/brands/editorial/adidas.webp',
     );
+  });
+
+  it('maps Papique NO and Urverket to approved editorial assets', () => {
+    expect(getBrandEditorialImage('Papique NO')).toBe(
+      '/brands/editorial/papique.webp',
+    );
+    expect(getBrandEditorialImage('Urverket')).toBe(
+      '/brands/editorial/urverket.jpg',
+    );
+  });
+
+  it('does not map Sephora until an approved editorial asset is supplied', () => {
+    expect(getBrandEditorialImage('Sephora SE')).toBeNull();
   });
 
   it('does not map ended Beredd partnership to editorial assets', () => {
