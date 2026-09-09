@@ -4,17 +4,24 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
 import type { CSSProperties } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import type { ShopCategory, ProductFamily } from '@/lib/api/chat-types';
+import {
+  fetchSearchByCardPhoto,
+  type SearchByPhotoParams,
+} from '@/lib/api/products';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { useCategoryPreviews } from '@/lib/hooks/useProducts';
+import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 
 interface SearchByCard {
   eyebrow: string;
   query: string;
   shopCategory: ShopCategory;
-  /** Which category's accent gradient backs this card -- ties the visual to
-   * what the query is actually about instead of a flat placeholder. */
+  /** Which category's accent gradient backs this card. */
   family: ProductFamily;
+  /** Catalog lookup so the floating photo matches the example query. */
+  photo: SearchByPhotoParams;
 }
 
 const SEARCH_BY_CARDS: readonly SearchByCard[] = [
@@ -23,24 +30,49 @@ const SEARCH_BY_CARDS: readonly SearchByCard[] = [
     query: 'Bryllupsgjest-kjole til en sommerfest i Sørlandet',
     shopCategory: 'womens',
     family: 'dresses',
+    photo: {
+      productFamily: 'dresses',
+      q: 'kjole',
+      nameHint: /dress|kjole|midi|pleat|embroider/i,
+      nameAvoid: /sandal|skirt|skjørt|slide/i,
+    },
   },
   {
     eyebrow: 'Søk etter trend',
     query: 'Finn meg ferieklare sandaler til sommeren',
     shopCategory: 'womens',
     family: 'footwear',
+    photo: {
+      brand: 'nelly',
+      q: 'sandal',
+      nameHint: /sandal|flip.?flop|strap/i,
+      nameAvoid: /boot|shoe|sneaker|kids|barn|hoka|mizuno/i,
+    },
   },
   {
     eyebrow: 'Søk etter merke',
     query: 'Vis meg alt fra Ralph Lauren, på tvers av butikker',
     shopCategory: 'mens',
     family: 'tops',
+    photo: {
+      brand: 'Ralph Lauren',
+      q: 'polo',
+      nameHint: /polo|shirt|oxford|cable|mesh/i,
+      nameAvoid: /blanket|scarf|eau de|perfume|backpack|bloomer/i,
+    },
   },
   {
     eyebrow: 'Søk etter pris',
     query: 'Vinterjakke til herre under 1500 kr',
     shopCategory: 'mens',
     family: 'outerwear',
+    photo: {
+      q: 'vinterjakke',
+      suitableFor: 'male',
+      maxPrice: 1500,
+      nameHint: /jakke|jacket|puffer|down|insulated/i,
+      nameAvoid: /fleece|hoodie|vest|gilet|women|dame/i,
+    },
   },
 ];
 
@@ -50,7 +82,17 @@ const FALLBACK_GRADIENT = { from: '#3f3f46', to: '#18181b' };
 export function SearchBySection() {
   const router = useRouter();
   const { data: categories = [] } = useCategoryPreviews();
-  const previewByFamily = new Map(categories.map((category) => [category.family, category]));
+  const previewByFamily = new Map(
+    categories.map((category) => [category.family, category]),
+  );
+
+  const photoQueries = useQueries({
+    queries: SEARCH_BY_CARDS.map((card) => ({
+      queryKey: ['products', 'search-by-photo', card.eyebrow, card.photo] as const,
+      queryFn: () => fetchSearchByCardPhoto(card.photo),
+      staleTime: STALE_TIME_STATIC_MS,
+    })),
+  });
 
   return (
     <section aria-labelledby="search-by-heading" className="section-shell section-container">
@@ -64,17 +106,15 @@ export function SearchBySection() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5">
-        {SEARCH_BY_CARDS.map((card) => {
+        {SEARCH_BY_CARDS.map((card, index) => {
           const preview = previewByFamily.get(card.family);
           const accent = preview
             ? { from: preview.accentFrom, to: preview.accentTo }
             : FALLBACK_GRADIENT;
-          // Reuses one of the category's own spare photos (index 3+, the
-          // same headroom FeatureTabsSection draws from -- see
-          // CategoryPreview's doc comment) so the card gets a real product
-          // photo instead of a flat color block, without repeating the
-          // exact images CategorySection already shows just above it.
-          const photoSrc = preview?.images[3] ?? preview?.images[0];
+          // Prefer a photo that actually matches the example query; fall
+          // back to the category tile hero if the dedicated fetch is empty.
+          const photoSrc =
+            photoQueries[index]?.data ?? preview?.images[0] ?? null;
 
           return (
             <button

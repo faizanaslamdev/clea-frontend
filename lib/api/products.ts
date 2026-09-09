@@ -29,6 +29,8 @@ export interface FetchProductsParams {
   perMerchantCandidateCap?: number;
   /** Normalized product family (footwear, dresses, ...) — see chat ontology. */
   productFamily?: ProductFamily;
+  maxPrice?: number;
+  suitableFor?: 'male' | 'female' | 'unisex';
 }
 
 function buildProductsQuery(params: FetchProductsParams): string {
@@ -38,6 +40,8 @@ function buildProductsQuery(params: FetchProductsParams): string {
   if (params.merchantId) search.set('merchant_id', params.merchantId);
   if (params.category) search.set('category', params.category);
   if (params.productFamily) search.set('product_family', params.productFamily);
+  if (params.maxPrice != null) search.set('max_price', String(params.maxPrice));
+  if (params.suitableFor) search.set('suitable_for', params.suitableFor);
   if (params.balanceMerchants) search.set('balance_merchants', 'true');
   if (params.perMerchantCandidateCap != null) {
     search.set(
@@ -389,4 +393,60 @@ export async function fetchCategoryPreviews(
   );
 
   return results.filter((entry): entry is CategoryPreview => entry !== null);
+}
+
+/** Catalog filters used to pick a query-matching photo for SearchBy cards. */
+export interface SearchByPhotoParams {
+  q?: string;
+  brand?: string;
+  productFamily?: ProductFamily;
+  suitableFor?: 'male' | 'female' | 'unisex';
+  maxPrice?: number;
+  /** Boost products whose name matches this (e.g. /sandal|kjole/). */
+  nameHint?: RegExp;
+  /** Demote products whose name matches this (e.g. kids / perfume). */
+  nameAvoid?: RegExp;
+}
+
+function scoreSearchByPhoto(
+  product: { image: string; name: string },
+  params: SearchByPhotoParams,
+): number {
+  const image = product.image.toLowerCase();
+  const name = product.name.toLowerCase();
+  let value = 0;
+  if (image.includes('occtoo-media.com')) value += 6;
+  if (image.includes('ralphlauren.scene7.com')) value += 6;
+  if (image.includes('cdn.shopify.com')) value += 3;
+  if (params.nameHint?.test(name)) value += 5;
+  if (params.nameAvoid?.test(name)) value -= 8;
+  if (/kids|barn|gift|eau de|blanket|scarf|perfume/.test(name)) value -= 5;
+  if (image.includes('outnorth') || image.includes('fjellsport')) value -= 2;
+  return value;
+}
+
+/** Best in-stock product image matching a SearchBy example query. */
+export async function fetchSearchByCardPhoto(
+  params: SearchByPhotoParams,
+): Promise<string | null> {
+  try {
+    const { products } = await fetchCatalogFromApi(
+      {
+        q: params.q,
+        brand: params.brand,
+        productFamily: params.productFamily,
+        suitableFor: params.suitableFor,
+        maxPrice: params.maxPrice,
+        limit: 16,
+        balanceMerchants: true,
+      },
+      { next: { revalidate: 120 } },
+    );
+    const ranked = [...products].sort(
+      (a, b) => scoreSearchByPhoto(b, params) - scoreSearchByPhoto(a, params),
+    );
+    return ranked[0]?.image ?? null;
+  } catch {
+    return null;
+  }
 }
