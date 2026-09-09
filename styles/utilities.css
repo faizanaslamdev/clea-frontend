@@ -2935,14 +2935,11 @@
   /* --- Feature tabs (studied from daydream.ing's "Meet Daydream"          --- */
   /* --- Explore/Chat/Save/Refine tab showcase)                             --- */
 
-  /* gap-x-2 on mobile (not the sm-and-up gap-x-5/7/9) -- measured with real
-     DM Sans metrics that the 4 labels (Utforsk/Chat/Prisvarsel/Sammenlign)
-     at the old text-lg + gap-x-5 need ~366px in a single row, which is
-     WIDER than the available content width on every common phone below
-     414px (iPhone SE/8/X/12/13/14, most Android) -- so they wrapped into
-     two rows on nearly all real mobile devices, not just tiny ones. */
+  /* Mobile: keep all 4 labels on ONE row (nowrap) but spread them across
+     the full content width so they don't read as glued together. From sm+
+     we go back to centered clustered gaps like the desktop reference. */
   .feature-tabs__tablist {
-    @apply flex flex-wrap items-center justify-center gap-x-2 gap-y-2 border-b border-border sm:gap-x-7 md:gap-x-9;
+    @apply flex w-full flex-nowrap items-center justify-between gap-0 border-b border-border sm:w-auto sm:justify-center sm:gap-x-7 md:gap-x-9;
   }
 
   .feature-tabs__tab {
@@ -2957,7 +2954,7 @@
        label's rendered width on click, nudging the other tab labels
        sideways -- that layout jump was reading as a cheap "blink" instead
        of a clean color crossfade. */
-    @apply relative cursor-pointer border-0 bg-transparent px-0 pb-6 font-sans text-sm font-medium transition-colors duration-300 ease-out sm:px-1 sm:text-xl md:text-2xl md:pb-7;
+    @apply relative shrink-0 cursor-pointer border-0 bg-transparent px-0.5 pb-5 font-sans text-[13px] font-medium tracking-[-0.01em] transition-colors duration-300 ease-out sm:px-1 sm:pb-6 sm:text-xl sm:tracking-normal md:text-2xl md:pb-7;
   }
 
   .feature-tabs__tab--active {
