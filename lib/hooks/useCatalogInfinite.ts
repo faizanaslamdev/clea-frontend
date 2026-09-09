@@ -16,6 +16,7 @@ export function useCatalogInfinite(filters: CatalogQueryFilters) {
     q: filters.q,
     segment: filters.segment,
     productFamily: filters.productFamily,
+    suitableFor: filters.suitableFor,
     balanceMerchants: filters.balanceMerchants,
   };
 

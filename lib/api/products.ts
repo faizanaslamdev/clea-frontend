@@ -398,45 +398,246 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
  */
 export async function fetchCategoryPreviews(
   entries: readonly CategoryGridEntry[],
+  suitableFor?: 'male' | 'female' | 'unisex',
 ): Promise<CategoryPreview[]> {
   const results = await Promise.all(
     entries.map(async (entry) => {
-      try {
-        const previewQ = previewQueryForEntry(entry);
-        const { products } = await fetchCatalogFromApi(
-          {
-            productFamily: entry.family,
-            ...(previewQ ? { q: previewQ } : {}),
-            ...(entry.previewBrand ? { brand: entry.previewBrand } : {}),
-            limit: Math.max(CATEGORY_PREVIEW_PHOTO_COUNT * 2, 12),
-            balanceMerchants: !entry.previewBrand,
-          },
-          { next: { revalidate: 120 } },
-        );
-        const ranked = rankProductsForCategoryTile(
-          products,
-          entry.family,
-          previewQ,
-        ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
-        const [first] = ranked;
-        if (!first) return null;
+      const previewQ = previewQueryForEntry(entry);
 
-        return {
-          family: entry.family,
-          label: entry.label,
-          query: entry.query,
-          accentFrom: entry.accentFrom,
-          accentTo: entry.accentTo,
-          images: ranked.map((product) => product.image),
-          productId: first.id,
-        } satisfies CategoryPreview;
-      } catch {
-        return null;
+      const load = async (gender?: 'male' | 'female' | 'unisex') => {
+        try {
+          const { products } = await fetchCatalogFromApi(
+            {
+              productFamily: entry.family,
+              ...(previewQ ? { q: previewQ } : {}),
+              ...(entry.previewBrand ? { brand: entry.previewBrand } : {}),
+              ...(gender ? { suitableFor: gender } : {}),
+              limit: Math.max(CATEGORY_PREVIEW_PHOTO_COUNT * 2, 12),
+              balanceMerchants: !entry.previewBrand,
+            },
+            { next: { revalidate: 120 } },
+          );
+          return rankProductsForCategoryTile(
+            products,
+            entry.family,
+            previewQ,
+          ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
+        } catch {
+          return [] as Product[];
+        }
+      };
+
+      // Switching Dame/Herre swaps the photos inside the tiles, never the
+      // number of tiles -- so a family this audience has no stock in (say
+      // Kjoler under Herre) falls back to the unfiltered shot instead of
+      // silently dropping the card and reflowing the whole row.
+      let ranked = suitableFor ? await load(suitableFor) : [];
+      if (ranked.length === 0) {
+        ranked = await load();
       }
+
+      const [first] = ranked;
+      if (!first) return null;
+
+      return {
+        family: entry.family,
+        label: entry.label,
+        query: entry.query,
+        accentFrom: entry.accentFrom,
+        accentTo: entry.accentTo,
+        images: ranked.map((product) => product.image),
+        productId: first.id,
+      } satisfies CategoryPreview;
     }),
   );
 
   return results.filter((entry): entry is CategoryPreview => entry !== null);
+}
+
+const TRENDING_LINGERIE_RE =
+  /bra|bralette|bikini|truse|undertøy|lingerie|panty|bade|swim|wire|demi|thong|string|hunkemöller|hunkemoller|\bbh\b/i;
+const TRENDING_KIDS_RE = /kids|barn|teens|isbjörn|isbjorn/i;
+const TRENDING_ATHLETIC_RE =
+  /mizuno|haglöfs|haglofs|salomon|columbia|fjällräven|fjallraven|craft\s|race day/i;
+
+/** Magazine-card quality: fashion CDNs + apparel variety, skip lingerie/kids. */
+function scoreTrendingLook(
+  product: Pick<Product, 'image' | 'name' | 'merchantName' | 'brand'>,
+): number {
+  const image = product.image.toLowerCase();
+  const name = product.name.toLowerCase();
+  const merchant = (product.merchantName ?? product.brand).toLowerCase();
+  let value = 0;
+  if (image.includes('occtoo-media.com')) value += 8;
+  if (image.includes('ralphlauren.scene7.com')) value += 8;
+  if (image.includes('cdn.shopify.com')) value += 3;
+  if (image.includes('outnorth') || image.includes('fjellsport')) value -= 6;
+  if (image.endsWith('.png')) value -= 2;
+  if (TRENDING_KIDS_RE.test(name)) value -= 12;
+  if (TRENDING_LINGERIE_RE.test(name) || TRENDING_LINGERIE_RE.test(merchant)) {
+    value -= 14;
+  }
+  if (TRENDING_ATHLETIC_RE.test(name) || TRENDING_ATHLETIC_RE.test(merchant)) {
+    value -= 8;
+  }
+  if (
+    /jeans|kjole|dress|jakke|jacket|genser|sweater|bluse|blouse|sandal|sko|hoodie|skjorte|shirt/.test(
+      name,
+    )
+  ) {
+    value += 4;
+  }
+  if (/nelly|nly man|ralph lauren|vero moda|only|jack & jones|levi/.test(merchant)) {
+    value += 3;
+  }
+  return value;
+}
+
+function trendingLookFamily(name: string): string {
+  const n = name.toLowerCase();
+  if (/kjole|dress/.test(n)) return 'dress';
+  if (/jeans|bukse|pants|dnm|denim|wide.?leg|skinny|bootcut|cargo|barrel/.test(n)) {
+    return 'bottoms';
+  }
+  if (/jakke|jacket|puffer|coat|vester|vest|blazer/.test(n)) return 'outerwear';
+  if (/genser|sweater|hoodie|knit|cardigan/.test(n)) return 'knit';
+  if (/bluse|blouse|shirt|skjorte|top|tee/.test(n)) return 'tops';
+  if (/sko|sandal|sneaker|boot/.test(n)) return 'footwear';
+  return 'other';
+}
+
+function isTrendingLookEligible(
+  product: Product,
+  suitableFor?: 'male' | 'female' | 'unisex',
+): boolean {
+  if (!product.image || product.image.includes('placeholder')) return false;
+  if (suitableFor) {
+    const gender = product.suitableFor;
+    if (gender && gender !== suitableFor && gender !== 'unisex') return false;
+  }
+  const name = product.name;
+  const merchant = product.merchantName ?? product.brand;
+  if (TRENDING_KIDS_RE.test(name)) return false;
+  if (TRENDING_LINGERIE_RE.test(name) || TRENDING_LINGERIE_RE.test(merchant)) {
+    return false;
+  }
+  if (TRENDING_ATHLETIC_RE.test(name) || TRENDING_ATHLETIC_RE.test(merchant)) {
+    return false;
+  }
+  return scoreTrendingLook(product) > 0;
+}
+
+async function fetchTrendingLookSupplements(
+  suitableFor?: 'male' | 'female' | 'unisex',
+): Promise<Product[]> {
+  const gender = suitableFor === 'unisex' ? undefined : suitableFor;
+  const queries =
+    suitableFor === 'male'
+      ? [
+          { q: 'jakke', brand: 'nly man' },
+          { q: 'hoodie', brand: 'nly man' },
+          { q: 'jeans', brand: 'nly man' },
+        ]
+      : [
+          { q: 'kjole', brand: 'nelly' },
+          { q: 'bluse', brand: 'nelly' },
+          { q: 'jakke', brand: 'nelly' },
+        ];
+
+  const pages = await Promise.all(
+    queries.map(({ q, brand }) =>
+      fetchCatalogFromApi(
+        {
+          q,
+          brand,
+          ...(gender ? { suitableFor: gender } : {}),
+          limit: 8,
+        },
+        { next: { revalidate: 120 } },
+      ).catch(() => ({ products: [] as Product[] })),
+    ),
+  );
+
+  return pages.flatMap((page) => page.products);
+}
+
+/**
+ * Three real, in-stock, gender-filtered products for /shop's "Populært
+ * akkurat nå" magazine section. Prefers popular-now fashion shots, then
+ * supplements with Nelly / NLY Man catalog queries so the three cards are
+ * not all jeans or outdoor packshots from merchant-balanced catalog.
+ */
+export async function fetchTrendingLooks(
+  suitableFor?: 'male' | 'female' | 'unisex',
+  count = 3,
+): Promise<Product[]> {
+  const [popular, supplements] = await Promise.all([
+    fetchFeaturedProducts(Math.max(count * 12, 40)),
+    fetchTrendingLookSupplements(suitableFor),
+  ]);
+
+  const byId = new Map<string, Product>();
+  for (const product of [...popular, ...supplements]) {
+    if (!byId.has(product.id)) byId.set(product.id, product);
+  }
+
+  const ranked = [...byId.values()]
+    .filter((product) => isTrendingLookEligible(product, suitableFor))
+    .sort((a, b) => scoreTrendingLook(b) - scoreTrendingLook(a));
+
+  const picked: Product[] = [];
+  const usedFamilies = new Set<string>();
+  const usedImages = new Set<string>();
+  const usedIds = new Set<string>();
+
+  const take = (product: Product) => {
+    picked.push(product);
+    usedImages.add(product.image);
+    usedIds.add(product.id);
+  };
+
+  const fillFrom = (pool: readonly Product[]) => {
+    for (const product of pool) {
+      if (picked.length >= count) return;
+      if (usedIds.has(product.id) || usedImages.has(product.image)) continue;
+      take(product);
+    }
+  };
+
+  for (const product of ranked) {
+    if (picked.length >= count) break;
+    if (usedImages.has(product.image)) continue;
+    const family = trendingLookFamily(product.name);
+    if (family !== 'other' && usedFamilies.has(family)) continue;
+    take(product);
+    if (family !== 'other') usedFamilies.add(family);
+  }
+
+  // One family per card is a nice-to-have; three cards is not. Dame/Herre
+  // must change what's in the row, never how long it is, so each fallback
+  // drops one constraint at a time: family variety, then the audience
+  // filter, then the quality gate.
+  fillFrom(ranked);
+
+  if (picked.length < count) {
+    fillFrom(
+      [...byId.values()]
+        .filter((product) => isTrendingLookEligible(product))
+        .sort((a, b) => scoreTrendingLook(b) - scoreTrendingLook(a)),
+    );
+  }
+
+  if (picked.length < count) {
+    fillFrom(
+      [...byId.values()]
+        .filter(
+          (product) => product.image && !product.image.includes('placeholder'),
+        )
+        .sort((a, b) => scoreTrendingLook(b) - scoreTrendingLook(a)),
+    );
+  }
+
+  return picked;
 }
 
 /** Catalog filters used to pick a query-matching photo for SearchBy cards. */

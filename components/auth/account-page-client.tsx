@@ -37,7 +37,7 @@ export function AccountPageClient({ user }: AccountPageClientProps) {
   }
 
   return (
-    <PageLayout mainClassName="section-container section-shell py-12 md:py-16">
+    <PageLayout mainClassName="section-container py-12 md:py-16">
       <div className="account-page mx-auto max-w-5xl">
         <header className="account-page__header">
           <div>

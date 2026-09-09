@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function UnsubscribePage() {
   return (
-    <PageLayout mainClassName="section-container section-shell py-12 md:py-16">
+    <PageLayout mainClassName="section-container py-12 md:py-16">
       <div className="account-page mx-auto max-w-lg">
         <header className="account-page__header">
           <p className="account-page__eyebrow">Prisvarsler</p>

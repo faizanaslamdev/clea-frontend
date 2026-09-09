@@ -3,13 +3,14 @@
 import { ProductGrid } from '@/components/product-grid';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
 import { useCatalogInfinite } from '@/lib/hooks/useCatalogInfinite';
-import type { ProductFamily } from '@/lib/api/chat-types';
+import type { ProductFamily, SuitableFor } from '@/lib/api/chat-types';
 
 interface ShopProductSectionProps {
   family: ProductFamily | null;
+  suitableFor?: SuitableFor;
 }
 
-export function ShopProductSection({ family }: ShopProductSectionProps) {
+export function ShopProductSection({ family, suitableFor }: ShopProductSectionProps) {
   const {
     data,
     isLoading,
@@ -19,6 +20,7 @@ export function ShopProductSection({ family }: ShopProductSectionProps) {
     isFetchingNextPage,
   } = useCatalogInfinite({
     productFamily: family ?? undefined,
+    suitableFor,
     balanceMerchants: true,
   });
 

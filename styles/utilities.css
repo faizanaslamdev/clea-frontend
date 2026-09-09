@@ -36,8 +36,12 @@
     @apply font-sans text-base inline-flex items-center border-foreground font-medium text-foreground;
   }
 
+  /* 64px top+bottom, so two stacked sections read as ~128px apart --
+     measured off daydream.ing's own live sections (every one of them runs
+     padding-block: 64px at 1440px wide, butted directly against the next).
+     Was md:py-24 (96px), which stacked into a 192px void between sections. */
   .section-shell {
-    @apply py-16 md:py-24;
+    @apply py-16;
   }
 
   .section-container {
@@ -1584,8 +1588,19 @@
     @apply justify-center;
   }
 
+  /* Relative positioning anchor for the fade edges + scroll-arrow buttons
+     below -- a plain wrapper, no width/height of its own beyond the row. */
+  .shop-category-tabs-wrap {
+    @apply relative;
+  }
+
+  /* Single row at EVERY width, never wraps -- studied from daydream.ing's
+     own category chip row: it stays one horizontally-scrolling line at
+     every screen width they tested, with the fade + arrow below as the
+     only affordance (previously this wrapped to multiple rows from 768px
+     up, which is also why there was never a need for a scroll arrow). */
   .shop-category-tabs {
-    @apply -mx-4 flex list-none gap-2.5 overflow-x-auto p-0 px-4 pb-1;
+    @apply -mx-4 flex flex-nowrap list-none gap-2.5 overflow-x-auto scroll-smooth p-0 px-4 pb-1;
     scrollbar-width: none;
   }
 
@@ -1595,7 +1610,67 @@
 
   @media (min-width: 768px) {
     .shop-category-tabs {
-      @apply mx-0 flex-wrap overflow-visible px-0 pb-0;
+      @apply mx-0 px-0 pb-0;
+    }
+  }
+
+  /* Soft edge fade behind each scroll-arrow button -- keeps a half-cut chip
+     from reading as a rendering glitch right under the button. Only shown
+     on the edge that actually has more content to reveal. */
+  .shop-category-tabs__fade {
+    @apply pointer-events-none absolute inset-y-0 z-1 w-14 opacity-0 transition-opacity duration-200 ease-out;
+  }
+
+  .shop-category-tabs__fade--visible {
+    @apply opacity-100;
+  }
+
+  .shop-category-tabs__fade--left {
+    left: 0;
+    background: linear-gradient(to right, var(--background), transparent);
+  }
+
+  .shop-category-tabs__fade--right {
+    right: 0;
+    background: linear-gradient(to left, var(--background), transparent);
+  }
+
+  /* Scroll-arrow button -- studied from daydream.ing's own chip row: a
+     small circular white button fades smoothly in/out (opacity + scale,
+     never an abrupt show/hide) right at whichever edge still has more
+     chips to reveal. `pointer-events` follows the same visibility toggle
+     so a hidden button can't steal a click meant for the chip under it. */
+  .shop-category-tabs__scroll-btn {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--hero-search-shadow);
+    color: var(--foreground);
+    @apply pointer-events-none absolute top-1/2 z-2 inline-flex size-8 -translate-y-1/2 scale-75 cursor-pointer items-center justify-center rounded-full opacity-0 transition-[opacity,transform] duration-200 ease-out;
+  }
+
+  .shop-category-tabs__scroll-btn--visible {
+    @apply pointer-events-auto scale-100 opacity-100;
+  }
+
+  .shop-category-tabs__scroll-btn:hover {
+    border-color: var(--foreground);
+  }
+
+  .shop-category-tabs__scroll-btn--left {
+    left: 4px;
+  }
+
+  .shop-category-tabs__scroll-btn--right {
+    right: 4px;
+  }
+
+  @media (min-width: 768px) {
+    .shop-category-tabs__scroll-btn--left {
+      left: -4px;
+    }
+
+    .shop-category-tabs__scroll-btn--right {
+      right: -4px;
     }
   }
 

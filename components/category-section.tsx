@@ -4,18 +4,46 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { useCategoryPreviews } from '@/lib/hooks/useProducts';
 import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
 import type { CategoryPreview } from '@/lib/api/products';
-import type { ProductFamily } from '@/lib/api/chat-types';
+import type { ProductFamily, ShopCategory, SuitableFor } from '@/lib/api/chat-types';
 
 /** Packshot-heavy tiles: contain so products aren't cropped in the 3:4 frame. */
 const CONTAIN_FIT_FAMILIES = new Set<ProductFamily>(['gloves']);
 
-export function CategorySection() {
+interface CategorySectionProps {
+  /** Hides the "Se hele utvalget" link to /shop -- pass false when this
+   * section is already being rendered ON /shop itself, where a link back
+   * to the current page would be pointless. Defaults to true so the
+   * homepage (the only existing caller) renders exactly as before. */
+  showLink?: boolean;
+  /** Filters tile preview photos (and underlying inventory) to one
+   * audience -- wired up from the Dame/Herre toggle on /shop. Omitted
+   * (or undefined) shows the unfiltered "Alle" mix, matching the
+   * homepage's existing behavior. */
+  suitableFor?: SuitableFor;
+  /** Carried into the chat query on tile click so it continues the same
+   * gendered browsing context set by /shop's Dame/Herre toggle. */
+  shopCategory?: ShopCategory;
+  /** Tighter vertical rhythm for /shop, where this sits between a chip row
+   * and another section rather than standing alone on the homepage.
+   * .section-shell's 96px top+bottom would stack with the next section's
+   * own 96px into a 192px void -- daydream.ing's shop page runs ~32-56px
+   * between these blocks (measured on the live site). */
+  compact?: boolean;
+}
+
+export function CategorySection({
+  showLink = true,
+  suitableFor,
+  shopCategory,
+  compact = false,
+}: CategorySectionProps = {}) {
   const router = useRouter();
-  const { data: categories = [], isLoading } = useCategoryPreviews();
+  const { data: categories = [], isLoading } = useCategoryPreviews(suitableFor);
 
   if (!isLoading && categories.length === 0) {
     return null;
@@ -24,7 +52,10 @@ export function CategorySection() {
   return (
     <section
       aria-labelledby="category-grid-heading"
-      className="section-shell scroll-mt-20"
+      className={cn(
+        'scroll-mt-20',
+        compact ? 'pt-8 pb-10 md:pt-12 md:pb-14' : 'section-shell',
+      )}
       aria-busy={isLoading}
     >
       <div className="section-container mb-8 flex flex-wrap items-end justify-between gap-4 md:mb-10">
@@ -34,13 +65,15 @@ export function CategorySection() {
             Hva leter du etter?
           </h2>
         </div>
-        <Link
-          href="/shop"
-          className="inline-flex items-center gap-1.5 whitespace-nowrap font-sans text-sm font-medium text-foreground underline-offset-4 hover:underline"
-        >
-          Se hele utvalget
-          <ArrowUpRight className="size-3.5" aria-hidden />
-        </Link>
+        {showLink && (
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-1.5 whitespace-nowrap font-sans text-sm font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Se hele utvalget
+            <ArrowUpRight className="size-3.5" aria-hidden />
+          </Link>
+        )}
       </div>
 
       <div className="category-carousel__track" role="list">
@@ -67,7 +100,7 @@ export function CategorySection() {
                 key={category.label}
                 category={category}
                 onSelect={() =>
-                  navigateToChatEntry(router, { query: category.query })
+                  navigateToChatEntry(router, { query: category.query, shopCategory })
                 }
               />
             ))}

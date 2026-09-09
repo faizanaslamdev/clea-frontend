@@ -2,7 +2,7 @@ import { PageLayout } from '@/components/layout/page-layout';
 
 export default function AccountLoading() {
   return (
-    <PageLayout mainClassName="section-container section-shell py-12 md:py-16">
+    <PageLayout mainClassName="section-container py-12 md:py-16">
       <div
         className="account-page mx-auto max-w-5xl animate-pulse"
         aria-label="Laster konto"

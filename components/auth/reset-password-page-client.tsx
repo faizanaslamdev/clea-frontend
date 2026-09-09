@@ -71,7 +71,7 @@ export function ResetPasswordPageClient() {
   }
 
   return (
-    <PageLayout mainClassName="section-container section-shell py-16">
+    <PageLayout mainClassName="section-container py-16">
       <div className="auth-page mx-auto max-w-md">
         <h1 className="type-heading mb-3">Tilbakestill passord</h1>
         <p className="type-subheading mb-8 text-muted-foreground">

@@ -3,17 +3,26 @@
 import { Suspense, useCallback } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PageLayout } from '@/components/layout/page-layout';
+import { CategorySection } from '@/components/category-section';
 import { ShopCategoryTabs } from '@/components/shop/shop-category-tabs';
-import { ShopProductSection } from '@/components/shop/shop-product-section';
-import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
-import type { ProductFamily } from '@/lib/api/chat-types';
+import { ShopGenderToggle } from '@/components/shop/shop-gender-toggle';
+import { ShopTrendingSection } from '@/components/shop/shop-trending-section';
+import type { ShopCategory, SuitableFor } from '@/lib/api/chat-types';
 
-const VALID_FAMILIES = new Set(
-  CATEGORY_GRID_ENTRIES.map((entry) => entry.family),
-);
+/** `gender` URL param <-> the backend's `suitable_for` filter -- kept as
+ * its own short param (not `suitable_for` verbatim) so the URL reads in
+ * Norwegian. Always resolves to a value (defaults to "dame") since the
+ * toggle itself is binary, same as daydream.ing's own Womens/Mens. */
+function parseGenderParam(value: string | null): SuitableFor {
+  return value === 'herre' ? 'male' : 'female';
+}
 
-function isProductFamily(value: string | null): value is ProductFamily {
-  return !!value && VALID_FAMILIES.has(value as ProductFamily);
+function genderParamFor(value: SuitableFor): string {
+  return value === 'male' ? 'herre' : 'dame';
+}
+
+function shopCategoryFor(value: SuitableFor): ShopCategory {
+  return value === 'male' ? 'mens' : 'womens';
 }
 
 function ShopPageContent() {
@@ -21,41 +30,47 @@ function ShopPageContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const categoryParam = searchParams.get('category');
-  const activeFamily = isProductFamily(categoryParam) ? categoryParam : null;
+  const suitableFor = parseGenderParam(searchParams.get('gender'));
+  const shopCategory = shopCategoryFor(suitableFor);
 
-  const handleSelect = useCallback(
-    (family: ProductFamily | null) => {
+  const handleGenderSelect = useCallback(
+    (value: SuitableFor) => {
       const params = new URLSearchParams(searchParams.toString());
-      if (family) {
-        params.set('category', family);
-      } else {
-        params.delete('category');
-      }
-      const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      params.set('gender', genderParamFor(value));
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [pathname, router, searchParams],
   );
 
   return (
-    <div className="section-container section-shell">
-      <header className="mb-8 flex flex-col gap-2 md:mb-10">
-        <h1 className="type-heading">Handle</h1>
-        <p className="type-subheading max-w-[560px]">
-          Bla gjennom hele utvalget kategori for kategori, på tvers av alle
-          våre partnerbutikker.
-        </p>
-      </header>
+    <>
+      <div className="section-container pt-16">
+        <header className="mb-6 flex flex-col gap-2 md:mb-8">
+          <h1 className="type-heading">Handle</h1>
+          <p className="type-subheading max-w-[560px]">
+            Bla gjennom hele utvalget kategori for kategori, på tvers av alle
+            våre partnerbutikker.
+          </p>
+        </header>
 
-      <ShopCategoryTabs
-        active={activeFamily}
-        onSelect={handleSelect}
-        className="mb-10"
+        <ShopGenderToggle
+          active={suitableFor}
+          onSelect={handleGenderSelect}
+          className="mb-6 md:mb-8"
+        />
+
+        <ShopCategoryTabs shopCategory={shopCategory} />
+      </div>
+
+      <CategorySection
+        compact
+        showLink={false}
+        suitableFor={suitableFor}
+        shopCategory={shopCategory}
       />
 
-      <ShopProductSection family={activeFamily} />
-    </div>
+      <ShopTrendingSection suitableFor={suitableFor} shopCategory={shopCategory} />
+    </>
   );
 }
 
