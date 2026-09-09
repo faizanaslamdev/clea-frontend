@@ -8,6 +8,17 @@ import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { useCategoryPreviews } from '@/lib/hooks/useProducts';
 import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
 import type { CategoryPreview } from '@/lib/api/products';
+import type { ProductFamily } from '@/lib/api/chat-types';
+
+/** Packshot-heavy tiles: contain so products aren't cropped in the 3:4 frame. */
+const CONTAIN_FIT_FAMILIES = new Set<ProductFamily>([
+  'tops',
+  'knitwear',
+  'bottoms',
+  'outerwear',
+  'gloves',
+  'footwear',
+]);
 
 export function CategorySection() {
   const router = useRouter();
@@ -43,7 +54,7 @@ export function CategorySection() {
         {isLoading
           ? CATEGORY_GRID_ENTRIES.map((entry) => (
               <div
-                key={entry.family}
+                key={entry.label}
                 role="listitem"
                 className="category-fan-card category-fan-card--skeleton snap-start shrink-0"
                 style={
@@ -60,7 +71,7 @@ export function CategorySection() {
             ))
           : categories.map((category) => (
               <CategoryFanCard
-                key={category.family}
+                key={category.label}
                 category={category}
                 onSelect={() =>
                   navigateToChatEntry(router, { query: category.query })
@@ -80,6 +91,11 @@ function CategoryFanCard({
   onSelect: () => void;
 }) {
   const [center, left, right] = category.images;
+  // Packshot-heavy families look cropped/broken with object-cover in the
+  // 3:4 fan frame — contain keeps the full product on the white plate.
+  const imageFit = CONTAIN_FIT_FAMILIES.has(category.family)
+    ? 'object-contain'
+    : 'object-cover';
 
   return (
     <button
@@ -104,7 +120,7 @@ function CategoryFanCard({
               src={left}
               alt=""
               fill
-              className="object-contain"
+              className={`${imageFit} object-center`}
               sizes="140px"
             />
           </div>
@@ -115,7 +131,7 @@ function CategoryFanCard({
               src={right}
               alt=""
               fill
-              className="object-contain"
+              className={`${imageFit} object-center`}
               sizes="140px"
             />
           </div>
@@ -125,7 +141,7 @@ function CategoryFanCard({
             src={center}
             alt={category.label}
             fill
-            className="object-contain"
+            className={`${imageFit} object-center`}
             sizes="180px"
           />
         </div>

@@ -2870,7 +2870,7 @@
     transition:
       transform 450ms cubic-bezier(0.16, 1, 0.3, 1),
       filter 300ms ease;
-    @apply absolute bottom-0 aspect-[3/4] overflow-hidden rounded-xl bg-card;
+    @apply absolute bottom-0 aspect-[3/4] overflow-hidden rounded-xl bg-white;
   }
 
   .category-fan-card__photo--center {
@@ -3090,25 +3090,25 @@
      mask fades every column edge into the surrounding panel instead of
      clipping photos abruptly at the top and bottom. */
   .feature-tabs__explore-grid {
-    @apply grid grid-cols-3 gap-3 sm:gap-4;
+    @apply grid grid-cols-3 gap-2.5 sm:gap-3.5;
   }
 
   .feature-tabs__explore-col {
-    mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
-    -webkit-mask-image: linear-gradient(to bottom, transparent, black 14%, black 86%, transparent);
-    @apply relative h-[360px] overflow-hidden rounded-lg sm:h-[440px] lg:h-[520px];
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    @apply relative h-[380px] overflow-hidden rounded-xl sm:h-[460px] lg:h-[540px];
   }
 
   .feature-tabs__explore-track {
-    @apply flex flex-col gap-3 sm:gap-4;
+    @apply flex flex-col gap-2.5 sm:gap-3.5;
   }
 
   .feature-tabs__explore-track--up {
-    animation: feature-tabs-marquee-up 132s linear infinite;
+    animation: feature-tabs-marquee-up 96s linear infinite;
   }
 
   .feature-tabs__explore-track--down {
-    animation: feature-tabs-marquee-down 110s linear infinite;
+    animation: feature-tabs-marquee-down 96s linear infinite;
   }
 
   @keyframes feature-tabs-marquee-up {
@@ -3130,7 +3130,7 @@
   }
 
   .feature-tabs__explore-photo {
-    @apply relative aspect-[3/4] shrink-0 overflow-hidden rounded-lg bg-muted;
+    @apply relative aspect-[3/4] shrink-0 overflow-hidden rounded-xl bg-muted shadow-[0_1px_2px_rgba(0,0,0,0.06)];
   }
 
   /* Chat — prompt pill + result strip */

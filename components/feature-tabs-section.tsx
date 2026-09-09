@@ -10,12 +10,98 @@ import { AiSparkIcon } from '@/components/icons/ai-spark-icon';
 import { cn } from '@/lib/utils';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { formatPrice, toDisplayCase } from '@/lib/domain/format';
-import { useCategoryPreviews, useFeaturedProducts } from '@/lib/hooks/useProducts';
+import { useCategoryPreviews, useFeaturedProducts, useSimilarProducts } from '@/lib/hooks/useProducts';
 import { useAllStores } from '@/lib/hooks/useStores';
-import { CATEGORY_SECTION_DISPLAY_COUNT } from '@/lib/api/products';
+import type { ProductFamily } from '@/lib/api/chat-types';
+import type { CategoryPreview } from '@/lib/api/products';
 import { TRENDING_DISPLAY_LIMIT } from '@/lib/constants/popular-brands';
 
 type TabKey = 'explore' | 'chat' | 'save' | 'compare';
+
+/** Utforsk: fashion-forward families only — accessories look sparse in the
+ * vertical marquee and kill the "wow" of the panel. */
+const EXPLORE_FAMILY_ORDER: readonly ProductFamily[] = [
+  'dresses',
+  'tops',
+  'knitwear',
+  'bottoms',
+  'outerwear',
+  'footwear',
+  'bags',
+];
+
+/** Prefer lifestyle / fashion CDN shots over flat outdoor packshots. */
+function exploreImageScore(src: string): number {
+  const image = src.toLowerCase();
+  let value = 0;
+  if (image.includes('occtoo-media.com')) value += 6;
+  if (image.includes('ralphlauren.scene7.com')) value += 6;
+  if (image.includes('cdn.shopify.com')) value += 3;
+  if (image.includes('nelly') || image.includes('hunkem')) value += 2;
+  // Flat cutouts / outdoor catalog hosts read colder in the marquee.
+  if (image.includes('outnorth')) value -= 3;
+  if (image.includes('.png')) value -= 2;
+  return value;
+}
+
+/**
+ * Build three marquee columns of the strongest fashion photos we already
+ * have on the homepage — category heroes first, then featured products —
+ * sorted for visual punch so Utforsk feels curated, not random inventory.
+ */
+function buildExploreColumns(
+  categories: readonly CategoryPreview[],
+  featuredProducts: readonly { image: string }[],
+): string[][] {
+  const byFamily = new Map(categories.map((category) => [category.family, category]));
+  const ordered = EXPLORE_FAMILY_ORDER.map((family) => byFamily.get(family)).filter(
+    (category): category is CategoryPreview => Boolean(category),
+  );
+
+  const seen = new Set<string>();
+  const pool: string[] = [];
+
+  const pushUnique = (src: string | undefined) => {
+    if (!src || seen.has(src)) return;
+    seen.add(src);
+    pool.push(src);
+  };
+
+  // Pass 1–2: best shots from hero fashion families (dresses/tops first).
+  for (let rank = 0; rank < 2; rank += 1) {
+    for (const category of ordered) {
+      pushUnique(category.images[rank]);
+    }
+  }
+
+  // Pass 3: featured/popular products that score as lifestyle photos.
+  featuredProducts
+    .map((product) => product.image)
+    .filter(Boolean)
+    .sort((a, b) => exploreImageScore(b) - exploreImageScore(a))
+    .forEach((src) => pushUnique(src));
+
+  // Final polish: keep the visually strongest frames first.
+  pool.sort((a, b) => exploreImageScore(b) - exploreImageScore(a));
+
+  // Cap so each column stays dense (~6–7 unique) without endless outdoor noise.
+  const capped = pool.slice(0, 21);
+
+  const columns: string[][] = [[], [], []];
+  capped.forEach((src, index) => {
+    columns[index % 3]!.push(src);
+  });
+
+  // Stagger start frames so all three columns don't show the same beat.
+  if (columns[1]!.length > 1) {
+    columns[1] = [...columns[1]!.slice(1), columns[1]![0]!];
+  }
+  if (columns[2]!.length > 2) {
+    columns[2] = [...columns[2]!.slice(2), ...columns[2]!.slice(0, 2)];
+  }
+
+  return columns;
+}
 
 const TABS: readonly { key: TabKey; label: string }[] = [
   { key: 'explore', label: 'Utforsk' },
@@ -89,6 +175,17 @@ export function FeatureTabsSection() {
   const { data: featuredProducts = [] } = useFeaturedProducts();
   const { data: stores = [] } = useAllStores();
 
+  // Prefer a strong fashion hero (kjoler → topper → sko) so Sammenlign
+  // fans real similar products around something shoppable, not a random
+  // spare category packshot.
+  const compareHeroCategory =
+    categories.find((category) => category.family === 'dresses') ??
+    categories.find((category) => category.family === 'tops') ??
+    categories.find((category) => category.family === 'footwear') ??
+    categories[0];
+  const compareHeroId = compareHeroCategory?.productId ?? '';
+  const { data: similarForCompare = [] } = useSimilarProducts(compareHeroId, 5);
+
   const goToTab = (next: TabKey) => {
     if (next === activeTab) return;
     setActiveTab(next);
@@ -140,24 +237,9 @@ export function FeatureTabsSection() {
     };
   }, []);
 
-  // Three vertical photo columns for the Explore visual -- studied from
-  // daydream.ing's own explore panel, which runs a continuous vertical
-  // scroll rather than a static grid: the left and right columns drift
-  // slowly upward, the middle column drifts slowly downward. Every product
-  // photo across all homepage categories is round-robined across the three
-  // columns (image 0 of every category to column 0, image 1 to column 1,
-  // and so on) so each column mixes categories instead of clustering one.
-  // Categories fetch spare images beyond what the category tile itself
-  // shows (CATEGORY_SECTION_DISPLAY_COUNT) -- slicing from there keeps this
-  // section's visuals from repeating photos already visible in
-  // CategorySection just above it on the page.
-  const exploreColumns: string[][] = [[], [], []];
-  categories
-    .flatMap((category) => category.images.slice(CATEGORY_SECTION_DISPLAY_COUNT))
-    .filter((src): src is string => Boolean(src))
-    .forEach((src, i) => {
-      exploreColumns[i % 3].push(src);
-    });
+  // Three vertical photo columns for the Explore visual — curated fashion
+  // heroes + strongest featured shots so the marquee feels premium.
+  const exploreColumns = buildExploreColumns(categories, featuredProducts);
 
   // Same idea for products: the fetched pool is larger than what the
   // "Populært nå" carousel displays (TRENDING_DISPLAY_LIMIT) -- the tail is
@@ -167,13 +249,19 @@ export function FeatureTabsSection() {
   const priceDropProducts = remainingFeaturedProducts.filter(
     (product) => product.priceHistory.length > 1,
   );
-  const compareImages = categories
-    .slice(0, 2)
-    .flatMap((category) => category.images.slice(CATEGORY_SECTION_DISPLAY_COUNT))
-    .filter(Boolean)
-    .slice(0, 6);
-  const compareHeroImage = compareImages[0];
-  const compareFanPhotos = compareImages.slice(1);
+  const compareHeroImage =
+    compareHeroCategory?.images[0] ?? remainingFeaturedProducts[0]?.image;
+  const compareFanPhotos = (() => {
+    const fromSimilar = similarForCompare
+      .map((product) => product.image)
+      .filter((src): src is string => Boolean(src) && src !== compareHeroImage)
+      .slice(0, COMPARE_FAN_POSITIONS.length);
+    if (fromSimilar.length > 0) return fromSimilar;
+    // Same-family tile extras if similar API is empty for this hero.
+    return (compareHeroCategory?.images.slice(1) ?? [])
+      .filter((src): src is string => Boolean(src) && src !== compareHeroImage)
+      .slice(0, COMPARE_FAN_POSITIONS.length);
+  })();
   const storeCount = stores.length;
 
   const handleChatCta = () => {
@@ -284,7 +372,13 @@ export function FeatureTabsSection() {
                           >
                             {[...column, ...column].map((src, i) => (
                               <div key={`${colIndex}-${i}`} className="feature-tabs__explore-photo">
-                                <Image src={src} alt="" fill className="object-cover" sizes="180px" />
+                                <Image
+                                  src={src}
+                                  alt=""
+                                  fill
+                                  className="object-cover object-center"
+                                  sizes="180px"
+                                />
                               </div>
                             ))}
                           </div>
@@ -363,7 +457,7 @@ export function FeatureTabsSection() {
                       const pos = COMPARE_FAN_POSITIONS[i % COMPARE_FAN_POSITIONS.length];
                       return (
                         <div
-                          key={src}
+                          key={`${src}-${i}`}
                           className="feature-tabs__compare-fan-photo"
                           style={
                             {

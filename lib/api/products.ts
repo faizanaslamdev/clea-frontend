@@ -267,6 +267,81 @@ export const CATEGORY_SECTION_DISPLAY_COUNT = 3;
  *  is spare headroom for FeatureTabsSection to reuse without duplicating. */
 const CATEGORY_PREVIEW_PHOTO_COUNT = 6;
 
+/** Pull a catalog `q` from "Vis meg …" chat copy when no explicit previewQ. */
+function previewQueryForEntry(entry: CategoryGridEntry): string | undefined {
+  if (entry.previewQ?.trim()) {
+    return entry.previewQ.trim();
+  }
+  const match = entry.query.match(/^vis meg\s+(.+)$/i);
+  return match?.[1]?.trim() || undefined;
+}
+
+/**
+ * Prefer fashion-CDN / on-family shots for homepage tiles. Family-only
+ * ranking often surfaces outdoor packshots first; this reorders the pool.
+ */
+function rankProductsForCategoryTile<T extends { image: string; name: string }>(
+  products: T[],
+  family: ProductFamily,
+  previewQ?: string,
+): T[] {
+  const preview = (previewQ ?? '').toLowerCase();
+  const braFocused = /bra|bh|bralette/.test(preview);
+  const briefsFocused = /truse|truser|briefs|boxers|undertøy/.test(preview);
+
+  const score = (product: T): number => {
+    let value = 0;
+    const image = product.image.toLowerCase();
+    const name = product.name.toLowerCase();
+    if (image.includes('occtoo-media.com')) value += 4;
+    if (image.includes('ralphlauren.scene7.com')) value += 3;
+    if (image.includes('cdn.shopify.com')) value += 2;
+    if (family === 'footwear' && image.endsWith('.png')) value -= 1;
+    if (family === 'knitwear' && /tank|tee|t-shirt|skjorte/.test(name)) value -= 2;
+    if (
+      family === 'knitwear' &&
+      /strikk|knit|genser|sweater|jumper|hoodie/.test(name)
+    ) {
+      value += 3;
+    }
+    if (family === 'bottoms' && /kjole|dress|bad|swim/.test(name)) value -= 3;
+    if (
+      family === 'bottoms' &&
+      /bukse|jeans|pants|chino|nederdel|skirt/.test(name)
+    ) {
+      value += 3;
+    }
+    if (family === 'outerwear' && /jakke|jacket|coat|parkas|shell/.test(name)) {
+      value += 2;
+    }
+    if (
+      family === 'underwear' &&
+      /bra|bh|bralette|truse|undertøy|bikini|lingerie|boxers|briefs/.test(name)
+    ) {
+      value += 3;
+    }
+    if (
+      family === 'underwear' &&
+      /cap|hoodie|jacket|jakke|tee|tank|base layer|set long|sport top/.test(name)
+    ) {
+      value -= 3;
+    }
+    if (braFocused && /bra|bh|bralette/.test(name)) value += 4;
+    if (braFocused && /wire|wired|bøyle|spiler|push.?up|balconette|lace|blonde|bikini/.test(name)) {
+      value += 5;
+    }
+    if (braFocused && /sports?\s*bra|sportsbra|high support|training|hypervent/.test(name)) {
+      value -= 6;
+    }
+    if (braFocused && /truse|panty|briefs|boxers/.test(name)) value -= 2;
+    if (briefsFocused && /truse|panty|briefs|boxers|trunks/.test(name)) value += 4;
+    if (briefsFocused && /bra|bralette|sports bra/.test(name)) value -= 2;
+    return value;
+  };
+
+  return [...products].sort((a, b) => score(b) - score(a));
+}
+
 /**
  * Representative in-stock products per homepage category tile — enough to
  * fan a small photo stack the way daydream.ing does, plus spare headroom
@@ -280,15 +355,22 @@ export async function fetchCategoryPreviews(
   const results = await Promise.all(
     entries.map(async (entry) => {
       try {
+        const previewQ = previewQueryForEntry(entry);
         const { products } = await fetchCatalogFromApi(
           {
             productFamily: entry.family,
-            limit: CATEGORY_PREVIEW_PHOTO_COUNT,
+            ...(previewQ ? { q: previewQ } : {}),
+            limit: Math.max(CATEGORY_PREVIEW_PHOTO_COUNT * 2, 12),
             balanceMerchants: true,
           },
           { next: { revalidate: 120 } },
         );
-        const [first] = products;
+        const ranked = rankProductsForCategoryTile(
+          products,
+          entry.family,
+          previewQ,
+        ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
+        const [first] = ranked;
         if (!first) return null;
 
         return {
@@ -297,7 +379,7 @@ export async function fetchCategoryPreviews(
           query: entry.query,
           accentFrom: entry.accentFrom,
           accentTo: entry.accentTo,
-          images: products.map((product) => product.image),
+          images: ranked.map((product) => product.image),
           productId: first.id,
         } satisfies CategoryPreview;
       } catch {

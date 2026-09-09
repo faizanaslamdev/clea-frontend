@@ -21,6 +21,7 @@ export type ProductFamily =
   | 'tops'
   | 'bottoms'
   | 'dresses'
+  | 'underwear'
   | 'socks'
   | 'legwear'
   | 'gloves'
