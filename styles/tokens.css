@@ -153,10 +153,17 @@
      text -- tying contrast to the text box instead of to a percentage of
      the photo, so the fade's height can never again strand the first line
      of a quote on bare photo. */
+  /* One continuous ramp does all the work. Splitting it between this and the
+     card's scrim put a step at the card's top edge -- ~0.80 opaque above the
+     line, ~0.98 below it -- which read as a hard horizontal cut across the
+     photo. Stops are spaced so the quote's band sits above 0.85 while the
+     climb out to bare photo takes ~180px. */
   --promo-image-fade: linear-gradient(
     to top,
-    color-mix(in oklch, var(--card) 85%, transparent) 0%,
-    color-mix(in oklch, var(--card) 80%, transparent) 55%,
+    var(--card) 0%,
+    color-mix(in oklch, var(--card) 92%, transparent) 25%,
+    color-mix(in oklch, var(--card) 55%, transparent) 55%,
+    color-mix(in oklch, var(--card) 20%, transparent) 80%,
     transparent 100%
   );
   /* Carries the contrast. Near-opaque behind the text and falling off
@@ -165,11 +172,13 @@
   /* Strong edge to edge across the card: the quote's first line sits right
      at the card's top edge, so any ramp inside the card lands across text.
      The transition to bare photo happens in --promo-image-fade above it. */
+  /* Starts at zero at the card's top edge on purpose -- anything opaque here
+     creates a visible seam against the fade behind it. Just a little extra
+     lift under the text itself. */
   --promo-testimonial-scrim: linear-gradient(
     to top,
-    var(--card) 0%,
-    color-mix(in oklch, var(--card) 95%, transparent) 70%,
-    color-mix(in oklch, var(--card) 88%, transparent) 100%
+    oklch(1 0 0 / 0.25) 0%,
+    transparent 100%
   );
 
   --deal: var(--foreground);
