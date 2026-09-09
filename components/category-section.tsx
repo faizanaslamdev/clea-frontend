@@ -12,11 +12,8 @@ import type { ProductFamily } from '@/lib/api/chat-types';
 
 /** Packshot-heavy tiles: contain so products aren't cropped in the 3:4 frame. */
 const CONTAIN_FIT_FAMILIES = new Set<ProductFamily>([
-  'tops',
   'knitwear',
-  'bottoms',
   'gloves',
-  'footwear',
 ]);
 
 export function CategorySection() {
