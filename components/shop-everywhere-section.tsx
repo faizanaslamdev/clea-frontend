@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { PromoTestimonialRotator } from '@/components/promo-testimonial-rotator';
 import { BRAND } from '@/lib/constants/brand';
 
-const PROMO_IMAGE = '/promo/shop-everywhere.webp';
+const PROMO_IMAGE = '/promo/shop-everywhere-v2.webp';
 
 export function ShopEverywhereSection() {
   return (
@@ -11,7 +11,7 @@ export function ShopEverywhereSection() {
       className="section-shell section-container"
     >
       <div className="promo-panel flex flex-col md:flex-row">
-        <div className="flex w-full flex-col justify-center gap-6 bg-muted px-8 py-12 md:min-h-[520px] md:flex-1 md:gap-7 md:px-16 md:py-16 lg:px-20 lg:py-20">
+        <div className="promo-panel__intro flex w-full flex-col justify-center gap-6 bg-muted px-8 py-12 md:min-h-[520px] md:flex-1 md:gap-7 md:px-16 md:py-16 lg:px-20 lg:py-20">
           <p className="type-eyebrow text-muted-foreground">
             Sammenlign på {BRAND.domain}
           </p>
@@ -35,8 +35,8 @@ export function ShopEverywhereSection() {
             src={PROMO_IMAGE}
             alt=""
             fill
-            className="object-cover object-center"
-            style={{ objectPosition: '50% 10%' }}
+            className="promo-panel__photo object-cover object-center"
+            style={{ objectPosition: '50% 22%' }}
             sizes="(max-width: 768px) 100vw, 52vw"
           />
           <div className="promo-panel__image-fade" aria-hidden />

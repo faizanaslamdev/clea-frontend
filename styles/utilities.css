@@ -617,20 +617,103 @@
 
   .promo-panel__image-fade {
     background: var(--promo-image-fade);
-    @apply pointer-events-none absolute inset-x-0 bottom-0 h-[55%];
+    @apply pointer-events-none absolute inset-x-0 bottom-0 h-[38%];
   }
 
+  /* pt-20/24 was ~96px of empty scrim sitting on top of the photo purely to
+     soften the hand-off; the shorter image fade does that job now. */
   .promo-panel__testimonial-card {
     background: var(--promo-testimonial-scrim);
-    @apply relative w-full rounded-none px-8 pb-6 pt-20 md:px-10 md:pb-7 md:pt-24 lg:px-12;
+    @apply relative w-full rounded-none px-8 pb-6 pt-10 md:px-10 md:pb-7 md:pt-12 lg:px-12;
   }
 
+  /* Grid, not flow: every quote occupies the same cell, so the track is
+     always as tall as the longest one and the card never resizes mid-swap. */
   .promo-panel__testimonial-track {
-    @apply relative w-full;
+    @apply relative grid w-full;
   }
 
   .promo-panel__testimonial-slide {
+    grid-area: 1 / 1;
     @apply flex w-full flex-col;
+  }
+
+  .promo-panel__testimonial-star {
+    fill: var(--foreground);
+    color: var(--foreground);
+    opacity: 0.85;
+  }
+
+  .promo-panel__testimonial-dots {
+    @apply mt-5 flex items-center gap-1.5;
+  }
+
+  .promo-panel__testimonial-dot {
+    background-color: color-mix(in oklch, var(--foreground) 22%, transparent);
+    @apply h-1 w-4 cursor-pointer rounded-full border-0 p-0 transition-[width,background-color] duration-300 ease-out;
+  }
+
+  .promo-panel__testimonial-dot:hover {
+    background-color: color-mix(in oklch, var(--foreground) 45%, transparent);
+  }
+
+  .promo-panel__testimonial-dot--active {
+    background-color: var(--foreground);
+    @apply w-7;
+  }
+
+  /* Very slow drift so the plate feels alive without ever reading as motion
+     -- 24s for a 4% scale, alternating so it never snaps back. */
+  .promo-panel__photo {
+    animation: promo-panel-drift 24s ease-in-out infinite alternate;
+  }
+
+  @keyframes promo-panel-drift {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.04);
+    }
+  }
+
+  /* Staggered entrance for the copy, but only inside a <Reveal> wrapper --
+     rendered anywhere else the column just shows normally. */
+  .reveal-on-scroll .promo-panel__intro > * {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      opacity 620ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-on-scroll--visible .promo-panel__intro > * {
+    opacity: 1;
+    transform: none;
+  }
+
+  .reveal-on-scroll--visible .promo-panel__intro > *:nth-child(1) {
+    transition-delay: 90ms;
+  }
+
+  .reveal-on-scroll--visible .promo-panel__intro > *:nth-child(2) {
+    transition-delay: 180ms;
+  }
+
+  .reveal-on-scroll--visible .promo-panel__intro > *:nth-child(3) {
+    transition-delay: 270ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .promo-panel__photo {
+      animation: none;
+    }
+
+    .reveal-on-scroll .promo-panel__intro > * {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   .text-deal {

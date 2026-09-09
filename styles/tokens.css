@@ -144,17 +144,23 @@
     0 4px 8px oklch(0 0 0 / 0.02),
     0 16px 40px oklch(0 0 0 / 0.06),
     0 32px 64px oklch(0 0 0 / 0.04);
+  /* Shortened from a 72% ramp: between this fade and the testimonial scrim
+     over it, more than half the photo was washed out -- the model's legs and
+     the suitcase had disappeared entirely. Ends higher and starts softer, so
+     the quote still reads while the picture survives. */
   --promo-image-fade: linear-gradient(
     to top,
     var(--card) 0%,
-    color-mix(in oklch, var(--card) 85%, transparent) 35%,
-    transparent 72%
+    color-mix(in oklch, var(--card) 78%, transparent) 26%,
+    transparent 58%
   );
+  /* Slightly stronger at the very bottom to make up for the shorter fade
+     above -- the text sits in this band, so it carries the contrast now. */
   --promo-testimonial-scrim: linear-gradient(
     to top,
-    oklch(1 0 0 / 0.14) 0%,
-    oklch(1 0 0 / 0.07) 40%,
-    oklch(1 0 0 / 0.02) 65%,
+    oklch(1 0 0 / 0.2) 0%,
+    oklch(1 0 0 / 0.1) 45%,
+    oklch(1 0 0 / 0.03) 72%,
     transparent 100%
   );
 
