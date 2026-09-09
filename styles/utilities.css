@@ -617,25 +617,42 @@
 
   .promo-panel__image-fade {
     background: var(--promo-image-fade);
-    @apply pointer-events-none absolute inset-x-0 bottom-0 h-[38%];
+    @apply pointer-events-none absolute inset-x-0 bottom-0 h-[42%];
   }
 
-  /* pt-20/24 was ~96px of empty scrim sitting on top of the photo purely to
-     soften the hand-off; the shorter image fade does that job now. */
+  /* Compact band inside the fade — tight padding so the quote sits on the
+     denser scrim, not floating in empty mid-photo space. */
   .promo-panel__testimonial-card {
     background: var(--promo-testimonial-scrim);
-    @apply relative w-full rounded-none px-8 pb-6 pt-10 md:px-10 md:pb-7 md:pt-12 lg:px-12;
+    @apply relative w-full max-w-none rounded-none px-4 pb-3 pt-3 md:px-5 md:pb-4 md:pt-4;
   }
 
-  /* Grid, not flow: every quote occupies the same cell, so the track is
-     always as tall as the longest one and the card never resizes mid-swap. */
+  .promo-panel__testimonial-measure {
+    @apply pointer-events-none invisible absolute inset-x-4 top-0 -z-10 md:inset-x-5;
+  }
+
+  .promo-panel__testimonial-measure-item {
+    @apply absolute inset-x-0 top-0;
+  }
+
   .promo-panel__testimonial-track {
-    @apply relative grid w-full;
+    @apply relative w-full min-w-0;
   }
 
   .promo-panel__testimonial-slide {
-    grid-area: 1 / 1;
-    @apply flex w-full flex-col;
+    @apply m-0 w-full min-w-0;
+  }
+
+  .promo-panel__testimonial-quote {
+    @apply m-0 w-full max-w-none text-sm font-light leading-snug text-foreground md:text-[15px] md:leading-snug;
+  }
+
+  .promo-panel__testimonial-footer {
+    @apply mt-2 flex items-end justify-between gap-3;
+  }
+
+  .promo-panel__testimonial-author {
+    @apply m-0 text-sm font-semibold text-foreground;
   }
 
   .promo-panel__testimonial-star {
@@ -645,7 +662,7 @@
   }
 
   .promo-panel__testimonial-dots {
-    @apply mt-5 flex items-center gap-1.5;
+    @apply mt-0 flex shrink-0 items-center gap-1.5 pb-0.5;
   }
 
   .promo-panel__testimonial-dot {
@@ -662,19 +679,9 @@
     @apply w-7;
   }
 
-  /* Very slow drift so the plate feels alive without ever reading as motion
-     -- 24s for a 4% scale, alternating so it never snaps back. */
+  /* No slow zoom — it made the bottom fade look like growing padding. */
   .promo-panel__photo {
-    animation: promo-panel-drift 24s ease-in-out infinite alternate;
-  }
-
-  @keyframes promo-panel-drift {
-    from {
-      transform: scale(1);
-    }
-    to {
-      transform: scale(1.04);
-    }
+    transform: none;
   }
 
   /* Staggered entrance for the copy, but only inside a <Reveal> wrapper --

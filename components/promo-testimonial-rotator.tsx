@@ -1,63 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion, useReducedMotion, type Variants } from 'motion/react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   PROMO_TESTIMONIAL_ROTATE_MS,
   PROMO_TESTIMONIALS,
-  type PromoTestimonial,
 } from '@/lib/constants/testimonials';
 
 const SOFT_EASE = [0.22, 1, 0.36, 1] as const;
 
-/** Quote first, attribution just behind it -- reads as composed rather than
- *  one block swapping out. */
-const LINE_STAGGER_S = 0.12;
-
-/** Was 1.1s with a 12px blur: long enough that the middle of every swap went
- *  mushy, and the blur is the expensive half of the paint. */
-const IN_DURATION_S = 0.65;
-const OUT_DURATION_S = 0.45;
-const BLUR_PX = 6;
-
-const slideVariants: Variants = {
-  active: {
-    transition: { staggerChildren: LINE_STAGGER_S, delayChildren: 0.05 },
-  },
-  exit: { transition: { staggerChildren: 0.04 } },
-  idle: {},
-};
-
-const lineVariants: Variants = {
-  // Waiting below the fold of the card, ready to rise in. No transition:
-  // slides that aren't on deck snap here instead of animating.
-  idle: { opacity: 0, y: 12, filter: `blur(${BLUR_PX}px)`, transition: { duration: 0 } },
-  active: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: { duration: IN_DURATION_S, ease: SOFT_EASE },
-  },
-  // The one just replaced keeps drifting up as it goes.
-  exit: {
-    opacity: 0,
-    y: -8,
-    filter: `blur(${BLUR_PX}px)`,
-    transition: { duration: OUT_DURATION_S, ease: SOFT_EASE },
-  },
-};
-
-const staticLine: Variants = {
-  idle: { opacity: 0 },
-  active: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
 function TestimonialStars() {
   return (
-    <div className="mt-3 flex gap-0.5" aria-hidden>
+    <div className="mt-0.5 flex gap-0.5" aria-hidden>
       {Array.from({ length: 5 }).map((_, i) => (
         <Star key={i} className="promo-panel__testimonial-star size-3.5" />
       ))}
@@ -65,72 +21,65 @@ function TestimonialStars() {
   );
 }
 
-function TestimonialSlide({
-  testimonial,
-  state,
-  variants,
-}: {
-  testimonial: PromoTestimonial;
-  state: 'active' | 'exit' | 'idle';
-  variants: Variants;
-}) {
-  return (
-    <motion.figure
-      className="promo-panel__testimonial-slide"
-      variants={slideVariants}
-      initial={false}
-      animate={state}
-      aria-hidden={state !== 'active'}
-      inert={state !== 'active'}
-    >
-      <motion.blockquote
-        variants={variants}
-        className="max-w-none text-sm font-light leading-relaxed text-foreground md:text-[15px] md:leading-6"
-      >
-        &ldquo;{testimonial.quote}&rdquo;
-      </motion.blockquote>
-      <motion.figcaption variants={variants}>
-        <p className="mt-4 text-sm font-semibold text-foreground">
-          {testimonial.author}
-        </p>
-        <TestimonialStars />
-      </motion.figcaption>
-    </motion.figure>
-  );
-}
-
+/**
+ * Single-slide rotator. Quote animates; author + dots share one footer row
+ * (name left, slider right) to keep the fade band compact.
+ */
 export function PromoTestimonialRotator() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [previousIndex, setPreviousIndex] = useState<number | null>(null);
-  const [paused, setPaused] = useState(false);
-  const [inView, setInView] = useState(false);
+  const [trackMinHeight, setTrackMinHeight] = useState<number>();
+  const measureRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const shouldReduceMotion = useReducedMotion();
   const count = PROMO_TESTIMONIALS.length;
 
+  const activeIndexRef = useRef(0);
+  const pausedRef = useRef(false);
+  const inViewRef = useRef(false);
+
   const goTo = useCallback((next: number) => {
-    setActiveIndex((current) => {
-      if (next === current) return current;
-      setPreviousIndex(current);
-      return next;
-    });
+    if (next === activeIndexRef.current) return;
+    activeIndexRef.current = next;
+    setActiveIndex(next);
   }, []);
 
-  // Don't rotate at a wall nobody's looking at -- without this the timer runs
-  // the whole time the section is off-screen, so scrolling back can drop you
-  // into the middle of a quote.
+  const setPaused = useCallback((value: boolean) => {
+    pausedRef.current = value;
+  }, []);
+
+  useLayoutEffect(() => {
+    const node = measureRef.current;
+    if (!node) return;
+
+    const measure = () => {
+      const items = node.querySelectorAll<HTMLElement>(
+        '.promo-panel__testimonial-measure-item',
+      );
+      let max = 0;
+      items.forEach((item) => {
+        max = Math.max(max, item.offsetHeight);
+      });
+      if (max > 0) setTrackMinHeight(max);
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     const node = cardRef.current;
     if (!node) return;
 
     if (typeof IntersectionObserver === 'undefined') {
-      setInView(true);
+      inViewRef.current = true;
       return;
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) setInView(entry.isIntersecting);
+        for (const entry of entries) inViewRef.current = entry.isIntersecting;
       },
       { threshold: 0.35 },
     );
@@ -140,19 +89,17 @@ export function PromoTestimonialRotator() {
   }, []);
 
   useEffect(() => {
-    if (shouldReduceMotion || count <= 1 || paused || !inView) return;
+    if (shouldReduceMotion || count <= 1) return;
 
     const id = window.setInterval(() => {
-      setActiveIndex((current) => {
-        setPreviousIndex(current);
-        return (current + 1) % count;
-      });
+      if (pausedRef.current || !inViewRef.current) return;
+      goTo((activeIndexRef.current + 1) % count);
     }, PROMO_TESTIMONIAL_ROTATE_MS);
 
     return () => window.clearInterval(id);
-  }, [count, inView, paused, shouldReduceMotion]);
+  }, [count, goTo, shouldReduceMotion]);
 
-  const variants = shouldReduceMotion ? staticLine : lineVariants;
+  const active = PROMO_TESTIMONIALS[activeIndex];
 
   return (
     <div
@@ -166,45 +113,66 @@ export function PromoTestimonialRotator() {
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      {/* Every quote lives in the same grid cell, so the card is always as
-          tall as the longest one. Previously the incoming quote defined the
-          height and the whole scrim panel jumped ~24px on each rotation. */}
-      <div className="promo-panel__testimonial-track">
-        {PROMO_TESTIMONIALS.map((testimonial, index) => (
-          <TestimonialSlide
-            key={testimonial.author}
-            testimonial={testimonial}
-            variants={variants}
-            state={
-              index === activeIndex
-                ? 'active'
-                : index === previousIndex
-                  ? 'exit'
-                  : 'idle'
-            }
-          />
+      {/* Invisible sizer: longest quote wins, keeps the fade band stable. */}
+      <div
+        ref={measureRef}
+        className="promo-panel__testimonial-measure"
+        aria-hidden
+      >
+        {PROMO_TESTIMONIALS.map((testimonial) => (
+          <div key={testimonial.author} className="promo-panel__testimonial-measure-item">
+            <p className="promo-panel__testimonial-quote">
+              &ldquo;{testimonial.quote}&rdquo;
+            </p>
+          </div>
         ))}
       </div>
 
-      <div className="promo-panel__testimonial-dots">
-        {PROMO_TESTIMONIALS.map((testimonial, index) => (
-          <button
-            key={testimonial.author}
-            type="button"
-            className={cn(
-              'promo-panel__testimonial-dot',
-              index === activeIndex && 'promo-panel__testimonial-dot--active',
-            )}
-            aria-label={`Vis anmeldelse ${index + 1} av ${count}`}
-            aria-current={index === activeIndex}
-            onClick={() => goTo(index)}
-          />
-        ))}
+      <div
+        className="promo-panel__testimonial-track"
+        style={trackMinHeight ? { minHeight: trackMinHeight } : undefined}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.blockquote
+            key={active.author}
+            className="promo-panel__testimonial-quote"
+            initial={
+              shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }
+            }
+            animate={{ opacity: 1, y: 0 }}
+            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -4 }}
+            transition={{ duration: shouldReduceMotion ? 0.15 : 0.35, ease: SOFT_EASE }}
+          >
+            &ldquo;{active.quote}&rdquo;
+          </motion.blockquote>
+        </AnimatePresence>
+      </div>
+
+      <div className="promo-panel__testimonial-footer">
+        <div className="promo-panel__testimonial-byline min-w-0">
+          <p className="promo-panel__testimonial-author">{active.author}</p>
+          <TestimonialStars />
+        </div>
+
+        <div className="promo-panel__testimonial-dots" role="group" aria-label="Anmeldelser">
+          {PROMO_TESTIMONIALS.map((testimonial, index) => (
+            <button
+              key={testimonial.author}
+              type="button"
+              className={cn(
+                'promo-panel__testimonial-dot',
+                index === activeIndex && 'promo-panel__testimonial-dot--active',
+              )}
+              aria-label={`Vis anmeldelse ${index + 1} av ${count}`}
+              aria-current={index === activeIndex}
+              onClick={() => goTo(index)}
+            />
+          ))}
+        </div>
       </div>
 
       <p className="sr-only">
-        Anmeldelse {activeIndex + 1} av {count} av{' '}
-        {PROMO_TESTIMONIALS[activeIndex].author}
+        Anmeldelse {activeIndex + 1} av {count} av {active.author}
       </p>
     </div>
   );
