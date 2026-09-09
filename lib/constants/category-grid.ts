@@ -12,6 +12,11 @@ export interface CategoryGridEntry {
    * toward representative products (e.g. real knit sweaters, not tanks).
    */
   previewQ?: string;
+  /**
+   * Optional brand filter for tile photos only — steers outdoor-heavy
+   * families toward fashion CDNs (e.g. Nelly) without changing chat copy.
+   */
+  previewBrand?: string;
   /** Card background gradient — from (top-left) → to (bottom-right). */
   accentFrom: string;
   accentTo: string;
@@ -29,12 +34,17 @@ export interface CategoryGridEntry {
  * call. The others (including socks/legwear/gloves, added after the same
  * check turned up hundreds to 1000+ real products each) are all backed by
  * genuine current inventory.
+ *
+ * previewQ / previewBrand steer tile photos toward the most impressive
+ * in-stock looks (midi dresses, jeans, leather jackets, fashion sandals)
+ * while the visible label stays a broad family name.
  */
 export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   {
     family: 'dresses',
     label: 'Kjoler',
     query: 'Vis meg kjoler',
+    previewQ: 'midi',
     accentFrom: '#7d5468',
     accentTo: '#432934',
   },
@@ -42,6 +52,8 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     family: 'tops',
     label: 'Topper',
     query: 'Vis meg topper',
+    previewQ: 'bluse',
+    previewBrand: 'nelly',
     accentFrom: '#3d5068',
     accentTo: '#1f2938',
   },
@@ -56,8 +68,9 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   {
     family: 'bottoms',
     label: 'Bukser & nederdeler',
-    query: 'Vis meg bukser og nederdeler',
-    previewQ: 'bukser',
+    query: 'Vis meg jeans',
+    previewQ: 'jeans',
+    previewBrand: 'nelly',
     accentFrom: '#a4883f',
     accentTo: '#584a20',
   },
@@ -80,8 +93,9 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   {
     family: 'footwear',
     label: 'Sko',
-    query: 'Vis meg sko',
-    previewQ: 'sko',
+    query: 'Vis meg sandaler',
+    previewQ: 'sandal',
+    previewBrand: 'nelly',
     accentFrom: '#3f5b48',
     accentTo: '#1f3126',
   },
@@ -89,6 +103,7 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     family: 'bags',
     label: 'Vesker',
     query: 'Vis meg vesker',
+    previewQ: 'veske',
     accentFrom: '#436384',
     accentTo: '#22303f',
   },
@@ -96,20 +111,23 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     family: 'gloves',
     label: 'Hansker',
     query: 'Vis meg hansker',
+    previewQ: 'skinn',
     accentFrom: '#52606d',
     accentTo: '#29303a',
   },
   {
     family: 'socks',
     label: 'Sokker',
-    query: 'Vis meg sokker',
+    query: 'Vis meg ullsokker',
+    previewQ: 'ullsokker',
     accentFrom: '#2f6b64',
     accentTo: '#163531',
   },
   {
     family: 'legwear',
     label: 'Strømpebukser',
-    query: 'Vis meg strømpebukser',
+    query: 'Vis meg leggings',
+    previewQ: 'leggings',
     accentFrom: '#5c4470',
     accentTo: '#2e2138',
   },

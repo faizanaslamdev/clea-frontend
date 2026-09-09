@@ -297,9 +297,11 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
     let value = 0;
     const image = product.image.toLowerCase();
     const name = product.name.toLowerCase();
-    if (image.includes('occtoo-media.com')) value += 4;
-    if (image.includes('ralphlauren.scene7.com')) value += 3;
+    if (image.includes('occtoo-media.com')) value += 5;
+    if (image.includes('ralphlauren.scene7.com')) value += 5;
     if (image.includes('cdn.shopify.com')) value += 2;
+    if (/kids|barn|teens|isbjörn|buddy tee/.test(name)) value -= 5;
+    if (image.includes('outnorth') || image.includes('fjellsport')) value -= 1;
     if (family === 'footwear' && image.endsWith('.png')) value -= 1;
     if (family === 'knitwear' && /tank|tee|t-shirt|skjorte/.test(name)) value -= 2;
     if (
@@ -308,12 +310,21 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
     ) {
       value += 3;
     }
+    if (family === 'tops' && /bluse|blouse|top|skjorte|shirt/.test(name)) {
+      value += 3;
+    }
     if (family === 'bottoms' && /kjole|dress|bad|swim/.test(name)) value -= 3;
     if (
       family === 'bottoms' &&
-      /bukse|jeans|pants|chino|nederdel|skirt/.test(name)
+      /jeans|chino|nederdel|skirt|bootcut|flare/.test(name)
     ) {
-      value += 3;
+      value += 4;
+    }
+    if (
+      family === 'bottoms' &&
+      /härkila|harkila|halti|hunting|capri|short/.test(name)
+    ) {
+      value -= 3;
     }
     if (family === 'outerwear' && /jakke|jacket|coat|parkas|shell/.test(name)) {
       value += 2;
@@ -331,6 +342,20 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
     ) {
       value -= 3;
     }
+    if (
+      family === 'footwear' &&
+      /sandal|loafer|ballerina|heel|pump|sneaker|sko/.test(name) &&
+      !/kids|barn/.test(name)
+    ) {
+      value += 3;
+    }
+    if (family === 'footwear' && /gaiter|kids|barn|viking footwear kids/.test(name)) {
+      value -= 5;
+    }
+    if (family === 'bags' && /veske|bag|tote|crossbody|shoulder/.test(name)) {
+      value += 3;
+    }
+    if (family === 'dresses' && /midi|dress|kjole|pleat/.test(name)) value += 3;
     if (
       family === 'underwear' &&
       /bra|bh|bralette|truse|undertøy|bikini|lingerie|boxers|briefs/.test(name)
@@ -377,8 +402,9 @@ export async function fetchCategoryPreviews(
           {
             productFamily: entry.family,
             ...(previewQ ? { q: previewQ } : {}),
+            ...(entry.previewBrand ? { brand: entry.previewBrand } : {}),
             limit: Math.max(CATEGORY_PREVIEW_PHOTO_COUNT * 2, 12),
-            balanceMerchants: true,
+            balanceMerchants: !entry.previewBrand,
           },
           { next: { revalidate: 120 } },
         );
