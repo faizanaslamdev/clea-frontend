@@ -12,7 +12,7 @@ import { searchStores } from '@/lib/services';
 function BrandsPageContent() {
   const searchParams = useSearchParams();
   const brandQuery = searchParams.get('q')?.trim() ?? '';
-  const { data: brands = [], isLoading } = useAllStores();
+  const { data: brands = [], isLoading, isError } = useAllStores();
 
   const filteredBrands = useMemo(
     () => searchStores(brandQuery, brands),
@@ -34,9 +34,18 @@ function BrandsPageContent() {
           <p className="sr-only">Laster merker</p>
           <BrandGridSkeleton />
         </>
-      ) : brandQuery && filteredBrands.length === 0 ? (
+      ) : isError ? (
+        /* Without this the page just ended after the search box -- no grid,
+           no skeleton, no explanation. /shop and the brand detail pages both
+           say this in the same situation. */
         <p className="text-center text-muted-foreground">
-          Ingen merker funnet for «{brandQuery}»
+          Kunne ikke laste merker. Prøv igjen senere.
+        </p>
+      ) : filteredBrands.length === 0 ? (
+        <p className="text-center text-muted-foreground">
+          {brandQuery
+            ? `Ingen merker funnet for «${brandQuery}»`
+            : 'Ingen merker tilgjengelig akkurat nå'}
         </p>
       ) : (
         <BrandGrid brands={filteredBrands} />

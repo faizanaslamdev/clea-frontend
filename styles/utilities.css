@@ -59,8 +59,11 @@
     max-width: var(--layout-inner-medium);
   }
 
+  /* No py- here: the element also carries .section-shell, and this rule wins
+     the cascade against it, which quietly kept these five pages at 80-96px
+     while the rest of the site moved to 64px. */
   .legal-page {
-    @apply mx-auto max-w-3xl py-16 md:py-20 lg:py-24;
+    @apply mx-auto max-w-3xl;
   }
 
   .legal-page__body {
@@ -91,7 +94,7 @@
   }
 
   .partner-page__hero {
-    @apply flex flex-col items-center px-1 pb-14 pt-[max(3.5rem,env(safe-area-inset-top))] text-center sm:px-2 sm:pb-20 sm:pt-16 md:pb-28 md:pt-24;
+    @apply flex flex-col items-center px-1 pb-16 pt-[max(4rem,env(safe-area-inset-top))] text-center sm:px-2;
   }
 
   .partner-page__eyebrow {
@@ -100,9 +103,12 @@
     @apply max-w-full text-[10px] font-normal uppercase tracking-[0.22em] sm:text-[11px] sm:tracking-[0.28em] md:text-xs;
   }
 
+  /* Was its own 34 -> 76px ramp, half again the site's own h1. These four
+     title rules now track .type-heading / .type-heading-section exactly, so
+     this page stops being a second type system. */
   .partner-page__hero-title {
     font-family: var(--font-playfair), ui-serif, Georgia, serif;
-    @apply mt-6 flex max-w-4xl flex-col gap-1 text-balance text-[2.125rem] font-normal leading-[1.05] tracking-tight text-foreground sm:mt-8 sm:text-[2.75rem] md:text-[4.25rem] lg:text-[4.75rem];
+    @apply mt-6 flex max-w-4xl flex-col gap-1 text-balance text-4xl font-light leading-11 tracking-tight text-foreground sm:mt-8 md:text-[56px] md:leading-16;
   }
 
   .partner-page__hero-lead {
@@ -119,8 +125,9 @@
     @apply mt-2 w-full max-w-none;
   }
 
+  /* Matches .section-shell (64px) instead of running its own 40/56/80 ramp. */
   .partner-page__section {
-    @apply py-10 sm:py-14 md:py-20;
+    @apply py-16;
   }
 
   .partner-page__section--contact {
@@ -129,7 +136,7 @@
 
   .partner-page__section-title {
     font-family: var(--font-playfair), ui-serif, Georgia, serif;
-    @apply text-balance px-1 text-[1.75rem] font-normal leading-tight tracking-tight text-foreground sm:text-[2rem] md:text-[2.75rem] lg:text-[3.25rem];
+    @apply text-balance px-1 text-[28px] font-bold leading-9 tracking-tight text-foreground md:text-[40px] md:leading-[52px];
   }
 
   .partner-page__section-lead {
@@ -180,7 +187,7 @@
   }
 
   .partner-page__spotlight {
-    @apply grid grid-cols-1 items-stretch gap-8 py-10 sm:gap-10 sm:py-14 md:grid-cols-2 md:items-center md:gap-14 md:py-20 lg:gap-20;
+    @apply grid grid-cols-1 items-stretch gap-8 py-16 sm:gap-10 md:grid-cols-2 md:items-center md:gap-14 lg:gap-20;
   }
 
   .partner-page__spotlight-copy {
@@ -201,7 +208,7 @@
 
   .partner-page__spotlight-title {
     font-family: var(--font-playfair), ui-serif, Georgia, serif;
-    @apply text-balance text-[2.35rem] font-normal leading-[1.05] tracking-tight text-foreground sm:text-[2.85rem] md:text-[3.75rem] lg:text-[4.25rem];
+    @apply text-balance text-[28px] font-bold leading-9 tracking-tight text-foreground md:text-[40px] md:leading-[52px];
   }
 
   .partner-page__spotlight-text {
@@ -238,7 +245,7 @@
 
   .partner-page__contact-title {
     font-family: var(--font-playfair), ui-serif, Georgia, serif;
-    @apply text-center text-[1.75rem] font-normal leading-tight text-foreground sm:text-[2rem] md:text-[2.35rem];
+    @apply text-center text-[28px] font-bold leading-9 text-foreground md:text-[40px] md:leading-[52px];
   }
 
   .partner-page__contact-lead {
@@ -1578,7 +1585,7 @@
   }
 
   .search-landing__title {
-    @apply flex w-full flex-col items-center font-serif text-4xl font-light leading-tight tracking-tight text-foreground md:text-5xl lg:text-[3.25rem];
+    @apply flex w-full flex-col items-center font-serif text-4xl font-light leading-tight tracking-tight text-foreground md:text-[56px];
   }
 
   .search-landing__title-line {
