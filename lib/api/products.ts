@@ -422,8 +422,9 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
  * Representative in-stock products per category tile.
  *
  * Shop (gender set): one fast merchant pool (~Nelly / NLY Man), then assign
- * photos to the fixed 11 cards — avoids 11 slow family queries + throttle
- * cascades on reload. Sparse families gap-fill with a small concurrent pool.
+ * photos to the fixed shop cards — avoids N slow family queries + throttle
+ * cascades on reload. Sparse shelves (vesker / beauty / …) gap-fill with a
+ * small concurrent pool.
  *
  * Homepage (no gender): capped per-family fetches as before.
  */
@@ -452,42 +453,84 @@ function productMatchesShopEntry(
   previewQ?: string,
 ): boolean {
   const blob = productBlob(product);
+  const shelf = entry.shelf;
+
+  if (shelf === 'beauty') {
+    return (
+      product.category === 'Beauty' ||
+      /hudpleie|beauty|serum|mascara|lipstick|makeup|skjønnhet|shampoo|creme|krem/.test(
+        blob,
+      )
+    );
+  }
+  if (shelf === 'accessories') {
+    if (/veske|\bbag\b|clutch|tote/.test(blob)) return false;
+    return (
+      product.category === 'Accessories' ||
+      /smykke|jewel|bracelet|øredobb|earring|belte|\bbelt\b|cap|hatt|skjerf|scarf|solbrille/.test(
+        blob,
+      )
+    );
+  }
+
+  // Prefer entry-specific preview tokens (tees vs shirts vs topper).
   if (previewQ) {
     const tokens = previewQ
       .toLowerCase()
       .split(/[^a-z0-9æøåäöü]+/i)
       .filter((token) => token.length >= 3);
     if (tokens.some((token) => blob.includes(token))) {
-      // Guard common false-positives from short tokens (e.g. "boot" in Bootcut).
       if (
-        entry.family === 'footwear' &&
+        shelf === 'footwear' &&
         /bootcut|jeans/.test(blob) &&
         !/sandal|sneaker|sko|shoe|boot\b|pensko|loafer/.test(blob)
       ) {
         return false;
       }
+      if (shelf === 'tops' && /bikini|bra|\bbh\b|badetøy|swim/.test(blob)) {
+        return false;
+      }
+      if (entry.id === 'tees' && !/t-shirt|\btee\b|t\s*skjorte/.test(blob)) {
+        return false;
+      }
       if (
-        entry.family === 'tops' &&
-        /bikini|bra|\bbh\b|badetøy|swim/.test(blob)
+        entry.id === 'shirts' &&
+        (/t-shirt|\btee\b/.test(blob) || !/skjorte|\bshirt\b/.test(blob))
       ) {
         return false;
       }
+      if (
+        entry.id === 'tops' &&
+        /t-shirt|\btee\b|skjorte|\bshirt\b/.test(blob) &&
+        !/\btop\b|bluse|blouse|hoodie/.test(blob)
+      ) {
+        return false;
+      }
+      if (entry.id === 'jeans-bukser' && /skjørt|skirt|short/.test(blob)) {
+        return false;
+      }
+      if (entry.id === 'shorts' && !/short/.test(blob)) return false;
       return true;
     }
   }
 
-  switch (entry.family) {
+  switch (shelf) {
     case 'dresses':
       return /kjole|dress/.test(blob);
     case 'tops':
+      if (entry.id === 'tees') return /t-shirt|\btee\b|t\s*skjorte/.test(blob);
+      if (entry.id === 'shirts') {
+        return /skjorte|\bshirt\b/.test(blob) && !/t-shirt|\btee\b/.test(blob);
+      }
       return (
-        /bluse|blouse|\btop\b|t-shirt|\btee\b|skjorte|\bshirt\b/.test(blob) &&
-        !/bikini|bra|\bbh\b|badetøy|swim/.test(blob)
+        /bluse|blouse|\btop\b|hoodie/.test(blob) &&
+        !/bikini|bra|\bbh\b|badetøy|swim|t-shirt|\btee\b|skjorte/.test(blob)
       );
     case 'knitwear':
       return /genser|sweater|hoodie|strikk|knit|cardigan/.test(blob);
     case 'bottoms':
-      return /jeans|bukse|pants|nederdel|skirt|chino|short/.test(blob);
+      if (entry.id === 'shorts') return /short/.test(blob);
+      return /jeans|bukse|pants|chino/.test(blob) && !/skjørt|skirt/.test(blob);
     case 'outerwear':
       return /jakke|jacket|coat|puffer|parkas|blazer|vester|\bvest\b/.test(blob);
     case 'underwear':
@@ -583,24 +626,43 @@ async function fetchShopCategoryPreviews(
     const merchantId = SHOP_PREVIEW_MERCHANT_ID[suitableFor];
     const gapResults = await mapPool(gaps, 3, async (entry) => {
       const previewQ = previewQueryForEntry(entry);
+      const isShelf = entry.shelf === 'beauty' || entry.shelf === 'accessories';
       try {
         const { products } = await fetchCatalogFromApi(
           {
-            merchantId,
-            ...(previewQ ? { q: previewQ } : { productFamily: entry.family }),
-            suitableFor,
+            ...(isShelf
+              ? { segment: 'all' as const }
+              : { merchantId, suitableFor }),
+            ...(previewQ
+              ? { q: previewQ }
+              : entry.family
+                ? { productFamily: entry.family }
+                : {}),
+            ...(isShelf ? {} : { suitableFor }),
             limit: CATEGORY_PREVIEW_PHOTO_COUNT,
             balanceMerchants: false,
           },
           { next: { revalidate: 120 } },
         );
         const ranked = rankProductsForCategoryTile(
-          products.filter((product) => !usedImages.has(product.image)),
+          products.filter(
+            (product) =>
+              !usedImages.has(product.image) &&
+              productMatchesShopEntry(product, entry, previewQ),
+          ),
           entry.family,
           previewQ,
         ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
-        const preview = toCategoryPreview(entry, ranked);
-        ranked.forEach((product) => usedImages.add(product.image));
+        // Shelf gap fills can be sparse — accept ranked catalog hits even if
+        // the name heuristic is strict.
+        const fallback =
+          ranked.length > 0
+            ? ranked
+            : products
+                .filter((product) => !usedImages.has(product.image))
+                .slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
+        const preview = toCategoryPreview(entry, fallback);
+        fallback.forEach((product) => usedImages.add(product.image));
         return preview;
       } catch {
         return null;
@@ -625,12 +687,17 @@ async function fetchHomepageCategoryPreviews(
     CATEGORY_PREVIEW_CONCURRENCY,
     async (entry) => {
       const previewQ = previewQueryForEntry(entry);
+      const isShelf = entry.shelf === 'beauty' || entry.shelf === 'accessories';
 
       const load = async (opts: { brand?: string }) => {
         try {
           const { products } = await fetchCatalogFromApi(
             {
-              productFamily: entry.family,
+              ...(isShelf
+                ? { segment: 'all' as const }
+                : {
+                    ...(entry.family ? { productFamily: entry.family } : {}),
+                  }),
               ...(previewQ ? { q: previewQ } : {}),
               ...(opts.brand ? { brand: opts.brand } : {}),
               limit: CATEGORY_PREVIEW_PHOTO_COUNT,

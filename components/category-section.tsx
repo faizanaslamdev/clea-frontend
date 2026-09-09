@@ -135,9 +135,10 @@ function CategoryFanCard({
   const [center, left, right] = category.images;
   // Packshot-heavy families look cropped/broken with object-cover in the
   // 3:4 fan frame — contain keeps the full product on the white plate.
-  const imageFit = CONTAIN_FIT_FAMILIES.has(category.family)
-    ? 'object-contain'
-    : 'object-cover';
+  const imageFit =
+    category.family && CONTAIN_FIT_FAMILIES.has(category.family)
+      ? 'object-contain'
+      : 'object-cover';
 
   return (
     <button
