@@ -6,16 +6,16 @@ import { useAllStores } from '@/lib/hooks/useStores';
  * Slim, slow-scrolling wordmark strip — a trust signal ("who we cover")
  * distinct from the full BrandGrid below it. Driven by the same live store
  * list as /brands, so it grows automatically as more affiliate stores get
- * approved rather than hard-coding today's 8 partners.
+ * approved rather than hard-coding today's partners.
  *
- * Renders the real list tripled back-to-back so the loop point stays
- * seamless even with a short brand list.
+ * Always reserves the marquee band while stores load so the hero→categories
+ * gap does not jump when names arrive.
  */
 export function BrandMarquee() {
   const { data: stores = [], isLoading } = useAllStores();
 
   if (isLoading || stores.length === 0) {
-    return null;
+    return <div className="brand-marquee" aria-hidden />;
   }
 
   const names = stores.map((store) => store.name);

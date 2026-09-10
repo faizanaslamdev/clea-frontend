@@ -6,32 +6,49 @@ import { fetchChatSuggestions } from '@/lib/api/chat';
 import type { ShopCategory } from '@/lib/api/chat-types';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { LANDING_SUGGESTIONS_LOCALE } from '@/lib/constants/chat';
+import { SEARCH_PLACEHOLDER_EXAMPLES } from '@/lib/constants/search-prompts';
 
 const SHOP_CATEGORIES = ['womens', 'mens'] as const satisfies readonly ShopCategory[];
+
+function fallbackSuggestions(category: ShopCategory): string[] {
+  return [...SEARCH_PLACEHOLDER_EXAMPLES[category]];
+}
 
 async function loadSuggestions(shopCategory: ShopCategory): Promise<string[]> {
   const result = await fetchChatSuggestions({
     shopCategory,
     locale: LANDING_SUGGESTIONS_LOCALE,
   });
-  return result.suggestions;
+  return result.suggestions.length > 0
+    ? result.suggestions
+    : fallbackSuggestions(shopCategory);
 }
 
 /**
- * Landing Dame/Herre suggestions — cached per category and prefetched for
- * both so toggle swaps are instant (no skeleton flash / layout jump).
+ * Landing Dame/Herre suggestions — seeded with curated fallbacks so chips
+ * paint with the hero (no skeleton height jump on reload), then swapped for
+ * live AI lists. Both audiences are cached so toggle swaps stay instant.
  */
 export function useLandingSuggestions() {
   const router = useRouter();
   const [shopCategory, setShopCategory] = useState<ShopCategory>('mens');
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(true);
-  const cacheRef = useRef<Partial<Record<ShopCategory, string[]>>>({});
+  const shopCategoryRef = useRef(shopCategory);
+  shopCategoryRef.current = shopCategory;
+
+  const [suggestions, setSuggestions] = useState<string[]>(() =>
+    fallbackSuggestions('mens'),
+  );
+  const cacheRef = useRef<Partial<Record<ShopCategory, string[]>>>({
+    mens: fallbackSuggestions('mens'),
+    womens: fallbackSuggestions('womens'),
+  });
+  const liveFetchedRef = useRef<Partial<Record<ShopCategory, boolean>>>({});
   const inflightRef = useRef<Partial<Record<ShopCategory, Promise<string[]>>>>({});
 
   const ensureSuggestions = useCallback(async (category: ShopCategory) => {
-    const cached = cacheRef.current[category];
-    if (cached && cached.length > 0) return cached;
+    if (liveFetchedRef.current[category] && cacheRef.current[category]?.length) {
+      return cacheRef.current[category]!;
+    }
 
     const inflight = inflightRef.current[category];
     if (inflight) return inflight;
@@ -39,6 +56,7 @@ export function useLandingSuggestions() {
     const request = loadSuggestions(category)
       .then((next) => {
         cacheRef.current[category] = next;
+        liveFetchedRef.current[category] = true;
         return next;
       })
       .finally(() => {
@@ -49,49 +67,38 @@ export function useLandingSuggestions() {
     return request;
   }, []);
 
-  // Prefetch both audiences once so the first Dame↔Herre click is a cache hit.
   useEffect(() => {
     for (const category of SHOP_CATEGORIES) {
-      void ensureSuggestions(category).catch(() => {
-        /* first paint still handled by the active-category effect below */
-      });
+      void ensureSuggestions(category)
+        .then((next) => {
+          if (shopCategoryRef.current === category) {
+            setSuggestions(next);
+          }
+        })
+        .catch(() => {
+          /* fallbacks already on screen */
+        });
     }
   }, [ensureSuggestions]);
 
   useEffect(() => {
-    let cancelled = false;
     const cached = cacheRef.current[shopCategory];
-
     if (cached && cached.length > 0) {
       setSuggestions(cached);
-      setIsLoadingSuggestions(false);
-      return;
     }
 
-    // Keep the previous audience's chips on screen (reserved height stays
-    // filled) until the new list arrives — never collapse to empty/skeleton
-    // mid-toggle. Skeleton only on the very first visit with no cache yet.
-    setIsLoadingSuggestions((prev) => (suggestions.length === 0 ? true : prev));
-
+    let cancelled = false;
     void ensureSuggestions(shopCategory)
       .then((next) => {
-        if (!cancelled) {
-          setSuggestions(next);
-          setIsLoadingSuggestions(false);
-        }
+        if (!cancelled) setSuggestions(next);
       })
       .catch(() => {
-        if (!cancelled) {
-          setSuggestions([]);
-          setIsLoadingSuggestions(false);
-        }
+        if (!cancelled) setSuggestions(fallbackSuggestions(shopCategory));
       });
 
     return () => {
       cancelled = true;
     };
-    // suggestions.length intentionally omitted — only re-run on category change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shopCategory, ensureSuggestions]);
 
   const selectSuggestion = useCallback(
@@ -105,7 +112,7 @@ export function useLandingSuggestions() {
     shopCategory,
     setShopCategory,
     suggestions,
-    isLoadingSuggestions,
+    isLoadingSuggestions: false,
     selectSuggestion,
   };
 }

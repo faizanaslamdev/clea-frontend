@@ -845,9 +845,10 @@
   }
 
   .page-hero-content--home {
-    /* Extra clearance below the fixed header on mobile — headline needs a
-       little more air above it than the shared pt-24 read. */
-    @apply pt-28 pb-16 md:pt-28 md:pb-20 lg:pt-32 lg:pb-24;
+    /* Extra clearance below the fixed header — token keeps first paint and
+       utility CSS on the same number so reload doesn't shift the headline. */
+    padding-top: var(--page-hero-home-pt);
+    @apply pb-16 md:pb-20 lg:pb-24;
   }
 
   .page-hero-content--brand {
@@ -2004,7 +2005,9 @@
   }
 
   .site-header-logo__image {
-    @apply h-[4.5rem] w-auto sm:h-20 md:h-[5.5rem];
+    height: var(--site-header-logo-height);
+    width: auto;
+    max-width: 100%;
   }
 
   /* Phones: the pill nav, the centred wordmark and the account button can't
@@ -2040,9 +2043,7 @@
       top: 26px;
     }
 
-    .site-header-logo__image {
-      height: 2.75rem;
-    }
+    /* Height comes from --site-header-logo-height (2.75rem on this breakpoint). */
 
     /* Top half of the bar, so it lines up with the wordmark row rather than
        the nav row underneath it. */

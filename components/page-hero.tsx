@@ -48,7 +48,14 @@ export function PageHero({
         </div>
       ) : null}
 
-      <div className={cn('page-hero-content section-container', contentClassName)}>
+      <div
+        className={cn('page-hero-content section-container', contentClassName)}
+        style={
+          variant === 'home'
+            ? { paddingTop: 'var(--page-hero-home-pt, 7.5rem)' }
+            : undefined
+        }
+      >
         {children}
       </div>
     </section>

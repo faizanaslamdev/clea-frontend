@@ -166,8 +166,8 @@ export function Header() {
           <BrandLogo
             variant="wordmark"
             theme={overHero ? 'light' : 'dark'}
+            headerSized
             className="site-header-logo site-header-logo--center z-5"
-            imageClassName="site-header-logo__image"
             priority
           />
 

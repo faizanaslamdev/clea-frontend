@@ -31,6 +31,10 @@
   --radius: 0.5rem;
 
   --site-header-height: 6rem;
+  /* Header wordmark layout size before/without utility CSS — prevents the
+     intrinsic 352×104 logo from covering the hero on first paint / reload. */
+  --site-header-logo-height: 4.5rem;
+  --page-hero-home-pt: 7.5rem;
   --sticky-hero-search-width: 28rem;
   --chat-composer-width: 34rem;
   --chat-new-chat-btn-size: 3.25rem;
@@ -187,6 +191,25 @@
   --deal-soft-foreground: var(--muted-foreground);
   --deal-soft-border: var(--border);
   --deal-on-solid: var(--primary-foreground);
+}
+
+@media (max-width: 639px) {
+  :root {
+    --site-header-logo-height: 2.75rem;
+    --page-hero-home-pt: 8rem;
+  }
+}
+
+@media (min-width: 640px) {
+  :root {
+    --site-header-logo-height: 5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --site-header-logo-height: 5.5rem;
+  }
 }
 
 @theme inline {

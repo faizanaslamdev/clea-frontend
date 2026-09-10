@@ -11,9 +11,10 @@ import { CategorySection } from '@/components/category-section';
 import { FeatureTabsSection } from '@/components/feature-tabs-section';
 import { Reveal } from '@/components/shared/reveal';
 import { fetchCategoryPreviews, fetchFeaturedProducts } from '@/lib/api/products';
+import { fetchAllStores } from '@/lib/api/stores';
 import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
 import { POPULAR_PRODUCTS_LIMIT } from '@/lib/constants/popular-brands';
-import { productKeys } from '@/lib/query/keys';
+import { productKeys, storeKeys } from '@/lib/query/keys';
 
 /** Keep home data fresh without forcing a full client waterfall on every visit. */
 export const revalidate = 120;
@@ -29,6 +30,11 @@ async function prefetchHomeData() {
     queryClient.prefetchQuery({
       queryKey: productKeys.categoryGrid(),
       queryFn: () => fetchCategoryPreviews(CATEGORY_GRID_ENTRIES),
+    }),
+    // So the brand marquee hydrates with names (no late pop-in / gap jump).
+    queryClient.prefetchQuery({
+      queryKey: storeKeys.all,
+      queryFn: fetchAllStores,
     }),
   ]);
 
