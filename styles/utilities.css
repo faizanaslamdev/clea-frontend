@@ -2115,17 +2115,6 @@
     @apply bg-black/72 backdrop-blur-md;
   }
 
-  /* Touch devices (iOS especially) re-rasterise backdrop-filter every frame of
-     the browser's interactive back-swipe, which smears the modal while the
-     gesture is still in progress. Use a solid scrim there instead. */
-  @media (hover: none) and (pointer: coarse) {
-    .product-detail-modal-overlay {
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-      @apply bg-black/80;
-    }
-  }
-
   .product-detail-modal {
     position: fixed;
     top: 50%;
@@ -2173,23 +2162,6 @@
     .product-detail-modal {
       --product-detail-modal-width-fluid: 90vw;
       --product-detail-modal-height-fluid: 88dvh;
-    }
-  }
-
-  /* dvh re-resolves while iOS shows/hides the URL bar, which it does during the
-     interactive back-swipe -- the modal would resize and re-centre mid-gesture.
-     svh is the stable (toolbar-visible) height, so the panel holds still. */
-  @media (hover: none) and (pointer: coarse) and (max-width: 1023px) {
-    .product-detail-modal {
-      --product-detail-modal-height-fluid: 82svh;
-      max-height: min(
-        96svh,
-        var(--product-detail-modal-height-max),
-        max(
-          var(--product-detail-modal-height-min),
-          var(--product-detail-modal-height-fluid)
-        )
-      );
     }
   }
 
