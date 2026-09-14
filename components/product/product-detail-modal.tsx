@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { motion, type PanInfo } from 'motion/react';
+import { motion, useDragControls, type PanInfo } from 'motion/react';
 import { ArrowUpRight, ChevronLeft, ChevronRight, Share2, X } from 'lucide-react';
 import { ProductGrid } from '@/components/product-grid';
 import {
@@ -43,6 +43,15 @@ const DESCRIPTION_PREVIEW_LENGTH = 220;
 const GALLERY_SWIPE_DISTANCE_PX = 56;
 /** ...or past this flick speed (px/s), even if the distance was short. */
 const GALLERY_SWIPE_VELOCITY = 350;
+
+/** Drag-to-dismiss must start within this many px of the modal's left edge,
+ *  the same way iOS gates its own back gesture. Keeps it from competing with
+ *  the horizontal swipe on the gallery, which lives in the middle. */
+const DISMISS_EDGE_ZONE_PX = 28;
+/** How far right the modal must travel before release closes it. */
+const DISMISS_DISTANCE_PX = 96;
+/** ...or the flick speed that closes it regardless of distance. */
+const DISMISS_VELOCITY = 500;
 
 interface ProductDetailModalProps {
   productId: string | null;
@@ -154,6 +163,31 @@ export function ProductDetailModal({
     }
   };
 
+  const dismissDragControls = useDragControls();
+
+  /* Touch only, and only from the left edge -- a mouse drag anywhere in the
+     modal shouldn't throw it closed, and a drag that starts mid-content is
+     either a scroll or a gallery swipe. */
+  const handleDismissPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse') return;
+    const { left } = event.currentTarget.getBoundingClientRect();
+    if (event.clientX - left > DISMISS_EDGE_ZONE_PX) return;
+    dismissDragControls.start(event);
+  };
+
+  const handleDismissDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
+    if (
+      info.offset.x >= DISMISS_DISTANCE_PX ||
+      info.velocity.x >= DISMISS_VELOCITY
+    ) {
+      onOpenChange(false);
+    }
+    // Otherwise the left constraint springs it back on its own.
+  };
+
   const handleShare = async () => {
     if (!product) return;
     const url = typeof window !== 'undefined' ? window.location.href : '';
@@ -182,9 +216,23 @@ export function ProductDetailModal({
       <DialogPortal>
         <DialogOverlay className="product-detail-modal-overlay" />
         <DialogPrimitive.Content
-          className="product-detail-modal"
+          asChild
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
+          <motion.div
+            className="product-detail-modal"
+            drag="x"
+            /* Manual start only: the pointerdown handler decides whether this
+               gesture began in the edge zone. */
+            dragListener={false}
+            dragControls={dismissDragControls}
+            dragDirectionLock
+            dragConstraints={{ left: 0 }}
+            dragElastic={{ left: 0, right: 1 }}
+            dragMomentum={false}
+            onPointerDown={handleDismissPointerDown}
+            onDragEnd={handleDismissDragEnd}
+          >
           <DialogTitle className="sr-only">
             {isLoading
               ? 'Laster produkt'
@@ -452,6 +500,7 @@ export function ProductDetailModal({
               onClose={() => onOpenChange(false)}
             />
           ) : null}
+          </motion.div>
         </DialogPrimitive.Content>
       </DialogPortal>
     </Dialog>
