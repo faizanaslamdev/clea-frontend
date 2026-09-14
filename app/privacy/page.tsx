@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { LegalPageShell } from '@/components/legal/legal-page-shell';
 import { BRAND } from '@/lib/constants/brand';
 import { COMPANY } from '@/lib/constants/company';
@@ -20,53 +19,88 @@ export default function PrivacyPage() {
       </p>
       <p>
         {COMPANY.name} ({BRAND.domain}) respekterer personvernet ditt. Denne
-        erklæringen beskriver hvilken informasjon vi samler inn og hvordan vi
-        bruker den når du besøker nettstedet vårt.
+        erklæringen beskriver hvilken informasjon vi samler inn, hvorfor, og
+        hvordan du kan utøve rettighetene dine.
       </p>
+
       <h2>Informasjon vi samler inn</h2>
       <ul>
         <li>
-          <strong>Bruksdata:</strong> anonymisert analyse (f.eks. besøkte sider,
-          enhetstype) via Vercel Analytics for å forbedre tjenesten.
+          <strong>Ikke-personlig informasjon:</strong> Anonymisert bruksdata
+          (f.eks. besøkte sider, enhetstype, nettlesertype) via Vercel Analytics,
+          brukt for å forbedre tjenesten. Denne kan ikke kobles til deg som
+          enkeltperson. Vercel Analytics bruker ikke cookies.
         </li>
         <li>
-          <strong>Søkeforespørsler:</strong> tekst du skriver inn i søk eller
-          chat for å vise produktresultater. Du trenger ikke konto for å bla på
-          siden.
+          <strong>Personlig informasjon:</strong> Søkeforespørsler og tekst du
+          skriver inn i søk eller chat, som brukes til å vise deg relevante
+          produktresultater. Du trenger ikke konto for å bla på siden.
         </li>
         <li>
-          <strong>Tekniske data:</strong> standard serverlogger (IP-adresse,
+          <strong>Tekniske data:</strong> Standard serverlogger (IP-adresse,
           nettlesertype) for sikkerhet og drift.
         </li>
       </ul>
+
       <h2>Hvordan vi bruker informasjon</h2>
       <p>
         Vi bruker data til å drive nettstedet, forbedre søk og sammenligning,
-        hindre misbruk og forstå bruk i aggregert form. Vi selger ikke
-        personopplysninger.
+        hindre misbruk, og forstå bruk i aggregert form. Søketekst behandles
+        blant annet ved hjelp av tredjeparts AI-teknologi for å generere
+        relevante resultater. Vi selger ikke personopplysninger.
       </p>
-      <h2>Informasjonskapsler</h2>
+
+      <h2>Lagringstid</h2>
       <p>
-        Vi bruker nødvendige informasjonskapsler for funksjonalitet og
-        analysekapsler som beskrevet over. Du kan styre kapsler i
-        nettleserinnstillingene.
+        Tekniske serverlogger lagres i en begrenset periode i henhold til våre
+        drifts- og sikkerhetsbehov og hostingleverandørens gjeldende
+        lagringsvilkår. Søkeforespørsler og chatmeldinger lagres for å levere og
+        forbedre tjenesten. Anonyme chat-samtaler kan ikke lenger hentes via
+        tjenesten etter 30 dager uten aktivitet.
       </p>
+
+      <h2>Informasjonskapsler (cookies)</h2>
+      <p>Vi bruker følgende typer:</p>
+      <ul>
+        <li>
+          <strong>Strengt nødvendige cookies:</strong> kreves for grunnleggende
+          funksjonalitet, kan ikke deaktiveres.
+        </li>
+        <li>
+          <strong>Analyse:</strong> Vercel Analytics måler bruk i aggregert,
+          anonymisert form for å forbedre tjenesten, uten å bruke cookies.
+        </li>
+      </ul>
+      <p>
+        Du kan når som helst endre cookie-innstillingene i nettleseren din.
+      </p>
+
       <h2>Tredjeparter</h2>
       <p>
         Når du følger lenker til forhandlere, gjelder deres personvernregler. Vi
-        kan bruke infrastrukturleverandører (f.eks. hosting) som behandler data
-        på våre vegne etter avtale.
+        bruker infrastrukturleverandører (hosting, database, e-post) og
+        AI-teknologi for søk, som behandler data på våre vegne i henhold til
+        avtale.
       </p>
+
+      <h2>Ved eierskifte</h2>
+      <p>
+        Dersom {COMPANY.name} selges, fusjoneres, eller virksomheten på annen
+        måte overføres til en ny part, kan brukerinformasjon inngå som en del av
+        det som overføres. Du vil bli varslet dersom dette medfører vesentlige
+        endringer i hvordan dataene dine behandles.
+      </p>
+
       <h2>Dine rettigheter</h2>
       <p>
-        Avhengig av gjeldende lov kan du be om innsyn, retting eller sletting av
-        personopplysninger vi har. Kontakt oss på{' '}
-        <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>.
+        Du har rett til å be om innsyn i, retting av, eller sletting av
+        personopplysninger vi har om deg, samt rett til å motsette deg eller
+        begrense visse former for behandling.
       </p>
-      <h2>Kontakt</h2>
       <p>
-        {COMPANY.name} · <Link href="/contact">Kontaktside</Link> ·{' '}
-        <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a>
+        Kontakt oss på{' '}
+        <a href={`mailto:${COMPANY.email}`}>{COMPANY.email}</a> for å utøve
+        disse rettighetene.
       </p>
     </LegalPageShell>
   );
