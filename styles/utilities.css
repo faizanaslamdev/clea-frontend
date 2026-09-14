@@ -2218,6 +2218,18 @@
     @apply relative max-w-full;
   }
 
+  /* touch-pan-y hands vertical gestures back to the modal's own scroller, so
+     swiping images never blocks scrolling down to the price list. The image
+     is drag-cancelled too, or the browser's native image drag hijacks it. */
+  .product-detail-modal__gallery-drag {
+    @apply h-full w-full touch-pan-y;
+  }
+
+  .product-detail-modal__gallery-drag img {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
   @media (min-width: 768px) {
     .product-detail-modal__gallery-stage {
       height: min(36rem, 72dvh);

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { motion, type PanInfo } from 'motion/react';
 import { ArrowUpRight, ChevronLeft, ChevronRight, Share2, X } from 'lucide-react';
 import { ProductGrid } from '@/components/product-grid';
 import {
@@ -37,6 +38,11 @@ import {
 } from '@/components/product/product-best-prices';
 
 const DESCRIPTION_PREVIEW_LENGTH = 220;
+
+/** Past this drag distance (px) the swipe commits to the next/previous image. */
+const GALLERY_SWIPE_DISTANCE_PX = 56;
+/** ...or past this flick speed (px/s), even if the distance was short. */
+const GALLERY_SWIPE_VELOCITY = 350;
 
 interface ProductDetailModalProps {
   productId: string | null;
@@ -125,6 +131,29 @@ export function ProductDetailModal({
     );
   };
 
+  /* Swipe to change image. Distance OR velocity counts, so a short flick
+     works as well as a slow drag -- requiring distance alone makes fast
+     swipes feel broken. */
+  const handleGalleryDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
+    if (galleryImages.length <= 1) return;
+
+    const { offset, velocity } = info;
+    // Direction lock means a mostly-vertical gesture is a scroll, not a swipe.
+    if (Math.abs(offset.x) < Math.abs(offset.y)) return;
+
+    if (offset.x <= -GALLERY_SWIPE_DISTANCE_PX || velocity.x <= -GALLERY_SWIPE_VELOCITY) {
+      showNextGalleryImage();
+      return;
+    }
+
+    if (offset.x >= GALLERY_SWIPE_DISTANCE_PX || velocity.x >= GALLERY_SWIPE_VELOCITY) {
+      showPreviousGalleryImage();
+    }
+  };
+
   const handleShare = async () => {
     if (!product) return;
     const url = typeof window !== 'undefined' ? window.location.href : '';
@@ -190,17 +219,30 @@ export function ProductDetailModal({
                   <div className="product-detail-modal__gallery">
                     <div className="product-detail-modal__gallery-frame">
                       <div className="product-detail-modal__gallery-stage">
-                        <Image
-                          src={
-                            galleryImages[galleryIndex] ?? product.image
-                          }
-                          alt={toDisplayCase(product.name)}
-                          width={800}
-                          height={1067}
-                          className="product-detail-modal__gallery-image"
-                          sizes="(max-width: 768px) 100vw, 520px"
-                          priority
-                        />
+                        <motion.div
+                          className="product-detail-modal__gallery-drag"
+                          drag={galleryImages.length > 1 ? 'x' : false}
+                          dragDirectionLock
+                          dragElastic={0.16}
+                          dragMomentum={false}
+                          /* Snaps back on release; the index change is what
+                             actually moves the gallery on. */
+                          dragConstraints={{ left: 0, right: 0 }}
+                          onDragEnd={handleGalleryDragEnd}
+                        >
+                          <Image
+                            src={
+                              galleryImages[galleryIndex] ?? product.image
+                            }
+                            alt={toDisplayCase(product.name)}
+                            width={800}
+                            height={1067}
+                            className="product-detail-modal__gallery-image"
+                            sizes="(max-width: 768px) 100vw, 520px"
+                            priority
+                            draggable={false}
+                          />
+                        </motion.div>
                         <ProductCardAnchorMenu
                           product={product}
                           className="product-detail-modal__gallery-anchor"
