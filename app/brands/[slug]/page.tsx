@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { notFound, redirect } from 'next/navigation';
 import { PageLayout } from '@/components/layout/page-layout';
@@ -31,6 +32,61 @@ function firstParam(value: string | string[] | undefined): string | undefined {
   return value;
 }
 
+/** Same skeleton BrandProductSection shows while its query is pending. */
+function BrandProductsFallback() {
+  return (
+    <>
+      <div className="mb-10 space-y-3">
+        <div className="h-9 w-52 animate-pulse rounded bg-muted" />
+        <div className="h-5 w-72 max-w-full animate-pulse rounded bg-muted" />
+      </div>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }, (_, index) => (
+          <div
+            key={index}
+            className="aspect-3/4 animate-pulse rounded-2xl bg-muted"
+          />
+        ))}
+      </div>
+    </>
+  );
+}
+
+/**
+ * Prefetch page-1 catalog on the server, then hydrate into useCatalogInfinite.
+ * Isolated in Suspense so BrandHero can paint without waiting on /catalog.
+ */
+async function BrandProductsPrefetch({
+  merchantId,
+  brandName,
+}: {
+  merchantId: string;
+  brandName: string;
+}) {
+  const filters: CatalogQueryFilters = {
+    merchantId,
+    segment: 'all',
+  };
+  const queryClient = new QueryClient();
+  await queryClient.prefetchInfiniteQuery({
+    queryKey: productKeys.catalog(filters),
+    queryFn: () =>
+      fetchCatalogFromApi(
+        { ...filters, limit: CATALOG_PAGE_SIZE, offset: 0 },
+        { next: { revalidate: 120 } },
+      ),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage: CatalogPageResult) =>
+      lastPage.hasMore ? lastPage.offset + lastPage.limit : undefined,
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <BrandProductSection merchantId={merchantId} brandName={brandName} />
+    </HydrationBoundary>
+  );
+}
+
 export default async function BrandPage({
   params,
   searchParams,
@@ -49,39 +105,14 @@ export default async function BrandPage({
     redirect(getBrandHref(brand));
   }
 
-  /* The grid used to start its first request only after the HTML shipped and
-     hydration finished -- a full round-trip of empty skeleton after paint.
-     Prefetching here puts page one in the payload, so it renders with the
-     hero. Key/params must match useCatalogInfinite exactly or the client
-     refetches and the work is wasted. */
-  const filters: CatalogQueryFilters = {
-    merchantId: brand.id,
-    segment: 'all',
-  };
-  const queryClient = new QueryClient();
-  await queryClient.prefetchInfiniteQuery({
-    queryKey: productKeys.catalog(filters),
-    queryFn: () =>
-      fetchCatalogFromApi(
-        { ...filters, limit: CATALOG_PAGE_SIZE, offset: 0 },
-        { next: { revalidate: 120 } },
-      ),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage: CatalogPageResult) =>
-      lastPage.hasMore ? lastPage.offset + lastPage.limit : undefined,
-  });
-
   return (
     <PageLayout>
       <BrandHero brand={brand} />
 
       <section className="section-container section-shell">
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <BrandProductSection
-            merchantId={brand.id}
-            brandName={brand.name}
-          />
-        </HydrationBoundary>
+        <Suspense fallback={<BrandProductsFallback />}>
+          <BrandProductsPrefetch merchantId={brand.id} brandName={brand.name} />
+        </Suspense>
       </section>
     </PageLayout>
   );
