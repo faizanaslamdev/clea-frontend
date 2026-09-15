@@ -331,7 +331,7 @@
   }
 
   .trending-product-card {
-    @apply flex w-full cursor-pointer flex-col items-stretch border-0 bg-transparent p-0;
+    @apply flex w-full cursor-pointer flex-col items-stretch border-0 bg-transparent p-0 text-inherit no-underline;
     touch-action: pan-x pan-y;
   }
 
@@ -457,12 +457,12 @@
   }
 
   .product-card-detailed__image-hit {
-    @apply block w-full cursor-pointer border-0 bg-transparent p-0 text-left;
+    @apply block w-full cursor-pointer border-0 bg-transparent p-0 text-left text-inherit no-underline;
     touch-action: pan-y;
   }
 
   .product-card-detailed__body {
-    @apply flex min-h-[6.75rem] flex-1 cursor-pointer flex-col border-0 bg-transparent pt-3 text-left;
+    @apply flex min-h-[6.75rem] flex-1 cursor-pointer flex-col border-0 bg-transparent pt-3 text-left text-inherit no-underline;
     touch-action: pan-y;
   }
 
@@ -2110,33 +2110,42 @@
     }
   }
 
-  /* Product detail modal */
-  .product-detail-modal-overlay {
+  /* Product detail page (was modal shell) */
+  .product-detail-page {
+    @apply pb-16 pt-2 md:pb-20 md:pt-4;
+  }
+
+  .product-detail-view--modal {
+    @apply min-h-0;
+  }
+
+  .product-detail-view--modal .product-detail-page__body {
+    @apply rounded-none border-0 shadow-none;
+  }
+
+  /* Desktop listing overlay — content is ProductDetailView; no history API. */
+  .product-detail-desktop-modal-overlay {
     @apply bg-black/72 backdrop-blur-md;
   }
 
-  .product-detail-modal {
+  .product-detail-desktop-modal {
     position: fixed;
     top: 50%;
     left: 50%;
-    z-index: 50;
+    z-index: 51;
     display: flex;
-    width: min(
-      calc(100vw - 1.5rem),
-      var(--product-detail-modal-width-max),
-      max(
-        var(--product-detail-modal-width-min),
-        var(--product-detail-modal-width-fluid)
-      )
+    width: clamp(
+      min(100%, var(--product-detail-modal-width-min)),
+      var(--product-detail-modal-width-fluid),
+      var(--product-detail-modal-width-max)
     );
-    max-height: min(
-      96dvh,
-      var(--product-detail-modal-height-max),
-      max(
-        var(--product-detail-modal-height-min),
-        var(--product-detail-modal-height-fluid)
-      )
+    max-width: calc(100vw - 2rem);
+    height: clamp(
+      min(100%, var(--product-detail-modal-height-min)),
+      var(--product-detail-modal-height-fluid),
+      var(--product-detail-modal-height-max)
     );
+    max-height: min(92dvh, var(--product-detail-modal-height-max));
     flex-direction: column;
     overflow: hidden;
     border-radius: var(--product-detail-modal-radius);
@@ -2144,51 +2153,64 @@
     box-shadow:
       0 0 0 1px oklch(0 0 0 / 0.06),
       0 8px 24px oklch(0 0 0 / 0.12),
-      0 32px 80px oklch(0 0 0 / 0.28),
-      0 48px 120px oklch(0 0 0 / 0.18);
+      0 32px 80px oklch(0 0 0 / 0.28);
     transform: translate(-50%, -50%);
   }
 
-  @media (min-width: 1280px) {
-    .product-detail-modal {
-      --product-detail-modal-width-fluid: 88vw;
-      --product-detail-modal-width-max: 106rem;
-      --product-detail-modal-height-fluid: 86dvh;
-      --product-detail-modal-height-max: 76rem;
-    }
-  }
-
-  @media (min-width: 1536px) {
-    .product-detail-modal {
-      --product-detail-modal-width-fluid: 90vw;
-      --product-detail-modal-height-fluid: 88dvh;
-    }
-  }
-
-  .product-detail-modal:focus {
+  .product-detail-desktop-modal:focus {
     outline: none;
   }
 
-  .product-detail-modal__close {
+  .product-detail-desktop-modal__close {
     @apply absolute right-4 top-4 z-30 inline-flex size-9 items-center justify-center rounded-full bg-transparent text-foreground transition-colors hover:bg-muted;
   }
 
-  .product-detail-modal__scroll {
+  .product-detail-desktop-modal__scroll {
     @apply min-h-0 flex-1 overflow-y-auto overscroll-contain;
     -webkit-overflow-scrolling: touch;
   }
 
+  .product-detail-page__toolbar {
+    @apply mb-3 md:mb-5;
+  }
+
+  .product-detail-page__back {
+    @apply inline-flex items-center gap-1.5 rounded-full px-1 py-1.5 font-sans text-sm font-medium text-foreground/80 transition-colors hover:text-foreground;
+  }
+
+  .product-detail-page__back-placeholder {
+    @apply h-8 w-20 animate-pulse rounded bg-muted;
+  }
+
+  .product-detail-page__body {
+    @apply rounded-2xl border border-border/70 bg-card;
+    box-shadow: 0 1px 0 oklch(0 0 0 / 0.04);
+  }
+
+  .product-detail-page__error {
+    @apply flex min-h-[20rem] flex-col items-center justify-center gap-4 px-8 py-12 text-center;
+  }
+
+  .product-detail-page__error-message {
+    @apply max-w-md text-sm text-muted-foreground;
+  }
+
+  .product-detail-page__error-link {
+    @apply rounded-md border border-border px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted;
+  }
+
+  /* Retained element BEM from the former modal — layout adapted for page/modal */
   .product-detail-modal__main {
-    @apply grid min-h-0 md:min-h-[36rem] md:grid-cols-2 lg:min-h-[40rem] xl:min-h-[44rem];
+    @apply grid min-h-0 md:grid-cols-2;
   }
 
   .product-detail-modal__gallery {
-    @apply relative flex min-h-[26rem] flex-col md:min-h-full;
+    @apply relative flex min-h-[22rem] flex-col bg-muted/20 md:min-h-[32rem];
   }
 
   .product-detail-modal__gallery-frame {
     background-color: var(--card);
-    @apply relative flex min-h-[26rem] flex-1 items-center justify-center overflow-hidden md:absolute md:inset-0 md:min-h-0;
+    @apply relative flex min-h-[22rem] flex-1 items-center justify-center overflow-hidden md:absolute md:inset-0 md:min-h-0;
   }
 
   /* The stage carries a definite height + aspect-ratio (matching the
@@ -2259,8 +2281,10 @@
     z-index: 1;
   }
 
+  /* Match ProductCard media placement: bottom-left on the image frame. */
   .product-detail-modal__gallery-anchor {
-    z-index: 3;
+    @apply absolute bottom-3 left-3 z-[3];
+    pointer-events: auto;
   }
 
   .product-detail-modal__gallery-anchor .product-card-anchor-menu__popover {

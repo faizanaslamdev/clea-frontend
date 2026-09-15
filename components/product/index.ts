@@ -1,2 +1,6 @@
-export { ProductDetailModal } from './product-detail-modal';
-export { ProductModalProvider, useProductModal } from './product-modal-provider';
+export { ProductDetailView } from './product-detail-view';
+export { ProductDetailSkeleton } from './product-detail-skeleton';
+export {
+  ProductDesktopModalProvider,
+  useProductDesktopModal,
+} from './product-desktop-modal-provider';

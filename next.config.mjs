@@ -43,13 +43,8 @@ const nextConfig = {
       { source: '/trending', destination: '/brands', permanent: false },
       { source: '/products', destination: '/brands', permanent: false },
       {
-        source: '/product/:id',
-        destination: '/brands',
-        permanent: false,
-      },
-      {
         source: '/brands/:slug/products/:productId',
-        destination: '/brands/:slug',
+        destination: '/product/:productId',
         permanent: false,
       },
     ];

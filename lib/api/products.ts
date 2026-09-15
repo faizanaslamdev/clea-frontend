@@ -101,10 +101,11 @@ export interface ProductOffersResult {
 
 export async function fetchProductOffers(
   id: string,
+  init?: RequestInit,
 ): Promise<ProductOffersResult> {
   const data = await apiFetch<ApiProductOffersResponse>(
     `/products/${id}/offers`,
-    { cache: 'no-store' },
+    { ...(init ?? { cache: 'no-store' }) },
   );
   return {
     anchor: data.anchor,
@@ -116,11 +117,12 @@ export async function fetchProductOffers(
 
 export async function fetchProductById(
   id: string,
+  init?: RequestInit,
 ): Promise<Product | undefined> {
   try {
     const data = await apiFetch<ApiProduct>(
       `/products/${id}`,
-      { cache: 'no-store' },
+      { ...(init ?? { cache: 'no-store' }) },
     );
     return mapApiProductToProduct(data);
   } catch (error) {
@@ -230,11 +232,12 @@ export async function fetchSearchResults(
 export async function fetchSimilarProducts(
   id: string,
   limit = 4,
+  init?: RequestInit,
 ): Promise<Product[]> {
   try {
     const data = await apiFetch<ApiProductListResponse>(
       `/products/${id}/similar?limit=${limit}`,
-      { cache: 'no-store' },
+      { ...(init ?? { cache: 'no-store' }) },
     );
     return data.items.map(mapApiProductToProduct);
   } catch (error) {

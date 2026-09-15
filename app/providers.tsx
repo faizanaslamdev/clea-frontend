@@ -1,12 +1,12 @@
 'use client';
 
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { createQueryClient } from '@/lib/query/client';
-import { ProductModalProvider } from '@/components/product';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { AuthQueryListener } from '@/components/auth/auth-query-listener';
 import { AuthResumeListener } from '@/components/auth/auth-resume-listener';
+import { ProductDesktopModalProvider } from '@/components/product/product-desktop-modal-provider';
 import { ScrollToTopOnNavigate } from '@/components/scroll-to-top-on-navigate';
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -14,13 +14,15 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ScrollToTopOnNavigate />
+      <Suspense fallback={null}>
+        <ScrollToTopOnNavigate />
+      </Suspense>
       <AuthProvider>
-        <ProductModalProvider>
+        <ProductDesktopModalProvider>
           <AuthQueryListener />
           <AuthResumeListener />
           {children}
-        </ProductModalProvider>
+        </ProductDesktopModalProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

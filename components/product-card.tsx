@@ -1,22 +1,23 @@
 'use client';
 
-import Image from 'next/image';
+import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  type KeyboardEvent,
-  type ReactNode,
-} from 'react';
+import { type MouseEvent, type ReactNode } from 'react';
 import { Product } from '@/lib/types';
 import { formatPrice, getListingPriceStore, toDisplayCase } from '@/lib/services';
 import { fetchProductById } from '@/lib/api/products';
+import { getProductHref } from '@/lib/domain/products/paths';
+import { saveCurrentScrollPosition } from '@/lib/navigation/scroll-restoration';
+import { shouldOpenProductDesktopModal } from '@/lib/navigation/product-desktop-modal';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { productKeys } from '@/lib/query/keys';
 import { useChatAnchorConnection } from '@/components/chat/chat-anchor-provider';
-import { useProductModal } from '@/components/product/product-modal-provider';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
+import { useProductDesktopModal } from '@/components/product/product-desktop-modal-provider';
 import { cn } from '@/lib/utils';
 import type { EngagementSurface } from '@/lib/api/engagement';
 import { useEngagementTracking } from '@/lib/hooks/useEngagementTracking';
+import Image from 'next/image';
 
 export type ProductCardVariant = 'trending' | 'detailed';
 
@@ -37,38 +38,35 @@ const TRENDING_CARD_IMAGE_SIZES =
 const DETAILED_CARD_IMAGE_SIZES =
   '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw';
 
-function ProductCardClickTarget({
+function ProductCardLink({
+  href,
   className,
-  onClick,
+  onNavigate,
   onMouseEnter,
   onFocus,
   children,
 }: {
+  href: string;
   className?: string;
-  onClick: () => void;
+  onNavigate: (event: MouseEvent<HTMLAnchorElement>) => void;
   onMouseEnter?: () => void;
   onFocus?: () => void;
   children: ReactNode;
 }) {
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onClick();
-    }
-  };
-
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <Link
+      href={href}
       className={className}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
+      // Save scroll before the browser scrolls the target into view on click
+      // (mobile/tablet real-route Back restore). Desktop modal does not navigate.
+      onPointerDown={saveCurrentScrollPosition}
+      onClick={onNavigate}
       onMouseEnter={onMouseEnter}
       onFocus={onFocus}
+      prefetch
     >
       {children}
-    </div>
+    </Link>
   );
 }
 
@@ -138,8 +136,8 @@ export function ProductCard({
   onAnchorActionComplete,
   engagementSurface,
 }: ProductCardProps) {
-  const { openProduct } = useProductModal();
   const chatAnchor = useChatAnchorConnection();
+  const { openProductModal } = useProductDesktopModal();
   const prefetchProductDetail = usePrefetchProductDetail();
   const engagement = useEngagementTracking(engagementSurface ?? 'catalog');
   const trackEngagement = engagementSurface ? engagement : null;
@@ -151,21 +149,28 @@ export function ProductCard({
     (merchantLabel != null &&
       product.brand.trim().toLowerCase() !== merchantLabel.toLowerCase());
 
+  const href = getProductHref(product.id, { storeId });
+
   const prefetchThisProduct = () => {
     prefetchProductDetail(product.id);
   };
 
-  const openDetails = () => {
+  const handleNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
     trackEngagement?.trackCardClick(product.id);
     chatAnchor?.setActiveProductId(product.id);
-    openProduct(product.id, storeId, engagementSurface);
+
+    if (shouldOpenProductDesktopModal()) {
+      event.preventDefault();
+      openProductModal(product.id, storeId, engagementSurface);
+    }
   };
 
   if (variant === 'trending') {
     return (
-      <ProductCardClickTarget
+      <ProductCardLink
+        href={href}
         className="trending-product-card group"
-        onClick={openDetails}
+        onNavigate={handleNavigate}
         onMouseEnter={prefetchThisProduct}
         onFocus={prefetchThisProduct}
       >
@@ -182,7 +187,7 @@ export function ProductCard({
             priceClassName="trending-product-card__price"
           />
         </div>
-      </ProductCardClickTarget>
+      </ProductCardLink>
     );
   }
 
@@ -195,9 +200,10 @@ export function ProductCard({
     >
       <div className="product-card-detailed">
         <div className="product-card-detailed__media">
-          <ProductCardClickTarget
+          <ProductCardLink
+            href={href}
             className="product-card-detailed__image-hit"
-            onClick={openDetails}
+            onNavigate={handleNavigate}
             onMouseEnter={prefetchThisProduct}
             onFocus={prefetchThisProduct}
           >
@@ -205,7 +211,7 @@ export function ProductCard({
               product={product}
               sizes={imageSizes ?? DETAILED_CARD_IMAGE_SIZES}
             />
-          </ProductCardClickTarget>
+          </ProductCardLink>
           {showAnchorMenu ? (
             <ProductCardAnchorMenu
               product={product}
@@ -215,9 +221,10 @@ export function ProductCard({
           ) : null}
         </div>
 
-        <ProductCardClickTarget
+        <ProductCardLink
+          href={href}
           className="product-card-detailed__body"
-          onClick={openDetails}
+          onNavigate={handleNavigate}
           onMouseEnter={prefetchThisProduct}
           onFocus={prefetchThisProduct}
         >
@@ -237,7 +244,7 @@ export function ProductCard({
             storeId={storeId}
             priceClassName="product-card-detailed__price"
           />
-        </ProductCardClickTarget>
+        </ProductCardLink>
       </div>
     </div>
   );

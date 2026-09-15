@@ -54,6 +54,8 @@ export function useProduct(id: string) {
     queryFn: () => fetchProductById(id),
     staleTime: STALE_TIME_STATIC_MS,
     enabled: !!id,
+    // SSR/hydration already seeds this query; avoid an immediate remount refetch.
+    refetchOnMount: false,
   });
 }
 
@@ -63,6 +65,7 @@ export function useSimilarProducts(id: string, limit = 4) {
     queryFn: () => fetchSimilarProducts(id, limit),
     staleTime: STALE_TIME_STATIC_MS,
     enabled: !!id,
+    refetchOnMount: false,
   });
 }
 
@@ -72,5 +75,6 @@ export function useProductOffers(id: string, enabled = true) {
     queryFn: () => fetchProductOffers(id),
     staleTime: STALE_TIME_STATIC_MS,
     enabled: !!id && enabled,
+    refetchOnMount: false,
   });
 }
