@@ -102,7 +102,7 @@ export default async function ProductPage({
   ]);
 
   return (
-    <PageLayout>
+    <PageLayout showFooter={false}>
       <HydrationBoundary state={dehydrate(queryClient)}>
         <ProductDetailView productId={id} storeId={storeId} />
       </HydrationBoundary>

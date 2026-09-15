@@ -3,7 +3,7 @@ import { ProductDetailSkeleton } from '@/components/product/product-detail-skele
 
 export default function ProductLoading() {
   return (
-    <PageLayout>
+    <PageLayout showFooter={false}>
       <article className="product-detail-page section-container section-shell">
         <div className="product-detail-page__toolbar">
           <div

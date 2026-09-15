@@ -6,18 +6,22 @@ interface PageLayoutProps {
   children: React.ReactNode;
   /** Extra classes on `<main>` */
   mainClassName?: string;
+  /** Site footer (default on). Product detail pages omit it. */
+  showFooter?: boolean;
 }
 
-export function PageLayout({ children, mainClassName }: PageLayoutProps) {
+export function PageLayout({
+  children,
+  mainClassName,
+  showFooter = true,
+}: PageLayoutProps) {
   return (
     <>
       <Header />
-      <main
-        className={cn('min-h-screen bg-background', mainClassName)}
-      >
+      <main className={cn('min-h-screen bg-background', mainClassName)}>
         {children}
       </main>
-      <Footer />
+      {showFooter ? <Footer /> : null}
     </>
   );
 }
