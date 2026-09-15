@@ -2237,14 +2237,15 @@
     height: min(26rem, 72dvh);
     aspect-ratio: 800 / 1067;
     line-height: 0;
-    @apply relative max-w-full;
+    @apply relative max-w-full overflow-hidden;
   }
 
   /* touch-pan-y hands vertical gestures back to the modal's own scroller, so
      swiping images never blocks scrolling down to the price list. The image
-     is drag-cancelled too, or the browser's native image drag hijacks it. */
+     is drag-cancelled too, or the browser's native image drag hijacks it.
+     Absolute fill lets enter/exit slides overlap like a photo carousel. */
   .product-detail-modal__gallery-drag {
-    @apply h-full w-full touch-pan-y;
+    @apply absolute inset-0 h-full w-full touch-pan-y;
   }
 
   .product-detail-modal__gallery-drag img {

@@ -4,7 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, type PanInfo } from 'motion/react';
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  type PanInfo,
+} from 'motion/react';
 import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { ProductGrid } from '@/components/product-grid';
 import { cn } from '@/lib/utils';
@@ -36,6 +41,22 @@ import {
 const DESCRIPTION_PREVIEW_LENGTH = 220;
 const GALLERY_SWIPE_DISTANCE_PX = 56;
 const GALLERY_SWIPE_VELOCITY = 350;
+const GALLERY_SLIDE_EASE = [0.22, 1, 0.36, 1] as const;
+
+const gallerySlideVariants = {
+  enter: (direction: number) => ({
+    x: direction >= 0 ? '72%' : '-72%',
+    opacity: 0.35,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction >= 0 ? '-72%' : '72%',
+    opacity: 0.35,
+  }),
+};
 
 export interface ProductDetailViewProps {
   productId: string;
@@ -55,6 +76,7 @@ export function ProductDetailView({
 }: ProductDetailViewProps) {
   const router = useRouter();
   const chatAnchor = useChatAnchorConnection();
+  const shouldReduceMotion = useReducedMotion();
   const isModal = presentation === 'modal';
   const {
     data: product,
@@ -94,6 +116,16 @@ export function ProductDetailView({
 
   const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  /** 1 = next (slide left), -1 = previous (slide right) — shared by gallery + product swaps. */
+  const [slideDirection, setSlideDirection] = useState(1);
+  const [activeProductId, setActiveProductId] = useState(productId);
+
+  if (productId !== activeProductId) {
+    setActiveProductId(productId);
+    setSlideDirection(1);
+    setGalleryIndex(0);
+    setDescriptionExpanded(false);
+  }
 
   const galleryImages =
     product?.images && product.images.length > 0
@@ -110,26 +142,29 @@ export function ProductDetailView({
   }, [productId, storeId]);
 
   useEffect(() => {
-    setDescriptionExpanded(false);
-    setGalleryIndex(0);
-  }, [productId]);
-
-  useEffect(() => {
     if (productId) {
       trackDetailView(productId);
     }
   }, [productId, trackDetailView]);
 
+  const goToGalleryIndex = (nextIndex: number) => {
+    if (nextIndex === galleryIndex) return;
+    setSlideDirection(nextIndex > galleryIndex ? 1 : -1);
+    setGalleryIndex(nextIndex);
+  };
+
   const showPreviousGalleryImage = () => {
-    setGalleryIndex((current) =>
-      current === 0 ? galleryImages.length - 1 : current - 1,
-    );
+    const next =
+      galleryIndex === 0 ? galleryImages.length - 1 : galleryIndex - 1;
+    setSlideDirection(-1);
+    setGalleryIndex(next);
   };
 
   const showNextGalleryImage = () => {
-    setGalleryIndex((current) =>
-      current === galleryImages.length - 1 ? 0 : current + 1,
-    );
+    const next =
+      galleryIndex === galleryImages.length - 1 ? 0 : galleryIndex + 1;
+    setSlideDirection(1);
+    setGalleryIndex(next);
   };
 
   const handleGalleryDragEnd = (
@@ -156,6 +191,24 @@ export function ProductDetailView({
       showPreviousGalleryImage();
     }
   };
+
+  const gallerySlideTransition = shouldReduceMotion
+    ? { duration: 0.12 }
+    : { duration: 0.32, ease: GALLERY_SLIDE_EASE };
+
+  const galleryMotionProps = shouldReduceMotion
+    ? {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+      }
+    : {
+        custom: slideDirection,
+        variants: gallerySlideVariants,
+        initial: 'enter' as const,
+        animate: 'center' as const,
+        exit: 'exit' as const,
+      };
 
   const handleShare = async () => {
     if (!product) return;
@@ -225,26 +278,35 @@ export function ProductDetailView({
             <div className="product-detail-modal__gallery">
                     <div className="product-detail-modal__gallery-frame">
                       <div className="product-detail-modal__gallery-stage">
-                        <motion.div
-                          className="product-detail-modal__gallery-drag"
-                          drag={galleryImages.length > 1 ? 'x' : false}
-                          dragDirectionLock
-                          dragElastic={0.16}
-                          dragMomentum={false}
-                          dragConstraints={{ left: 0, right: 0 }}
-                          onDragEnd={handleGalleryDragEnd}
+                        <AnimatePresence
+                          initial={false}
+                          custom={slideDirection}
+                          mode="popLayout"
                         >
-                          <Image
-                            src={galleryImages[galleryIndex] ?? product.image}
-                            alt={toDisplayCase(product.name)}
-                            width={800}
-                            height={1067}
-                            className="product-detail-modal__gallery-image"
-                            sizes="(max-width: 768px) 100vw, 520px"
-                            priority
-                            draggable={false}
-                          />
-                        </motion.div>
+                          <motion.div
+                            key={`${productId}-${galleryIndex}`}
+                            className="product-detail-modal__gallery-drag"
+                            {...galleryMotionProps}
+                            transition={gallerySlideTransition}
+                            drag={galleryImages.length > 1 ? 'x' : false}
+                            dragDirectionLock
+                            dragElastic={0.16}
+                            dragMomentum={false}
+                            dragConstraints={{ left: 0, right: 0 }}
+                            onDragEnd={handleGalleryDragEnd}
+                          >
+                            <Image
+                              src={galleryImages[galleryIndex] ?? product.image}
+                              alt={toDisplayCase(product.name)}
+                              width={800}
+                              height={1067}
+                              className="product-detail-modal__gallery-image"
+                              sizes="(max-width: 768px) 100vw, 520px"
+                              priority
+                              draggable={false}
+                            />
+                          </motion.div>
+                        </AnimatePresence>
                         {galleryImages.length > 1 ? (
                           <>
                             <button
@@ -291,7 +353,7 @@ export function ProductDetailView({
                                   index === galleryIndex &&
                                     'product-detail-modal__gallery-dot--active',
                                 )}
-                                onClick={() => setGalleryIndex(index)}
+                                onClick={() => goToGalleryIndex(index)}
                               />
                             ))}
                           </div>
@@ -322,7 +384,7 @@ export function ProductDetailView({
                         index === galleryIndex &&
                           'product-detail-modal__thumb--active',
                       )}
-                      onClick={() => setGalleryIndex(index)}
+                      onClick={() => goToGalleryIndex(index)}
                     >
                       <Image
                         src={src}
