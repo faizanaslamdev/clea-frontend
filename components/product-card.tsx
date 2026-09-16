@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
-import { type MouseEvent, type ReactNode, useState } from 'react';
+import { type MouseEvent, type ReactNode } from 'react';
 import { Product } from '@/lib/types';
 import { formatPrice, getListingPriceStore, toDisplayCase } from '@/lib/services';
 import { fetchProductById } from '@/lib/api/products';
@@ -13,11 +13,11 @@ import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { productKeys } from '@/lib/query/keys';
 import { useChatAnchorConnection } from '@/components/chat/chat-anchor-provider';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
+import { RemoteProductImage } from '@/components/product/remote-product-image';
 import { useProductDesktopModal } from '@/components/product/product-desktop-modal-provider';
 import { cn } from '@/lib/utils';
 import type { EngagementSurface } from '@/lib/api/engagement';
 import { useEngagementTracking } from '@/lib/hooks/useEngagementTracking';
-import Image from 'next/image';
 
 export type ProductCardVariant = 'trending' | 'detailed';
 
@@ -81,41 +81,21 @@ function ProductCardImage({
   sizes: string;
   priority?: boolean;
 }) {
-  // Optimizer 500s (upstream timeout under concurrency) or bad merchant URLs
-  // must not leave a broken <img> in the grid. Same pattern as TrackImage:
-  // drop the failed Image and keep the wrap background.
-  const [hasError, setHasError] = useState(false);
-  const [unoptimized, setUnoptimized] = useState(false);
-
-  if (hasError) {
-    return (
-      <div
-        className="product-card__image-wrap product-card__image-wrap--fallback"
-        aria-hidden
-      />
-    );
-  }
-
   return (
     <div className="product-card__image-wrap">
-      <Image
-        key={unoptimized ? 'cdn' : 'optimizer'}
+      <RemoteProductImage
         src={product.image}
         alt={toDisplayCase(product.name)}
         fill
         className="product-card__image"
         sizes={sizes}
         priority={priority}
-        unoptimized={unoptimized}
-        onError={() => {
-          // First failure: bypass /_next/image and try the CDN directly.
-          // Second failure: empty wrap (no broken-image icon chrome).
-          if (!unoptimized) {
-            setUnoptimized(true);
-            return;
-          }
-          setHasError(true);
-        }}
+        fallback={
+          <div
+            className="product-card__image-wrap--fallback"
+            aria-hidden
+          />
+        }
       />
     </div>
   );

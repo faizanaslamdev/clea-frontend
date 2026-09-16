@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -12,6 +11,7 @@ import {
 } from 'motion/react';
 import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { ProductGrid } from '@/components/product-grid';
+import { RemoteProductImage } from '@/components/product/remote-product-image';
 import { cn } from '@/lib/utils';
 import { toDisplayCase } from '@/lib/services';
 import {
@@ -295,7 +295,7 @@ export function ProductDetailView({
                             dragConstraints={{ left: 0, right: 0 }}
                             onDragEnd={handleGalleryDragEnd}
                           >
-                            <Image
+                            <RemoteProductImage
                               src={galleryImages[galleryIndex] ?? product.image}
                               alt={toDisplayCase(product.name)}
                               width={800}
@@ -304,6 +304,12 @@ export function ProductDetailView({
                               sizes="(max-width: 768px) 100vw, 520px"
                               priority
                               draggable={false}
+                              fallback={
+                                <div
+                                  className="product-detail-modal__gallery-image product-detail-modal__gallery-image--fallback"
+                                  aria-hidden
+                                />
+                              }
                             />
                           </motion.div>
                         </AnimatePresence>
@@ -386,12 +392,18 @@ export function ProductDetailView({
                       )}
                       onClick={() => goToGalleryIndex(index)}
                     >
-                      <Image
+                      <RemoteProductImage
                         src={src}
                         alt=""
                         width={72}
                         height={96}
                         className="product-detail-modal__thumb-image"
+                        fallback={
+                          <span
+                            className="product-detail-modal__thumb-image product-detail-modal__thumb-image--fallback"
+                            aria-hidden
+                          />
+                        }
                       />
                     </button>
                   ))}

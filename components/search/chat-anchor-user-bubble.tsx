@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, type MouseEvent } from 'react';
-import Image from 'next/image';
+import type { MouseEvent } from 'react';
 import Link from 'next/link';
 import { useProductDesktopModal } from '@/components/product/product-desktop-modal-provider';
+import { RemoteProductImage } from '@/components/product/remote-product-image';
 import { anchorDisplayLabel } from '@/lib/chat/anchor-display-label';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
 import { getProductHref } from '@/lib/domain/products/paths';
@@ -36,11 +36,11 @@ export function ChatAnchorUserBubble({
   actionLabel,
 }: ChatAnchorUserBubbleProps) {
   const { openProductModal } = useProductDesktopModal();
-  const [imageFailed, setImageFailed] = useState(false);
   const href = getProductHref(preview.productId);
   const priceLabel = formatPrice(preview);
   const metaParts = [preview.merchantName?.trim(), priceLabel].filter(Boolean);
-  const showImage = Boolean(preview.image) && !imageFailed && !preview.unavailable;
+  const imageSrc =
+    preview.image?.trim() && !preview.unavailable ? preview.image : null;
 
   const handleNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
     if (shouldOpenProductDesktopModal()) {
@@ -61,23 +61,28 @@ export function ChatAnchorUserBubble({
         aria-label={`${preview.brand ? `${preview.brand}: ` : ''}${preview.name}`}
       >
         <div className="search-chat-anchor-ref__product">
-          {showImage ? (
-            <div className="search-chat-anchor-ref__image-wrap">
-              <Image
-                src={preview.image}
+          <div className="search-chat-anchor-ref__image-wrap">
+            {imageSrc ? (
+              <RemoteProductImage
+                src={imageSrc}
                 alt=""
                 fill
                 className="search-chat-anchor-ref__image"
                 sizes="72px"
-                onError={() => setImageFailed(true)}
+                fallback={
+                  <div
+                    className="search-chat-anchor-ref__image-wrap--empty"
+                    aria-hidden
+                  />
+                }
               />
-            </div>
-          ) : (
-            <div
-              className="search-chat-anchor-ref__image-wrap search-chat-anchor-ref__image-wrap--empty"
-              aria-hidden
-            />
-          )}
+            ) : (
+              <div
+                className="search-chat-anchor-ref__image-wrap--empty"
+                aria-hidden
+              />
+            )}
+          </div>
           <div className="search-chat-anchor-ref__copy">
             {preview.brand ? (
               <p className="search-chat-anchor-ref__brand">{preview.brand}</p>

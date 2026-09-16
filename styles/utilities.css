@@ -2459,6 +2459,10 @@
     @apply block size-full object-contain;
   }
 
+  .product-detail-modal__gallery-image--fallback {
+    @apply bg-muted;
+  }
+
   .product-detail-modal__gallery-nav {
     pointer-events: auto;
     @apply absolute top-1/2 z-[2] inline-flex -translate-y-1/2 cursor-pointer items-center justify-center border-0 bg-transparent p-0 text-foreground transition-opacity duration-200 hover:opacity-65;
@@ -2502,6 +2506,10 @@
 
   .product-detail-modal__thumb-image {
     @apply h-full w-full object-contain object-center;
+  }
+
+  .product-detail-modal__thumb-image--fallback {
+    @apply block bg-muted/70;
   }
 
   .product-detail-modal__info {
