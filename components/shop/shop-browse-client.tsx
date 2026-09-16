@@ -6,9 +6,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ProductGrid } from '@/components/product-grid';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
 import { ShopBrowseStatus } from '@/components/shop/shop-browse-status';
-import { ShopFilterBar } from '@/components/shop/shop-filter-bar';
-import { ShopCategoryTabs } from '@/components/shop/shop-category-tabs';
-import { ShopGenderToggle } from '@/components/shop/shop-gender-toggle';
+import { ShopCategoryRefinements } from '@/components/shop/shop-category-refinements';
+import { ShopFilterDrawer } from '@/components/shop/shop-filter-drawer';
 import type { CatalogBrowseBrand } from '@/lib/api/products';
 import { buildChatEntryUrl } from '@/lib/chat/chat-entry';
 import type { ShopCategory } from '@/lib/constants/shop-categories';
@@ -20,6 +19,7 @@ import {
   shopBrowseFilters,
   type ShopBrowseState,
 } from '@/lib/shop/shop-browse-params';
+import { shopGenderParamFor } from '@/lib/shop/shop-gender';
 import type { Store } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -57,6 +57,11 @@ function ShopBrowseContent({
     ? category.children.find((child) => child.slug === state.sub)
     : undefined;
   const heading = activeChild?.label ?? category.label;
+  const audienceLabel =
+    state.gender === 'male' ? 'Herre' : state.gender === 'female' ? 'Dame' : null;
+  const hubHref = category.gendered
+    ? `/shop?gender=${shopGenderParamFor(state.gender)}`
+    : '/shop';
 
   // replace (not push): one Shop URL so product → Back restores this filtered
   // view without a history entry per refinement.
@@ -104,13 +109,17 @@ function ShopBrowseContent({
       ? `Sorterer ${heading.toLowerCase()} etter laveste pris`
       : state.sort === 'price_desc'
         ? `Sorterer ${heading.toLowerCase()} etter høyeste pris`
-        : state.minPrice != null || state.maxPrice != null
-          ? `Finner ${heading.toLowerCase()} i prisklassen din`
-          : state.brand
-            ? `Henter ${heading.toLowerCase()} fra ${state.brand}`
-            : state.merchantId
-              ? `Henter ${heading.toLowerCase()} fra butikken`
-              : `Sammenligner priser på ${heading.toLowerCase()}`;
+        : state.onSale
+          ? `Finner ${heading.toLowerCase()} på salg`
+          : state.colour
+            ? `Henter ${heading.toLowerCase()} i valgt farge`
+            : state.minPrice != null || state.maxPrice != null
+              ? `Finner ${heading.toLowerCase()} i prisklassen din`
+              : state.brand
+                ? `Henter ${heading.toLowerCase()} fra ${state.brand}`
+                : state.merchantId
+                  ? `Henter ${heading.toLowerCase()} fra butikken`
+                  : `Sammenligner priser på ${heading.toLowerCase()}`;
 
   const chatHref = buildChatEntryUrl({
     query: `Hjelp meg å finne ${heading.toLowerCase()}`,
@@ -122,50 +131,47 @@ function ShopBrowseContent({
       <div className="section-container pt-8">
         <header className="mb-4 flex flex-col gap-1">
           <nav aria-label="Brødsmuler" className="shop-breadcrumb">
-            <Link href="/shop">Handle</Link>
+            <Link href={hubHref}>Handle</Link>
+            {category.gendered && audienceLabel && (
+              <>
+                <span aria-hidden="true">/</span>
+                <Link href={hubHref}>{audienceLabel}</Link>
+              </>
+            )}
             <span aria-hidden="true">/</span>
             <span>{category.label}</span>
           </nav>
           <h1 className="type-heading shop-browse__title">{heading}</h1>
         </header>
 
-        <div className="shop-browse__nav">
-          {category.gendered && (
-            <ShopGenderToggle
-              active={state.gender}
-              onSelect={(gender) => handleChange({ gender })}
-            />
-          )}
-          <ShopCategoryTabs
-            suitableFor={state.gender}
-            activeSlug={category.slug}
-            activeSub={state.sub}
-            className="shop-browse__nav-tabs"
-          />
-        </div>
-
-        <ShopFilterBar
+        <ShopCategoryRefinements
           category={category}
           state={state}
-          stores={stores}
-          brands={brands}
-          isFiltered={isFiltered}
           onChange={handleChange}
-          onReset={handleReset}
         />
 
-        <div className="shop-browse__meta">
-          {isLoading ? (
-            <span>Laster produkter …</span>
-          ) : (
-            <span>
-              {total.toLocaleString('nb-NO')}{' '}
-              {total === 1 ? 'produkt' : 'produkter'}
-            </span>
-          )}
-          <Link href={chatHref} className="shop-browse__chat-link">
-            Spør CLEA om {heading.toLowerCase()}
-          </Link>
+        <div className="shop-browse__toolbar">
+          <div className="shop-browse__meta">
+            {isLoading ? (
+              <span>Laster produkter …</span>
+            ) : (
+              <span>
+                {total.toLocaleString('nb-NO')}{' '}
+                {total === 1 ? 'produkt' : 'produkter'}
+              </span>
+            )}
+            <Link href={chatHref} className="shop-browse__chat-link">
+              Spør CLEA om {heading.toLowerCase()}
+            </Link>
+          </div>
+          <ShopFilterDrawer
+            category={category}
+            state={state}
+            stores={stores}
+            brands={brands}
+            onChange={handleChange}
+            onReset={handleReset}
+          />
         </div>
       </div>
 

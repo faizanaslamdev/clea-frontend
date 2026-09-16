@@ -22,6 +22,9 @@ export function useCatalogInfinite(filters: CatalogQueryFilters) {
     brandValues: filters.brandValues,
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
+    colour: filters.colour,
+    colourFieldOnly: filters.colourFieldOnly,
+    onSale: filters.onSale,
     sort: filters.sort,
   };
 

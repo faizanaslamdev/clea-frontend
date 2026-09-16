@@ -15,6 +15,10 @@ export type CatalogQueryFilters = {
   brandValues?: string[];
   minPrice?: number;
   maxPrice?: number;
+  /** Canonical colour key; pairs with colourFieldOnly for Shop. */
+  colour?: string;
+  colourFieldOnly?: boolean;
+  onSale?: boolean;
   sort?: CatalogSort;
 };
 

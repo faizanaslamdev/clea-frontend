@@ -1,6 +1,8 @@
 import { parseCatalogSort, type CatalogSort } from '@/lib/api/catalog-sort';
 import type { SuitableFor } from '@/lib/api/chat-types';
 import type { ShopCategory } from '@/lib/constants/shop-categories';
+import { parseShopColourParam } from '@/lib/shop/shop-colours';
+import { shopFilterCapabilities } from '@/lib/shop/shop-filter-capabilities';
 import { parseShopGenderParam, shopGenderParamFor } from '@/lib/shop/shop-gender';
 import type { CatalogQueryFilters } from '@/lib/query/keys';
 
@@ -20,6 +22,13 @@ export interface ShopBrowseState {
   merchantId?: string;
   /** Catalog brand string for `brand_values` (exact LOWER match). */
   brand?: string;
+  /**
+   * Canonical colour key (`black`, `blue`, …) for structured `colour` filter.
+   * Only meaningful when the category enables colour.
+   */
+  colour?: string;
+  /** Proven `old_price > price` sale filter. */
+  onSale?: boolean;
   gender: SuitableFor;
 }
 
@@ -30,6 +39,8 @@ export const SHOP_BROWSE_PARAM = {
   max: 'max',
   store: 'butikk',
   brand: 'merke',
+  colour: 'farge',
+  sale: 'salg',
   gender: 'gender',
 } as const;
 
@@ -60,14 +71,24 @@ export function commitPriceRange(
   return { minPrice, maxPrice };
 }
 
+function parseOnSaleParam(raw: string | null | undefined): boolean {
+  if (raw == null) return false;
+  const value = raw.trim().toLowerCase();
+  return value === '1' || value === 'true' || value === 'ja';
+}
+
 export function parseShopBrowseState(
   params: URLSearchParams,
   category: ShopCategory,
 ): ShopBrowseState {
+  const capabilities = shopFilterCapabilities(category);
+
   const subSlug = params.get(SHOP_BROWSE_PARAM.sub);
-  const sub = category.children.some((child) => child.slug === subSlug)
-    ? (subSlug ?? undefined)
-    : undefined;
+  const sub =
+    capabilities.subcategory &&
+    category.children.some((child) => child.slug === subSlug)
+      ? (subSlug ?? undefined)
+      : undefined;
 
   const { minPrice, maxPrice } = commitPriceRange(
     params.get(SHOP_BROWSE_PARAM.min) ?? '',
@@ -75,6 +96,12 @@ export function parseShopBrowseState(
   );
 
   const brand = params.get(SHOP_BROWSE_PARAM.brand)?.trim() || undefined;
+  const colour = capabilities.colour
+    ? parseShopColourParam(params.get(SHOP_BROWSE_PARAM.colour))
+    : undefined;
+  const onSale = capabilities.sale
+    ? parseOnSaleParam(params.get(SHOP_BROWSE_PARAM.sale))
+    : false;
 
   return {
     sub,
@@ -83,6 +110,8 @@ export function parseShopBrowseState(
     maxPrice,
     merchantId: params.get(SHOP_BROWSE_PARAM.store) ?? undefined,
     brand,
+    colour,
+    onSale: onSale || undefined,
     gender: parseShopGenderParam(params.get(SHOP_BROWSE_PARAM.gender)),
   };
 }
@@ -96,6 +125,8 @@ export function buildShopBrowseQuery(state: ShopBrowseState): string {
   if (state.maxPrice != null) params.set(SHOP_BROWSE_PARAM.max, String(state.maxPrice));
   if (state.merchantId) params.set(SHOP_BROWSE_PARAM.store, state.merchantId);
   if (state.brand) params.set(SHOP_BROWSE_PARAM.brand, state.brand);
+  if (state.colour) params.set(SHOP_BROWSE_PARAM.colour, state.colour);
+  if (state.onSale) params.set(SHOP_BROWSE_PARAM.sale, '1');
   // Dame is the default; only pin the param when the shopper picked Herre.
   if (state.gender === 'male') {
     params.set(SHOP_BROWSE_PARAM.gender, shopGenderParamFor(state.gender));
@@ -109,11 +140,14 @@ export function buildShopBrowseQuery(state: ShopBrowseState): string {
  * `segment: 'all'` is deliberate: the ontology id is already a precise filter,
  * while the `fashion` segment layers fuzzy merchant-category LIKE matching on
  * top that can drop correctly-tagged products (and excludes beauty entirely).
+ *
+ * Colour uses `colourFieldOnly` so Shop never infers colour from titles.
  */
 export function shopBrowseFilters(
   category: ShopCategory,
   state: ShopBrowseState,
 ): CatalogQueryFilters {
+  const capabilities = shopFilterCapabilities(category);
   const child = state.sub
     ? category.children.find((entry) => entry.slug === state.sub)
     : undefined;
@@ -128,6 +162,9 @@ export function shopBrowseFilters(
     brandValues: state.brand ? [state.brand] : undefined,
     minPrice: state.minPrice,
     maxPrice: state.maxPrice,
+    colour: capabilities.colour ? state.colour : undefined,
+    colourFieldOnly: capabilities.colour && state.colour ? true : undefined,
+    onSale: capabilities.sale && state.onSale ? true : undefined,
     sort: state.sort,
   };
 }
@@ -137,8 +174,26 @@ export function isShopBrowseFiltered(state: ShopBrowseState): boolean {
     state.sub ||
       state.merchantId ||
       state.brand ||
+      state.colour ||
+      state.onSale ||
       state.minPrice != null ||
       state.maxPrice != null ||
       state.sort !== 'relevance',
   );
+}
+
+/**
+ * Count of secondary filters shown in the Filter drawer.
+ * Excludes subcategory chips and gender (page context, not drawer filters).
+ * Price min/max counts as one constraint. Default relevance sort does not count.
+ */
+export function countShopDrawerFilters(state: ShopBrowseState): number {
+  let count = 0;
+  if (state.brand) count += 1;
+  if (state.merchantId) count += 1;
+  if (state.colour) count += 1;
+  if (state.onSale) count += 1;
+  if (state.minPrice != null || state.maxPrice != null) count += 1;
+  if (state.sort !== 'relevance') count += 1;
+  return count;
 }

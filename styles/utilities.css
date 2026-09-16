@@ -3827,20 +3827,8 @@
     @apply md:text-[40px] md:leading-[48px];
   }
 
-  .shop-browse__nav {
-    @apply mb-4 flex min-w-0 items-center gap-3;
-  }
-
-  .shop-browse__nav-tabs {
-    @apply min-w-0 flex-1;
-  }
-
-  .shop-filter-bar {
-    @apply flex flex-col gap-3 border-b border-border pb-3;
-  }
-
   .shop-filter-bar__chips {
-    @apply flex flex-wrap gap-2;
+    @apply mb-4 flex flex-wrap gap-2;
   }
 
   .shop-filter-chip {
@@ -3862,54 +3850,108 @@
     @apply border-foreground bg-foreground/90 text-background;
   }
 
-  .shop-filter-bar__controls {
-    @apply flex flex-wrap items-center gap-x-5 gap-y-3;
+  .shop-browse__toolbar {
+    @apply flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3;
   }
 
-  /* Label sits beside its control, not above it — a stacked label per field
-     added a whole extra line of height across the filter row. */
-  .shop-filter-field {
-    @apply flex min-w-0 items-center gap-2;
+  .shop-browse__meta {
+    @apply flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground;
   }
 
-  .shop-filter-field__label {
-    @apply shrink-0 text-xs font-medium uppercase tracking-wide text-muted-foreground;
+  .shop-browse__chat-link {
+    @apply underline underline-offset-4 transition-colors hover:text-foreground;
   }
 
-  .shop-filter-field__select {
-    @apply h-10 min-w-[10rem] max-w-full rounded-full border border-border bg-transparent px-4 text-sm text-foreground transition-colors;
+  .shop-filter-trigger {
+    @apply h-10 shrink-0 rounded-full border border-border bg-transparent px-5 text-sm font-medium text-foreground transition-colors hover:border-foreground/30;
   }
 
-  .shop-filter-field__select:hover {
+  .shop-filter-drawer__overlay {
+    @apply z-[60];
+  }
+
+  /* Desktop: right panel. Mobile: full-height sheet from bottom (md breakpoint). */
+  .shop-filter-drawer {
+    @apply fixed inset-x-0 bottom-0 z-[60] flex max-h-[min(92dvh,100%)] w-full flex-col border-t border-border bg-background outline-none;
+    @apply data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  @media (min-width: 768px) {
+    .shop-filter-drawer {
+      inset: 0 0 0 auto;
+      height: 100%;
+      max-height: none;
+      width: 100%;
+      max-width: 24rem;
+      border-left-width: 1px;
+      border-top-width: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  .shop-filter-drawer__header {
+    @apply flex shrink-0 items-center justify-between gap-3 border-b border-border px-5 py-4;
+  }
+
+  .shop-filter-drawer__title {
+    @apply text-lg font-semibold text-foreground;
+  }
+
+  .shop-filter-drawer__close {
+    @apply inline-flex size-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground;
+  }
+
+  .shop-filter-drawer__body {
+    @apply flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-5 py-5;
+  }
+
+  .shop-filter-drawer__field {
+    @apply flex flex-col gap-2;
+  }
+
+  .shop-filter-drawer__label {
+    @apply text-xs font-medium uppercase tracking-wide text-muted-foreground;
+  }
+
+  .shop-filter-drawer__control {
+    @apply h-11 w-full rounded-full border border-border bg-transparent px-4 text-sm text-foreground transition-colors;
+  }
+
+  .shop-filter-drawer__control:hover {
     @apply border-foreground/30;
   }
 
-  .shop-filter-price {
+  .shop-filter-drawer__price {
     @apply flex items-center gap-2;
   }
 
-  .shop-filter-price__input {
-    @apply h-10 w-24 rounded-full border border-border bg-transparent px-4 text-sm text-foreground transition-colors;
-  }
-
-  .shop-filter-price__input:hover {
-    @apply border-foreground/30;
+  .shop-filter-drawer__control--price {
+    @apply min-w-0 flex-1;
   }
 
   .shop-filter-price__dash {
     @apply text-muted-foreground;
   }
 
+  .shop-filter-drawer__sale {
+    @apply w-full justify-center;
+  }
+
+  .shop-filter-drawer__footer {
+    @apply shrink-0 border-t border-border px-5 py-4;
+  }
+
   .shop-filter-reset {
-    @apply h-10 shrink-0 rounded-full border border-border px-4 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground;
+    @apply h-10 w-full rounded-full border border-border px-4 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground md:w-auto;
   }
 
-  .shop-browse__meta {
-    @apply flex flex-wrap items-center justify-between gap-3 pt-3 text-sm text-muted-foreground;
+  .shop-filter-sale {
+    @apply inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-border bg-transparent px-4 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground;
   }
 
-  .shop-browse__chat-link {
-    @apply underline underline-offset-4 transition-colors hover:text-foreground;
+  .shop-filter-sale--active {
+    @apply border-foreground bg-foreground text-background hover:border-foreground hover:bg-foreground/90 hover:text-background;
   }
 
   .shop-browse__state {

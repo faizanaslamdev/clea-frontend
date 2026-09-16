@@ -41,6 +41,12 @@ export interface FetchProductsParams {
   ontologyCategoryIds?: string[];
   /** Multi-brand filter; the backend matches any of these (case-insensitive). */
   brandValues?: string[];
+  /** Canonical colour (EN key); expands via backend synonym patterns. */
+  colour?: string;
+  /** Shop: match structured colour column only (no title inference). */
+  colourFieldOnly?: boolean;
+  /** Proven discount: old_price > price. */
+  onSale?: boolean;
   /** Browse sort order. Omitted = the catalog's compare-ready relevance order. */
   sort?: CatalogSort;
 }
@@ -61,6 +67,9 @@ function buildProductsQuery(params: FetchProductsParams): string {
   if (params.brandValues?.length) {
     search.set('brand_values', params.brandValues.join(','));
   }
+  if (params.colour) search.set('colour', params.colour);
+  if (params.colourFieldOnly) search.set('colour_field_only', 'true');
+  if (params.onSale) search.set('on_sale', 'true');
   if (params.suitableFor) search.set('suitable_for', params.suitableFor);
   if (params.balanceMerchants) search.set('balance_merchants', 'true');
   if (params.perMerchantCandidateCap != null) {
