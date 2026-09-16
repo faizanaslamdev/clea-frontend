@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
-import { type MouseEvent, type ReactNode } from 'react';
+import { type MouseEvent, type ReactNode, useState } from 'react';
 import { Product } from '@/lib/types';
 import { formatPrice, getListingPriceStore, toDisplayCase } from '@/lib/services';
 import { fetchProductById } from '@/lib/api/products';
@@ -26,6 +26,8 @@ interface ProductCardProps {
   storeId?: string;
   variant?: ProductCardVariant;
   imageSizes?: string;
+  /** Above-the-fold grid slots only — keep this rare during rapid Shop switches. */
+  imagePriority?: boolean;
   enableAnchorActions?: boolean;
   showMerchantLabel?: boolean;
   onAnchorActionComplete?: () => void;
@@ -73,18 +75,47 @@ function ProductCardLink({
 function ProductCardImage({
   product,
   sizes,
+  priority = false,
 }: {
   product: Product;
   sizes: string;
+  priority?: boolean;
 }) {
+  // Optimizer 500s (upstream timeout under concurrency) or bad merchant URLs
+  // must not leave a broken <img> in the grid. Same pattern as TrackImage:
+  // drop the failed Image and keep the wrap background.
+  const [hasError, setHasError] = useState(false);
+  const [unoptimized, setUnoptimized] = useState(false);
+
+  if (hasError) {
+    return (
+      <div
+        className="product-card__image-wrap product-card__image-wrap--fallback"
+        aria-hidden
+      />
+    );
+  }
+
   return (
     <div className="product-card__image-wrap">
       <Image
+        key={unoptimized ? 'cdn' : 'optimizer'}
         src={product.image}
         alt={toDisplayCase(product.name)}
         fill
         className="product-card__image"
         sizes={sizes}
+        priority={priority}
+        unoptimized={unoptimized}
+        onError={() => {
+          // First failure: bypass /_next/image and try the CDN directly.
+          // Second failure: empty wrap (no broken-image icon chrome).
+          if (!unoptimized) {
+            setUnoptimized(true);
+            return;
+          }
+          setHasError(true);
+        }}
       />
     </div>
   );
@@ -131,6 +162,7 @@ export function ProductCard({
   storeId,
   variant = 'detailed',
   imageSizes,
+  imagePriority = false,
   enableAnchorActions = false,
   showMerchantLabel = false,
   onAnchorActionComplete,
@@ -177,6 +209,7 @@ export function ProductCard({
         <ProductCardImage
           product={product}
           sizes={imageSizes ?? TRENDING_CARD_IMAGE_SIZES}
+          priority={imagePriority}
         />
 
         <div className="trending-product-card__meta">
@@ -210,6 +243,7 @@ export function ProductCard({
             <ProductCardImage
               product={product}
               sizes={imageSizes ?? DETAILED_CARD_IMAGE_SIZES}
+              priority={imagePriority}
             />
           </ProductCardLink>
           {showAnchorMenu ? (

@@ -4115,16 +4115,19 @@
   }
 
   /* Soft blur-through when a grid's contents change in place (Dame/Herre,
-     sub-category, sort). Blur only: no scale and no entry animation, so the
-     swap reads as a defocus rather than cards popping in. */
+     sub-category, sort). Strong enough to read as "working", no scale so
+     cards don't pop. */
   .swap-fade {
-    transition: filter 300ms cubic-bezier(0.33, 0, 0.2, 1);
+    transition:
+      filter 220ms cubic-bezier(0.33, 0, 0.2, 1),
+      opacity 220ms cubic-bezier(0.33, 0, 0.2, 1);
   }
 
   .swap-fade--pending {
-    filter: blur(3px);
+    filter: blur(5px);
+    opacity: 0.72;
     pointer-events: none;
-    will-change: filter;
+    will-change: filter, opacity;
   }
 
   /* Hub ready-navigation: keep blur feedback but allow another pill/card click
@@ -4133,21 +4136,48 @@
     pointer-events: auto;
   }
 
+  /* Universal Shop pending surface — same visual language everywhere in /shop. */
+  .shop-pending-surface {
+    transition:
+      filter 220ms cubic-bezier(0.33, 0, 0.2, 1),
+      opacity 220ms cubic-bezier(0.33, 0, 0.2, 1);
+  }
+
+  .shop-pending-surface--pending {
+    filter: blur(5px);
+    opacity: 0.72;
+    pointer-events: none;
+    will-change: filter, opacity;
+  }
+
+  .shop-pending-surface--interactive {
+    pointer-events: auto;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .swap-fade,
-    .swap-fade--pending {
+    .swap-fade--pending,
+    .shop-pending-surface,
+    .shop-pending-surface--pending {
       transition: none;
       filter: none;
+      opacity: 1;
       will-change: auto;
+    }
+
+    /* Still dim so pending is readable without motion. */
+    .swap-fade--pending,
+    .shop-pending-surface--pending {
+      opacity: 0.8;
     }
   }
 
-  /* Browse status pill — shown over the blurred grid while results resolve. */
+  /* Browse status pill — Daydream-style taste line over the blurred grid. */
   .browse-status {
     position: fixed;
     top: 42%;
     left: 50%;
-    z-index: 30;
+    z-index: 45;
     transform: translateX(-50%);
     pointer-events: none;
     animation: browse-status-in 220ms cubic-bezier(0.33, 0, 0.2, 1);

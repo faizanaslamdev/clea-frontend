@@ -17,6 +17,9 @@ interface ProductGridProps {
 const GRID_CLASS =
   'grid grid-cols-2 items-stretch gap-x-5 gap-y-10 sm:grid-cols-3 xl:grid-cols-4';
 
+/** First row on xl (4-col) — enough for LCP without eager-loading the page. */
+const ABOVE_FOLD_PRIORITY_COUNT = 4;
+
 export function ProductGrid({
   products,
   storeId,
@@ -38,12 +41,13 @@ export function ProductGrid({
 
   return (
     <div className={GRID_CLASS}>
-      {products.map((product) => (
+      {products.map((product, index) => (
         <div key={product.id} className="h-full min-w-0">
           <ProductCard
             product={product}
             storeId={storeId}
             variant={variant}
+            imagePriority={index < ABOVE_FOLD_PRIORITY_COUNT}
             enableAnchorActions={enableAnchorActions}
             showMerchantLabel={showMerchantLabel}
             onAnchorActionComplete={onAnchorActionComplete}

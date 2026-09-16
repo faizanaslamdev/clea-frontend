@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { SHOP_PENDING_MIN_MS } from '@/lib/shop/shop-pending';
 import { productKeys } from '@/lib/query/keys';
 import {
   catalogFiltersForShopHref,
@@ -46,23 +47,8 @@ export function useShopReadyNavigation() {
       const generation = ++generationRef.current;
       lastHrefRef.current = href;
       setError(null);
-
-      const filters = catalogFiltersForShopHref(href);
-      const catalogReady = Boolean(
-        filters && queryClient.getQueryData(productKeys.catalog(filters)),
-      );
-
-      // Cache hit: swap immediately — no blur flash just to show loading.
-      if (catalogReady) {
-        void Promise.resolve(router.prefetch(href)).catch(() => undefined);
-        if (generation !== generationRef.current) {
-          return { status: 'cancelled' };
-        }
-        router.push(href);
-        return { status: 'navigated' };
-      }
-
       setIsNavigating(true);
+      const startedAt = performance.now();
 
       try {
         const routePrefetch = Promise.resolve(router.prefetch(href)).catch(
@@ -77,8 +63,22 @@ export function useShopReadyNavigation() {
           return { status: 'cancelled' };
         }
 
+        const filters = catalogFiltersForShopHref(href);
         if (filters && !queryClient.getQueryData(productKeys.catalog(filters))) {
           throw new Error('Shop browse catalog prefetch returned no data');
+        }
+
+        // Every hub click gets a readable pending beat — even warm cache hits.
+        const remaining = Math.max(
+          0,
+          SHOP_PENDING_MIN_MS - (performance.now() - startedAt),
+        );
+        if (remaining > 0) {
+          await new Promise((resolve) => window.setTimeout(resolve, remaining));
+        }
+
+        if (generation !== generationRef.current) {
+          return { status: 'cancelled' };
         }
 
         router.push(href);

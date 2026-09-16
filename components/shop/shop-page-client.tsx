@@ -10,12 +10,10 @@ import {
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { CategorySection } from '@/components/category-section';
-import { cn } from '@/lib/utils';
-import { useCategoryPreviews, useTrendingLooks } from '@/lib/hooks/useProducts';
-import { useShopReadyNavigation } from '@/lib/hooks/useShopReadyNavigation';
 import { ShopBrowseAssistant, ShopBrowseAssistantScope } from '@/components/shop/shop-browse-assistant';
 import { ShopCategoryTabs } from '@/components/shop/shop-category-tabs';
 import { ShopGenderToggle } from '@/components/shop/shop-gender-toggle';
+import { ShopPendingSurface } from '@/components/shop/shop-pending-surface';
 import { ShopTrendingSection } from '@/components/shop/shop-trending-section';
 import {
   fetchCategoryPreviews,
@@ -23,12 +21,16 @@ import {
 } from '@/lib/api/products';
 import type { SuitableFor } from '@/lib/api/chat-types';
 import { categoryGridForShop } from '@/lib/constants/category-grid';
+import { useCategoryPreviews, useTrendingLooks } from '@/lib/hooks/useProducts';
+import { useShopPendingLabel, useShopPendingTransition } from '@/lib/hooks/useShopPending';
+import { useShopReadyNavigation } from '@/lib/hooks/useShopReadyNavigation';
 import { productKeys } from '@/lib/query/keys';
 import {
   parseShopGenderParam,
   shopCategoryFor,
   shopGenderParamFor,
 } from '@/lib/shop/shop-gender';
+import { shopHubPendingLabel } from '@/lib/shop/shop-pending';
 
 function ShopPageContent() {
   const router = useRouter();
@@ -44,14 +46,15 @@ function ShopPageContent() {
   const shopCategory = shopCategoryFor(suitableFor);
   // Same queries CategorySection/ShopTrendingSection run — React Query dedupes
   // by key, so this only reads their state. Both keep previous data, so the
-  // tiles stay on screen (blurred) until the new audience lands; a cached
-  // toggle resolves instantly and never blurs.
+  // tiles stay on screen (blurred) until the new audience lands.
   const previews = useCategoryPreviews(suitableFor);
   const trending = useTrendingLooks(suitableFor, 3);
-  // Only blur while showing previous audience data — not on background refetch.
   const audienceSwapping =
     previews.isPlaceholderData || trending.isPlaceholderData;
-  const surfacePending = audienceSwapping || isNavigating;
+  const pending = useShopPendingTransition(
+    `hub-audience:${suitableFor}`,
+    audienceSwapping || isNavigating,
+  );
 
   useEffect(() => {
     setSuitableFor(urlGender);
@@ -93,15 +96,21 @@ function ShopPageContent() {
     [navigateToShopHref],
   );
 
+  const statusLabel = useShopPendingLabel(
+    pending,
+    shopHubPendingLabel({
+      navigating: isNavigating,
+      audienceSwapping,
+      suitableFor,
+    }),
+  );
+
   return (
     <ShopBrowseAssistantScope>
-      <div
-        className={cn(
-          'swap-fade',
-          surfacePending && 'swap-fade--pending',
-          isNavigating && 'swap-fade--pending-interactive',
-        )}
-        aria-busy={surfacePending || undefined}
+      <ShopPendingSurface
+        pending={pending}
+        label={statusLabel}
+        interactive={isNavigating}
       >
         <div className="section-container pt-16">
           <header className="mb-6 flex flex-col gap-2 md:mb-8">
@@ -138,7 +147,7 @@ function ShopPageContent() {
           suitableFor={suitableFor}
           shopCategory={shopCategory}
         />
-      </div>
+      </ShopPendingSurface>
 
       {error ? (
         <div className="section-container pb-6">

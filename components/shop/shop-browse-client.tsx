@@ -6,12 +6,13 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ProductGrid } from '@/components/product-grid';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
 import { ShopBrowseAssistant, ShopBrowseAssistantScope } from '@/components/shop/shop-browse-assistant';
-import { ShopBrowseStatus } from '@/components/shop/shop-browse-status';
 import { ShopCategoryRefinements } from '@/components/shop/shop-category-refinements';
 import { ShopFilterDrawer } from '@/components/shop/shop-filter-drawer';
+import { ShopPendingSurface } from '@/components/shop/shop-pending-surface';
 import type { CatalogBrowseBrand } from '@/lib/api/products';
 import type { ShopCategory } from '@/lib/constants/shop-categories';
 import { useCatalogInfinite } from '@/lib/hooks/useCatalogInfinite';
+import { useShopPendingLabel, useShopPendingItems, useShopPendingTransition } from '@/lib/hooks/useShopPending';
 import {
   buildShopBrowseQuery,
   isShopBrowseFiltered,
@@ -20,8 +21,9 @@ import {
   type ShopBrowseState,
 } from '@/lib/shop/shop-browse-params';
 import { shopCategoryFor, shopGenderParamFor } from '@/lib/shop/shop-gender';
+import { shopBrowsePendingLabel } from '@/lib/shop/shop-pending';
+import { productKeys } from '@/lib/query/keys';
 import type { Store } from '@/lib/types';
-import { cn } from '@/lib/utils';
 
 interface ShopBrowseClientProps {
   category: ShopCategory;
@@ -101,30 +103,24 @@ function ShopBrowseContent({
     isFetchingNextPage,
   } = useCatalogInfinite(filters);
 
-  const swapping = isPlaceholderData;
-
   const products = data?.pages.flatMap((page) => page.products) ?? [];
   const total = data?.pages[0]?.total ?? 0;
   // Prefer previous products over an empty skeleton while the next set loads.
   const showSkeleton = isLoading && products.length === 0;
 
-  const statusLabel = isLoading
-    ? `Henter ${heading.toLowerCase()}`
-    : state.sort === 'price_asc'
-      ? `Sorterer ${heading.toLowerCase()} etter laveste pris`
-      : state.sort === 'price_desc'
-        ? `Sorterer ${heading.toLowerCase()} etter høyeste pris`
-        : state.onSale
-          ? `Finner ${heading.toLowerCase()} på salg`
-          : state.colour
-            ? `Henter ${heading.toLowerCase()} i valgt farge`
-            : state.minPrice != null || state.maxPrice != null
-              ? `Finner ${heading.toLowerCase()} i prisklassen din`
-              : state.brand
-                ? `Henter ${heading.toLowerCase()} fra ${state.brand}`
-                : state.merchantId
-                  ? `Henter ${heading.toLowerCase()} fra butikken`
-                  : `Sammenligner priser på ${heading.toLowerCase()}`;
+  // Every chip/filter change — including warm cache hits — starts pending.
+  const transitionKey = JSON.stringify(productKeys.catalog(filters));
+  const dataPending = isPlaceholderData || showSkeleton;
+  const pending = useShopPendingTransition(transitionKey, dataPending);
+  const visibleProducts = useShopPendingItems(pending, products);
+  const statusLabel = useShopPendingLabel(
+    pending,
+    shopBrowsePendingLabel({
+      heading,
+      state,
+      cold: showSkeleton,
+    }),
+  );
 
   return (
     <ShopBrowseAssistantScope>
@@ -152,7 +148,7 @@ function ShopBrowseContent({
 
         <div className="shop-browse__toolbar">
           <div className="shop-browse__meta">
-            {isLoading ? (
+            {pending && showSkeleton ? (
               <span>Laster produkter …</span>
             ) : (
               <span>
@@ -173,13 +169,10 @@ function ShopBrowseContent({
         </div>
       </div>
 
-      <ShopBrowseStatus visible={swapping || showSkeleton} label={statusLabel} />
-
-      <div
-        className={cn(
-          'section-container swap-fade shop-browse__grid',
-          swapping && 'swap-fade--pending',
-        )}
+      <ShopPendingSurface
+        pending={pending}
+        label={statusLabel}
+        className="section-container shop-browse__grid"
       >
         {isError ? (
           <div className="shop-browse__state">
@@ -201,7 +194,7 @@ function ShopBrowseContent({
               />
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : visibleProducts.length === 0 ? (
           <div className="shop-browse__state">
             <p>
               Ingen produkter matchet filtrene dine i {heading.toLowerCase()}.
@@ -219,7 +212,7 @@ function ShopBrowseContent({
         ) : (
           <>
             <ProductGrid
-              products={products}
+              products={visibleProducts}
               showMerchantLabel
               enableAnchorActions
             />
@@ -231,7 +224,7 @@ function ShopBrowseContent({
             )}
           </>
         )}
-      </div>
+      </ShopPendingSurface>
 
       <ShopBrowseAssistant
         heading={heading}
