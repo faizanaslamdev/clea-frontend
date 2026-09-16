@@ -1896,16 +1896,20 @@
     }
   }
 
-  /* Phones swipe the row, so the arrows are a mouse-only affordance -- and
-     with no room to sit outside the track they land directly on top of a
-     chip (measured at 430px: the right-hand button covered the middle of
-     "Bukser & nederdeler"). The fades go with them: they exist to sit behind
-     those buttons, so on their own they just wash a chip out for no visible
-     reason. A swipeable row needs neither. */
+  /* Keep scroll arrows + edge fades on phones too (same affordance as
+     laptop). Extra track padding clears the 32px buttons so they don't
+     sit on top of the first/last chip. */
   @media (max-width: 767px) {
-    .shop-category-tabs__scroll-btn,
-    .shop-category-tabs__fade {
-      display: none;
+    .shop-category-tabs {
+      @apply px-11 scroll-px-11;
+    }
+
+    .shop-category-tabs__scroll-btn--left {
+      left: 8px;
+    }
+
+    .shop-category-tabs__scroll-btn--right {
+      right: 8px;
     }
   }
 
