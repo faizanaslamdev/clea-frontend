@@ -13,6 +13,13 @@ export interface ShopCategoryChild {
   slug: string;
   label: string;
   ontologyId: string;
+  /**
+   * When set, the refinement chip is only offered for these audiences.
+   * Omit to show for every audience on a gendered shelf.
+   * Used when production sellable inventory is zero or the leaf is
+   * audience-inappropriate (e.g. Skjørt / Bluser for Herre).
+   */
+  audiences?: readonly ('female' | 'male')[];
 }
 
 export interface ShopCategory {
@@ -48,7 +55,14 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
     children: [
       { slug: 't-skjorter', label: 'T-skjorter', ontologyId: 'apparel.tops.tshirt' },
       { slug: 'skjorter', label: 'Skjorter', ontologyId: 'apparel.tops.shirt' },
-      { slug: 'bluser', label: 'Bluser', ontologyId: 'apparel.tops.blouse' },
+      // Dame-only: Herre sellable blouse leaf is ~19 misclassified flannel
+      // shirts — exposing "Bluser" there is wrong UI, not a mapping broaden.
+      {
+        slug: 'bluser',
+        label: 'Bluser',
+        ontologyId: 'apparel.tops.blouse',
+        audiences: ['female'],
+      },
     ],
   },
   {
@@ -73,7 +87,13 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
       { slug: 'jeans', label: 'Jeans', ontologyId: 'apparel.bottoms.jeans' },
       { slug: 'bukser', label: 'Bukser', ontologyId: 'apparel.bottoms.trousers' },
       { slug: 'shorts', label: 'Shorts', ontologyId: 'apparel.bottoms.shorts' },
-      { slug: 'skjort', label: 'Skjørt', ontologyId: 'apparel.bottoms.skirt' },
+      // Dame-only: production has 0 sellable Herre skirts.
+      {
+        slug: 'skjort',
+        label: 'Skjørt',
+        ontologyId: 'apparel.bottoms.skirt',
+        audiences: ['female'],
+      },
       // Legwear is a sibling ontology branch, not under bottoms — exposed here
       // so Dame shoppers reach tights without a dedicated hub shelf or URL.
       { slug: 'tights', label: 'Tights', ontologyId: 'apparel.legwear' },
@@ -166,6 +186,21 @@ const BY_SLUG = new Map(SHOP_CATEGORIES.map((entry) => [entry.slug, entry]));
 
 export function findShopCategory(slug: string): ShopCategory | undefined {
   return BY_SLUG.get(slug);
+}
+
+/**
+ * Contextual chips visible for the active Dame/Herre audience.
+ * Children without `audiences` stay visible on every gendered shelf visit.
+ */
+export function shopCategoryChildrenFor(
+  category: ShopCategory,
+  gender: 'female' | 'male' | 'unisex',
+): readonly ShopCategoryChild[] {
+  const audience = gender === 'male' ? 'male' : 'female';
+  return category.children.filter((child) => {
+    if (!child.audiences || child.audiences.length === 0) return true;
+    return child.audiences.includes(audience);
+  });
 }
 
 export function shopCategoryPath(slug: string): string {

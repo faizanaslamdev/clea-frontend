@@ -1,6 +1,9 @@
 import { parseCatalogSort, type CatalogSort } from '@/lib/api/catalog-sort';
 import type { SuitableFor } from '@/lib/api/chat-types';
-import type { ShopCategory } from '@/lib/constants/shop-categories';
+import {
+  shopCategoryChildrenFor,
+  type ShopCategory,
+} from '@/lib/constants/shop-categories';
 import { parseShopColourParam } from '@/lib/shop/shop-colours';
 import { shopFilterCapabilities } from '@/lib/shop/shop-filter-capabilities';
 import { parseShopGenderParam, shopGenderParamFor } from '@/lib/shop/shop-gender';
@@ -82,11 +85,12 @@ export function parseShopBrowseState(
   category: ShopCategory,
 ): ShopBrowseState {
   const capabilities = shopFilterCapabilities(category);
+  const visibleChildren = shopCategoryChildrenFor(category, parseShopGenderParam(params.get(SHOP_BROWSE_PARAM.gender)));
 
   const subSlug = params.get(SHOP_BROWSE_PARAM.sub);
   const sub =
     capabilities.subcategory &&
-    category.children.some((child) => child.slug === subSlug)
+    visibleChildren.some((child) => child.slug === subSlug)
       ? (subSlug ?? undefined)
       : undefined;
 
@@ -149,7 +153,9 @@ export function shopBrowseFilters(
 ): CatalogQueryFilters {
   const capabilities = shopFilterCapabilities(category);
   const child = state.sub
-    ? category.children.find((entry) => entry.slug === state.sub)
+    ? shopCategoryChildrenFor(category, state.gender).find(
+        (entry) => entry.slug === state.sub,
+      )
     : undefined;
 
   return {

@@ -1,7 +1,10 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { ShopCategory } from '@/lib/constants/shop-categories';
+import {
+  shopCategoryChildrenFor,
+  type ShopCategory,
+} from '@/lib/constants/shop-categories';
 import type { ShopBrowseState } from '@/lib/shop/shop-browse-params';
 
 interface ShopCategoryRefinementsProps {
@@ -16,7 +19,8 @@ export function ShopCategoryRefinements({
   state,
   onChange,
 }: ShopCategoryRefinementsProps) {
-  if (category.children.length === 0) return null;
+  const children = shopCategoryChildrenFor(category, state.gender);
+  if (children.length === 0) return null;
 
   return (
     <div
@@ -32,7 +36,7 @@ export function ShopCategoryRefinements({
       >
         Alle {category.label.toLowerCase()}
       </button>
-      {category.children.map((child) => (
+      {children.map((child) => (
         <button
           key={child.slug}
           type="button"
