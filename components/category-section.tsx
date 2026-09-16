@@ -44,11 +44,16 @@ interface CategorySectionProps {
    * shop page, where every category is visible at once rather than hidden
    * behind a sideways scroll. */
   layout?: 'carousel' | 'grid';
-  /** On /shop, tiles link into the browse grid (/shop/[category]) instead of
-   * opening chat, so shoppers have a path that does not depend on the AI
-   * getting the query right. Tiles with no browse destination still open
-   * chat, and the homepage keeps its chat-first behaviour. */
+  /** Tiles link into the browse grid (/shop/[category]) instead of opening
+   * chat. Used on the homepage and /shop so "Hva leter du etter?" is a
+   * shop-category entry point. Tiles with no browse destination still open
+   * chat as a fallback. */
   browseLinks?: boolean;
+  /** Prefetch-then-navigate for browse hrefs (Shop hub ready-frame transition).
+   * When set with browseLinks, cards call this instead of a cold <Link> jump. */
+  onBrowseNavigate?: (href: string) => void;
+  /** Disable card activation while a ready-navigation is in flight. */
+  browseNavigateDisabled?: boolean;
 }
 
 export function CategorySection({
@@ -58,6 +63,8 @@ export function CategorySection({
   compact = false,
   layout = 'carousel',
   browseLinks = false,
+  onBrowseNavigate,
+  browseNavigateDisabled = false,
 }: CategorySectionProps = {}) {
   const router = useRouter();
   const { data: categories = [], isLoading } = useCategoryPreviews(suitableFor);
@@ -105,6 +112,8 @@ export function CategorySection({
                       ? shopBrowseHrefForGridEntry(category.id, suitableFor)
                       : undefined
                   }
+                  onBrowseNavigate={onBrowseNavigate}
+                  browseNavigateDisabled={browseNavigateDisabled}
                   onSelect={() =>
                     navigateToChatEntry(router, { query: category.query, shopCategory })
                   }
@@ -164,11 +173,15 @@ function CategoryFanCard({
   category,
   eyebrow,
   href,
+  onBrowseNavigate,
+  browseNavigateDisabled = false,
   onSelect,
 }: {
   category: CategoryPreview;
   eyebrow: string;
   href?: string;
+  onBrowseNavigate?: (href: string) => void;
+  browseNavigateDisabled?: boolean;
   onSelect: () => void;
 }) {
   const [center, left, right] = category.images;
@@ -225,6 +238,25 @@ function CategoryFanCard({
       </div>
     </>
   );
+
+  // Ready-frame navigation: keep hub mounted under blur until catalog is warm.
+  if (href && onBrowseNavigate) {
+    return (
+      <button
+        type="button"
+        role="listitem"
+        className={cardClassName}
+        style={cardStyle}
+        disabled={browseNavigateDisabled}
+        onClick={() => {
+          if (browseNavigateDisabled) return;
+          onBrowseNavigate(href);
+        }}
+      >
+        {content}
+      </button>
+    );
+  }
 
   // A real <a> when it navigates: middle-click, cmd-click and "open in new tab"
   // all matter on a shopping grid, and a <button> gives none of them.

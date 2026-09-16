@@ -32,6 +32,8 @@ interface ShopFilterDrawerProps {
   brands: readonly CatalogBrowseBrand[];
   onChange: (patch: Partial<ShopBrowseState>) => void;
   onReset: () => void;
+  /** Lets the page suppress the floating CLEA assistant while filters are open. */
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function ShopFilterDrawer({
@@ -41,6 +43,7 @@ export function ShopFilterDrawer({
   brands,
   onChange,
   onReset,
+  onOpenChange,
 }: ShopFilterDrawerProps) {
   const capabilities = useMemo(
     () => shopFilterCapabilities(category),
@@ -143,6 +146,7 @@ export function ShopFilterDrawer({
   const handleOpenChange = (next: boolean) => {
     if (!next) flushPending();
     setOpen(next);
+    onOpenChange?.(next);
   };
 
   return (
@@ -152,7 +156,7 @@ export function ShopFilterDrawer({
         className="shop-filter-trigger"
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        onClick={() => handleOpenChange(true)}
       >
         {activeCount > 0 ? `Filter (${activeCount})` : 'Filter'}
       </button>
@@ -386,6 +390,7 @@ export function ShopFilterDrawer({
                   setBrandDraft('');
                   onReset();
                   setOpen(false);
+                  onOpenChange?.(false);
                 }}
               >
                 Nullstill filtre

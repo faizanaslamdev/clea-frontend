@@ -1,15 +1,15 @@
 'use client';
 
-import { Suspense, useCallback, useMemo } from 'react';
+import { Suspense, useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ProductGrid } from '@/components/product-grid';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
+import { ShopBrowseAssistant, ShopBrowseAssistantScope } from '@/components/shop/shop-browse-assistant';
 import { ShopBrowseStatus } from '@/components/shop/shop-browse-status';
 import { ShopCategoryRefinements } from '@/components/shop/shop-category-refinements';
 import { ShopFilterDrawer } from '@/components/shop/shop-filter-drawer';
 import type { CatalogBrowseBrand } from '@/lib/api/products';
-import { buildChatEntryUrl } from '@/lib/chat/chat-entry';
 import type { ShopCategory } from '@/lib/constants/shop-categories';
 import { useCatalogInfinite } from '@/lib/hooks/useCatalogInfinite';
 import {
@@ -19,7 +19,7 @@ import {
   shopBrowseFilters,
   type ShopBrowseState,
 } from '@/lib/shop/shop-browse-params';
-import { shopGenderParamFor } from '@/lib/shop/shop-gender';
+import { shopCategoryFor, shopGenderParamFor } from '@/lib/shop/shop-gender';
 import type { Store } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +37,7 @@ function ShopBrowseContent({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const state = useMemo(
     () =>
@@ -62,6 +63,10 @@ function ShopBrowseContent({
   const hubHref = category.gendered
     ? `/shop?gender=${shopGenderParamFor(state.gender)}`
     : '/shop';
+  const chatShopCategory = category.gendered
+    ? shopCategoryFor(state.gender)
+    : undefined;
+  const assistantEntryKey = `shop-${category.slug}${state.sub ? `-${state.sub}` : ''}`;
 
   // replace (not push): one Shop URL so product → Back restores this filtered
   // view without a history entry per refinement.
@@ -89,7 +94,6 @@ function ShopBrowseContent({
     data,
     isLoading,
     isError,
-    isFetching,
     isPlaceholderData,
     refetch,
     fetchNextPage,
@@ -97,11 +101,12 @@ function ShopBrowseContent({
     isFetchingNextPage,
   } = useCatalogInfinite(filters);
 
-  const swapping =
-    isPlaceholderData || (isFetching && !isFetchingNextPage && !isLoading);
+  const swapping = isPlaceholderData;
 
   const products = data?.pages.flatMap((page) => page.products) ?? [];
   const total = data?.pages[0]?.total ?? 0;
+  // Prefer previous products over an empty skeleton while the next set loads.
+  const showSkeleton = isLoading && products.length === 0;
 
   const statusLabel = isLoading
     ? `Henter ${heading.toLowerCase()}`
@@ -121,13 +126,8 @@ function ShopBrowseContent({
                   ? `Henter ${heading.toLowerCase()} fra butikken`
                   : `Sammenligner priser på ${heading.toLowerCase()}`;
 
-  const chatHref = buildChatEntryUrl({
-    query: `Hjelp meg å finne ${heading.toLowerCase()}`,
-    entryId: `shop-${category.slug}${state.sub ? `-${state.sub}` : ''}`,
-  });
-
   return (
-    <>
+    <ShopBrowseAssistantScope>
       <div className="section-container pt-8">
         <header className="mb-4 flex flex-col gap-1">
           <nav aria-label="Brødsmuler" className="shop-breadcrumb">
@@ -160,9 +160,6 @@ function ShopBrowseContent({
                 {total === 1 ? 'produkt' : 'produkter'}
               </span>
             )}
-            <Link href={chatHref} className="shop-browse__chat-link">
-              Spør CLEA om {heading.toLowerCase()}
-            </Link>
           </div>
           <ShopFilterDrawer
             category={category}
@@ -171,15 +168,16 @@ function ShopBrowseContent({
             brands={brands}
             onChange={handleChange}
             onReset={handleReset}
+            onOpenChange={setFilterOpen}
           />
         </div>
       </div>
 
-      <ShopBrowseStatus visible={swapping || isLoading} label={statusLabel} />
+      <ShopBrowseStatus visible={swapping || showSkeleton} label={statusLabel} />
 
       <div
         className={cn(
-          'section-container swap-fade pb-16',
+          'section-container swap-fade shop-browse__grid',
           swapping && 'swap-fade--pending',
         )}
       >
@@ -194,7 +192,7 @@ function ShopBrowseContent({
               Prøv igjen
             </button>
           </div>
-        ) : isLoading ? (
+        ) : showSkeleton ? (
           <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 xl:grid-cols-4">
             {Array.from({ length: 8 }, (_, index) => (
               <div
@@ -234,7 +232,14 @@ function ShopBrowseContent({
           </>
         )}
       </div>
-    </>
+
+      <ShopBrowseAssistant
+        heading={heading}
+        shopCategory={chatShopCategory}
+        entryKey={assistantEntryKey}
+        suppressed={filterOpen}
+      />
+    </ShopBrowseAssistantScope>
   );
 }
 

@@ -50,7 +50,7 @@ export default async function Home() {
         <HeroSection />
         <BrandMarquee />
         <Reveal>
-          <CategorySection />
+          <CategorySection browseLinks />
         </Reveal>
         <Reveal>
           <FeatureTabsSection />

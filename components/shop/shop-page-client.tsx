@@ -12,6 +12,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CategorySection } from '@/components/category-section';
 import { cn } from '@/lib/utils';
 import { useCategoryPreviews, useTrendingLooks } from '@/lib/hooks/useProducts';
+import { useShopReadyNavigation } from '@/lib/hooks/useShopReadyNavigation';
+import { ShopBrowseAssistant, ShopBrowseAssistantScope } from '@/components/shop/shop-browse-assistant';
 import { ShopCategoryTabs } from '@/components/shop/shop-category-tabs';
 import { ShopGenderToggle } from '@/components/shop/shop-gender-toggle';
 import { ShopTrendingSection } from '@/components/shop/shop-trending-section';
@@ -33,6 +35,8 @@ function ShopPageContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
+  const { isNavigating, error, navigateToShopHref, retry } =
+    useShopReadyNavigation();
 
   const urlGender = parseShopGenderParam(searchParams.get('gender'));
   // Optimistic local gender — update the toggle immediately; URL syncs after.
@@ -44,11 +48,10 @@ function ShopPageContent() {
   // toggle resolves instantly and never blurs.
   const previews = useCategoryPreviews(suitableFor);
   const trending = useTrendingLooks(suitableFor, 3);
-  const swapping =
-    previews.isPlaceholderData ||
-    trending.isPlaceholderData ||
-    (previews.isFetching && !previews.isLoading) ||
-    (trending.isFetching && !trending.isLoading);
+  // Only blur while showing previous audience data — not on background refetch.
+  const audienceSwapping =
+    previews.isPlaceholderData || trending.isPlaceholderData;
+  const surfacePending = audienceSwapping || isNavigating;
 
   useEffect(() => {
     setSuitableFor(urlGender);
@@ -71,7 +74,7 @@ function ShopPageContent() {
 
   const handleGenderSelect = useCallback(
     (value: SuitableFor) => {
-      if (value === suitableFor) return;
+      if (value === suitableFor || isNavigating) return;
       setSuitableFor(value);
       const params = new URLSearchParams(searchParams.toString());
       params.set('gender', shopGenderParamFor(value));
@@ -80,33 +83,47 @@ function ShopPageContent() {
         router.replace(href, { scroll: false });
       });
     },
-    [pathname, router, searchParams, suitableFor],
+    [isNavigating, pathname, router, searchParams, suitableFor],
+  );
+
+  const handleBrowseNavigate = useCallback(
+    (href: string) => {
+      void navigateToShopHref(href);
+    },
+    [navigateToShopHref],
   );
 
   return (
-    <>
-      <div className="section-container pt-16">
-        <header className="mb-6 flex flex-col gap-2 md:mb-8">
-          <h1 className="type-heading">Handle</h1>
-          <p className="type-subheading max-w-[560px]">
-            Bla gjennom hele utvalget kategori for kategori, på tvers av alle
-            våre partnerbutikker.
-          </p>
-        </header>
+    <ShopBrowseAssistantScope>
+      <div
+        className={cn(
+          'swap-fade',
+          surfacePending && 'swap-fade--pending',
+          isNavigating && 'swap-fade--pending-interactive',
+        )}
+        aria-busy={surfacePending || undefined}
+      >
+        <div className="section-container pt-16">
+          <header className="mb-6 flex flex-col gap-2 md:mb-8">
+            <h1 className="type-heading">Handle</h1>
+            <p className="type-subheading max-w-[560px]">
+              Bla gjennom hele utvalget kategori for kategori, på tvers av alle
+              våre partnerbutikker.
+            </p>
+          </header>
 
-        <ShopGenderToggle
-          active={suitableFor}
-          onSelect={handleGenderSelect}
-          className="mb-6 md:mb-8"
-        />
+          <ShopGenderToggle
+            active={suitableFor}
+            onSelect={handleGenderSelect}
+            className="mb-6 md:mb-8"
+          />
 
-        <ShopCategoryTabs
-          suitableFor={suitableFor}
-          shopCategory={shopCategory}
-        />
-      </div>
+          <ShopCategoryTabs
+            suitableFor={suitableFor}
+            onNavigate={handleBrowseNavigate}
+          />
+        </div>
 
-      <div className={cn('swap-fade', swapping && 'swap-fade--pending')}>
         <CategorySection
           compact
           browseLinks
@@ -114,6 +131,7 @@ function ShopPageContent() {
           showLink={false}
           suitableFor={suitableFor}
           shopCategory={shopCategory}
+          onBrowseNavigate={handleBrowseNavigate}
         />
 
         <ShopTrendingSection
@@ -121,7 +139,28 @@ function ShopPageContent() {
           shopCategory={shopCategory}
         />
       </div>
-    </>
+
+      {error ? (
+        <div className="section-container pb-6">
+          <p className="shop-browse__state text-sm text-muted-foreground" role="alert">
+            Kunne ikke åpne utvalget.{' '}
+            <button
+              type="button"
+              className="shop-filter-reset"
+              onClick={retry}
+            >
+              Prøv igjen
+            </button>
+          </p>
+        </div>
+      ) : null}
+
+      <ShopBrowseAssistant
+        heading={suitableFor === 'male' ? 'herreklær' : 'dameklær'}
+        shopCategory={shopCategory}
+        entryKey={`shop-hub-${shopGenderParamFor(suitableFor)}`}
+      />
+    </ShopBrowseAssistantScope>
   );
 }
 

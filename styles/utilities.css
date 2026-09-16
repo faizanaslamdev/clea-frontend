@@ -1064,37 +1064,23 @@
     @apply size-11;
   }
 
+  /* Base shape for the compact bar's own parts. Only contextual overrides
+     existed, so the submit rendered as a hard-edged square and the textarea
+     kept the browser's default drag-to-resize grabber inside the pill. */
+  .hero-search-bar--compact__input {
+    @apply min-w-0 flex-1 resize-none bg-transparent outline-none;
+  }
+
+  .hero-search-bar--compact__submit {
+    @apply inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 transition-opacity duration-200;
+  }
+
   /* Compact hero search — sticky under header after scroll */
   .hero-search-bar--compact {
     background-color: var(--card);
     border: 2px solid var(--hero-search-border);
     box-shadow: var(--hero-search-shadow);
     @apply flex w-full min-w-0 items-center gap-2 rounded-[1.75rem] py-1.5 pl-4 pr-1.5 transition-[border-color,box-shadow] duration-200;
-  }
-
-  .hero-search-bar--compact__input {
-    color: var(--foreground);
-    field-sizing: content;
-    @apply block max-h-32 min-w-0 flex-1 resize-none self-center overflow-y-auto border-0 bg-transparent py-0 font-sans text-sm font-normal leading-6 placeholder:text-muted-foreground focus:outline-none focus:ring-0;
-  }
-
-  .hero-search-bar--compact__submit {
-    background-color: var(--muted);
-    color: var(--muted-foreground);
-    @apply inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 transition-[background-color,color,opacity] duration-200 hover:opacity-85;
-  }
-
-  .hero-search-bar--compact:has(
-      .hero-search-bar--compact__input:not(:placeholder-shown)
-    )
-    .hero-search-bar--compact__submit,
-  .hero-search-bar--compact__submit--active {
-    background-color: var(--hero-search-submit-bg);
-    color: var(--hero-search-submit-fg);
-  }
-
-  .hero-search-bar--compact__submit:disabled {
-    @apply cursor-not-allowed opacity-100;
   }
 
   /* Frosted glass / soft mirror — shared across chat, hero, and sticky nav search */
@@ -1174,19 +1160,74 @@
     @apply opacity-90;
   }
 
+  /*
+   * Aura treatment on the floating bar.
+   *
+   * The glass border was white at 62% alpha — invisible on the off-white page
+   * and over white product photography. Separation now comes from a diffuse
+   * coloured halo in the shadow stack rather than an edge, so the field reads as
+   * lit from behind instead of outlined.
+   */
+  .hero-search-bar--compact.hero-search-glass {
+    background: var(--chat-composer-glass-bg) padding-box;
+    background-color: var(--card);
+    border: 1px solid var(--floating-search-border);
+    /* The surface is opaque once the glass gradient sits on --card, so the
+       inherited backdrop blur costs a filter pass per frame on a sticky element
+       and shows nothing. */
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: var(--floating-search-shadow);
+    /*
+     * Shadow only — the bar must not move on focus.
+     *
+     * A lift here read as a jerk: these bars are simultaneously positioned by
+     * their own transforms (.sticky-hero-search animates translate(-50%, …) on
+     * reveal), so any geometry change on focus fights that animation. Colour and
+     * elevation carry the focus state; position stays put.
+     */
+    transition: box-shadow 240ms cubic-bezier(0.33, 0, 0.2, 1);
+  }
+
+  .hero-search-bar--compact.hero-search-glass:hover,
+  .hero-search-bar--compact.hero-search-glass:focus-within {
+    box-shadow: var(--floating-search-shadow-active);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-search-bar--compact.hero-search-glass {
+      transition: none;
+    }
+  }
+
+  /* Same aura as the compact floating bar, so the hero card and every floating
+     CLEA input read as one surface. Its glass border was white at 62% alpha with
+     a white focus glow — invisible on the off-white page, the same problem the
+     compact bar had. */
   .hero-search-card.hero-search-glass {
-    @apply relative overflow-hidden rounded-3xl transition-[border-color,box-shadow] duration-200;
+    background: var(--chat-composer-glass-bg) padding-box;
+    background-color: var(--card);
+    border: 1px solid var(--floating-search-border);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: var(--floating-search-shadow);
+    @apply relative overflow-hidden rounded-3xl;
+    transition: box-shadow 240ms cubic-bezier(0.33, 0, 0.2, 1);
   }
 
   /* No transform/translate here on purpose -- an earlier version lifted
      the card 2px on focus, which reads as the whole search box jumping
-     position the instant you click into it. Border + shadow still give a
-     clear focus state without moving anything. */
+     position the instant you click into it. Elevation alone gives a clear
+     focus state without moving anything. */
+  .hero-search-card.hero-search-glass:hover,
   .hero-search-card.hero-search-glass:focus-within {
-    border-color: oklch(1 0 0 / 0.9);
-    box-shadow:
-      0 0 0 3px oklch(1 0 0 / 0.14),
-      0 24px 60px oklch(0 0 0 / 0.2);
+    box-shadow: var(--floating-search-shadow-active);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-search-card.hero-search-glass {
+      transition: none;
+    }
   }
 
   .hero-search-card.hero-search-glass .hero-search-card__input {
@@ -1261,39 +1302,58 @@
     @apply flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-8 md:pb-[calc(6rem+env(safe-area-inset-bottom))] md:pt-10;
   }
 
+  /* Gap between composer and + must clear most of the composer's aura blur,
+     otherwise the soft white halo paints through/around the + and reads as a
+     clipped double-pill over product photography. */
   .chat-page__composer-dock {
+    --chat-composer-dock-gap: 1.25rem;
     bottom: max(1.25rem, env(safe-area-inset-bottom));
     left: 50%;
     width: min(
       calc(100vw - 2rem),
-      calc(var(--chat-composer-width) + var(--chat-new-chat-btn-size) + 0.625rem)
+      calc(
+        var(--chat-composer-width) + var(--chat-new-chat-btn-size) +
+          var(--chat-composer-dock-gap)
+      )
     );
-    @apply fixed z-40 flex items-center gap-2.5;
+    gap: var(--chat-composer-dock-gap);
+    @apply fixed z-40 flex items-center;
     transform: translateX(-50%);
   }
 
   .chat-page__composer-dock .hero-search-bar--compact.chat-page__composer {
     width: min(
       var(--chat-composer-width),
-      calc(100% - var(--chat-new-chat-btn-size) - 0.625rem)
+      calc(100% - var(--chat-new-chat-btn-size) - var(--chat-composer-dock-gap))
     );
-    @apply static min-w-0 shrink-0;
+    /* Keep the pill below the + so any residual aura never paints over it. */
+    @apply relative z-0 min-w-0 shrink-0;
     transform: none;
   }
 
+  /* Fully opaque — a translucent + lets the composer aura show through and
+     look like a broken / doubled right edge. */
   .chat-page__composer-dock .chat-new-chat-btn {
     isolation: isolate;
-    background: var(--chat-composer-glass-bg);
-    border: 1px solid var(--chat-composer-glass-border);
-    box-shadow: var(--chat-composer-glass-shadow);
-    -webkit-backdrop-filter: blur(var(--chat-composer-glass-blur)) saturate(1.4);
-    backdrop-filter: blur(var(--chat-composer-glass-blur)) saturate(1.4);
-    @apply relative overflow-hidden;
+    background-color: var(--card);
+    background-image: none;
+    border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+    box-shadow: var(--floating-search-shadow-neutral);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    @apply relative z-[1] shrink-0 overflow-hidden;
+    transition: box-shadow 240ms cubic-bezier(0.33, 0, 0.2, 1);
   }
 
-  .chat-page__composer-dock .chat-new-chat-btn::before {
-    background: var(--chat-composer-glass-highlight);
-    @apply pointer-events-none absolute inset-0 z-0 rounded-[inherit] content-[''];
+  .chat-page__composer-dock .chat-new-chat-btn:hover,
+  .chat-page__composer-dock .chat-new-chat-btn:focus-visible {
+    box-shadow: var(--floating-search-shadow-neutral-active);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chat-page__composer-dock .chat-new-chat-btn {
+      transition: none;
+    }
   }
 
   .chat-page__composer-dock .chat-new-chat-btn svg {
@@ -2081,8 +2141,48 @@
     @apply inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-background/60 hover:text-foreground;
   }
 
+  /*
+   * Primary conversion CTA. It was a white pill with a hairline border on a
+   * light footer — the same white-on-white problem the search field had, and it
+   * read as a disabled secondary control rather than the main action. Now it
+   * uses the primary surface (the same near-black as the active toggle and the
+   * search submit), with the aura picked up on hover so it belongs to the same
+   * system as the floating inputs.
+   */
   .footer-cta-pill {
-    @apply inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-6 py-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-background;
+    background-color: var(--foreground);
+    color: var(--primary-foreground);
+    box-shadow:
+      0 1px 2px oklch(0 0 0 / 0.08),
+      0 8px 22px oklch(0 0 0 / 0.16);
+    @apply inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-medium;
+    transition:
+      box-shadow 240ms cubic-bezier(0.33, 0, 0.2, 1),
+      translate 240ms cubic-bezier(0.33, 0, 0.2, 1);
+  }
+
+  .footer-cta-pill:hover {
+    box-shadow:
+      0 1px 2px oklch(0 0 0 / 0.1),
+      0 12px 30px oklch(0 0 0 / 0.2),
+      0 0 0 6px oklch(0.68 0.16 280 / 0.1),
+      0 10px 40px 8px oklch(0.68 0.16 280 / 0.28);
+    translate: 0 -1px;
+  }
+
+  .footer-cta-pill:focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-cta-pill {
+      transition: none;
+    }
+
+    .footer-cta-pill:hover {
+      translate: none;
+    }
   }
 
   .brand-card-tilt-wrapper {
@@ -3862,6 +3962,62 @@
     @apply underline underline-offset-4 transition-colors hover:text-foreground;
   }
 
+  /* Clearance so the sticky CLEA bar does not cover Load more / last row
+     while it is stuck to the viewport bottom. */
+  .shop-browse__grid {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /*
+   * Sticky dock scope — wraps all shop content above the site footer.
+   * The assistant anchor is the last child: sticky bottom keeps it floating
+   * for the full scroll range, then releases it into document flow at the
+   * scope end (no fixed↔relative switch → no land jerk).
+   */
+  .shop-browse-assistant-scope {
+    @apply relative flex flex-col;
+  }
+
+  .shop-browse-assistant-anchor {
+    --shop-browse-assistant-gap: 1.5rem;
+    @apply pointer-events-none sticky z-40 mx-auto flex w-full justify-center;
+    width: min(calc(100vw - 2rem), var(--sticky-hero-search-width));
+    max-width: calc(100% - 2rem);
+    margin-top: 1.25rem;
+    /* When released, this is the calm gap above the footer. */
+    margin-bottom: max(
+      var(--shop-browse-assistant-gap),
+      env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .shop-browse-assistant {
+    @apply pointer-events-none w-full opacity-0;
+    transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .shop-browse-assistant--visible {
+    @apply pointer-events-auto opacity-100;
+  }
+
+  .shop-browse-assistant__bar {
+    @apply w-full gap-2.5 rounded-full py-2.5 pl-5 pr-2;
+  }
+
+  .shop-browse-assistant__bar .hero-search-bar--compact__input {
+    @apply text-[15px] leading-6 md:text-base md:leading-7;
+  }
+
+  .shop-browse-assistant__bar .hero-search-bar--compact__submit {
+    @apply size-10;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shop-browse-assistant {
+      transition: none;
+    }
+  }
+
   .shop-filter-trigger {
     @apply h-10 shrink-0 rounded-full border border-border bg-transparent px-5 text-sm font-medium text-foreground transition-colors hover:border-foreground/30;
   }
@@ -3969,6 +4125,12 @@
     filter: blur(3px);
     pointer-events: none;
     will-change: filter;
+  }
+
+  /* Hub ready-navigation: keep blur feedback but allow another pill/card click
+     so a newer destination can cancel the in-flight one. */
+  .swap-fade--pending-interactive {
+    pointer-events: auto;
   }
 
   @media (prefers-reduced-motion: reduce) {

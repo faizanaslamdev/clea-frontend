@@ -43,8 +43,9 @@ function apparel(
 }
 
 /**
- * Homepage "shop by category" carousel. /shop uses a shorter Dame/Herre
- * list via `categoryGridForShop` (equal-length Dame/Herre shelves).
+ * Homepage "Hva leter du etter?" carousel — fixed at 8 cards (Zabi), each with
+ * a browse destination under `/shop/[category]`. /shop uses the Dame/Herre
+ * lists via `categoryGridForShop` (same count).
  */
 export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   apparel({
@@ -124,54 +125,17 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
     accentFrom: '#52606d',
     accentTo: '#29303a',
   }),
-  apparel({
-    id: 'shirts',
-    family: 'tops',
-    label: 'Skjorter',
-    query: 'Vis meg skjorter',
-    // English "shirt" hits Nelly/NLY feed titles; "skjorte" alone undersupplies
-    // Dame fan photos. Chat copy stays Norwegian above.
-    previewQ: 'shirt',
-    previewBrand: 'nelly',
-    accentFrom: '#5c4470',
-    accentTo: '#2e2138',
-  }),
-  apparel({
-    id: 'underwear',
-    family: 'underwear',
-    label: 'Undertøy',
-    query: 'Vis meg undertøy',
-    previewQ: 'undertøy',
-    accentFrom: '#8a4f6d',
-    accentTo: '#4a2a3a',
-  }),
-  {
-    id: 'beauty',
-    shelf: 'beauty',
-    label: 'Beauty',
-    query: 'Vis meg sminke og makeup',
-    previewQ: 'mascara',
-    accentFrom: '#9a6b5c',
-    accentTo: '#4f342c',
-  },
-  {
-    id: 'accessories',
-    shelf: 'accessories',
-    label: 'Accessories',
-    query: 'Vis meg klokker og accessories',
-    previewQ: 'klokke',
-    accentFrom: '#6b5a3e',
-    accentTo: '#342c1e',
-  },
 ] as const;
 
+/** Homepage + shop fan-card count — keep in sync with the curated lists below. */
+export const CATEGORY_SECTION_CARD_COUNT = 8;
+
 /**
- * /shop only — curated Dame/Herre shelves (not the full ontology). Homepage
- * keeps the fuller `CATEGORY_GRID_ENTRIES` carousel above.
+ * /shop only — curated Dame/Herre shelves (not the full ontology).
  *
  * Equal length so the grid never reflows on gender toggle. Slot contents can
  * differ by audience where catalog coverage differs (e.g. Kjoler for Dame,
- * Sokker for Herre).
+ * Sokker for Herre). Always `CATEGORY_SECTION_CARD_COUNT` cards.
  */
 export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] = [
   apparel({
@@ -242,15 +206,6 @@ export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] = [
     accentFrom: '#b06a45',
     accentTo: '#5f3826',
   }),
-  {
-    id: 'beauty',
-    shelf: 'beauty',
-    label: 'Beauty',
-    query: 'Vis meg sminke og makeup',
-    previewQ: 'mascara',
-    accentFrom: '#9a6b5c',
-    accentTo: '#4f342c',
-  },
   apparel({
     id: 'bags',
     family: 'bags',
@@ -259,15 +214,6 @@ export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] = [
     previewQ: 'veske',
     accentFrom: '#52606d',
     accentTo: '#29303a',
-  }),
-  apparel({
-    id: 'watches',
-    family: 'watches',
-    label: 'Klokker',
-    query: 'Vis meg klokker',
-    previewQ: 'klokke',
-    accentFrom: '#6b5a3e',
-    accentTo: '#342c1e',
   }),
 ];
 
@@ -336,15 +282,6 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     accentFrom: '#b06a45',
     accentTo: '#5f3826',
   }),
-  {
-    id: 'beauty',
-    shelf: 'beauty',
-    label: 'Beauty',
-    query: 'Vis meg sminke og makeup',
-    previewQ: 'mascara',
-    accentFrom: '#9a6b5c',
-    accentTo: '#4f342c',
-  },
   apparel({
     id: 'bags',
     family: 'bags',
@@ -354,20 +291,23 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     accentFrom: '#52606d',
     accentTo: '#29303a',
   }),
-  apparel({
-    id: 'watches',
-    family: 'watches',
-    label: 'Klokker',
-    query: 'Vis meg klokker',
-    previewQ: 'klokke',
-    accentFrom: '#6b5a3e',
-    accentTo: '#342c1e',
-  }),
 ];
+
+if (CATEGORY_GRID_ENTRIES.length !== CATEGORY_SECTION_CARD_COUNT) {
+  throw new Error(
+    `Homepage category grid must have ${CATEGORY_SECTION_CARD_COUNT} cards (got ${CATEGORY_GRID_ENTRIES.length})`,
+  );
+}
 
 if (SHOP_CATEGORY_GRID_FEMALE.length !== SHOP_CATEGORY_GRID_MALE.length) {
   throw new Error(
     `Shop category grids must match length (female ${SHOP_CATEGORY_GRID_FEMALE.length} vs male ${SHOP_CATEGORY_GRID_MALE.length})`,
+  );
+}
+
+if (SHOP_CATEGORY_GRID_FEMALE.length !== CATEGORY_SECTION_CARD_COUNT) {
+  throw new Error(
+    `Shop category grids must have ${CATEGORY_SECTION_CARD_COUNT} cards (got ${SHOP_CATEGORY_GRID_FEMALE.length})`,
   );
 }
 

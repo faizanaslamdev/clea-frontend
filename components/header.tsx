@@ -9,6 +9,7 @@ import { HeroSearchForm } from '@/components/hero-search-form';
 import { useAuthModal } from '@/components/auth/auth-provider';
 import { useSession } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
+import { isFooterNearStickySearch } from '@/lib/ui/floating-search-dock';
 
 /* Explore/Shop/Brands -- daydream.ing's own header nav is Explore/Shop/
    Favorites; Clea doesn't have a favorites concept in the header today, so
@@ -25,8 +26,6 @@ const NAV_ITEMS = [
 
 const HEADER_HEIGHT = 96;
 const MOBILE_MAX_WIDTH = 767;
-/** Hide bottom sticky search when footer enters this zone (mobile only). */
-const STICKY_SEARCH_FOOTER_CLEARANCE_PX = 112;
 
 function isNavActive(href: string, pathname: string): boolean {
   if (href === '/shop') return pathname.startsWith('/shop');
@@ -70,13 +69,6 @@ function getPastHeroScrollThreshold(): number {
 
 function isMobileViewport(): boolean {
   return window.matchMedia(`(max-width: ${MOBILE_MAX_WIDTH}px)`).matches;
-}
-
-function isFooterNearStickySearch(): boolean {
-  const footer = document.querySelector('.site-footer');
-  if (!footer) return false;
-  const { top } = footer.getBoundingClientRect();
-  return top < window.innerHeight - STICKY_SEARCH_FOOTER_CLEARANCE_PX;
 }
 
 export function Header() {
