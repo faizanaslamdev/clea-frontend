@@ -1,5 +1,6 @@
 import type { ChatTurnContext, ShopCategory } from '@/lib/api/chat-types';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
+import { chatContextFromAnchorPreview } from '@/lib/chat/anchor-preview';
 import type { BootstrapPendingEntry } from '@/lib/chat/chat-bootstrap-entry';
 import { resolveBootstrapShopCategory } from '@/lib/chat/chat-bootstrap-entry';
 
@@ -21,7 +22,7 @@ export function buildBootstrapHydrationContext(input: {
   anchorPreview?: AnchorPreview;
 }): ChatTurnContext | undefined {
   if (input.anchorPreview) {
-    return { productId: input.anchorPreview.productId };
+    return chatContextFromAnchorPreview(input.anchorPreview);
   }
 
   if (input.shopCategory) {

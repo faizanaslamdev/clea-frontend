@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   anchorPreviewFromProduct,
+  chatContextFromAnchorPreview,
   findAnchorPreviewInMessages,
   isAnchorActionMessage,
+  productReferenceFromAnchorPreview,
 } from '@/lib/chat/anchor-preview';
 import {
   ANCHOR_CHEAPER_MESSAGE,
@@ -14,6 +16,9 @@ const PRODUCT = {
   name: 'Nike Air Force 1',
   brand: 'Nike',
   image: '/nike.jpg',
+  lowestPrice: 1299,
+  currency: 'NOK',
+  merchantName: 'Footlocker',
 } as const;
 
 describe('isAnchorActionMessage', () => {
@@ -31,6 +36,28 @@ describe('anchorPreviewFromProduct', () => {
       name: PRODUCT.name,
       image: PRODUCT.image,
       brand: PRODUCT.brand,
+      price: PRODUCT.lowestPrice,
+      currency: PRODUCT.currency,
+      merchantName: PRODUCT.merchantName,
+    });
+  });
+});
+
+describe('productReferenceFromAnchorPreview', () => {
+  it('round-trips the durable snapshot used on the wire', () => {
+    const preview = anchorPreviewFromProduct(PRODUCT);
+    expect(productReferenceFromAnchorPreview(preview)).toEqual({
+      productId: PRODUCT.id,
+      name: PRODUCT.name,
+      image: PRODUCT.image,
+      brand: PRODUCT.brand,
+      price: PRODUCT.lowestPrice,
+      currency: PRODUCT.currency,
+      merchantName: PRODUCT.merchantName,
+    });
+    expect(chatContextFromAnchorPreview(preview)).toEqual({
+      productId: PRODUCT.id,
+      productReference: productReferenceFromAnchorPreview(preview),
     });
   });
 });
@@ -62,7 +89,11 @@ describe('findAnchorPreviewInMessages', () => {
               prices: {},
               priceHistory: [],
               inStock: {},
-              currency: 'NOK',
+              highestPrice: PRODUCT.lowestPrice,
+              averagePrice: PRODUCT.lowestPrice,
+              savingsPercent: 0,
+              trending: false,
+              trendingScore: 0,
             },
           ],
         },

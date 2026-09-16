@@ -29,28 +29,23 @@ export function startProductChatFromAnchor(
     onComplete?: () => void;
   },
 ): void {
-  saveAnchorTurnContext(
-    options.productId,
-    options.query,
-    options.preview
-      ? {
-          name: options.preview.name,
-          image: options.preview.image,
-          brand: options.preview.brand,
-        }
-      : undefined,
-  );
+  const previewFields = options.preview
+    ? {
+        name: options.preview.name,
+        image: options.preview.image,
+        brand: options.preview.brand,
+        price: options.preview.price,
+        currency: options.preview.currency,
+        merchantName: options.preview.merchantName,
+      }
+    : undefined;
+
+  saveAnchorTurnContext(options.productId, options.query, previewFields);
 
   navigateToChatEntry(router, {
     query: options.query,
     productId: options.productId,
-    anchorPreview: options.preview
-      ? {
-          name: options.preview.name,
-          image: options.preview.image,
-          brand: options.preview.brand,
-        }
-      : undefined,
+    anchorPreview: previewFields,
   });
   options.onComplete?.();
 }

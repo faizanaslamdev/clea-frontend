@@ -135,9 +135,29 @@ describe('homepage shop context bootstrap', () => {
       },
     })).toEqual({
       productId: 'prod-1',
+      productReference: {
+        productId: 'prod-1',
+        name: 'Jakke',
+        image: '',
+        brand: undefined,
+        price: undefined,
+        currency: undefined,
+        merchantName: undefined,
+        unavailable: undefined,
+      },
     });
     expect(session.firstTurnRequestContext).toEqual({
       productId: 'prod-1',
+      productReference: {
+        productId: 'prod-1',
+        name: 'Jakke',
+        image: '',
+        brand: undefined,
+        price: undefined,
+        currency: undefined,
+        merchantName: undefined,
+        unavailable: undefined,
+      },
       shopCategory: 'womens',
     });
   });

@@ -23,7 +23,10 @@ describe('resolveSendMessage', () => {
         anchorPreview: PREVIEW,
       }),
     ).toEqual({
-      context: { productId: PREVIEW.productId },
+      context: {
+        productId: PREVIEW.productId,
+        productReference: PREVIEW,
+      },
       anchorPreview: PREVIEW,
       showAsProductReference: true,
       clearActiveProduct: false,
@@ -72,11 +75,102 @@ describe('resolveSendMessage', () => {
         anchorPreview: PREVIEW,
       }),
     ).toEqual({
-      context: { productId: PREVIEW.productId },
+      context: {
+        productId: PREVIEW.productId,
+        productReference: PREVIEW,
+      },
       anchorPreview: PREVIEW,
       showAsProductReference: true,
       clearActiveProduct: false,
     });
+  });
+
+  it('attaches product A snapshot and does not reuse product B preview', () => {
+    const productB = {
+      productId: 'prod-2',
+      name: 'Other',
+      image: '/other.jpg',
+    };
+    expect(
+      resolveSendMessage({
+        query: ANCHOR_CHEAPER_MESSAGE,
+        source: 'anchor-action',
+        explicitContext: { productId: PREVIEW.productId },
+        activeProductId: productB.productId,
+        anchorPreview: PREVIEW,
+      }),
+    ).toMatchObject({
+      context: {
+        productId: PREVIEW.productId,
+        productReference: { productId: PREVIEW.productId },
+      },
+      anchorPreview: PREVIEW,
+      showAsProductReference: true,
+    });
+  });
+
+  it('keeps A then B then custom C as distinct wire contexts', () => {
+    const productA = {
+      productId: 'prod-a',
+      name: 'Jean A',
+      image: '/a.jpg',
+      brand: 'A',
+      price: 100,
+    };
+    const productB = {
+      productId: 'prod-b',
+      name: 'Boot B',
+      image: '/b.jpg',
+      brand: 'B',
+      price: 200,
+    };
+    const productC = {
+      productId: 'prod-c',
+      name: 'Coat C',
+      image: '/c.jpg',
+      brand: 'C',
+      price: 300,
+      merchantName: 'Store C',
+    };
+
+    const turnA = resolveSendMessage({
+      query: ANCHOR_SIMILAR_MESSAGE,
+      source: 'anchor-action',
+      explicitContext: { productId: productA.productId },
+      activeProductId: null,
+      anchorPreview: productA,
+    });
+    const turnB = resolveSendMessage({
+      query: ANCHOR_CHEAPER_MESSAGE,
+      source: 'anchor-action',
+      explicitContext: { productId: productB.productId },
+      activeProductId: productA.productId,
+      anchorPreview: productB,
+    });
+    const turnC = resolveSendMessage({
+      query: 'finnes denne i ull?',
+      source: 'product-card',
+      explicitContext: { productId: productC.productId },
+      activeProductId: productB.productId,
+      anchorPreview: productC,
+    });
+    const followUp = resolveSendMessage({
+      query: 'bare svart',
+      source: 'composer',
+      activeProductId: productC.productId,
+    });
+
+    expect(turnA.context?.productId).toBe(productA.productId);
+    expect(turnA.context?.productReference?.productId).toBe(productA.productId);
+    expect(turnB.context?.productId).toBe(productB.productId);
+    expect(turnB.context?.productReference?.name).toBe('Boot B');
+    expect(turnC.context?.productId).toBe(productC.productId);
+    expect(turnC.context?.productReference?.merchantName).toBe('Store C');
+    expect(turnC.showAsProductReference).toBe(true);
+    // Follow-up is text-only for display; productId grounding uses existing composer heuristics.
+    expect(followUp.anchorPreview).toBeUndefined();
+    expect(followUp.showAsProductReference).toBe(false);
+    expect(followUp.context?.productReference).toBeUndefined();
   });
 
   it('clears stale anchor for plain composer messages', () => {

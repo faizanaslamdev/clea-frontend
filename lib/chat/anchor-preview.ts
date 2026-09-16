@@ -1,3 +1,4 @@
+import type { ProductReferenceSnapshot } from '@/lib/api/chat-types';
 import type { Product } from '@/lib/types';
 import {
   ANCHOR_CHEAPER_MESSAGE,
@@ -9,6 +10,10 @@ export interface AnchorPreview {
   name: string;
   image: string;
   brand?: string;
+  price?: number;
+  currency?: string;
+  merchantName?: string;
+  unavailable?: boolean;
 }
 
 export function isAnchorActionMessage(message: string): boolean {
@@ -19,13 +24,62 @@ export function isAnchorActionMessage(message: string): boolean {
 }
 
 export function anchorPreviewFromProduct(
-  product: Pick<Product, 'id' | 'name' | 'image' | 'brand'>,
+  product: Pick<
+    Product,
+    'id' | 'name' | 'image' | 'brand' | 'lowestPrice' | 'currency' | 'merchantName'
+  >,
 ): AnchorPreview {
   return {
     productId: product.id,
     name: product.name,
     image: product.image,
-    brand: product.brand,
+    brand: product.brand || undefined,
+    price:
+      product.lowestPrice != null && Number.isFinite(product.lowestPrice)
+        ? product.lowestPrice
+        : undefined,
+    currency: product.currency || undefined,
+    merchantName: product.merchantName || undefined,
+  };
+}
+
+export function anchorPreviewFromProductReference(
+  reference: ProductReferenceSnapshot,
+): AnchorPreview {
+  return {
+    productId: reference.productId,
+    name: reference.name,
+    image: reference.image,
+    brand: reference.brand,
+    price: reference.price,
+    currency: reference.currency,
+    merchantName: reference.merchantName,
+    unavailable: reference.unavailable,
+  };
+}
+
+export function productReferenceFromAnchorPreview(
+  preview: AnchorPreview,
+): ProductReferenceSnapshot {
+  return {
+    productId: preview.productId,
+    name: preview.name,
+    image: preview.image,
+    brand: preview.brand,
+    price: preview.price,
+    currency: preview.currency,
+    merchantName: preview.merchantName,
+    unavailable: preview.unavailable,
+  };
+}
+
+/** Turn context that carries both id and display snapshot for persistence. */
+export function chatContextFromAnchorPreview(
+  preview: AnchorPreview,
+): { productId: string; productReference: ProductReferenceSnapshot } {
+  return {
+    productId: preview.productId,
+    productReference: productReferenceFromAnchorPreview(preview),
   };
 }
 

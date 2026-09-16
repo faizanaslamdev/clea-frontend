@@ -42,7 +42,7 @@ import {
   restoreConversationSession,
   sendConversationTurn,
 } from '@/lib/chat/conversation-session';
-import { mapRestoreConversationToMessages } from '@/lib/chat/restore-conversation-messages';
+import { mapRestoreConversationToMessages, resolveRestoredActiveProductId } from '@/lib/chat/restore-conversation-messages';
 import { isPendingAssistantMessage } from '@/lib/chat/chat-messages';
 import { resolveHydratedSendSource } from '@/lib/chat/start-product-chat';
 import { resolveSendMessage } from '@/lib/chat/resolve-send-message';
@@ -399,6 +399,11 @@ export function useChatSession({
 
         if (restored.shopCategory) {
           shopCategoryRef.current = restored.shopCategory;
+        }
+
+        const restoredActiveProductId = resolveRestoredActiveProductId(restored);
+        if (restoredActiveProductId) {
+          setActiveProductId(restoredActiveProductId);
         }
 
         dispatch({

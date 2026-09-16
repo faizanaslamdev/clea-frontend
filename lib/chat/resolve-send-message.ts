@@ -1,6 +1,9 @@
 import type { ChatTurnContext } from '@/lib/api/chat-types';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
-import { isAnchorActionMessage } from '@/lib/chat/anchor-preview';
+import {
+  chatContextFromAnchorPreview,
+  isAnchorActionMessage,
+} from '@/lib/chat/anchor-preview';
 import { isAnchorDependentSuggestion } from '@/lib/chat/anchor-actions';
 import { isAnchorDependentComposerMessage } from '@/lib/chat/anchor-dependent-message';
 
@@ -28,6 +31,20 @@ export interface ResolvedSendMessage {
   clearActiveProduct: boolean;
 }
 
+function contextWithPreview(
+  productId: string | undefined,
+  preview: AnchorPreview | undefined,
+  fallback?: ChatTurnContext,
+): ChatTurnContext | undefined {
+  if (preview && preview.productId === productId) {
+    return chatContextFromAnchorPreview(preview);
+  }
+  if (productId) {
+    return { productId, ...fallback };
+  }
+  return fallback;
+}
+
 export function resolveSendMessage(
   input: ResolveSendMessageInput,
 ): ResolvedSendMessage {
@@ -35,9 +52,14 @@ export function resolveSendMessage(
   const isAnchorAction = isAnchorActionMessage(trimmed);
 
   if (input.source === 'product-card') {
-    const productId = input.explicitContext?.productId;
+    const productId =
+      input.explicitContext?.productId ?? input.anchorPreview?.productId;
     return {
-      context: productId ? { productId } : input.explicitContext,
+      context: contextWithPreview(
+        productId,
+        input.anchorPreview,
+        input.explicitContext,
+      ),
       anchorPreview: input.anchorPreview,
       showAsProductReference: true,
       clearActiveProduct: false,
@@ -45,9 +67,10 @@ export function resolveSendMessage(
   }
 
   if (input.source === 'anchor-action') {
-    const productId = input.explicitContext?.productId;
+    const productId =
+      input.explicitContext?.productId ?? input.anchorPreview?.productId;
     return {
-      context: productId ? { productId } : undefined,
+      context: contextWithPreview(productId, input.anchorPreview),
       anchorPreview: input.anchorPreview,
       showAsProductReference: true,
       clearActiveProduct: false,

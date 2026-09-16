@@ -86,12 +86,7 @@ export function loadAnchorTurnContext(message: string): AnchorPreview | undefine
     return undefined;
   }
 
-  return {
-    productId: session.productId,
-    name: session.preview?.name ?? 'Produkt',
-    image: session.preview?.image ?? '',
-    brand: session.preview?.brand,
-  };
+  return previewFromSession(session);
 }
 
 export function reconcileAnchorSessionForMessage(
@@ -107,11 +102,18 @@ export function reconcileAnchorSessionForMessage(
     return undefined;
   }
 
+  return previewFromSession(session);
+}
+
+function previewFromSession(session: AnchorTurnSession): AnchorPreview {
   return {
     productId: session.productId,
     name: session.preview?.name ?? 'Produkt',
     image: session.preview?.image ?? '',
     brand: session.preview?.brand,
+    price: session.preview?.price,
+    currency: session.preview?.currency,
+    merchantName: session.preview?.merchantName,
   };
 }
 

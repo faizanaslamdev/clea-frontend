@@ -1,34 +1,97 @@
 'use client';
 
+import { useState, type MouseEvent } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useProductDesktopModal } from '@/components/product/product-desktop-modal-provider';
 import { anchorDisplayLabel } from '@/lib/chat/anchor-display-label';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
+import { getProductHref } from '@/lib/domain/products/paths';
+import { shouldOpenProductDesktopModal } from '@/lib/navigation/product-desktop-modal';
+import { cn } from '@/lib/utils';
 
 interface ChatAnchorUserBubbleProps {
   preview: AnchorPreview;
   actionLabel: string;
 }
 
+function formatPrice(preview: AnchorPreview): string | null {
+  if (preview.price == null || !Number.isFinite(preview.price)) {
+    return null;
+  }
+  const currency = preview.currency?.trim() || 'NOK';
+  try {
+    return new Intl.NumberFormat('nb-NO', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0,
+    }).format(preview.price);
+  } catch {
+    return `${Math.round(preview.price)} ${currency}`;
+  }
+}
+
 export function ChatAnchorUserBubble({
   preview,
   actionLabel,
 }: ChatAnchorUserBubbleProps) {
+  const { openProductModal } = useProductDesktopModal();
+  const [imageFailed, setImageFailed] = useState(false);
+  const href = getProductHref(preview.productId);
+  const priceLabel = formatPrice(preview);
+  const metaParts = [preview.merchantName?.trim(), priceLabel].filter(Boolean);
+  const showImage = Boolean(preview.image) && !imageFailed && !preview.unavailable;
+
+  const handleNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (shouldOpenProductDesktopModal()) {
+      event.preventDefault();
+      openProductModal(preview.productId);
+    }
+  };
+
   return (
     <div className="search-chat-anchor-ref">
-      {preview.image ? (
-        <div className="search-chat-anchor-ref__image-card">
-          <Image
-            src={preview.image}
-            alt=""
-            fill
-            className="search-chat-anchor-ref__image"
-            sizes="(max-width: 768px) 176px, 200px"
-          />
+      <Link
+        href={href}
+        onClick={handleNavigate}
+        className={cn(
+          'search-chat-anchor-ref__card',
+          preview.unavailable && 'search-chat-anchor-ref__card--unavailable',
+        )}
+        aria-label={`${preview.brand ? `${preview.brand}: ` : ''}${preview.name}`}
+      >
+        <div className="search-chat-anchor-ref__product">
+          {showImage ? (
+            <div className="search-chat-anchor-ref__image-wrap">
+              <Image
+                src={preview.image}
+                alt=""
+                fill
+                className="search-chat-anchor-ref__image"
+                sizes="72px"
+                onError={() => setImageFailed(true)}
+              />
+            </div>
+          ) : (
+            <div
+              className="search-chat-anchor-ref__image-wrap search-chat-anchor-ref__image-wrap--empty"
+              aria-hidden
+            />
+          )}
+          <div className="search-chat-anchor-ref__copy">
+            {preview.brand ? (
+              <p className="search-chat-anchor-ref__brand">{preview.brand}</p>
+            ) : null}
+            <p className="search-chat-anchor-ref__title">{preview.name}</p>
+            {metaParts.length > 0 ? (
+              <p className="search-chat-anchor-ref__meta">{metaParts.join(' · ')}</p>
+            ) : null}
+          </div>
         </div>
-      ) : null}
-      <span className="search-chat-anchor-ref__pill" title={actionLabel}>
-        {anchorDisplayLabel(actionLabel)}
-      </span>
+        <div className="search-chat-anchor-ref__action">
+          <span title={actionLabel}>{anchorDisplayLabel(actionLabel)}</span>
+        </div>
+      </Link>
     </div>
   );
 }

@@ -1379,19 +1379,59 @@
   }
 
   .search-chat-anchor-ref {
-    @apply flex flex-col items-end gap-2;
+    @apply flex max-w-[min(100%,20rem)] flex-col items-end;
   }
 
-  .search-chat-anchor-ref__image-card {
-    @apply relative size-[11rem] shrink-0 overflow-hidden bg-transparent md:size-[12.5rem];
+  .search-chat-anchor-ref__card {
+    border: 1px solid var(--floating-search-border);
+    background-color: var(--card);
+    box-shadow: var(--floating-search-shadow);
+    @apply flex w-full min-w-0 flex-col overflow-hidden rounded-[1.25rem] text-left no-underline transition-[transform,box-shadow] duration-200 hover:shadow-[var(--floating-search-shadow-active)] active:scale-[0.99];
+  }
+
+  .search-chat-anchor-ref__card--unavailable {
+    opacity: 0.72;
+  }
+
+  .search-chat-anchor-ref__product {
+    @apply flex min-w-0 items-stretch gap-3 p-3;
+  }
+
+  .search-chat-anchor-ref__image-wrap {
+    @apply relative size-[4.5rem] shrink-0 overflow-hidden rounded-xl bg-muted;
+  }
+
+  .search-chat-anchor-ref__image-wrap--empty {
+    @apply bg-muted/70;
   }
 
   .search-chat-anchor-ref__image {
-    @apply object-contain p-2;
+    @apply object-cover;
   }
 
-  .search-chat-anchor-ref__pill {
-    @apply inline-block max-w-[11rem] truncate rounded-full bg-foreground px-4 py-2 text-center text-sm font-medium leading-snug text-primary-foreground md:max-w-[12.5rem];
+  .search-chat-anchor-ref__copy {
+    @apply flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-0.5;
+  }
+
+  .search-chat-anchor-ref__brand {
+    @apply truncate text-[0.6875rem] font-medium uppercase tracking-[0.06em] text-muted-foreground;
+  }
+
+  .search-chat-anchor-ref__title {
+    @apply line-clamp-2 text-[0.9375rem] font-semibold leading-snug text-foreground;
+  }
+
+  .search-chat-anchor-ref__meta {
+    @apply truncate text-xs text-muted-foreground;
+  }
+
+  .search-chat-anchor-ref__action {
+    background-color: var(--foreground);
+    @apply px-4 py-2.5 text-sm font-medium leading-snug text-primary-foreground;
+  }
+
+  .search-chat-anchor-ref__action span {
+    @apply block truncate;
   }
 
   .search-chat-thread__suggestions {

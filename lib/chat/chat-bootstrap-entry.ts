@@ -273,6 +273,9 @@ export function anchorPreviewFromPendingEntry(
     name: entry.anchorPreview?.name ?? 'Produkt',
     image: entry.anchorPreview?.image ?? '',
     brand: entry.anchorPreview?.brand,
+    price: entry.anchorPreview?.price,
+    currency: entry.anchorPreview?.currency,
+    merchantName: entry.anchorPreview?.merchantName,
   };
 }
 

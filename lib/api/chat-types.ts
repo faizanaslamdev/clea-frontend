@@ -55,8 +55,20 @@ export interface CatalogQuery {
   offset?: number;
 }
 
+export interface ProductReferenceSnapshot {
+  productId: string;
+  name: string;
+  image: string;
+  brand?: string;
+  price?: number;
+  currency?: string;
+  merchantName?: string;
+  unavailable?: boolean;
+}
+
 export interface ChatTurnContext {
   productId?: string;
+  productReference?: ProductReferenceSnapshot;
   catalog?: CatalogQuery;
   intent?: ChatIntent;
   shopCategory?: ShopCategory;
@@ -104,6 +116,7 @@ export interface RestoreConversationTurn {
   hasMore?: boolean;
   catalogQuery?: CatalogQuery;
   anchorProductId?: string;
+  productReference?: ProductReferenceSnapshot;
   suggestions?: string[];
   turnSeq?: number;
   degraded?: boolean;
@@ -113,6 +126,7 @@ export interface RestoreConversationResponse {
   conversationId: string;
   locale: 'nb' | 'en';
   shopCategory?: ShopCategory;
+  anchorProductId?: string;
   activeSearchIntent: Record<string, unknown>;
   pendingClarifySlots: string[] | null;
   lastCatalogQuery?: CatalogQuery;
