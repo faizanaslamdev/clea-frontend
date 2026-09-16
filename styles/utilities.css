@@ -3996,27 +3996,10 @@
     @apply md:text-[40px] md:leading-[48px];
   }
 
-  .shop-filter-bar__chips {
-    @apply mb-4 flex flex-wrap gap-2;
-  }
-
-  .shop-filter-chip {
-    @apply inline-flex items-center rounded-full border border-border bg-transparent px-4 py-2 text-sm text-muted-foreground transition-colors;
-  }
-
-  .shop-filter-chip:hover {
-    @apply border-foreground/30 text-foreground;
-  }
-
-  .shop-filter-chip--active {
-    @apply border-foreground bg-foreground text-background;
-  }
-
-  /* Must come after (and match the specificity of) `.shop-filter-chip:hover`,
-     which is class + pseudo-class and would otherwise repaint the label
-     `text-foreground` on top of the active chip's dark background. */
-  .shop-filter-chip--active:hover {
-    @apply border-foreground bg-foreground/90 text-background;
+  /* Subcategory chips reuse .shop-category-tabs (horizontal scroll); keep
+     listing spacing under the row. */
+  .shop-category-refinements {
+    @apply mb-4;
   }
 
   .shop-browse__toolbar {
