@@ -510,19 +510,23 @@
 
   .product-card-anchor-menu__trigger {
     background-color: var(--card);
-    box-shadow: 0 4px 14px rgb(0 0 0 / 10%);
+    border: 1px solid var(--floating-search-border);
+    box-shadow: var(--floating-search-shadow);
     color: var(--foreground);
     transform-origin: center center;
     transition:
       opacity 400ms cubic-bezier(0.22, 1, 0.36, 1),
       transform 400ms cubic-bezier(0.22, 1, 0.36, 1),
       filter 400ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 200ms ease;
-    @apply inline-flex size-10 cursor-pointer items-center justify-center rounded-full border-0 disabled:cursor-not-allowed disabled:opacity-50;
+      box-shadow 240ms cubic-bezier(0.33, 0, 0.2, 1);
+    @apply inline-flex size-10 cursor-pointer items-center justify-center rounded-full disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .product-card-anchor-menu:not(.product-card-anchor-menu--open)
-    .product-card-anchor-menu__trigger:hover {
+    .product-card-anchor-menu__trigger:hover,
+  .product-card-anchor-menu:not(.product-card-anchor-menu--open)
+    .product-card-anchor-menu__trigger:focus-visible {
+    box-shadow: var(--floating-search-shadow-active);
     transform: scale(1.04) translate3d(0, 0, 0);
   }
 
@@ -538,7 +542,8 @@
   .product-card-anchor-menu__popover {
     border-radius: var(--product-detail-modal-radius);
     background-color: var(--card);
-    box-shadow: 0 10px 30px rgb(0 0 0 / 12%);
+    border: 1px solid var(--floating-search-border);
+    box-shadow: var(--floating-search-shadow-active);
     transform-origin: bottom left;
     backface-visibility: hidden;
     will-change: transform, opacity;
@@ -2312,7 +2317,14 @@
 
   .product-detail-modal__gallery-frame {
     background-color: var(--card);
+    padding: 1rem;
     @apply relative flex min-h-[22rem] flex-1 items-center justify-center overflow-hidden md:absolute md:inset-0 md:min-h-0;
+  }
+
+  @media (min-width: 768px) {
+    .product-detail-modal__gallery-frame {
+      padding: 1.5rem;
+    }
   }
 
   /* The stage carries a definite height + aspect-ratio (matching the
@@ -2334,9 +2346,15 @@
      frame's centered point in the meantime. Giving the stage a real
      `height` (not just a max-height) makes one axis genuinely definite,
      so `aspect-ratio` can resolve the width immediately -- no image
-     bytes required -- and the child image just fills that box at 100%. */
+     bytes required -- and the child image just fills that box at 100%.
+
+     `max-height: 100%` is required: without it the preferred height
+     (e.g. 44rem) can exceed the modal's left column, the flex-centered
+     stage overflows, and overflow:hidden on the frame crops the shirt
+     collar/hem. */
   .product-detail-modal__gallery-stage {
     height: min(26rem, 72dvh);
+    max-height: 100%;
     aspect-ratio: 800 / 1067;
     line-height: 0;
     @apply relative max-w-full overflow-hidden;
@@ -2358,18 +2376,21 @@
   @media (min-width: 768px) {
     .product-detail-modal__gallery-stage {
       height: min(36rem, 72dvh);
+      max-height: 100%;
     }
   }
 
   @media (min-width: 1024px) {
     .product-detail-modal__gallery-stage {
       height: min(40rem, 72dvh);
+      max-height: 100%;
     }
   }
 
   @media (min-width: 1280px) {
     .product-detail-modal__gallery-stage {
       height: min(44rem, 72dvh);
+      max-height: 100%;
     }
   }
 
@@ -3963,8 +3984,10 @@
   }
 
   /* Clearance so the sticky CLEA bar does not cover Load more / last row
-     while it is stuck to the viewport bottom. */
+     while it is stuck to the viewport bottom. Top padding keeps the product
+     grid off the toolbar divider. */
   .shop-browse__grid {
+    @apply pt-6;
     padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
   }
 
