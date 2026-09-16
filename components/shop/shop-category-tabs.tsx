@@ -1,11 +1,16 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { categoryGridForShop } from '@/lib/constants/category-grid';
+import {
+  shopBrowseHrefForGridEntry,
+  shopBrowseTargetForGridEntry,
+} from '@/lib/constants/shop-categories';
 import type { ShopCategory, SuitableFor } from '@/lib/api/chat-types';
 
 interface ShopCategoryTabsProps {
@@ -13,6 +18,10 @@ interface ShopCategoryTabsProps {
    * is carried into chat so a chip click keeps the same browsing context. */
   suitableFor: SuitableFor;
   shopCategory?: ShopCategory;
+  /** Current /shop/[category] slug, so the row can mark where you are. */
+  activeSlug?: string;
+  /** Current `?sub=` value — `tees` and `tops` both land on /shop/overdeler. */
+  activeSub?: string;
   className?: string;
 }
 
@@ -24,21 +33,20 @@ const SCROLL_EDGE_SLACK_PX = 4;
 
 /**
  * Horizontally-scrollable category chip row for the /shop page. Each chip
- * is a launcher straight into chat with that category's query (same as
- * the "Top categories" fan cards below it) -- not an in-page filter, since
- * /shop has no product grid of its own to filter. Dame/Herre each get
- * their own equal-length chip list (Daydream Womens/Mens pattern).
+ * links into the browse grid at /shop/[category] (same destination as the
+ * category fan cards below it), so shoppers have a path that does not depend
+ * on the AI returning the right thing. A chip with no browse destination
+ * falls back to launching chat. Dame/Herre each get their own equal-length
+ * chip list so the row never reflows on gender toggle.
  *
- * Scroll arrows -- studied from daydream.ing's own category chip row: it
- * never wraps to a second row at any screen width, and a circular chevron
- * button fades smoothly in at whichever edge still has more chips to
- * reveal, and fades back out once you've scrolled all the way there. It's
- * just a plain horizontal scroller with a scrollBy trigger, not a custom
- * carousel widget -- confirmed on the live site.
+ * Scroll arrows stay on one row at every width; a circular chevron fades in
+ * when the track can scroll further in that direction.
  */
 export function ShopCategoryTabs({
   suitableFor,
   shopCategory,
+  activeSlug,
+  activeSub,
   className,
 }: ShopCategoryTabsProps) {
   const router = useRouter();
@@ -85,19 +93,44 @@ export function ShopCategoryTabs({
         className={cn('shop-category-tabs', className)}
         aria-label="Kategorier"
       >
-        {entries.map((entry) => (
-          <li key={entry.id}>
-            <button
-              type="button"
-              className="shop-category-tabs__chip"
-              onClick={() =>
-                navigateToChatEntry(router, { query: entry.query, shopCategory })
-              }
-            >
-              {entry.label}
-            </button>
-          </li>
-        ))}
+        {entries.map((entry) => {
+          const href = shopBrowseHrefForGridEntry(entry.id, suitableFor);
+          const target = shopBrowseTargetForGridEntry(entry.id);
+          const isActive =
+            target !== undefined &&
+            target.slug === activeSlug &&
+            (target.sub ?? undefined) === (activeSub ?? undefined);
+
+          return (
+            <li key={entry.id}>
+              {href ? (
+                <Link
+                  href={href}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'shop-category-tabs__chip',
+                    isActive && 'shop-category-tabs__chip--active',
+                  )}
+                >
+                  {entry.label}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="shop-category-tabs__chip"
+                  onClick={() =>
+                    navigateToChatEntry(router, {
+                      query: entry.query,
+                      shopCategory,
+                    })
+                  }
+                >
+                  {entry.label}
+                </button>
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       <div

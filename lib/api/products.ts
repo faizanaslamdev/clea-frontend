@@ -15,6 +15,8 @@ import type { CategoryGridEntry } from '@/lib/constants/category-grid';
 
 export type ProductSegment = 'fashion' | 'all';
 
+import type { CatalogSort } from '@/lib/api/catalog-sort';
+
 export interface FetchProductsParams {
   q?: string;
   brand?: string;
@@ -29,8 +31,18 @@ export interface FetchProductsParams {
   perMerchantCandidateCap?: number;
   /** Normalized product family (footwear, dresses, ...) — see chat ontology. */
   productFamily?: ProductFamily;
+  minPrice?: number;
   maxPrice?: number;
   suitableFor?: 'male' | 'female' | 'unisex';
+  /**
+   * Ontology node ids. The backend expands each to its descendants, so send the
+   * branch you want (`apparel.bottoms`), not the whole subtree.
+   */
+  ontologyCategoryIds?: string[];
+  /** Multi-brand filter; the backend matches any of these (case-insensitive). */
+  brandValues?: string[];
+  /** Browse sort order. Omitted = the catalog's compare-ready relevance order. */
+  sort?: CatalogSort;
 }
 
 function buildProductsQuery(params: FetchProductsParams): string {
@@ -40,7 +52,15 @@ function buildProductsQuery(params: FetchProductsParams): string {
   if (params.merchantId) search.set('merchant_id', params.merchantId);
   if (params.category) search.set('category', params.category);
   if (params.productFamily) search.set('product_family', params.productFamily);
+  if (params.minPrice != null) search.set('min_price', String(params.minPrice));
   if (params.maxPrice != null) search.set('max_price', String(params.maxPrice));
+  if (params.sort && params.sort !== 'relevance') search.set('sort', params.sort);
+  if (params.ontologyCategoryIds?.length) {
+    search.set('ontology_category_ids', params.ontologyCategoryIds.join(','));
+  }
+  if (params.brandValues?.length) {
+    search.set('brand_values', params.brandValues.join(','));
+  }
   if (params.suitableFor) search.set('suitable_for', params.suitableFor);
   if (params.balanceMerchants) search.set('balance_merchants', 'true');
   if (params.perMerchantCandidateCap != null) {
@@ -88,6 +108,23 @@ export async function fetchCatalogFromApi(
     offset: data.offset,
     hasMore: loaded < data.total,
   };
+}
+
+export interface CatalogBrowseBrand {
+  brand: string;
+  productCount: number;
+}
+
+/** Top catalog brands for Shop filters (`GET /catalog/brands`). */
+export async function fetchCatalogBrands(
+  limit = 250,
+  init?: RequestInit,
+): Promise<CatalogBrowseBrand[]> {
+  const data = await apiFetch<{ brands: CatalogBrowseBrand[] }>(
+    `/catalog/brands?limit=${limit}`,
+    { ...(init ?? { cache: 'no-store' }) },
+  );
+  return data.brands ?? [];
 }
 
 export type ProductOffer = ApiProductOffersResponse['offers'][number];

@@ -11,6 +11,7 @@ import {
   CATEGORY_GRID_ENTRIES,
   categoryGridForShop,
 } from '@/lib/constants/category-grid';
+import { shopBrowseHrefForGridEntry } from '@/lib/constants/shop-categories';
 import type { CategoryPreview } from '@/lib/api/products';
 import type { ProductFamily, ShopCategory, SuitableFor } from '@/lib/api/chat-types';
 
@@ -43,6 +44,11 @@ interface CategorySectionProps {
    * shop page, where every category is visible at once rather than hidden
    * behind a sideways scroll. */
   layout?: 'carousel' | 'grid';
+  /** On /shop, tiles link into the browse grid (/shop/[category]) instead of
+   * opening chat, so shoppers have a path that does not depend on the AI
+   * getting the query right. Tiles with no browse destination still open
+   * chat, and the homepage keeps its chat-first behaviour. */
+  browseLinks?: boolean;
 }
 
 export function CategorySection({
@@ -51,6 +57,7 @@ export function CategorySection({
   shopCategory,
   compact = false,
   layout = 'carousel',
+  browseLinks = false,
 }: CategorySectionProps = {}) {
   const router = useRouter();
   const { data: categories = [], isLoading } = useCategoryPreviews(suitableFor);
@@ -93,6 +100,11 @@ export function CategorySection({
                   key={category.id}
                   category={category}
                   eyebrow={eyebrow}
+                  href={
+                    browseLinks
+                      ? shopBrowseHrefForGridEntry(category.id, suitableFor)
+                      : undefined
+                  }
                   onSelect={() =>
                     navigateToChatEntry(router, { query: category.query, shopCategory })
                   }
@@ -151,10 +163,12 @@ export function CategorySection({
 function CategoryFanCard({
   category,
   eyebrow,
+  href,
   onSelect,
 }: {
   category: CategoryPreview;
   eyebrow: string;
+  href?: string;
   onSelect: () => void;
 }) {
   const [center, left, right] = category.images;
@@ -165,19 +179,14 @@ function CategoryFanCard({
       ? 'object-contain'
       : 'object-cover';
 
-  return (
-    <button
-      type="button"
-      role="listitem"
-      onClick={onSelect}
-      className="category-fan-card group snap-start shrink-0 text-left"
-      style={
-        {
-          '--cat-from': category.accentFrom,
-          '--cat-to': category.accentTo,
-        } as React.CSSProperties
-      }
-    >
+  const cardClassName = 'category-fan-card group snap-start shrink-0 text-left';
+  const cardStyle = {
+    '--cat-from': category.accentFrom,
+    '--cat-to': category.accentTo,
+  } as React.CSSProperties;
+
+  const content = (
+    <>
       <p className="category-fan-card__eyebrow">{eyebrow}</p>
       <h3 className="category-fan-card__label">{category.label}</h3>
 
@@ -214,6 +223,28 @@ function CategoryFanCard({
           />
         </div>
       </div>
+    </>
+  );
+
+  // A real <a> when it navigates: middle-click, cmd-click and "open in new tab"
+  // all matter on a shopping grid, and a <button> gives none of them.
+  if (href) {
+    return (
+      <Link href={href} role="listitem" className={cardClassName} style={cardStyle}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      role="listitem"
+      onClick={onSelect}
+      className={cardClassName}
+      style={cardStyle}
+    >
+      {content}
     </button>
   );
 }

@@ -44,7 +44,7 @@ function apparel(
 
 /**
  * Homepage "shop by category" carousel. /shop uses a shorter Dame/Herre
- * list via `categoryGridForShop` (8 shelves).
+ * list via `categoryGridForShop` (equal-length Dame/Herre shelves).
  */
 export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
   apparel({
@@ -166,8 +166,12 @@ export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
 ] as const;
 
 /**
- * /shop only — trimmed to 8 shelves (client request). Homepage keeps the
- * fuller `CATEGORY_GRID_ENTRIES` carousel above.
+ * /shop only — curated Dame/Herre shelves (not the full ontology). Homepage
+ * keeps the fuller `CATEGORY_GRID_ENTRIES` carousel above.
+ *
+ * Equal length so the grid never reflows on gender toggle. Slot contents can
+ * differ by audience where catalog coverage differs (e.g. Kjoler for Dame,
+ * Sokker for Herre).
  */
 export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] = [
   apparel({
@@ -179,6 +183,15 @@ export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] = [
     previewBrand: 'nelly',
     accentFrom: '#a4883f',
     accentTo: '#584a20',
+  }),
+  apparel({
+    id: 'dresses',
+    family: 'dresses',
+    label: 'Kjoler',
+    query: 'Vis meg kjoler',
+    previewQ: 'kjole',
+    accentFrom: '#7d5468',
+    accentTo: '#432934',
   }),
   apparel({
     id: 'tees',
@@ -247,9 +260,18 @@ export const SHOP_CATEGORY_GRID_FEMALE: readonly CategoryGridEntry[] = [
     accentFrom: '#52606d',
     accentTo: '#29303a',
   }),
+  apparel({
+    id: 'watches',
+    family: 'watches',
+    label: 'Klokker',
+    query: 'Vis meg klokker',
+    previewQ: 'klokke',
+    accentFrom: '#6b5a3e',
+    accentTo: '#342c1e',
+  }),
 ];
 
-/** Herre /shop — same 8 shelves/order as Dame so the grid never reflows. */
+/** Herre /shop — same count/order as Dame so the grid never reflows. */
 export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
   apparel({
     id: 'jeans-bukser',
@@ -259,6 +281,15 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     previewQ: 'jeans',
     accentFrom: '#a4883f',
     accentTo: '#584a20',
+  }),
+  apparel({
+    id: 'socks',
+    family: 'socks',
+    label: 'Sokker',
+    query: 'Vis meg sokker',
+    previewQ: 'sokker',
+    accentFrom: '#5a6b7c',
+    accentTo: '#2c3640',
   }),
   apparel({
     id: 'tees',
@@ -322,6 +353,15 @@ export const SHOP_CATEGORY_GRID_MALE: readonly CategoryGridEntry[] = [
     previewQ: 'veske',
     accentFrom: '#52606d',
     accentTo: '#29303a',
+  }),
+  apparel({
+    id: 'watches',
+    family: 'watches',
+    label: 'Klokker',
+    query: 'Vis meg klokker',
+    previewQ: 'klokke',
+    accentFrom: '#6b5a3e',
+    accentTo: '#342c1e',
   }),
 ];
 

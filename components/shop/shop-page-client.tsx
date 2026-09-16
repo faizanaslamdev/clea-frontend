@@ -10,6 +10,8 @@ import {
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { CategorySection } from '@/components/category-section';
+import { cn } from '@/lib/utils';
+import { useCategoryPreviews, useTrendingLooks } from '@/lib/hooks/useProducts';
 import { ShopCategoryTabs } from '@/components/shop/shop-category-tabs';
 import { ShopGenderToggle } from '@/components/shop/shop-gender-toggle';
 import { ShopTrendingSection } from '@/components/shop/shop-trending-section';
@@ -36,6 +38,17 @@ function ShopPageContent() {
   // Optimistic local gender — update the toggle immediately; URL syncs after.
   const [suitableFor, setSuitableFor] = useState<SuitableFor>(urlGender);
   const shopCategory = shopCategoryFor(suitableFor);
+  // Same queries CategorySection/ShopTrendingSection run — React Query dedupes
+  // by key, so this only reads their state. Both keep previous data, so the
+  // tiles stay on screen (blurred) until the new audience lands; a cached
+  // toggle resolves instantly and never blurs.
+  const previews = useCategoryPreviews(suitableFor);
+  const trending = useTrendingLooks(suitableFor, 3);
+  const swapping =
+    previews.isPlaceholderData ||
+    trending.isPlaceholderData ||
+    (previews.isFetching && !previews.isLoading) ||
+    (trending.isFetching && !trending.isLoading);
 
   useEffect(() => {
     setSuitableFor(urlGender);
@@ -93,15 +106,21 @@ function ShopPageContent() {
         />
       </div>
 
-      <CategorySection
-        compact
-        layout="grid"
-        showLink={false}
-        suitableFor={suitableFor}
-        shopCategory={shopCategory}
-      />
+      <div className={cn('swap-fade', swapping && 'swap-fade--pending')}>
+        <CategorySection
+          compact
+          browseLinks
+          layout="grid"
+          showLink={false}
+          suitableFor={suitableFor}
+          shopCategory={shopCategory}
+        />
 
-      <ShopTrendingSection suitableFor={suitableFor} shopCategory={shopCategory} />
+        <ShopTrendingSection
+          suitableFor={suitableFor}
+          shopCategory={shopCategory}
+        />
+      </div>
     </>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import {
   fetchCatalogFromApi,
   type FetchProductsParams,
@@ -18,6 +18,11 @@ export function useCatalogInfinite(filters: CatalogQueryFilters) {
     productFamily: filters.productFamily,
     suitableFor: filters.suitableFor,
     balanceMerchants: filters.balanceMerchants,
+    ontologyCategoryIds: filters.ontologyCategoryIds,
+    brandValues: filters.brandValues,
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+    sort: filters.sort,
   };
 
   return useInfiniteQuery({
@@ -31,5 +36,9 @@ export function useCatalogInfinite(filters: CatalogQueryFilters) {
     initialPageParam: 0,
     getNextPageParam: (lastPage) =>
       lastPage.hasMore ? lastPage.offset + lastPage.limit : undefined,
+    // Changing a filter must not empty the grid first. Keep the previous
+    // results on screen (blurred) until the new ones land, so the page never
+    // collapses to a skeleton between two populated states.
+    placeholderData: keepPreviousData,
   });
 }
