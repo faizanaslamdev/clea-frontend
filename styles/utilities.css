@@ -1896,20 +1896,45 @@
     }
   }
 
-  /* Keep scroll arrows + edge fades on phones too (same affordance as
-     laptop). Extra track padding clears the 32px buttons so they don't
-     sit on top of the first/last chip. */
+  /* Phones: bleed the wrap to the screen edge and widen/strengthen the
+     fade so half-cut chips are fully masked under the arrow. */
   @media (max-width: 767px) {
+    .shop-category-tabs-wrap {
+      @apply -mx-4;
+    }
+
     .shop-category-tabs {
-      @apply px-11 scroll-px-11;
+      @apply mx-0 px-12 scroll-px-12;
+    }
+
+    .shop-category-tabs__fade {
+      @apply w-20;
+    }
+
+    .shop-category-tabs__fade--left {
+      background: linear-gradient(
+        to right,
+        var(--background) 0%,
+        var(--background) 42%,
+        transparent 100%
+      );
+    }
+
+    .shop-category-tabs__fade--right {
+      background: linear-gradient(
+        to left,
+        var(--background) 0%,
+        var(--background) 42%,
+        transparent 100%
+      );
     }
 
     .shop-category-tabs__scroll-btn--left {
-      left: 8px;
+      left: 10px;
     }
 
     .shop-category-tabs__scroll-btn--right {
-      right: 8px;
+      right: 10px;
     }
   }
 
