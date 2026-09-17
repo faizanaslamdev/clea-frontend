@@ -9,6 +9,11 @@ if (process.env.NODE_ENV === 'production') {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    // Temporary production bypass: Vercel Image Optimization is returning
+    // 402 Payment Required site-wide. Serve merchant CDN + local next/image
+    // srcs directly until optimization is available again. remotePatterns
+    // stay so re-enabling is a one-line revert of `unoptimized`.
+    unoptimized: true,
     // Real product images come from merchant/CDN hosts (lib/image-hosts.mjs,
     // compiled from a live catalog query, not the stale feed.csv snapshot
     // that caused the earlier incident -- see that file's header comment).
