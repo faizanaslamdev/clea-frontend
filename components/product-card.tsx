@@ -86,6 +86,7 @@ function ProductCardImage({
       <RemoteProductImage
         src={product.image}
         alt={toDisplayCase(product.name)}
+        role="card"
         fill
         className="product-card__image"
         sizes={sizes}

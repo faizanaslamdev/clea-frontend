@@ -102,16 +102,19 @@ vi.mock('@/components/product/product-best-prices', () => ({
   ProductBestPricesSkeleton: () => null,
 }));
 
+const MAIN =
+  'https://cdn.occtoo-media.com/995/main.jpg?format=medium&outputFormat=webp';
+const ALT_B =
+  'https://cdn.occtoo-media.com/995/alt-b.jpg?format=medium&outputFormat=webp';
+const ALT_C =
+  'https://cdn.occtoo-media.com/995/alt-c.jpg?format=medium&outputFormat=webp';
+
 const PRODUCT: Product = {
   id: '8f2df798-1cc8-426f-b287-e173d90bb54d',
   name: 'Her Sense',
   brand: 'viking',
-  image: 'https://cdn.example/main.jpg',
-  images: [
-    'https://cdn.example/main.jpg',
-    'https://cdn.example/alt-b.jpg',
-    'https://cdn.example/alt-c.jpg',
-  ],
+  image: MAIN,
+  images: [MAIN, ALT_B, ALT_C],
   category: 'Fashion',
   description: 'Her Sense er en lett sneakers til dame.',
   sku: 'x',
@@ -186,76 +189,60 @@ describe('ProductDetailView gallery RemoteProductImage wiring', () => {
     });
   }
 
-  it('renders RemoteProductImage for gallery main and each thumbnail', () => {
+  it('wires gallery role on main and thumb role on thumbnails', () => {
     renderModal();
 
     const calls = vi.mocked(RemoteProductImage).mock.calls.map(([props]) => props);
     const main = calls.find(
       (props) =>
         props.className === 'product-detail-modal__gallery-image' &&
-        props.src === 'https://cdn.example/main.jpg',
+        props.src === MAIN,
     );
     expect(main).toBeDefined();
     expect(main?.priority).toBe(true);
+    expect(main?.role).toBe('gallery');
 
-    const thumbSrcs = calls
-      .filter((props) => props.className === 'product-detail-modal__thumb-image')
-      .map((props) => props.src);
-    expect(thumbSrcs).toEqual([
-      'https://cdn.example/main.jpg',
-      'https://cdn.example/alt-b.jpg',
-      'https://cdn.example/alt-c.jpg',
-    ]);
+    const thumbs = calls.filter(
+      (props) => props.className === 'product-detail-modal__thumb-image',
+    );
+    expect(thumbs.map((props) => props.src)).toEqual([MAIN, ALT_B, ALT_C]);
+    expect(thumbs.every((props) => props.role === 'thumb')).toBe(true);
   });
 
-  it('transitions main gallery image to direct CDN after optimizer failure', () => {
+  it('renders Occtoo gallery main without format (full quality)', () => {
     renderModal();
 
     const main = container.querySelector(
       'img.product-detail-modal__gallery-image',
     );
-    expect(main?.getAttribute('data-unoptimized')).toBe('false');
-
-    act(() => {
-      main?.dispatchEvent(new Event('error'));
-    });
-
-    const retried = container.querySelector(
-      'img.product-detail-modal__gallery-image',
-    );
-    expect(retried?.getAttribute('src')).toBe('https://cdn.example/main.jpg');
-    expect(retried?.getAttribute('data-unoptimized')).toBe('true');
+    expect(main?.getAttribute('data-unoptimized')).toBe('true');
+    expect(main?.getAttribute('src')).not.toMatch(/[?&]format=/);
+    expect(main?.getAttribute('src')).toContain('outputFormat=webp');
   });
 
-  it('keeps sibling thumbnail state independent when one thumb fails', () => {
+  it('falls back sized → base for thumbs that transform, then placeholder', () => {
     renderModal();
 
     const thumbs = Array.from(
       container.querySelectorAll('img.product-detail-modal__thumb-image'),
     );
-    expect(thumbs).toHaveLength(3);
+    expect(thumbs[0]?.getAttribute('src')).toContain('format=medium');
 
     act(() => {
-      thumbs[1]?.dispatchEvent(new Event('error'));
+      thumbs[0]?.dispatchEvent(new Event('error'));
     });
 
     const after = Array.from(
       container.querySelectorAll('img.product-detail-modal__thumb-image'),
     );
-    expect(after[0]?.getAttribute('data-unoptimized')).toBe('false');
-    expect(after[1]?.getAttribute('src')).toBe('https://cdn.example/alt-b.jpg');
-    expect(after[1]?.getAttribute('data-unoptimized')).toBe('true');
-    expect(after[2]?.getAttribute('data-unoptimized')).toBe('false');
+    expect(after[0]?.getAttribute('src')).not.toMatch(/[?&]format=/);
+    expect(after[1]?.getAttribute('src')).toContain('format=medium');
   });
 
-  it('renders muted gallery placeholder after direct CDN failure, not broken img chrome', () => {
+  it('renders muted gallery placeholder after base failure', () => {
     renderModal();
 
-    act(() => {
-      container
-        .querySelector('img.product-detail-modal__gallery-image')
-        ?.dispatchEvent(new Event('error'));
-    });
+    // Gallery Occtoo sized === base (no format) → single failure → placeholder
     act(() => {
       container
         .querySelector('img.product-detail-modal__gallery-image')
@@ -280,11 +267,6 @@ describe('ProductDetailView gallery RemoteProductImage wiring', () => {
         .querySelector('img.product-detail-modal__gallery-image')
         ?.dispatchEvent(new Event('error'));
     });
-    act(() => {
-      container
-        .querySelector('img.product-detail-modal__gallery-image')
-        ?.dispatchEvent(new Event('error'));
-    });
     expect(
       container.querySelector(
         '.product-detail-modal__gallery-image--fallback',
@@ -302,8 +284,9 @@ describe('ProductDetailView gallery RemoteProductImage wiring', () => {
     const main = container.querySelector(
       'img.product-detail-modal__gallery-image',
     );
-    expect(main?.getAttribute('src')).toBe('https://cdn.example/alt-b.jpg');
-    expect(main?.getAttribute('data-unoptimized')).toBe('false');
+    expect(main?.getAttribute('src')).toContain('alt-b.jpg');
+    expect(main?.getAttribute('src')).not.toMatch(/[?&]format=/);
+    expect(main?.getAttribute('data-unoptimized')).toBe('true');
     expect(nextThumb?.getAttribute('aria-current')).toBe('true');
   });
 
@@ -337,7 +320,7 @@ describe('ProductDetailView gallery RemoteProductImage wiring', () => {
       container
         .querySelector('img.product-detail-modal__gallery-image')
         ?.getAttribute('src'),
-    ).toBe('https://cdn.example/alt-b.jpg');
+    ).toContain('alt-b.jpg');
     expect(
       container
         .querySelector('button.product-detail-modal__thumb[aria-current="true"]')

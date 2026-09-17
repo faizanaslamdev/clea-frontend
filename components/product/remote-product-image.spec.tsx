@@ -6,7 +6,6 @@ import { RemoteProductImage } from '@/components/product/remote-product-image';
 const imagePropsLog: Array<{
   src?: string;
   unoptimized?: boolean;
-  key?: string | null;
 }> = [];
 
 vi.mock('next/image', () => ({
@@ -37,6 +36,9 @@ vi.mock('next/image', () => ({
   },
 }));
 
+const OCCTOO =
+  'https://cdn.occtoo-media.com/995/abc/product.jpg?format=medium&outputFormat=webp';
+
 describe('RemoteProductImage', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -55,12 +57,13 @@ describe('RemoteProductImage', () => {
     container.remove();
   });
 
-  it('renders optimized and does not retry on success', () => {
+  it('renders merchant-sized URL unoptimized for card role', () => {
     act(() => {
       root.render(
         <RemoteProductImage
-          src="https://cdn.example/a.jpg"
+          src={OCCTOO}
           alt="A"
+          role="card"
           width={100}
           height={100}
         />,
@@ -68,40 +71,41 @@ describe('RemoteProductImage', () => {
     });
 
     const img = container.querySelector('img');
-    expect(img).not.toBeNull();
-    expect(img?.getAttribute('data-unoptimized')).toBe('false');
-    expect(img?.getAttribute('src')).toBe('https://cdn.example/a.jpg');
-    expect(container.querySelector('[data-fallback]')).toBeNull();
+    expect(img?.getAttribute('data-unoptimized')).toBe('true');
+    expect(img?.getAttribute('src')).toContain('format=large');
+    expect(img?.getAttribute('src')).toContain('outputFormat=webp');
   });
 
-  it('retries the same src unoptimized after optimizer failure', () => {
+  it('falls back from sized → base when transform differs', () => {
     act(() => {
       root.render(
         <RemoteProductImage
-          src="https://cdn.example/b.jpg"
+          src={OCCTOO}
           alt="B"
+          role="card"
           width={100}
           height={100}
         />,
       );
     });
 
-    const img = container.querySelector('img');
     act(() => {
-      img?.dispatchEvent(new Event('error'));
+      container.querySelector('img')?.dispatchEvent(new Event('error'));
     });
 
     const retried = container.querySelector('img');
-    expect(retried?.getAttribute('src')).toBe('https://cdn.example/b.jpg');
+    expect(retried?.getAttribute('src')).not.toMatch(/[?&]format=/);
+    expect(retried?.getAttribute('src')).toContain('outputFormat=webp');
     expect(retried?.getAttribute('data-unoptimized')).toBe('true');
   });
 
-  it('shows fallback after optimized and direct both fail, with no third image retry', () => {
+  it('shows fallback after sized and base both fail', () => {
     act(() => {
       root.render(
         <RemoteProductImage
-          src="https://cdn.example/c.jpg"
+          src={OCCTOO}
           alt="C"
+          role="card"
           width={100}
           height={100}
           fallback={<div data-fallback="yes" />}
@@ -118,21 +122,47 @@ describe('RemoteProductImage', () => {
 
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('[data-fallback="yes"]')).not.toBeNull();
-
-    const errorCount = imagePropsLog.filter((entry) => entry.src === 'https://cdn.example/c.jpg')
-      .length;
-    // One optimized mount + one direct mount only.
-    expect(errorCount).toBe(2);
   });
 
-  it('resets to optimized when src changes', () => {
+  it('does not duplicate-retry when sized === base', () => {
     act(() => {
       root.render(
         <RemoteProductImage
-          src="https://cdn.example/one.jpg"
-          alt="One"
+          src="https://cdn.example/c.jpg"
+          alt="C"
+          role="card"
           width={100}
           height={100}
+          fallback={<div data-fallback="yes" />}
+        />,
+      );
+    });
+
+    expect(container.querySelector('img')?.getAttribute('src')).toBe(
+      'https://cdn.example/c.jpg',
+    );
+
+    act(() => {
+      container.querySelector('img')?.dispatchEvent(new Event('error'));
+    });
+
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.querySelector('[data-fallback="yes"]')).not.toBeNull();
+    expect(
+      imagePropsLog.filter((entry) => entry.src === 'https://cdn.example/c.jpg'),
+    ).toHaveLength(1);
+  });
+
+  it('resets failure state when src or role changes', () => {
+    act(() => {
+      root.render(
+        <RemoteProductImage
+          src={OCCTOO}
+          alt="One"
+          role="card"
+          width={100}
+          height={100}
+          fallback={<div data-fallback="yes" />}
         />,
       );
     });
@@ -140,42 +170,50 @@ describe('RemoteProductImage', () => {
     act(() => {
       container.querySelector('img')?.dispatchEvent(new Event('error'));
     });
-    expect(container.querySelector('img')?.getAttribute('data-unoptimized')).toBe(
-      'true',
-    );
+    act(() => {
+      container.querySelector('img')?.dispatchEvent(new Event('error'));
+    });
+    expect(container.querySelector('[data-fallback="yes"]')).not.toBeNull();
 
     act(() => {
       root.render(
         <RemoteProductImage
-          src="https://cdn.example/two.jpg"
-          alt="Two"
+          src={OCCTOO}
+          alt="One"
+          role="thumb"
           width={100}
           height={100}
+          fallback={<div data-fallback="yes" />}
         />,
       );
     });
 
-    expect(container.querySelector('img')?.getAttribute('src')).toBe(
-      'https://cdn.example/two.jpg',
+    expect(container.querySelector('img')?.getAttribute('src')).toContain(
+      'format=medium',
     );
-    expect(container.querySelector('img')?.getAttribute('data-unoptimized')).toBe(
-      'false',
-    );
+    expect(container.querySelector('[data-fallback="yes"]')).toBeNull();
   });
 
   it('keeps independent phase state across two mounted sources', () => {
+    const left =
+      'https://cdn.occtoo-media.com/a/left.jpg?format=medium&outputFormat=webp';
+    const right =
+      'https://cdn.occtoo-media.com/a/right.jpg?format=medium&outputFormat=webp';
+
     act(() => {
       root.render(
         <>
           <RemoteProductImage
-            src="https://cdn.example/left.jpg"
+            src={left}
             alt="Left"
+            role="card"
             width={72}
             height={96}
           />
           <RemoteProductImage
-            src="https://cdn.example/right.jpg"
+            src={right}
             alt="Right"
+            role="card"
             width={72}
             height={96}
           />
@@ -191,9 +229,7 @@ describe('RemoteProductImage', () => {
     });
 
     const after = Array.from(container.querySelectorAll('img'));
-    expect(after[0]?.getAttribute('src')).toBe('https://cdn.example/left.jpg');
-    expect(after[0]?.getAttribute('data-unoptimized')).toBe('true');
-    expect(after[1]?.getAttribute('src')).toBe('https://cdn.example/right.jpg');
-    expect(after[1]?.getAttribute('data-unoptimized')).toBe('false');
+    expect(after[0]?.getAttribute('src')).not.toMatch(/[?&]format=/);
+    expect(after[1]?.getAttribute('src')).toContain('format=large');
   });
 });

@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   BellOff,
@@ -15,20 +13,25 @@ import { useSession } from '@/lib/auth/client';
 import { formatPrice } from '@/lib/domain/format';
 import { useActiveTracks, useStopTrack } from '@/lib/hooks/useTracks';
 import { Button } from '@/components/ui/button';
+import { RemoteProductImage } from '@/components/product/remote-product-image';
+import { useState } from 'react';
 
 function TrackImage({ src, name }: { src: string | null; name: string }) {
-  const [hasError, setHasError] = useState(false);
-
   return (
     <div className="account-tracks__media">
-      {src && !hasError ? (
-        <Image
+      {src ? (
+        <RemoteProductImage
           src={src}
           alt={name}
+          role="thumb"
           fill
           sizes="(max-width: 640px) 100vw, 144px"
           className="account-tracks__image"
-          onError={() => setHasError(true)}
+          fallback={
+            <div className="account-tracks__image-fallback" aria-label="Bilde mangler">
+              <ImageIcon className="size-6" aria-hidden />
+            </div>
+          }
         />
       ) : (
         <div className="account-tracks__image-fallback" aria-label="Bilde mangler">

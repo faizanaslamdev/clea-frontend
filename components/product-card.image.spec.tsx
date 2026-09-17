@@ -54,11 +54,12 @@ vi.mock('@tanstack/react-query', () => ({
   useQueryClient: () => ({ prefetchQuery: vi.fn() }),
 }));
 
-const PRODUCT = {
+const OCCTOO_PRODUCT = {
   id: '11111111-1111-4111-8111-111111111111',
   name: 'Her Sense',
-  brand: 'viking',
-  image: 'https://cdn.example/her-sense.jpg',
+  brand: 'occtoo',
+  image:
+    'https://cdn.occtoo-media.com/995/abc/product.jpg?format=medium&outputFormat=webp',
   category: 'Fashion',
   description: '',
   sku: 'x',
@@ -76,7 +77,12 @@ const PRODUCT = {
   trendingScore: 0,
   currency: 'NOK',
   merchantId: 'm1',
-  merchantName: 'Viking Footwear',
+  merchantName: 'Occtoo Merchant',
+} as Product;
+
+const UNKNOWN_PRODUCT = {
+  ...OCCTOO_PRODUCT,
+  image: 'https://cdn.example/her-sense.jpg',
 } as Product;
 
 describe('ProductCard image ladder', () => {
@@ -96,26 +102,43 @@ describe('ProductCard image ladder', () => {
     container.remove();
   });
 
-  it('preserves optimizer → direct CDN → empty wrap fallback', () => {
+  it('uses card role Occtoo format=large then falls back to base then empty wrap', () => {
     act(() => {
-      root.render(<ProductCard product={PRODUCT} />);
+      root.render(<ProductCard product={OCCTOO_PRODUCT} />);
     });
 
     expect(container.querySelector('.product-card__image-wrap')).not.toBeNull();
-    expect(container.querySelector('img')?.getAttribute('data-unoptimized')).toBe(
-      'false',
+    const first = container.querySelector('img');
+    expect(first?.getAttribute('data-unoptimized')).toBe('true');
+    expect(first?.getAttribute('src')).toContain('format=large');
+
+    act(() => {
+      container.querySelector('img')?.dispatchEvent(new Event('error'));
+    });
+    const base = container.querySelector('img');
+    expect(base?.getAttribute('src')).not.toMatch(/[?&]format=/);
+    expect(base?.getAttribute('data-unoptimized')).toBe('true');
+
+    act(() => {
+      container.querySelector('img')?.dispatchEvent(new Event('error'));
+    });
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.querySelector('.product-card__image-wrap')).not.toBeNull();
+  });
+
+  it('skips duplicate retry when merchant transform equals base', () => {
+    act(() => {
+      root.render(<ProductCard product={UNKNOWN_PRODUCT} />);
+    });
+
+    expect(container.querySelector('img')?.getAttribute('src')).toBe(
+      'https://cdn.example/her-sense.jpg',
     );
 
     act(() => {
       container.querySelector('img')?.dispatchEvent(new Event('error'));
     });
-    expect(container.querySelector('img')?.getAttribute('data-unoptimized')).toBe(
-      'true',
-    );
 
-    act(() => {
-      container.querySelector('img')?.dispatchEvent(new Event('error'));
-    });
     expect(container.querySelector('img')).toBeNull();
     expect(container.querySelector('.product-card__image-wrap')).not.toBeNull();
   });

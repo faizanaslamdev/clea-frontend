@@ -298,6 +298,7 @@ export function ProductDetailView({
                             <RemoteProductImage
                               src={galleryImages[galleryIndex] ?? product.image}
                               alt={toDisplayCase(product.name)}
+                              role="gallery"
                               width={800}
                               height={1067}
                               className="product-detail-modal__gallery-image"
@@ -395,6 +396,7 @@ export function ProductDetailView({
                       <RemoteProductImage
                         src={src}
                         alt=""
+                        role="thumb"
                         width={72}
                         height={96}
                         className="product-detail-modal__thumb-image"

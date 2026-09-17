@@ -42,6 +42,9 @@ vi.mock('@/components/product/product-desktop-modal-provider', () => ({
   }),
 }));
 
+const OCCTOO =
+  'https://cdn.occtoo-media.com/995/abc/product.jpg?format=medium&outputFormat=webp';
+
 describe('ChatAnchorUserBubble image ladder', () => {
   let container: HTMLDivElement;
   let root: Root;
@@ -59,14 +62,14 @@ describe('ChatAnchorUserBubble image ladder', () => {
     container.remove();
   });
 
-  it('retries direct CDN before placeholder on optimizer failure', () => {
+  it('uses thumb role and falls back sized → base → placeholder', () => {
     act(() => {
       root.render(
         <ChatAnchorUserBubble
           preview={{
             productId: '11111111-1111-4111-8111-111111111111',
             name: 'Her Sense',
-            image: 'https://cdn.example/her-sense.jpg',
+            image: OCCTOO,
             brand: 'viking',
           }}
           actionLabel="Vis lignende produkter"
@@ -74,20 +77,15 @@ describe('ChatAnchorUserBubble image ladder', () => {
       );
     });
 
-    expect(container.querySelector('img')?.getAttribute('data-unoptimized')).toBe(
-      'false',
-    );
+    const first = container.querySelector('img');
+    expect(first?.getAttribute('data-unoptimized')).toBe('true');
+    expect(first?.getAttribute('src')).toContain('format=medium');
 
     act(() => {
       container.querySelector('img')?.dispatchEvent(new Event('error'));
     });
 
-    expect(container.querySelector('img')?.getAttribute('src')).toBe(
-      'https://cdn.example/her-sense.jpg',
-    );
-    expect(container.querySelector('img')?.getAttribute('data-unoptimized')).toBe(
-      'true',
-    );
+    expect(container.querySelector('img')?.getAttribute('src')).not.toMatch(/[?&]format=/);
 
     act(() => {
       container.querySelector('img')?.dispatchEvent(new Event('error'));

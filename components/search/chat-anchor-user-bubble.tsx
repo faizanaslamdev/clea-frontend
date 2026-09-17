@@ -66,6 +66,7 @@ export function ChatAnchorUserBubble({
               <RemoteProductImage
                 src={imageSrc}
                 alt=""
+                role="thumb"
                 fill
                 className="search-chat-anchor-ref__image"
                 sizes="72px"

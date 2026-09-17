@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight } from 'lucide-react';
 import { AiSparkIcon } from '@/components/icons/ai-spark-icon';
+import { RemoteProductImage } from '@/components/product/remote-product-image';
 import { cn } from '@/lib/utils';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { formatPrice, toDisplayCase } from '@/lib/domain/format';
@@ -475,9 +475,10 @@ export function FeatureTabsSection() {
                           >
                             {[...column, ...column].map((src, i) => (
                               <div key={`${colIndex}-${i}`} className="feature-tabs__explore-photo">
-                                <Image
+                                <RemoteProductImage
                                   src={src}
                                   alt=""
+                                  role="feature"
                                   fill
                                   className="object-cover object-center"
                                   sizes="180px"
@@ -515,9 +516,10 @@ export function FeatureTabsSection() {
                             style={revealStyle(i)}
                             role="listitem"
                           >
-                            <Image
+                            <RemoteProductImage
                               src={product.image}
                               alt={toDisplayCase(product.name)}
+                              role="card"
                               fill
                               className="feature-tabs__photo-zoom object-cover"
                               sizes="160px"
@@ -539,9 +541,10 @@ export function FeatureTabsSection() {
                         return (
                           <div key={`${product.id}-${i}`} className="feature-tabs__pricealert-card" role="listitem">
                             <div className="feature-tabs__pricealert-photo">
-                              <Image
+                              <RemoteProductImage
                                 src={product.image}
                                 alt={toDisplayCase(product.name)}
+                                role="card"
                                 fill
                                 className="object-cover"
                                 sizes="150px"
@@ -585,14 +588,28 @@ export function FeatureTabsSection() {
                           role="listitem"
                         >
                           <div className="feature-tabs__compare-fan-photo-inner">
-                            <Image src={src} alt="" fill className="object-cover" sizes="92px" />
+                            <RemoteProductImage
+                              src={src}
+                              alt=""
+                              role="thumb"
+                              fill
+                              className="object-cover"
+                              sizes="92px"
+                            />
                           </div>
                         </div>
                       );
                     })}
                     <div className="feature-tabs__compare-hero" role="listitem">
                       <div className="feature-tabs__compare-hero-photo">
-                        <Image src={compareHeroImage} alt="" fill className="object-cover" sizes="180px" />
+                        <RemoteProductImage
+                          src={compareHeroImage}
+                          alt=""
+                          role="feature"
+                          fill
+                          className="object-cover"
+                          sizes="180px"
+                        />
                         <span className="feature-tabs__compare-hero-badge">
                           <AiSparkIcon />
                           Flere lignende

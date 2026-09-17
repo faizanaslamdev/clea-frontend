@@ -1,8 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
+import { RemoteProductImage } from '@/components/product/remote-product-image';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { useTrendingLooks } from '@/lib/hooks/useProducts';
 import type { ShopCategory, SuitableFor } from '@/lib/api/chat-types';
@@ -77,12 +77,14 @@ function ShopTrendingCard({
   return (
     <button type="button" onClick={onSelect} className="group flex flex-col text-left">
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-muted">
-        <Image
+        <RemoteProductImage
           src={product.image}
           alt={product.name}
+          role="feature"
           fill
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           sizes="(min-width: 640px) 33vw, 100vw"
+          fallback={<div className="absolute inset-0 bg-muted" aria-hidden />}
         />
       </div>
       <p className="type-eyebrow mt-4">{product.merchantName ?? product.brand}</p>

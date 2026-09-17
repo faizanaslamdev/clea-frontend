@@ -1,5 +1,8 @@
-/** Query params that force downscaled feed images (keep outputFormat=webp). */
-const STRIP_PARAMS = new Set(['format']);
+/**
+ * Feed image URL hygiene for API/FE (not presentation sizing).
+ * Unwraps Awin productserve proxies and upgrades http → https.
+ * Does NOT strip merchant size params — that belongs to resolveMerchantImageUrl.
+ */
 
 function decodeProductserveTarget(encoded: string): string {
   const decoded = decodeURIComponent(encoded.trim());
@@ -33,30 +36,8 @@ function unwrapProductserveProxy(url: string): string {
   }
 }
 
-function stripResizeQueryParams(url: string): string {
-  try {
-    const parsed = new URL(url);
-    for (const key of [...parsed.searchParams.keys()]) {
-      if (STRIP_PARAMS.has(key.toLowerCase())) {
-        parsed.searchParams.delete(key);
-      }
-    }
-
-    const query = parsed.searchParams.toString();
-    return query
-      ? `${parsed.origin}${parsed.pathname}?${query}`
-      : `${parsed.origin}${parsed.pathname}`;
-  } catch {
-    return url
-      .replace(/([?&])format=[^&]*/gi, '$1')
-      .replace(/([?&])$/, '')
-      .replace(/\?$/, '');
-  }
-}
-
 /**
- * Full-quality feed image URL (products, brand covers, banners from API).
- * Strips format=medium (keeps outputFormat=webp) and unwraps productserve proxies.
+ * Hygiene-only feed image URL (products, brand covers, banners from API).
  */
 export function normalizeFeedImageUrl(
   url: string | null | undefined,
@@ -66,9 +47,6 @@ export function normalizeFeedImageUrl(
   }
 
   let cleaned = unwrapProductserveProxy(url.trim());
-  cleaned = stripResizeQueryParams(cleaned);
-  // Merchant feeds sometimes emit http:// CDN URLs; next/image remotePatterns
-  // are https-only, and the CDNs accept TLS.
   if (/^http:\/\//i.test(cleaned)) {
     cleaned = `https://${cleaned.slice('http://'.length)}`;
   }

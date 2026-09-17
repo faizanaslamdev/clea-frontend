@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
 import type { CSSProperties } from 'react';
 import { useQueries } from '@tanstack/react-query';
@@ -13,6 +12,7 @@ import {
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { useCategoryPreviews } from '@/lib/hooks/useProducts';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
+import { RemoteProductImage } from '@/components/product/remote-product-image';
 
 interface SearchByCard {
   eyebrow: string;
@@ -143,7 +143,14 @@ export function SearchBySection() {
 
               {photoSrc && (
                 <div className="search-by-card__photo" aria-hidden>
-                  <Image src={photoSrc} alt="" fill className="object-cover" sizes="140px" />
+                  <RemoteProductImage
+                    src={photoSrc}
+                    alt=""
+                    role="feature"
+                    fill
+                    className="object-cover"
+                    sizes="140px"
+                  />
                 </div>
               )}
             </button>

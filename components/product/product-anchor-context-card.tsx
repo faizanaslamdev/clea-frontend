@@ -52,6 +52,7 @@ export function ProductAnchorContextCard({
           <RemoteProductImage
             src={imageSrc}
             alt=""
+            role="thumb"
             fill
             className="product-anchor-context-card__image"
             sizes="72px"

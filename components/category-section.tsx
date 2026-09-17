@@ -1,12 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { useCategoryPreviews } from '@/lib/hooks/useProducts';
+import { RemoteProductImage } from '@/components/product/remote-product-image';
 import {
   CATEGORY_GRID_ENTRIES,
   categoryGridForShop,
@@ -206,9 +206,10 @@ function CategoryFanCard({
       <div className="category-fan-card__stack">
         {left ? (
           <div className="category-fan-card__photo category-fan-card__photo--left">
-            <Image
+            <RemoteProductImage
               src={left}
               alt=""
+              role="feature"
               fill
               className={`${imageFit} object-center`}
               sizes="140px"
@@ -217,9 +218,10 @@ function CategoryFanCard({
         ) : null}
         {right ? (
           <div className="category-fan-card__photo category-fan-card__photo--right">
-            <Image
+            <RemoteProductImage
               src={right}
               alt=""
+              role="feature"
               fill
               className={`${imageFit} object-center`}
               sizes="140px"
@@ -227,9 +229,10 @@ function CategoryFanCard({
           </div>
         ) : null}
         <div className="category-fan-card__photo category-fan-card__photo--center">
-          <Image
+          <RemoteProductImage
             src={center}
             alt={category.label}
+            role="feature"
             fill
             className={`${imageFit} object-center`}
             sizes="180px"
