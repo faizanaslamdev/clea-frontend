@@ -626,6 +626,107 @@
     @apply size-9;
   }
 
+  /* Mobile/tablet AI anchor — bottom sheet (< lg / 1024px). Desktop keeps the popover. */
+  .product-card-anchor-menu__sheet-overlay {
+    @apply z-[70] bg-black/55 backdrop-blur-sm;
+  }
+
+  .product-card-anchor-menu__sheet {
+    border-radius: var(--product-detail-modal-radius)
+      var(--product-detail-modal-radius) 0 0;
+    background-color: var(--card);
+    border: 1px solid var(--floating-search-border);
+    border-bottom: 0;
+    box-shadow: var(--floating-search-shadow-active);
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+    @apply fixed inset-x-0 bottom-0 z-[70] flex w-full flex-col outline-none;
+    @apply data-[state=open]:animate-in data-[state=closed]:animate-out;
+    @apply data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0;
+    @apply data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom;
+    @apply duration-200;
+  }
+
+  .product-card-anchor-menu__sheet-header {
+    @apply flex shrink-0 items-center justify-between gap-3 px-5 pb-2 pt-4;
+  }
+
+  .product-card-anchor-menu__sheet-title {
+    @apply font-sans text-base font-semibold tracking-tight text-foreground;
+  }
+
+  .product-card-anchor-menu__sheet-close {
+    @apply inline-flex size-10 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground;
+  }
+
+  .product-card-anchor-menu__sheet-body {
+    @apply flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain px-5 pb-3 pt-1;
+  }
+
+  .product-card-anchor-menu__sheet
+    .product-card-anchor-menu__composer.hero-search-bar--compact {
+    /* Keep the prompt above the keyboard; 16px avoids iOS focus zoom. */
+    @apply sticky bottom-0 mt-auto;
+  }
+
+  .product-card-anchor-menu__sheet
+    .product-card-anchor-menu__composer
+    .hero-search-bar--compact__input {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .product-anchor-context-card {
+    border: 1px solid var(--floating-search-border);
+    background-color: var(--muted);
+    @apply flex min-w-0 items-stretch gap-3 overflow-hidden rounded-[1.15rem] p-3;
+  }
+
+  .product-anchor-context-card--unavailable {
+    opacity: 0.72;
+  }
+
+  .product-anchor-context-card__image-wrap {
+    @apply relative size-[4.25rem] shrink-0 overflow-hidden rounded-xl bg-muted;
+  }
+
+  .product-anchor-context-card__image-wrap--empty {
+    @apply size-full bg-muted/70;
+  }
+
+  .product-anchor-context-card__image {
+    @apply object-cover;
+  }
+
+  .product-anchor-context-card__copy {
+    @apply flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-0.5;
+  }
+
+  .product-anchor-context-card__brand {
+    @apply truncate text-[0.6875rem] font-medium uppercase tracking-[0.06em] text-muted-foreground;
+  }
+
+  .product-anchor-context-card__title {
+    @apply line-clamp-2 text-[0.9375rem] font-semibold leading-snug text-foreground;
+  }
+
+  .product-anchor-context-card__meta {
+    @apply truncate text-xs text-muted-foreground;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-card-anchor-menu__sheet {
+      @apply duration-0;
+      animation: none !important;
+      transition: none !important;
+    }
+
+    .product-card-anchor-menu__sheet-overlay {
+      @apply duration-0;
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
   .collection-card {
     border-radius: var(--collection-card-radius);
     background-color: var(--card);
