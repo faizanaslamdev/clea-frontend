@@ -187,4 +187,29 @@ describe('ProductCardAnchorMenu surfaces', () => {
       undefined,
     );
   });
+
+  it('wires submitRequiresText so the sheet send control starts disabled', () => {
+    vi.mocked(resolveAiAnchorSurface).mockReturnValue('sheet');
+
+    act(() => {
+      root.render(<ProductCardAnchorMenu product={PRODUCT} />);
+    });
+
+    act(() => {
+      (
+        container.querySelector(
+          '.product-card-anchor-menu__trigger',
+        ) as HTMLButtonElement
+      ).click();
+    });
+
+    const submit = document.querySelector(
+      '.product-card-anchor-menu__composer .hero-search-bar--compact__submit',
+    ) as HTMLButtonElement;
+
+    expect(submit.disabled).toBe(true);
+    expect(
+      submit.classList.contains('hero-search-bar--compact__submit--active'),
+    ).toBe(false);
+  });
 });

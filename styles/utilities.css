@@ -622,8 +622,21 @@
     @apply text-sm leading-6;
   }
 
+  /* Match floating CLEA send: muted until text, then filled foreground circle. */
   .product-card-anchor-menu__composer .hero-search-bar--compact__submit {
-    @apply size-9;
+    background-color: color-mix(in oklab, var(--foreground) 12%, transparent);
+    color: var(--muted-foreground);
+    box-shadow: none;
+    @apply size-10 transition-[background-color,color,opacity,box-shadow] duration-200;
+    @apply disabled:cursor-not-allowed disabled:opacity-55;
+  }
+
+  .product-card-anchor-menu__composer
+    .hero-search-bar--compact__submit--active:not(:disabled) {
+    background-color: var(--foreground);
+    color: var(--primary-foreground);
+    box-shadow: 0 2px 8px oklch(0 0 0 / 0.18);
+    @apply opacity-100 hover:opacity-90;
   }
 
   /* Mobile/tablet AI anchor — bottom sheet (< lg / 1024px). Desktop keeps the popover. */

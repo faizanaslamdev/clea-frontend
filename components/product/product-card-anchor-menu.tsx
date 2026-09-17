@@ -149,6 +149,7 @@ function AnchorAiPanel({
         onValueChange={onDraftChange}
         onSubmitQuery={onSubmitCustom}
         submitLocked={actionsLocked}
+        submitRequiresText
       />
     </>
   );

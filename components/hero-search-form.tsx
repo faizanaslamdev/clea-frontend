@@ -24,6 +24,12 @@ interface HeroSearchFormProps {
   onValueChange?: (value: string) => void;
   onSubmitQuery?: (query: string) => void;
   submitLocked?: boolean;
+  /**
+   * When true, the compact send control stays muted/disabled until the
+   * field has non-empty text (AI modal/sheet). Floating CLEA inputs leave
+   * this off so they keep their always-ready send affordance.
+   */
+  submitRequiresText?: boolean;
   placeholder?: string;
   /** When given (and the field is empty), cycles through these as an
    *  animated multi-line placeholder instead of the static `placeholder`
@@ -47,6 +53,7 @@ export function HeroSearchForm({
   onValueChange,
   onSubmitQuery,
   submitLocked = false,
+  submitRequiresText = false,
   placeholder = 'Beskriv hva du leter etter …',
   animatedPlaceholderPhrases,
   shopCategory: controlledShopCategory,
@@ -111,6 +118,9 @@ export function HeroSearchForm({
   };
 
   if (variant === 'compact') {
+    const submitReady = !submitRequiresText || hasText;
+    const canSubmit = submitReady && !submitLocked;
+
     return (
       <form
         onSubmit={handleSubmit}
@@ -140,7 +150,11 @@ export function HeroSearchForm({
         />
         <button
           type="submit"
-          className="hero-search-bar--compact__submit hero-search-bar--compact__submit--active"
+          disabled={!canSubmit}
+          className={cn(
+            'hero-search-bar--compact__submit',
+            submitReady && 'hero-search-bar--compact__submit--active',
+          )}
           aria-label="Søk"
         >
           <ArrowUp className="size-[1.125rem]" strokeWidth={2.25} />
