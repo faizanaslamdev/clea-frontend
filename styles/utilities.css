@@ -3700,9 +3700,9 @@
   .feature-tabs__panel {
     /* items-start (not center): shorter tabs must not re-center and shove the
        copy / following sections when the active visual changes height.
-       min-height = fixed visual + gap-10 + reserved copy — same footprint for
-       every tab on stacked mobile; laptop uses the visual height alone. */
-    @apply grid min-h-[calc(380px+2.5rem+10.5rem)] grid-cols-1 items-start gap-10 sm:min-h-[calc(460px+2.5rem+11.5rem)] lg:min-h-[540px] lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16;
+       min-height = fixed visual + gap-10 + reserved copy — sized for Utforsk
+       (longest heading/body wrap on mobile) so every tab shares one footprint. */
+    @apply grid min-h-[calc(380px+2.5rem+14rem)] grid-cols-1 items-start gap-10 sm:min-h-[calc(460px+2.5rem+12.5rem)] lg:min-h-[540px] lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16;
   }
 
   /* Fixed height = Explore column height. Every tab paints inside this box so
@@ -3802,9 +3802,9 @@
   }
 
   .feature-tabs__copy {
-    /* Reserve room for the longest tab copy so right-column / stacked-mobile
-       text swaps don't change total section height. */
-    @apply flex min-h-[10.5rem] flex-col items-start gap-4 text-left sm:min-h-[11.5rem] lg:min-h-[12.5rem];
+    /* Reserve room for Utforsk (longest wrap on narrow screens) so tab swaps
+       don't change total section height and shove UI below. */
+    @apply flex min-h-[14rem] flex-col items-start gap-4 text-left sm:min-h-[12.5rem] lg:min-h-[12.5rem];
   }
 
   .feature-tabs__copy-heading {
