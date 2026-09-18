@@ -138,21 +138,15 @@
   --ai-spark: oklch(0.55 0.21 280);
   --floating-search-border: oklch(1 0 0 / 0.7);
   --floating-search-shadow:
-    0 1px 2px oklch(0 0 0 / 0.06),
-    0 8px 22px oklch(0 0 0 / 0.1),
+    0 1px 2px oklch(0 0 0 / 0.05),
+    0 10px 26px oklch(0 0 0 / 0.08),
+    0 0 0 6px oklch(0.68 0.16 280 / 0.07),
     0 8px 34px 6px oklch(0.68 0.16 280 / 0.22);
   --floating-search-shadow-active:
-    0 1px 2px oklch(0 0 0 / 0.07),
-    0 10px 26px oklch(0 0 0 / 0.12),
-    0 10px 44px 10px oklch(0.68 0.16 280 / 0.32);
-  /* Neutral twin for controls that sit beside an aura surface: same elevation,
-     no colour, so the gap between them never fills with violet. */
-  --floating-search-shadow-neutral:
     0 1px 2px oklch(0 0 0 / 0.06),
-    0 10px 26px oklch(0 0 0 / 0.12);
-  --floating-search-shadow-neutral-active:
-    0 1px 2px oklch(0 0 0 / 0.07),
-    0 12px 32px oklch(0 0 0 / 0.16);
+    0 12px 30px oklch(0 0 0 / 0.1),
+    0 0 0 8px oklch(0.68 0.16 280 / 0.1),
+    0 10px 44px 10px oklch(0.68 0.16 280 / 0.32);
   --hero-toggle-track: var(--muted);
   --hero-toggle-track-border: var(--border);
   --hero-toggle-inactive: var(--muted-foreground);

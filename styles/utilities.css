@@ -376,9 +376,20 @@
     display: none;
   }
 
+  /* Continuous ticker: disable snap + smooth scroll so rAF loop resets
+     are invisible and swipe can re-enable snap while paused. */
+  .product-carousel__track--autorolling {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .product-carousel__track {
       scroll-behavior: auto;
+    }
+
+    .product-carousel__track--autorolling {
+      scroll-snap-type: x mandatory;
     }
   }
 
@@ -1463,7 +1474,7 @@
     background-color: var(--card);
     background-image: none;
     border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
-    box-shadow: var(--floating-search-shadow-neutral);
+    box-shadow: var(--floating-search-shadow);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     @apply relative z-[1] shrink-0 overflow-hidden;
@@ -1472,7 +1483,7 @@
 
   .chat-page__composer-dock .chat-new-chat-btn:hover,
   .chat-page__composer-dock .chat-new-chat-btn:focus-visible {
-    box-shadow: var(--floating-search-shadow-neutral-active);
+    box-shadow: var(--floating-search-shadow-active);
   }
 
   @media (prefers-reduced-motion: reduce) {

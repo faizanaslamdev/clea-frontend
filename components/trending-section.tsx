@@ -88,6 +88,7 @@ export function TrendingSection() {
           ref={carouselRef}
           products={products}
           hideControls
+          autoRoll
           ariaLabel="Populært nå"
           engagementSurface="popular_now"
           onProductImpression={trackImpression}
