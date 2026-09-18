@@ -376,6 +376,12 @@
     display: none;
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .product-carousel__track {
+      scroll-behavior: auto;
+    }
+  }
+
   .category-carousel__track {
     -webkit-overflow-scrolling: touch;
     -ms-overflow-style: none;

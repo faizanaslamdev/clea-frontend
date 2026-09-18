@@ -79,15 +79,16 @@ export function TrendingSection() {
       </div>
 
       {isLoading ? (
-        <div className="section-container">
+        <>
           <p className="sr-only">Laster populære produkter</p>
           <ProductCarouselSkeleton />
-        </div>
+        </>
       ) : (
         <ProductCarousel
           ref={carouselRef}
           products={products}
           hideControls
+          ariaLabel="Populært nå"
           engagementSurface="popular_now"
           onProductImpression={trackImpression}
           onScrollStateChange={handleScrollState}

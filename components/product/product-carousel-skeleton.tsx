@@ -2,6 +2,10 @@ import { ProductCardSkeleton } from '@/components/product/product-card-skeleton'
 
 const DEFAULT_CAROUSEL_SKELETON_COUNT = 5;
 
+/**
+ * Matches `.product-carousel__track` layout so loading → content does not
+ * jump from a contained grid/row into the full-bleed horizontal track.
+ */
 export function ProductCarouselSkeleton({
   count = DEFAULT_CAROUSEL_SKELETON_COUNT,
 }: {
@@ -13,17 +17,16 @@ export function ProductCarouselSkeleton({
       aria-hidden
       data-testid="product-carousel-skeleton"
     >
-      <div className="flex gap-4 overflow-x-hidden py-3 pb-6">
-        <div className="w-5 shrink-0 md:w-6 lg:w-10 xl:w-14" />
+      <div className="product-carousel__track">
         {Array.from({ length: count }, (_, index) => (
           <div
             key={index}
-            className="flex w-[210px] shrink-0 flex-col px-0.5 py-1 md:w-[270px]"
+            data-product-slide
+            className="flex w-[min(68vw,13.125rem)] shrink-0 snap-start flex-col px-0.5 py-1 sm:w-[210px] md:w-[270px]"
           >
             <ProductCardSkeleton />
           </div>
         ))}
-        <div className="w-5 shrink-0 md:w-6 lg:w-10 xl:w-14" />
       </div>
     </div>
   );
