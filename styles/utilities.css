@@ -1438,11 +1438,11 @@
     @apply flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-8 md:pb-[calc(6rem+env(safe-area-inset-bottom))] md:pt-10;
   }
 
-  /* Gap between composer and + must clear most of the composer's aura blur,
-     otherwise the soft white halo paints through/around the + and reads as a
-     clipped double-pill over product photography. */
+  /* Gap between composer and + — tighter on mobile so the dock reads as one
+     control cluster; slightly roomier from md+ to keep the composer aura
+     from visually merging into the +. */
   .chat-page__composer-dock {
-    --chat-composer-dock-gap: 1.25rem;
+    --chat-composer-dock-gap: 0.5rem;
     bottom: max(1.25rem, env(safe-area-inset-bottom));
     left: 50%;
     width: min(
@@ -1455,6 +1455,12 @@
     gap: var(--chat-composer-dock-gap);
     @apply fixed z-40 flex items-center;
     transform: translateX(-50%);
+  }
+
+  @media (min-width: 768px) {
+    .chat-page__composer-dock {
+      --chat-composer-dock-gap: 1rem;
+    }
   }
 
   .chat-page__composer-dock .hero-search-bar--compact.chat-page__composer {
