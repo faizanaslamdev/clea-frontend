@@ -212,12 +212,13 @@ export const SHOP_CATEGORY_SLUGS: readonly string[] = SHOP_CATEGORIES.map(
 );
 
 /**
- * Maps a `CATEGORY_GRID_ENTRIES` tile id to its browse destination.
+ * Maps homepage / Shop hub tile ids to existing `/shop/[category]` destinations.
  *
  * Only tiles listed here navigate to the browse grid; anything omitted keeps
- * the previous chat-entry behaviour. `underwear` is deliberately absent — the
- * catalog has no products under `apparel.underwear` at any level, so a browse
- * page there would be an empty shelf.
+ * chat-entry behaviour. `underwear` is deliberately absent — there is no
+ * Undertøy shelf in {@link SHOP_CATEGORIES} (do not invent a route); the
+ * homepage Undertøy card falls back to chat while still using
+ * `product_family=underwear` for preview photos.
  */
 const GRID_ENTRY_BROWSE_HREF: Readonly<Record<string, string>> = {
   'jeans-bukser': '/shop/bukser-jeans',

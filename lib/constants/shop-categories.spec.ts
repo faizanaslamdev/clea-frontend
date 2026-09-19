@@ -7,9 +7,12 @@ import {
 } from '@/lib/constants/shop-categories';
 import {
   categoryGridForShop,
+  CATEGORY_GRID_ENTRIES,
+  HOMEPAGE_CATEGORY_CARD_COUNT,
+  SHOP_CATEGORY_GRID,
   SHOP_CATEGORY_GRID_FEMALE,
   SHOP_CATEGORY_GRID_MALE,
-  CATEGORY_SECTION_CARD_COUNT,
+  SHOP_CATEGORY_CARD_COUNT,
 } from '@/lib/constants/category-grid';
 import {
   SHOP_QUICK_SUGGESTIONS_FEMALE,
@@ -83,12 +86,70 @@ describe('SHOP_CATEGORIES static mapping integrity', () => {
   });
 });
 
+describe('Homepage vs Shop hub category cards', () => {
+  it('keeps homepage at 12 cards in the curated order', () => {
+    expect(CATEGORY_GRID_ENTRIES).toHaveLength(HOMEPAGE_CATEGORY_CARD_COUNT);
+    expect(CATEGORY_GRID_ENTRIES.map((e) => e.label)).toEqual([
+      'Jeans & bukser',
+      'Kjoler',
+      'T-skjorter',
+      'Topper',
+      'Gensere & strikk',
+      'Ytterjakker',
+      'Sko',
+      'Vesker',
+      'Skjorter',
+      'Undertøy',
+      'Beauty',
+      'Accessories',
+    ]);
+  });
+
+  it('keeps Shop at 8 cards in the curated order (Dame = Herre)', () => {
+    expect(SHOP_CATEGORY_GRID).toHaveLength(SHOP_CATEGORY_CARD_COUNT);
+    expect(SHOP_CATEGORY_GRID_FEMALE).toEqual(SHOP_CATEGORY_GRID_MALE);
+    expect(categoryGridForShop('female')).toEqual(SHOP_CATEGORY_GRID);
+    expect(categoryGridForShop('male')).toEqual(SHOP_CATEGORY_GRID);
+    expect(SHOP_CATEGORY_GRID.map((e) => e.label)).toEqual([
+      'Jeans & bukser',
+      'T-skjorter',
+      'Topper',
+      'Jakker',
+      'Sko',
+      'Genser & strikk',
+      'Beauty',
+      'Vesker',
+    ]);
+  });
+
+  it('maps every homepage browseable card to a real Shop route', () => {
+    for (const entry of CATEGORY_GRID_ENTRIES) {
+      const target = shopBrowseTargetForGridEntry(entry.id);
+      if (entry.id === 'underwear') {
+        // No /shop Undertøy shelf — chat fallback by design.
+        expect(target).toBeUndefined();
+        continue;
+      }
+      expect(target, entry.id).toBeDefined();
+      expect(SHOP_CATEGORIES.some((c) => c.slug === target!.slug)).toBe(true);
+      if (target!.sub) {
+        const category = SHOP_CATEGORIES.find((c) => c.slug === target!.slug)!;
+        const visible = shopCategoryChildrenFor(category, 'female');
+        expect(visible.some((c) => c.slug === target!.sub)).toBe(true);
+      }
+      const href = shopBrowseHrefForGridEntry(entry.id, 'female');
+      expect(href).toBeTruthy();
+      expect(catalogFiltersForShopHref(href!)).not.toBeNull();
+    }
+  });
+});
+
 describe('Shop hub cards + quick suggestions integrity', () => {
   it('keeps Dame/Herre card grids at the fixed card count', () => {
-    expect(SHOP_CATEGORY_GRID_FEMALE).toHaveLength(CATEGORY_SECTION_CARD_COUNT);
-    expect(SHOP_CATEGORY_GRID_MALE).toHaveLength(CATEGORY_SECTION_CARD_COUNT);
-    expect(categoryGridForShop('female')).toHaveLength(CATEGORY_SECTION_CARD_COUNT);
-    expect(categoryGridForShop('male')).toHaveLength(CATEGORY_SECTION_CARD_COUNT);
+    expect(SHOP_CATEGORY_GRID_FEMALE).toHaveLength(SHOP_CATEGORY_CARD_COUNT);
+    expect(SHOP_CATEGORY_GRID_MALE).toHaveLength(SHOP_CATEGORY_CARD_COUNT);
+    expect(categoryGridForShop('female')).toHaveLength(SHOP_CATEGORY_CARD_COUNT);
+    expect(categoryGridForShop('male')).toHaveLength(SHOP_CATEGORY_CARD_COUNT);
   });
 
   it('maps every shop card to a real browse target', () => {

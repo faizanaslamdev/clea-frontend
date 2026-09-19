@@ -33,7 +33,7 @@ export function useCategoryPreviews(suitableFor?: SuitableFor) {
     queryKey: productKeys.categoryGrid(suitableFor),
     queryFn: () => fetchCategoryPreviews(entries, suitableFor),
     staleTime: STALE_TIME_STATIC_MS,
-    // Dame↔Herre keeps the previous 11 cards on screen until the matching
+    // Dame↔Herre keeps the previous Shop cards on screen until the matching
     // audience lands — count never collapses mid-toggle.
     placeholderData: keepPreviousData,
   });

@@ -19,8 +19,8 @@ export interface ShopQuickSuggestion {
 }
 
 /**
- * Dame — sub-shelves + beauty (cards: Jeans & bukser, Kjoler, T-skjorter,
- * Topper, Jakker, Sko, Genser & strikk, Vesker).
+ * Dame — sub-shelves + beauty (cards: Jeans & bukser, T-skjorter, Topper,
+ * Jakker, Sko, Genser & strikk, Beauty, Vesker).
  */
 export const SHOP_QUICK_SUGGESTIONS_FEMALE: readonly ShopQuickSuggestion[] = [
   { id: 'jeans', label: 'Jeans', href: '/shop/bukser-jeans?sub=jeans' },
@@ -42,8 +42,8 @@ export const SHOP_QUICK_SUGGESTIONS_FEMALE: readonly ShopQuickSuggestion[] = [
 ] as const;
 
 /**
- * Herre — sub-shelves + watches (cards: Jeans & bukser, Sokker, T-skjorter,
- * Topper, Jakker, Sko, Genser & strikk, Vesker).
+ * Herre — sub-shelves + watches (cards match Dame order: Jeans & bukser,
+ * T-skjorter, Topper, Jakker, Sko, Genser & strikk, Beauty, Vesker).
  *
  * Omits empty/weak pill destinations (e.g. male running shoes).
  */

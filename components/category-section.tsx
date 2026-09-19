@@ -27,8 +27,8 @@ interface CategorySectionProps {
   /** Filters tile preview photos (and underlying inventory) to one
    * audience -- wired up from the Dame/Herre toggle on /shop. Omitted
    * (or undefined) shows the unfiltered "Alle" mix, matching the
-   * homepage's existing behavior. On /shop this also selects the
-   * gender-specific category list (equal card count, Daydream pattern). */
+   * homepage's existing behavior. On /shop this selects the Shop hub
+   * card list (same 8 cards for Dame/Herre; photos filter by audience). */
   suitableFor?: SuitableFor;
   /** Carried into the chat query on tile click so it continues the same
    * gendered browsing context set by /shop's Dame/Herre toggle. */
