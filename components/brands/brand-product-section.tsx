@@ -23,7 +23,6 @@ export function BrandProductSection({
   } = useCatalogInfinite({ merchantId, segment: 'all' });
 
   const products = data?.pages.flatMap((page) => page.products) ?? [];
-  const total = data?.pages[0]?.total ?? 0;
   const loaded = products.length;
 
   if (isLoading) {
@@ -58,11 +57,9 @@ export function BrandProductSection({
       <div className="mb-10">
         <h1 className="type-heading">{brandName}</h1>
         <p className="type-subheading mt-2">
-          {total === 0
+          {loaded === 0
             ? `Ingen produkter funnet hos ${brandName} ennå`
-            : loaded < total
-              ? `Viser ${loaded} av ${total} produkter hos ${brandName}`
-              : `${total} produkter tilgjengelig hos ${brandName}`}
+            : `Viser ${loaded} ${loaded === 1 ? 'produkt' : 'produkter'} hos ${brandName}`}
         </p>
       </div>
 

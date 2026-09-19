@@ -33,7 +33,9 @@ export interface ApiProduct {
 
 export interface ApiProductListResponse {
   items: ApiProduct[];
-  total: number;
+  /** Exact total when known; null when another page exists without a COUNT. */
+  total: number | null;
+  hasMore: boolean;
   limit: number;
   offset: number;
 }

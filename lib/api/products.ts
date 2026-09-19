@@ -92,7 +92,8 @@ function buildProductsQuery(params: FetchProductsParams): string {
 
 export interface CatalogPageResult {
   products: Product[];
-  total: number;
+  /** Exact total when known; null when hasMore and no COUNT was run. */
+  total: number | null;
   limit: number;
   offset: number;
   hasMore: boolean;
@@ -108,14 +109,13 @@ export async function fetchCatalogFromApi(
     ...(init ?? { cache: 'no-store' }),
   });
   const products = data.items.map(mapApiProductToProduct);
-  const loaded = data.offset + products.length;
 
   return {
     products,
     total: data.total,
     limit: data.limit,
     offset: data.offset,
-    hasMore: loaded < data.total,
+    hasMore: data.hasMore,
   };
 }
 
@@ -214,7 +214,7 @@ function calculateRelevance(product: Product, query: string): number {
 export interface SearchPageResult {
   results: SearchResult[];
   usedFallback: boolean;
-  total: number;
+  total: number | null;
   hasMore: boolean;
   offset: number;
 }
@@ -239,7 +239,7 @@ export async function fetchSearchResults(
 
   const page = await fetchCatalogFromApi({ q: trimmed, limit, offset });
 
-  if (page.total > 0 || offset > 0) {
+  if (page.products.length > 0 || page.hasMore || offset > 0) {
     const results = page.products
       .map((product) => ({
         product,

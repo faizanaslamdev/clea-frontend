@@ -4,7 +4,7 @@ import type { SearchResult } from '@/lib/types';
 export interface ProductSearchResponse {
   results: SearchResult[];
   usedFallback: boolean;
-  total: number;
+  total: number | null;
   hasMore: boolean;
 }
 

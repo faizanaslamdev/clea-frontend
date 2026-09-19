@@ -104,7 +104,7 @@ function ShopBrowseContent({
   } = useCatalogInfinite(filters);
 
   const products = data?.pages.flatMap((page) => page.products) ?? [];
-  const total = data?.pages[0]?.total ?? 0;
+  const loaded = products.length;
   // Prefer previous products over an empty skeleton while the next set loads.
   const showSkeleton = isLoading && products.length === 0;
 
@@ -152,8 +152,8 @@ function ShopBrowseContent({
               <span>Laster produkter …</span>
             ) : (
               <span>
-                {total.toLocaleString('nb-NO')}{' '}
-                {total === 1 ? 'produkt' : 'produkter'}
+                {loaded.toLocaleString('nb-NO')}{' '}
+                {loaded === 1 ? 'produkt' : 'produkter'}
               </span>
             )}
           </div>

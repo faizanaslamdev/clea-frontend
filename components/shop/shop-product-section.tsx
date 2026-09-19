@@ -25,7 +25,6 @@ export function ShopProductSection({ family, suitableFor }: ShopProductSectionPr
   });
 
   const products = data?.pages.flatMap((page) => page.products) ?? [];
-  const total = data?.pages[0]?.total ?? 0;
   const loaded = products.length;
 
   if (isLoading) {
@@ -52,11 +51,9 @@ export function ShopProductSection({ family, suitableFor }: ShopProductSectionPr
   return (
     <>
       <p className="mb-6 text-sm text-muted-foreground" role="status">
-        {total === 0
+        {loaded === 0
           ? 'Ingen produkter funnet i denne kategorien ennå'
-          : loaded < total
-            ? `Viser ${loaded} av ${total} produkter`
-            : `${total} produkter tilgjengelig`}
+          : `Viser ${loaded} ${loaded === 1 ? 'produkt' : 'produkter'}`}
       </p>
 
       <ProductGrid

@@ -234,10 +234,16 @@ export function SearchChatThread({
                   : 'Søkeresultater'
               }
             >
-              {message.searchTotal != null && message.searchTotal > 0 ? (
+              {message.searchTotal != null &&
+              message.searchTotal > message.products.length ? (
                 <p className="mb-4 text-sm text-muted-foreground">
                   Viser {message.products.length} av {message.searchTotal}{' '}
                   produkter
+                </p>
+              ) : message.products.length > 0 ? (
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Viser {message.products.length}{' '}
+                  {message.products.length === 1 ? 'produkt' : 'produkter'}
                 </p>
               ) : null}
               <ProductGrid
