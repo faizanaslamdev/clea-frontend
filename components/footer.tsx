@@ -4,6 +4,13 @@ import { ArrowRight } from 'lucide-react';
 import { BrandLogo } from '@/components/brand-logo';
 import { BRAND } from '@/lib/constants/brand';
 
+type FooterLink = {
+  href: string;
+  label: string;
+  /** External affiliate/partner URL — renders a plain <a>, not Next Link. */
+  external?: boolean;
+};
+
 const FOOTER_LINKS = {
   discover: [
     { href: '/brands', label: 'Alle merker' },
@@ -13,6 +20,11 @@ const FOOTER_LINKS = {
   company: [
     { href: '/about', label: 'Om oss' },
     { href: '/partner', label: 'Samarbeid' },
+    {
+      href: 'https://sovrn.co/det3haz',
+      label: 'Sovrn',
+      external: true,
+    },
   ],
   resources: [
     { href: '/privacy', label: 'Personvern' },
@@ -20,14 +32,14 @@ const FOOTER_LINKS = {
     { href: '/contact', label: 'Kontakt' },
     { href: '/faq', label: 'FAQ' },
   ],
-} as const;
+} as const satisfies Record<string, readonly FooterLink[]>;
 
 function FooterColumn({
   title,
   links,
 }: {
   title: string;
-  links: readonly { href: string; label: string }[];
+  links: readonly FooterLink[];
 }) {
   return (
     <div>
@@ -35,9 +47,20 @@ function FooterColumn({
       <ul className="space-y-3">
         {links.map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="footer-link">
-              {link.label}
-            </Link>
+            {link.external ? (
+              <a
+                href={link.href}
+                className="footer-link"
+                target="_blank"
+                rel="noopener noreferrer sponsored"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link href={link.href} className="footer-link">
+                {link.label}
+              </Link>
+            )}
           </li>
         ))}
       </ul>
