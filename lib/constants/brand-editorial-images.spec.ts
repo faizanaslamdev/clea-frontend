@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getBrandEditorialFrameClassName,
   getBrandEditorialImage,
   getBrandEditorialPosition,
 } from './brand-editorial-images';
@@ -13,9 +14,17 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('Viking Footwear')).toBe('50% 20%');
     expect(getBrandEditorialPosition('Ralph Lauren NO')).toBe('50% 18%');
     expect(getBrandEditorialPosition('adidas NO')).toBe('50% 35%');
-    expect(getBrandEditorialPosition('ASOS')).toBe('50% 28%');
-    expect(getBrandEditorialPosition('Bubbleroom')).toBe('50% 30%');
+    expect(getBrandEditorialPosition('ASOS')).toBe('50% 8%');
+    expect(getBrandEditorialPosition('Bubbleroom')).toBe('50% 10%');
     expect(getBrandEditorialPosition('Urverket')).toBe('50% 40%');
+  });
+
+  it('zooms portrait editorial frames out slightly in the brand card crop', () => {
+    expect(getBrandEditorialFrameClassName('ASOS')).toContain('scale-[0.88]');
+    expect(getBrandEditorialFrameClassName('Bubbleroom')).toContain(
+      'origin-top',
+    );
+    expect(getBrandEditorialFrameClassName('adidas NO')).toBe('');
   });
 
   it('maps adidas to the approved editorial asset', () => {

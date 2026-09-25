@@ -78,10 +78,23 @@ export function getBrandEditorialPosition(brandName: string): string {
   if (/viking/.test(name)) return '50% 20%';
   if (/ralph\s+lauren/.test(name)) return '50% 18%';
   if (/adidas/.test(name)) return '50% 35%';
-  if (/asos/.test(name)) return '50% 28%';
-  if (/bubbleroom/.test(name)) return '50% 30%';
+  // Tall portrait assets — bias hard to the top so faces stay in the 4:3 crop.
+  if (/asos/.test(name)) return '50% 8%';
+  if (/bubbleroom/.test(name)) return '50% 10%';
   if (/urverket/.test(name)) return '50% 40%';
   if (/sephora/.test(name)) return '50% 35%';
 
   return DEFAULT_EDITORIAL_POSITION;
+}
+
+/**
+ * Optional frame scale for portrait editorial assets that read too tight in
+ * the landscape brand-card crop. Hero keeps object-position only (Ken Burns).
+ */
+export function getBrandEditorialFrameClassName(brandName: string): string {
+  const name = normalizeBrandName(brandName);
+  if (/asos|bubbleroom/.test(name)) {
+    return 'origin-top scale-[0.88] group-hover:scale-[0.93]';
+  }
+  return '';
 }

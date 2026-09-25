@@ -1,25 +1,36 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
-import { getBrandEditorialPosition } from '@/lib/constants/brand-editorial-images';
+import {
+  getBrandEditorialFrameClassName,
+  getBrandEditorialPosition,
+} from '@/lib/constants/brand-editorial-images';
 import { getBrandHref } from '@/lib/services';
+import { cn } from '@/lib/utils';
 import type { Store } from '@/lib/types';
 
 export function BrandCard({ brand }: { brand: Store }) {
   const href = brand.href ?? getBrandHref(brand);
+  const frameClassName = getBrandEditorialFrameClassName(brand.name);
 
   return (
     <Link
       href={href}
       scroll
-      className="brand-card group relative block aspect-4/3 w-full overflow-hidden rounded-[1.25rem]"
+      className={cn(
+        'brand-card group relative block aspect-4/3 w-full overflow-hidden rounded-[1.25rem]',
+        frameClassName && 'bg-black',
+      )}
     >
       {brand.coverImage ? (
         <Image
           src={brand.coverImage}
           alt=""
           fill
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]"
+          className={cn(
+            'object-cover transition-transform duration-700 ease-out',
+            frameClassName || 'group-hover:scale-[1.035]',
+          )}
           style={{ objectPosition: getBrandEditorialPosition(brand.name) }}
           sizes="(max-width: 768px) 100vw, 33vw"
         />
