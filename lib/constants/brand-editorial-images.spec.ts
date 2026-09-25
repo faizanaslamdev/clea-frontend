@@ -13,7 +13,6 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('Viking Footwear')).toBe('50% 20%');
     expect(getBrandEditorialPosition('Ralph Lauren NO')).toBe('50% 18%');
     expect(getBrandEditorialPosition('adidas NO')).toBe('50% 35%');
-    expect(getBrandEditorialPosition('Papique NO')).toBe('50% 45%');
     expect(getBrandEditorialPosition('Urverket')).toBe('50% 40%');
   });
 
@@ -23,10 +22,7 @@ describe('brand editorial image presentation', () => {
     );
   });
 
-  it('maps Papique NO, Urverket, and Sephora SE to approved editorial assets', () => {
-    expect(getBrandEditorialImage('Papique NO')).toBe(
-      '/brands/editorial/papique.webp',
-    );
+  it('maps Urverket and Sephora SE to approved editorial assets', () => {
     expect(getBrandEditorialImage('Urverket')).toBe(
       '/brands/editorial/urverket.webp',
     );
@@ -35,8 +31,9 @@ describe('brand editorial image presentation', () => {
     );
   });
 
-  it('does not map ended Beredd partnership to editorial assets', () => {
+  it('does not map ended Beredd or Papique partnerships to editorial assets', () => {
     expect(getBrandEditorialImage('Beredd NO')).toBeNull();
+    expect(getBrandEditorialImage('Papique NO')).toBeNull();
   });
 
   it('keeps unknown affiliate imagery centered', () => {

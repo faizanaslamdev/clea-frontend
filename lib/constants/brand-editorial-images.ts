@@ -6,7 +6,6 @@ const EDITORIAL_IMAGES = {
   outnorth: '/brands/editorial/outnorth.webp',
   viking: '/brands/editorial/viking.webp',
   ralphLauren: '/brands/editorial/ralph-lauren.webp',
-  papique: '/brands/editorial/papique.webp',
   urverket: '/brands/editorial/urverket.webp',
   sephora: '/brands/editorial/sephora.webp',
 } as const;
@@ -47,9 +46,6 @@ export function getBrandEditorialImage(
   if (/adidas/.test(name)) {
     return EDITORIAL_IMAGES.adidas;
   }
-  if (/papique/.test(name)) {
-    return EDITORIAL_IMAGES.papique;
-  }
   if (/urverket/.test(name)) {
     return EDITORIAL_IMAGES.urverket;
   }
@@ -74,7 +70,6 @@ export function getBrandEditorialPosition(brandName: string): string {
   if (/viking/.test(name)) return '50% 20%';
   if (/ralph\s+lauren/.test(name)) return '50% 18%';
   if (/adidas/.test(name)) return '50% 35%';
-  if (/papique/.test(name)) return '50% 45%';
   if (/urverket/.test(name)) return '50% 40%';
   if (/sephora/.test(name)) return '50% 35%';
 
