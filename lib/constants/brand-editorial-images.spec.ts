@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  getBrandEditorialFrameClassName,
   getBrandEditorialImage,
   getBrandEditorialPosition,
 } from './brand-editorial-images';
@@ -17,14 +16,6 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('ASOS')).toBe('50% 8%');
     expect(getBrandEditorialPosition('Bubbleroom')).toBe('50% 10%');
     expect(getBrandEditorialPosition('Urverket')).toBe('50% 40%');
-  });
-
-  it('zooms portrait editorial frames out slightly in the brand card crop', () => {
-    expect(getBrandEditorialFrameClassName('ASOS')).toContain('scale-[0.88]');
-    expect(getBrandEditorialFrameClassName('Bubbleroom')).toContain(
-      'origin-top',
-    );
-    expect(getBrandEditorialFrameClassName('adidas NO')).toBe('');
   });
 
   it('maps adidas to the approved editorial asset', () => {

@@ -86,15 +86,3 @@ export function getBrandEditorialPosition(brandName: string): string {
 
   return DEFAULT_EDITORIAL_POSITION;
 }
-
-/**
- * Optional frame scale for portrait editorial assets that read too tight in
- * the landscape brand-card crop. Hero keeps object-position only (Ken Burns).
- */
-export function getBrandEditorialFrameClassName(brandName: string): string {
-  const name = normalizeBrandName(brandName);
-  if (/asos|bubbleroom/.test(name)) {
-    return 'origin-top scale-[0.88] group-hover:scale-[0.93]';
-  }
-  return '';
-}
