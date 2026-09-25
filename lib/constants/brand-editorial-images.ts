@@ -3,6 +3,7 @@ const EDITORIAL_IMAGES = {
   asos: '/brands/editorial/asos.webp',
   bubbleroom: '/brands/editorial/bubbleroom.webp',
   dbJourney: '/brands/editorial/db-journey.webp',
+  hm: '/brands/editorial/hm.webp',
   nelly: '/brands/editorial/nelly.webp',
   nlyMan: '/brands/editorial/nly-man.webp',
   outnorth: '/brands/editorial/outnorth.webp',
@@ -54,6 +55,9 @@ export function getBrandEditorialImage(
   if (/bubbleroom/.test(name)) {
     return EDITORIAL_IMAGES.bubbleroom;
   }
+  if (/h\s*&\s*m|\bh\s*m\b|h\s+and\s+m/.test(name) || name === 'hm') {
+    return EDITORIAL_IMAGES.hm;
+  }
   if (/urverket/.test(name)) {
     return EDITORIAL_IMAGES.urverket;
   }
@@ -81,6 +85,9 @@ export function getBrandEditorialPosition(brandName: string): string {
   // Tall portrait assets — bias hard to the top so faces stay in the 4:3 crop.
   if (/asos/.test(name)) return '50% 8%';
   if (/bubbleroom/.test(name)) return '50% 10%';
+  if (/h\s*&\s*m|\bh\s*m\b|h\s+and\s+m/.test(name) || name === 'hm') {
+    return '50% 8%';
+  }
   if (/urverket/.test(name)) return '50% 40%';
   if (/sephora/.test(name)) return '50% 35%';
 
