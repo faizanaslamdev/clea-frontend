@@ -1,5 +1,7 @@
 const EDITORIAL_IMAGES = {
   adidas: '/brands/editorial/adidas.webp',
+  asos: '/brands/editorial/asos.webp',
+  bubbleroom: '/brands/editorial/bubbleroom.webp',
   dbJourney: '/brands/editorial/db-journey.webp',
   nelly: '/brands/editorial/nelly.webp',
   nlyMan: '/brands/editorial/nly-man.webp',
@@ -46,6 +48,12 @@ export function getBrandEditorialImage(
   if (/adidas/.test(name)) {
     return EDITORIAL_IMAGES.adidas;
   }
+  if (/asos/.test(name)) {
+    return EDITORIAL_IMAGES.asos;
+  }
+  if (/bubbleroom/.test(name)) {
+    return EDITORIAL_IMAGES.bubbleroom;
+  }
   if (/urverket/.test(name)) {
     return EDITORIAL_IMAGES.urverket;
   }
@@ -70,6 +78,8 @@ export function getBrandEditorialPosition(brandName: string): string {
   if (/viking/.test(name)) return '50% 20%';
   if (/ralph\s+lauren/.test(name)) return '50% 18%';
   if (/adidas/.test(name)) return '50% 35%';
+  if (/asos/.test(name)) return '50% 28%';
+  if (/bubbleroom/.test(name)) return '50% 30%';
   if (/urverket/.test(name)) return '50% 40%';
   if (/sephora/.test(name)) return '50% 35%';
 

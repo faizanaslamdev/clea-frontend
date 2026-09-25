@@ -13,6 +13,8 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('Viking Footwear')).toBe('50% 20%');
     expect(getBrandEditorialPosition('Ralph Lauren NO')).toBe('50% 18%');
     expect(getBrandEditorialPosition('adidas NO')).toBe('50% 35%');
+    expect(getBrandEditorialPosition('ASOS')).toBe('50% 28%');
+    expect(getBrandEditorialPosition('Bubbleroom')).toBe('50% 30%');
     expect(getBrandEditorialPosition('Urverket')).toBe('50% 40%');
   });
 
@@ -22,7 +24,11 @@ describe('brand editorial image presentation', () => {
     );
   });
 
-  it('maps Urverket and Sephora SE to approved editorial assets', () => {
+  it('maps ASOS, Bubbleroom, Urverket, and Sephora SE to approved editorial assets', () => {
+    expect(getBrandEditorialImage('ASOS')).toBe('/brands/editorial/asos.webp');
+    expect(getBrandEditorialImage('Bubbleroom')).toBe(
+      '/brands/editorial/bubbleroom.webp',
+    );
     expect(getBrandEditorialImage('Urverket')).toBe(
       '/brands/editorial/urverket.webp',
     );
