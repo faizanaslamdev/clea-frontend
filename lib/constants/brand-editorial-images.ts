@@ -89,7 +89,6 @@ export function getBrandEditorialPosition(brandName: string): string {
   // Tall portrait assets — bias hard to the top so faces stay in the 4:3 crop.
   if (/asos/.test(name)) return '50% 8%';
   if (/bubbleroom/.test(name)) return '50% 10%';
-  if (/ellos/.test(name)) return '50% 12%';
   if (/h\s*&\s*m|\bh\s*m\b|h\s+and\s+m/.test(name) || name === 'hm') {
     return '50% 8%';
   }
