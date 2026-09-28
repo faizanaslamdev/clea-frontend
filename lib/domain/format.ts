@@ -11,6 +11,30 @@ export function formatPrice(price: number, currency = 'NOK'): string {
   });
 }
 
+/** Site UI locale for price qualifier labels (no full i18n system). */
+export type PriceDisplayLocale = 'nb' | 'en';
+
+/**
+ * Formats a listing price, optionally with a "from" qualifier when the stored
+ * amount is a minimum across size (or similar) variants.
+ */
+export function formatListingPrice(
+  price: number,
+  currency = 'NOK',
+  options?: {
+    isFromPrice?: boolean;
+    locale?: PriceDisplayLocale;
+  },
+): string {
+  const formatted = formatPrice(price, currency);
+  if (!options?.isFromPrice) {
+    return formatted;
+  }
+  const locale = options.locale ?? 'nb';
+  const prefix = locale === 'en' ? 'From' : 'Fra';
+  return `${prefix} ${formatted}`;
+}
+
 /**
  * Presentation-only fix for raw ALL-CAPS merchant feed titles leaking into
  * product cards / modals. Mirrors clea-backend's

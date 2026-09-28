@@ -59,6 +59,11 @@ export interface Product {
   brandId?: string;
   dataFeedId?: string;
   isForSale?: boolean;
+  /**
+   * When true, listed price is a minimum/"from" price across variants.
+   * Missing/false → exact price display.
+   */
+  isFromPrice?: boolean;
   /** Primary + alternate feed images (normalized). */
   images?: string[];
 }

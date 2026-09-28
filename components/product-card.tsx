@@ -4,7 +4,11 @@ import Link from 'next/link';
 import { useQueryClient } from '@tanstack/react-query';
 import { type MouseEvent, type ReactNode } from 'react';
 import { Product } from '@/lib/types';
-import { formatPrice, getListingPriceStore, toDisplayCase } from '@/lib/services';
+import {
+  formatListingPrice,
+  getListingPriceStore,
+  toDisplayCase,
+} from '@/lib/services';
 import { fetchProductById } from '@/lib/api/products';
 import { getProductHref } from '@/lib/domain/products/paths';
 import { saveCurrentScrollPosition } from '@/lib/navigation/scroll-restoration';
@@ -116,7 +120,11 @@ function ProductCardPrice({
 
   return (
     <div className="product-card__price-row">
-      <p className={priceClassName}>{formatPrice(listing.price, product.currency)}</p>
+      <p className={priceClassName}>
+        {formatListingPrice(listing.price, product.currency, {
+          isFromPrice: product.isFromPrice === true,
+        })}
+      </p>
       {!listing.inStock ? (
         <span className="product-card__stock-badge" role="status">
           Ikke på lager

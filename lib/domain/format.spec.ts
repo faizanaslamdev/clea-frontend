@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toDisplayCase } from './format';
+import { formatListingPrice, formatPrice, toDisplayCase } from './format';
 
 describe('toDisplayCase', () => {
   it('title-cases a fully shouting name', () => {
@@ -33,5 +33,26 @@ describe('toDisplayCase', () => {
     expect(toDisplayCase(null)).toBe('');
     expect(toDisplayCase(undefined)).toBe('');
     expect(toDisplayCase('   ')).toBe('');
+  });
+});
+
+describe('formatListingPrice', () => {
+  it('formats exact price without qualifier', () => {
+    expect(formatListingPrice(1929, 'NOK')).toBe(formatPrice(1929, 'NOK'));
+    expect(formatListingPrice(1929, 'NOK', { isFromPrice: false })).toBe(
+      formatPrice(1929, 'NOK'),
+    );
+  });
+
+  it('prefixes Norwegian Fra for from-price (default locale)', () => {
+    expect(formatListingPrice(1929, 'NOK', { isFromPrice: true })).toBe(
+      `Fra ${formatPrice(1929, 'NOK')}`,
+    );
+  });
+
+  it('prefixes English From when locale is en', () => {
+    expect(
+      formatListingPrice(1929, 'NOK', { isFromPrice: true, locale: 'en' }),
+    ).toBe(`From ${formatPrice(1929, 'NOK')}`);
   });
 });

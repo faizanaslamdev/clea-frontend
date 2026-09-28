@@ -13,11 +13,11 @@ import { ArrowLeft, ArrowUpRight, ChevronLeft, ChevronRight, Share2 } from 'luci
 import { ProductGrid } from '@/components/product-grid';
 import { RemoteProductImage } from '@/components/product/remote-product-image';
 import { cn } from '@/lib/utils';
-import { toDisplayCase } from '@/lib/services';
 import {
-  formatPrice,
+  formatListingPrice,
   getListingPriceStore,
   resolveStoreIdForProduct,
+  toDisplayCase,
 } from '@/lib/services';
 import { getProductHref } from '@/lib/domain/products/paths';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
@@ -110,6 +110,7 @@ export function ProductDetailView({
   const listingStoreName = product?.merchantName ?? listingStoreId ?? 'Butikk';
   const purchaseHref = product?.deepLink ?? undefined;
   const currency = product?.currency ?? 'NOK';
+  const isFromPrice = product?.isFromPrice === true;
   const showBestPrices = productOffers?.compareReady === true;
   const showSingleStorePurchase =
     listingPrice != null && purchaseHref && !showBestPrices;
@@ -422,7 +423,9 @@ export function ProductDetailView({
                 {listingPrice != null ? (
                   <div className="product-detail-modal__price-row">
                     <p className="product-detail-modal__price">
-                      {formatPrice(listingPrice, currency)}
+                      {formatListingPrice(listingPrice, currency, {
+                        isFromPrice,
+                      })}
                     </p>
                     {!listingInStock ? (
                       <span
@@ -477,7 +480,10 @@ export function ProductDetailView({
                     onClick={() => trackOutboundClick(product.id)}
                   >
                     <span>
-                      {listingStoreName} · {formatPrice(listingPrice, currency)}
+                      {listingStoreName} ·{' '}
+                      {formatListingPrice(listingPrice, currency, {
+                        isFromPrice,
+                      })}
                     </span>
                     <ArrowUpRight
                       className="size-5 shrink-0"

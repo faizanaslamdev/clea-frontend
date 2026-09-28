@@ -23,4 +23,8 @@ export {
   resolveStoreIdForProduct,
 } from '@/lib/domain/products/paths';
 
-export { formatPrice, toDisplayCase } from '@/lib/domain/format';
+export {
+  formatListingPrice,
+  formatPrice,
+  toDisplayCase,
+} from '@/lib/domain/format';

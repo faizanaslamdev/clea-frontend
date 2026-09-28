@@ -130,6 +130,7 @@ export function mapApiProductToProduct(api: ApiProduct): Product {
     brandId: api.brand_id ?? undefined,
     dataFeedId: api.data_feed_id ?? undefined,
     isForSale: api.is_for_sale ?? undefined,
+    isFromPrice: api.is_from_price === true,
   };
 }
 

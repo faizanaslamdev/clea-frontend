@@ -21,6 +21,8 @@ export interface ApiProduct {
   price: string | number;
   old_price: string | number | null;
   currency: string;
+  /** When true, price is a minimum/"from" price. Default false when absent. */
+  is_from_price?: boolean;
   deep_link: string | null;
   merchant_name: string | null;
   merchant_id: string | null;
