@@ -3,6 +3,7 @@ const EDITORIAL_IMAGES = {
   asos: '/brands/editorial/asos.webp',
   bubbleroom: '/brands/editorial/bubbleroom.webp',
   dbJourney: '/brands/editorial/db-journey.webp',
+  ellos: '/brands/editorial/ellos.webp',
   hm: '/brands/editorial/hm.webp',
   nelly: '/brands/editorial/nelly.webp',
   nlyMan: '/brands/editorial/nly-man.webp',
@@ -55,6 +56,9 @@ export function getBrandEditorialImage(
   if (/bubbleroom/.test(name)) {
     return EDITORIAL_IMAGES.bubbleroom;
   }
+  if (/ellos/.test(name)) {
+    return EDITORIAL_IMAGES.ellos;
+  }
   if (/h\s*&\s*m|\bh\s*m\b|h\s+and\s+m/.test(name) || name === 'hm') {
     return EDITORIAL_IMAGES.hm;
   }
@@ -85,6 +89,7 @@ export function getBrandEditorialPosition(brandName: string): string {
   // Tall portrait assets — bias hard to the top so faces stay in the 4:3 crop.
   if (/asos/.test(name)) return '50% 8%';
   if (/bubbleroom/.test(name)) return '50% 10%';
+  if (/ellos/.test(name)) return '50% 12%';
   if (/h\s*&\s*m|\bh\s*m\b|h\s+and\s+m/.test(name) || name === 'hm') {
     return '50% 8%';
   }

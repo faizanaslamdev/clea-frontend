@@ -15,6 +15,7 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('adidas NO')).toBe('50% 35%');
     expect(getBrandEditorialPosition('ASOS')).toBe('50% 8%');
     expect(getBrandEditorialPosition('Bubbleroom')).toBe('50% 10%');
+    expect(getBrandEditorialPosition('Ellos')).toBe('50% 12%');
     expect(getBrandEditorialPosition('H&M')).toBe('50% 8%');
     expect(getBrandEditorialPosition('Urverket')).toBe('50% 40%');
     expect(getBrandEditorialPosition('Sephora SE')).toBe('50% 35%');
@@ -26,10 +27,16 @@ describe('brand editorial image presentation', () => {
     );
   });
 
-  it('maps ASOS, Bubbleroom, H&M, Urverket, and Sephora SE to approved editorial assets', () => {
+  it('maps ASOS, Bubbleroom, Ellos, H&M, Urverket, and Sephora SE to approved editorial assets', () => {
     expect(getBrandEditorialImage('ASOS')).toBe('/brands/editorial/asos.webp');
     expect(getBrandEditorialImage('Bubbleroom')).toBe(
       '/brands/editorial/bubbleroom.webp',
+    );
+    expect(getBrandEditorialImage('Ellos')).toBe(
+      '/brands/editorial/ellos.webp',
+    );
+    expect(getBrandEditorialImage('Ellos NO')).toBe(
+      '/brands/editorial/ellos.webp',
     );
     expect(getBrandEditorialImage('H&M')).toBe('/brands/editorial/hm.webp');
     expect(getBrandEditorialImage('hm')).toBe('/brands/editorial/hm.webp');
