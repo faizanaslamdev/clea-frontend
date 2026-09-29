@@ -5,6 +5,7 @@ const EDITORIAL_IMAGES = {
   dbJourney: '/brands/editorial/db-journey.webp',
   ellos: '/brands/editorial/ellos.webp',
   hm: '/brands/editorial/hm.webp',
+  miinto: '/brands/editorial/miinto.webp',
   nelly: '/brands/editorial/nelly.webp',
   nlyMan: '/brands/editorial/nly-man.webp',
   outnorth: '/brands/editorial/outnorth.webp',
@@ -62,6 +63,9 @@ export function getBrandEditorialImage(
   if (/h\s*&\s*m|\bh\s*m\b|h\s+and\s+m/.test(name) || name === 'hm') {
     return EDITORIAL_IMAGES.hm;
   }
+  if (/miinto/.test(name)) {
+    return EDITORIAL_IMAGES.miinto;
+  }
   if (/urverket/.test(name)) {
     return EDITORIAL_IMAGES.urverket;
   }
@@ -92,6 +96,8 @@ export function getBrandEditorialPosition(brandName: string): string {
   if (/h\s*&\s*m|\bh\s*m\b|h\s+and\s+m/.test(name) || name === 'hm') {
     return '50% 8%';
   }
+  // Tall product still-life — keep the shoes (not the dress hem) in the 4:3 crop.
+  if (/miinto/.test(name)) return '50% 42%';
   if (/urverket/.test(name)) return '50% 40%';
   if (/sephora/.test(name)) return '50% 35%';
 
