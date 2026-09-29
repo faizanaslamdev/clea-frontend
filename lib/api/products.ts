@@ -503,10 +503,10 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
 /**
  * Representative in-stock products per category tile.
  *
- * Shop (gender set): one fast merchant pool (~Nelly / NLY Man), then assign
- * photos to the fixed shop cards — avoids N slow family queries + throttle
- * cascades on reload. Sparse shelves (vesker / beauty / …) gap-fill with a
- * small concurrent pool.
+ * Shop (gender set): balanced multi-merchant pool, then assign photos to the
+ * fixed shop cards — avoids N slow family queries + throttle cascades on
+ * reload. Sparse shelves (vesker / beauty / …) gap-fill with a small
+ * concurrent pool across the same open catalog.
  *
  * Homepage (no gender): capped per-family fetches as before.
  */
@@ -519,11 +519,6 @@ export async function fetchCategoryPreviews(
   }
   return fetchHomepageCategoryPreviews(entries);
 }
-
-const SHOP_PREVIEW_MERCHANT_ID: Record<'male' | 'female', string> = {
-  female: '19563', // Nelly NO
-  male: '19567', // NLY Man NO
-};
 
 function productBlob(product: Product): string {
   return `${product.name} ${product.productType ?? ''} ${product.categoryPath ?? ''}`.toLowerCase();
@@ -677,10 +672,9 @@ async function fetchShopCategoryPreviews(
   try {
     const page = await fetchCatalogFromApi(
       {
-        merchantId: SHOP_PREVIEW_MERCHANT_ID[suitableFor],
         suitableFor,
         limit: 80,
-        balanceMerchants: false,
+        balanceMerchants: true,
       },
       { next: { revalidate: 120 } },
     );
@@ -700,16 +694,14 @@ async function fetchShopCategoryPreviews(
       ranked.forEach((product) => usedImages.add(product.image));
       byId.set(entry.id, preview);
     }
-    // Fan cards need 3 photos; a thin pool hit (e.g. only 2 skjorter in
-    // Nelly's first page) used to skip gap-fill entirely and leave a
-    // half-empty tile. Refill anything below the display count.
+    // Fan cards need 3 photos; a thin pool hit used to skip gap-fill entirely
+    // and leave a half-empty tile. Refill anything below the display count.
     if (!preview || preview.images.length < CATEGORY_SECTION_DISPLAY_COUNT) {
       gaps.push(entry);
     }
   }
 
   if (gaps.length > 0) {
-    const merchantId = SHOP_PREVIEW_MERCHANT_ID[suitableFor];
     const gapResults = await mapPool(gaps, 3, async (entry) => {
       const previewQ = previewQueryForEntry(entry);
       const isShelf = entry.shelf === 'beauty' || entry.shelf === 'accessories';
@@ -723,15 +715,14 @@ async function fetchShopCategoryPreviews(
           {
             ...(isShelf
               ? { segment: 'all' as const }
-              : { merchantId, suitableFor }),
+              : { suitableFor }),
             ...(previewQ
               ? { q: previewQ }
               : entry.family
                 ? { productFamily: entry.family }
                 : {}),
-            ...(isShelf ? {} : { suitableFor }),
             limit: CATEGORY_PREVIEW_PHOTO_COUNT,
-            balanceMerchants: false,
+            balanceMerchants: true,
           },
           { next: { revalidate: 120 } },
         );
@@ -895,7 +886,7 @@ async function fetchHomepageCategoryPreviews(
               ...(previewQ ? { q: previewQ } : {}),
               ...(opts.brand ? { brand: opts.brand } : {}),
               limit: CATEGORY_PREVIEW_PHOTO_COUNT,
-              balanceMerchants: false,
+              balanceMerchants: !opts.brand,
             },
             { next: { revalidate: 120 } },
           );
@@ -909,11 +900,11 @@ async function fetchHomepageCategoryPreviews(
         }
       };
 
-      let ranked = await load(
-        entry.previewBrand ? { brand: entry.previewBrand } : {},
-      );
+      // Open multi-merchant catalog first so scraper + affiliate stores can
+      // contribute tile photos. Optional previewBrand is a soft fallback only.
+      let ranked = await load({});
       if (ranked.length === 0 && entry.previewBrand) {
-        ranked = await load({});
+        ranked = await load({ brand: entry.previewBrand });
       }
 
       return toCategoryPreview(entry, ranked);
@@ -939,6 +930,10 @@ function scoreTrendingLook(
   let value = 0;
   if (image.includes('occtoo-media.com')) value += 8;
   if (image.includes('ralphlauren.scene7.com')) value += 8;
+  if (image.includes('static.miinto.net')) value += 6;
+  if (image.includes('images.asos-media.com') || image.includes('asos-media')) {
+    value += 6;
+  }
   if (image.includes('cdn.shopify.com')) value += 3;
   if (image.includes('outnorth') || image.includes('fjellsport')) value -= 6;
   if (image.endsWith('.png')) value -= 2;
@@ -956,7 +951,11 @@ function scoreTrendingLook(
   ) {
     value += 4;
   }
-  if (/nelly|nly man|ralph lauren|vero moda|only|jack & jones|levi/.test(merchant)) {
+  if (
+    /nelly|nly man|ralph lauren|vero moda|only|jack & jones|levi|asos|h&m|bubbleroom|ellos|miinto/.test(
+      merchant,
+    )
+  ) {
     value += 3;
   }
   return value;
@@ -1000,10 +999,6 @@ async function fetchTrendingLookSupplements(
   suitableFor?: 'male' | 'female' | 'unisex',
 ): Promise<Product[]> {
   const gender = suitableFor === 'unisex' ? undefined : suitableFor;
-  const merchantId =
-    suitableFor === 'male'
-      ? SHOP_PREVIEW_MERCHANT_ID.male
-      : SHOP_PREVIEW_MERCHANT_ID.female;
   const queries =
     suitableFor === 'male'
       ? [{ q: 'jakke' }, { q: 'hoodie' }, { q: 'jeans' }]
@@ -1014,10 +1009,9 @@ async function fetchTrendingLookSupplements(
       fetchCatalogFromApi(
         {
           q,
-          merchantId,
           ...(gender ? { suitableFor: gender } : {}),
           limit: 8,
-          balanceMerchants: false,
+          balanceMerchants: true,
         },
         { next: { revalidate: 120 } },
       ).catch(() => ({ products: [] as Product[] })),
