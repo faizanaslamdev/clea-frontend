@@ -13,10 +13,10 @@ import {
 } from '@/lib/constants/category-grid';
 import { shopBrowseHrefForGridEntry } from '@/lib/constants/shop-categories';
 import type { CategoryPreview } from '@/lib/api/products';
-import type { ProductFamily, ShopCategory, SuitableFor } from '@/lib/api/chat-types';
+import type { ShopCategory, SuitableFor } from '@/lib/api/chat-types';
 
-/** Packshot-heavy tiles: contain so products aren't cropped in the 3:4 frame. */
-const CONTAIN_FIT_FAMILIES = new Set<ProductFamily>(['gloves']);
+/** Packshot shelves — same treatment as KICKS / Sephora / Urverket brand covers. */
+const CONTAIN_FIT_CATEGORY_IDS = new Set(['beauty', 'accessories']);
 
 interface CategorySectionProps {
   /** Hides the "Se hele utvalget" link to /shop -- pass false when this
@@ -185,19 +185,23 @@ function CategoryFanCard({
   onSelect: () => void;
 }) {
   const [center, left, right] = category.images;
-  // Packshot-heavy families look cropped/broken with object-cover in the
-  // 3:4 fan frame — contain keeps the full product on the white plate.
-  // Apparel tiles (jeans, tees, tops, …) always use object-cover.
-  const imageFit =
-    category.family && CONTAIN_FIT_FAMILIES.has(category.family)
-      ? 'object-contain'
-      : 'object-cover';
+  // Default object-cover (same as most brand cards). Beauty / accessories
+  // stay contain — packshots crop poorly in the 3:4 fan frame.
+  const useContain = CONTAIN_FIT_CATEGORY_IDS.has(category.id);
+  const imageFit = useContain ? 'object-contain' : 'object-cover';
 
   const cardClassName = 'category-fan-card group snap-start shrink-0 text-left';
   const cardStyle = {
     '--cat-from': category.accentFrom,
     '--cat-to': category.accentTo,
   } as React.CSSProperties;
+
+  const photoClassName = (variant: 'left' | 'right' | 'center') =>
+    cn(
+      'category-fan-card__photo',
+      `category-fan-card__photo--${variant}`,
+      useContain && 'category-fan-card__photo--contain',
+    );
 
   const content = (
     <>
@@ -206,7 +210,7 @@ function CategoryFanCard({
 
       <div className="category-fan-card__stack">
         {left ? (
-          <div className="category-fan-card__photo category-fan-card__photo--left">
+          <div className={photoClassName('left')}>
             <RemoteProductImage
               src={left}
               alt=""
@@ -218,7 +222,7 @@ function CategoryFanCard({
           </div>
         ) : null}
         {right ? (
-          <div className="category-fan-card__photo category-fan-card__photo--right">
+          <div className={photoClassName('right')}>
             <RemoteProductImage
               src={right}
               alt=""
@@ -229,7 +233,7 @@ function CategoryFanCard({
             />
           </div>
         ) : null}
-        <div className="category-fan-card__photo category-fan-card__photo--center">
+        <div className={photoClassName('center')}>
           <RemoteProductImage
             src={center}
             alt={category.label}
