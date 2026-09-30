@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   getBrandEditorialImage,
-  getBrandEditorialObjectFit,
   getBrandEditorialPosition,
 } from './brand-editorial-images';
 
@@ -21,19 +20,6 @@ describe('brand editorial image presentation', () => {
     expect(getBrandEditorialPosition('Miinto')).toBe('50% 42%');
     expect(getBrandEditorialPosition('Urverket')).toBe('50% 40%');
     expect(getBrandEditorialPosition('Sephora SE')).toBe('50% 35%');
-  });
-
-  it('uses object-contain only for still-life / packshot brand covers', () => {
-    expect(getBrandEditorialObjectFit('DB Journey NO')).toBe('contain');
-    expect(getBrandEditorialObjectFit('Outnorth NO')).toBe('contain');
-    expect(getBrandEditorialObjectFit('KICKS')).toBe('contain');
-    expect(getBrandEditorialObjectFit('Sephora SE')).toBe('contain');
-    expect(getBrandEditorialObjectFit('Urverket')).toBe('contain');
-    expect(getBrandEditorialObjectFit('ASOS')).toBe('cover');
-    expect(getBrandEditorialObjectFit('H&M')).toBe('cover');
-    expect(getBrandEditorialObjectFit('Nelly NO')).toBe('cover');
-    expect(getBrandEditorialObjectFit('Miinto')).toBe('cover');
-    expect(getBrandEditorialObjectFit('adidas NO')).toBe('cover');
   });
 
   it('maps adidas to the approved editorial asset', () => {
@@ -83,6 +69,5 @@ describe('brand editorial image presentation', () => {
   it('keeps unknown affiliate imagery centered', () => {
     expect(getBrandEditorialImage('Other Store')).toBeNull();
     expect(getBrandEditorialPosition('Other Store')).toBe('50% 50%');
-    expect(getBrandEditorialObjectFit('Other Store')).toBe('cover');
   });
 });

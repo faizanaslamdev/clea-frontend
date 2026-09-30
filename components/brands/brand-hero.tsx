@@ -2,7 +2,6 @@ import Image from 'next/image';
 import { PageHero } from '@/components/page-hero';
 import {
   getBrandEditorialImage,
-  getBrandEditorialObjectFit,
   getBrandEditorialPosition,
 } from '@/lib/constants/brand-editorial-images';
 import type { Store } from '@/lib/types';
@@ -17,7 +16,6 @@ export function BrandHero({ brand }: BrandHeroProps) {
       variant="brand"
       imageSrc={getBrandEditorialImage(brand.name) ?? brand.coverImage}
       imagePosition={getBrandEditorialPosition(brand.name)}
-      imageObjectFit={getBrandEditorialObjectFit(brand.name)}
       ariaLabel={brand.name}
       contentClassName="page-hero-content--brand"
     >

@@ -9,8 +9,6 @@ interface PageHeroProps {
   contentClassName?: string;
   imageAlt?: string;
   imagePosition?: string;
-  /** Brand still-lifes may need contain; default fills the hero frame. */
-  imageObjectFit?: 'cover' | 'contain';
   priority?: boolean;
   variant?: 'home' | 'brand';
 }
@@ -22,15 +20,10 @@ export function PageHero({
   contentClassName,
   imageAlt = '',
   imagePosition,
-  imageObjectFit = 'cover',
   priority = true,
   variant = 'home',
 }: PageHeroProps) {
   const showMedia = variant === 'brand' && !!imageSrc;
-  const mediaFitClass =
-    imageObjectFit === 'contain'
-      ? 'page-hero-media__ken-burns object-contain object-center'
-      : 'page-hero-media__ken-burns object-cover object-center';
 
   return (
     <section
@@ -48,7 +41,7 @@ export function PageHero({
             fill
             priority={priority}
             sizes="100vw"
-            className={mediaFitClass}
+            className="page-hero-media__ken-burns object-cover object-center"
             style={imagePosition ? { objectPosition: imagePosition } : undefined}
           />
           <div className="page-hero-overlay" />

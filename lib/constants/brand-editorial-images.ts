@@ -18,19 +18,6 @@ const EDITORIAL_IMAGES = {
 
 const DEFAULT_EDITORIAL_POSITION = '50% 50%';
 
-/**
- * Brands whose editorial assets are product still-lifes / packshots that look
- * cropped under object-cover in the 4:3 card and hero frames.
- */
-function brandUsesContainFit(normalizedName: string): boolean {
-  if (/db\s+journey|journey/.test(normalizedName)) return true;
-  if (/outnorth/.test(normalizedName)) return true;
-  if (/kicks/.test(normalizedName)) return true;
-  if (/sephora/.test(normalizedName)) return true;
-  if (/urverket/.test(normalizedName)) return true;
-  return false;
-}
-
 function normalizeBrandName(brandName: string): string {
   return brandName.trim().toLowerCase();
 }
@@ -121,17 +108,4 @@ export function getBrandEditorialPosition(brandName: string): string {
   if (/sephora/.test(name)) return '50% 35%';
 
   return DEFAULT_EDITORIAL_POSITION;
-}
-
-/**
- * Default brand covers fill the frame (`object-cover`). Contain is reserved for
- * still-life / packshot editorial assets that crop poorly (DB Journey, Outnorth,
- * KICKS, Sephora, Urverket).
- */
-export function getBrandEditorialObjectFit(
-  brandName: string,
-): 'cover' | 'contain' {
-  return brandUsesContainFit(normalizeBrandName(brandName))
-    ? 'contain'
-    : 'cover';
 }
