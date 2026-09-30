@@ -386,9 +386,26 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
     const name = product.name.toLowerCase();
     if (image.includes('occtoo-media.com')) value += 5;
     if (image.includes('ralphlauren.scene7.com')) value += 5;
+    if (image.includes('images.asos-media.com') || image.includes('asos-media')) {
+      value += 5;
+    }
+    if (image.includes('static.miinto.net')) value += 3;
     if (image.includes('cdn.shopify.com')) value += 2;
     if (/kids|barn|teens|isbjörn|buddy tee/.test(name)) value -= 5;
     if (image.includes('outnorth') || image.includes('fjellsport')) value -= 1;
+
+    // Jeans / tees / tops tiles: prefer on-model lifestyle shots that fill
+    // object-cover frames; demote flat packshots that leave empty padding.
+    if (family === 'bottoms' || family === 'tops') {
+      if (
+        image.includes('asos-media') ||
+        image.includes('occtoo-media') ||
+        image.includes('ralphlauren.scene7')
+      ) {
+        value += 3;
+      }
+      if (image.endsWith('.png')) value -= 2;
+    }
 
     // Beauty shelf tiles have no apparel family — steer toward clean product
     // packshots (mascara/lipstick) and away from gift-set / candle noise.

@@ -3571,6 +3571,11 @@
     @apply absolute bottom-0 aspect-[3/4] overflow-hidden rounded-xl bg-white;
   }
 
+  /* Fill the 3:4 frame the same way as other apparel tiles (not packshot contain). */
+  .category-fan-card__photo img {
+    @apply object-cover object-center;
+  }
+
   .category-fan-card__photo--center {
     transform: translateX(-50%);
     z-index: 3;
