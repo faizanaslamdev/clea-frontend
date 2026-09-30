@@ -53,6 +53,8 @@ export function ProductAnchorContextCard({
             src={imageSrc}
             alt=""
             role="thumb"
+            merchantId={preview.merchantId}
+            merchantName={preview.merchantName}
             fill
             className="product-anchor-context-card__image"
             sizes="72px"

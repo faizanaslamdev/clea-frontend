@@ -300,6 +300,8 @@ export function ProductDetailView({
                               src={galleryImages[galleryIndex] ?? product.image}
                               alt={toDisplayCase(product.name)}
                               role="gallery"
+                              merchantId={product.merchantId}
+                              merchantName={product.merchantName}
                               width={800}
                               height={1067}
                               className="product-detail-modal__gallery-image"
@@ -398,6 +400,8 @@ export function ProductDetailView({
                         src={src}
                         alt=""
                         role="thumb"
+                        merchantId={product.merchantId}
+                        merchantName={product.merchantName}
                         width={72}
                         height={96}
                         className="product-detail-modal__thumb-image"

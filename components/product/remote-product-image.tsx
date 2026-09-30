@@ -21,12 +21,21 @@ import {
   resolveMerchantImageUrl,
   type ProductImageRole,
 } from '@/lib/utils/merchant-image-url';
+import { getProductImageFitClassName } from '@/lib/ui/product-image-fit';
+import { cn } from '@/lib/utils';
 
 type RemoteProductImageBase = {
   src: string;
   alt: string;
   /** Merchant CDN sizing role; omit only for non-catalog/experimental callers. */
   role?: ProductImageRole;
+  /**
+   * Catalog merchant identity for the central object-fit policy.
+   * Prefer merchantId; merchantName is fallback when id is unavailable.
+   * When both omitted, policy defaults to cover.
+   */
+  merchantId?: string | null;
+  merchantName?: string | null;
   className?: string;
   sizes?: string;
   priority?: boolean;
@@ -60,6 +69,8 @@ export function RemoteProductImage({
   src,
   alt,
   role = 'card',
+  merchantId,
+  merchantName,
   className,
   sizes,
   priority = false,
@@ -74,6 +85,7 @@ export function RemoteProductImage({
     () => resolveMerchantImageUrl(src, role),
     [src, role],
   );
+  const fitClassName = getProductImageFitClassName({ merchantId, merchantName });
 
   const [phase, setPhase] = useState<RemoteProductImagePhase>(() =>
     initialRemoteProductImagePhase(sizedSrc, baseSrc),
@@ -100,7 +112,8 @@ export function RemoteProductImage({
     'alt' | 'className' | 'sizes' | 'priority' | 'draggable' | 'onError' | 'unoptimized'
   > = {
     alt,
-    className,
+    // Fit last so the central policy wins over leftover caller utilities.
+    className: cn(className, fitClassName),
     sizes,
     priority,
     draggable,

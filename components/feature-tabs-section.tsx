@@ -14,7 +14,7 @@ import { formatPrice, toDisplayCase } from '@/lib/domain/format';
 import { useCategoryPreviews, useFeaturedProducts, useSimilarProducts } from '@/lib/hooks/useProducts';
 import { useAllStores } from '@/lib/hooks/useStores';
 import type { ProductFamily } from '@/lib/api/chat-types';
-import type { CategoryPreview } from '@/lib/api/products';
+import type { CategoryPreview, CategoryPreviewPhoto } from '@/lib/api/products';
 import { fetchCatalogFromApi, fetchFeaturedProducts } from '@/lib/api/products';
 import { TRENDING_DISPLAY_LIMIT } from '@/lib/constants/popular-brands';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
@@ -55,20 +55,20 @@ function exploreImageScore(src: string): number {
  */
 function buildExploreColumns(
   categories: readonly CategoryPreview[],
-  featuredProducts: readonly { image: string }[],
-): string[][] {
+  featuredProducts: readonly Product[],
+): CategoryPreviewPhoto[][] {
   const byFamily = new Map(categories.map((category) => [category.family, category]));
   const ordered = EXPLORE_FAMILY_ORDER.map((family) => byFamily.get(family)).filter(
     (category): category is CategoryPreview => Boolean(category),
   );
 
   const seen = new Set<string>();
-  const pool: string[] = [];
+  const pool: CategoryPreviewPhoto[] = [];
 
-  const pushUnique = (src: string | undefined) => {
-    if (!src || seen.has(src)) return;
-    seen.add(src);
-    pool.push(src);
+  const pushUnique = (photo: CategoryPreviewPhoto | undefined) => {
+    if (!photo?.src || seen.has(photo.src)) return;
+    seen.add(photo.src);
+    pool.push(photo);
   };
 
   // Pass 1–2: best shots from hero fashion families (dresses/tops first).
@@ -80,20 +80,26 @@ function buildExploreColumns(
 
   // Pass 3: featured/popular products that score as lifestyle photos.
   featuredProducts
-    .map((product) => product.image)
-    .filter(Boolean)
-    .sort((a, b) => exploreImageScore(b) - exploreImageScore(a))
-    .forEach((src) => pushUnique(src));
+    .filter((product) => Boolean(product.image))
+    .map(
+      (product): CategoryPreviewPhoto => ({
+        src: product.image,
+        merchantId: product.merchantId,
+        merchantName: product.merchantName,
+      }),
+    )
+    .sort((a, b) => exploreImageScore(b.src) - exploreImageScore(a.src))
+    .forEach((photo) => pushUnique(photo));
 
   // Final polish: keep the visually strongest frames first.
-  pool.sort((a, b) => exploreImageScore(b) - exploreImageScore(a));
+  pool.sort((a, b) => exploreImageScore(b.src) - exploreImageScore(a.src));
 
   // Cap so each column stays dense (~6–7 unique) without endless outdoor noise.
   const capped = pool.slice(0, 21);
 
-  const columns: string[][] = [[], [], []];
-  capped.forEach((src, index) => {
-    columns[index % 3]!.push(src);
+  const columns: CategoryPreviewPhoto[][] = [[], [], []];
+  capped.forEach((photo, index) => {
+    columns[index % 3]!.push(photo);
   });
 
   // Stagger start frames so all three columns don't show the same beat.
@@ -347,17 +353,31 @@ export function FeatureTabsSection() {
     priceAlertProducts.length > 0
       ? priceAlertProducts
       : curatePriceAlertProducts(featuredProducts);
-  const compareHeroImage =
-    compareHeroCategory?.images[0] ?? remainingFeaturedProducts[0]?.image;
+  const compareHeroPhoto: CategoryPreviewPhoto | null =
+    compareHeroCategory?.images[0] ??
+    (remainingFeaturedProducts[0]
+      ? {
+          src: remainingFeaturedProducts[0].image,
+          merchantId: remainingFeaturedProducts[0].merchantId,
+          merchantName: remainingFeaturedProducts[0].merchantName,
+        }
+      : null);
+  const compareHeroImage = compareHeroPhoto?.src;
   const compareFanPhotos = (() => {
     const fromSimilar = similarForCompare
-      .map((product) => product.image)
-      .filter((src): src is string => Boolean(src) && src !== compareHeroImage)
-      .slice(0, COMPARE_FAN_POSITIONS.length);
+      .filter((product) => Boolean(product.image) && product.image !== compareHeroImage)
+      .slice(0, COMPARE_FAN_POSITIONS.length)
+      .map(
+        (product): CategoryPreviewPhoto => ({
+          src: product.image,
+          merchantId: product.merchantId,
+          merchantName: product.merchantName,
+        }),
+      );
     if (fromSimilar.length > 0) return fromSimilar;
     // Same-family tile extras if similar API is empty for this hero.
     return (compareHeroCategory?.images.slice(1) ?? [])
-      .filter((src): src is string => Boolean(src) && src !== compareHeroImage)
+      .filter((photo) => Boolean(photo.src) && photo.src !== compareHeroImage)
       .slice(0, COMPARE_FAN_POSITIONS.length);
   })();
   const storeCount = stores.length;
@@ -473,14 +493,15 @@ export function FeatureTabsSection() {
                                 : 'feature-tabs__explore-track--up',
                             )}
                           >
-                            {[...column, ...column].map((src, i) => (
+                            {[...column, ...column].map((photo, i) => (
                               <div key={`${colIndex}-${i}`} className="feature-tabs__explore-photo">
                                 <RemoteProductImage
-                                  src={src}
+                                  src={photo.src}
                                   alt=""
                                   role="feature"
+                                  merchantId={photo.merchantId}
+                                  merchantName={photo.merchantName}
                                   fill
-                                  className="object-cover object-center"
                                   sizes="180px"
                                 />
                               </div>
@@ -520,8 +541,10 @@ export function FeatureTabsSection() {
                               src={product.image}
                               alt={toDisplayCase(product.name)}
                               role="card"
+                              merchantId={product.merchantId}
+                              merchantName={product.merchantName}
                               fill
-                              className="feature-tabs__photo-zoom object-cover"
+                              className="feature-tabs__photo-zoom"
                               sizes="160px"
                             />
                           </div>
@@ -545,8 +568,9 @@ export function FeatureTabsSection() {
                                 src={product.image}
                                 alt={toDisplayCase(product.name)}
                                 role="card"
+                                merchantId={product.merchantId}
+                                merchantName={product.merchantName}
                                 fill
-                                className="object-cover"
                                 sizes="150px"
                               />
                               {dropPercent > 0 && (
@@ -569,13 +593,13 @@ export function FeatureTabsSection() {
                   </div>
                 )}
 
-                {activeTab === 'compare' && compareHeroImage && (
+                {activeTab === 'compare' && compareHeroPhoto && (
                   <div className="feature-tabs__compare-stage" role="list" aria-label="Lignende produkter">
-                    {compareFanPhotos.map((src, i) => {
+                    {compareFanPhotos.map((photo, i) => {
                       const pos = COMPARE_FAN_POSITIONS[i % COMPARE_FAN_POSITIONS.length];
                       return (
                         <div
-                          key={`${src}-${i}`}
+                          key={`${photo.src}-${i}`}
                           className="feature-tabs__compare-fan-photo"
                           style={
                             {
@@ -589,11 +613,12 @@ export function FeatureTabsSection() {
                         >
                           <div className="feature-tabs__compare-fan-photo-inner">
                             <RemoteProductImage
-                              src={src}
+                              src={photo.src}
                               alt=""
                               role="thumb"
+                              merchantId={photo.merchantId}
+                              merchantName={photo.merchantName}
                               fill
-                              className="object-cover"
                               sizes="92px"
                             />
                           </div>
@@ -603,11 +628,12 @@ export function FeatureTabsSection() {
                     <div className="feature-tabs__compare-hero" role="listitem">
                       <div className="feature-tabs__compare-hero-photo">
                         <RemoteProductImage
-                          src={compareHeroImage}
+                          src={compareHeroPhoto.src}
                           alt=""
                           role="feature"
+                          merchantId={compareHeroPhoto.merchantId}
+                          merchantName={compareHeroPhoto.merchantName}
                           fill
-                          className="object-cover"
                           sizes="180px"
                         />
                         <span className="feature-tabs__compare-hero-badge">

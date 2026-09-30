@@ -113,7 +113,7 @@ export function SearchBySection() {
             : FALLBACK_GRADIENT;
           // Prefer a photo that actually matches the example query; fall
           // back to the category tile hero if the dedicated fetch is empty.
-          const photoSrc =
+          const photo =
             photoQueries[index]?.data ?? preview?.images[0] ?? null;
 
           return (
@@ -141,14 +141,15 @@ export function SearchBySection() {
                 </div>
               </div>
 
-              {photoSrc && (
+              {photo && (
                 <div className="search-by-card__photo" aria-hidden>
                   <RemoteProductImage
-                    src={photoSrc}
+                    src={photo.src}
                     alt=""
                     role="feature"
+                    merchantId={photo.merchantId}
+                    merchantName={photo.merchantName}
                     fill
-                    className="object-cover"
                     sizes="140px"
                   />
                 </div>

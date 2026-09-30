@@ -436,8 +436,9 @@
     @apply relative aspect-[3/4] w-full max-w-full shrink-0 overflow-hidden bg-white;
   }
 
+  /* object-fit comes from central product-image-fit policy via RemoteProductImage */
   .product-card__image {
-    @apply object-contain object-center transition-transform duration-300;
+    @apply transition-transform duration-300;
   }
 
   .trending-product-card:hover .product-card__image,
@@ -721,10 +722,6 @@
 
   .product-anchor-context-card__image-wrap--empty {
     @apply size-full bg-muted/70;
-  }
-
-  .product-anchor-context-card__image {
-    @apply object-cover;
   }
 
   .product-anchor-context-card__copy {
@@ -1540,10 +1537,6 @@
 
   .search-chat-anchor-ref__image-wrap--empty {
     @apply bg-muted/70;
-  }
-
-  .search-chat-anchor-ref__image {
-    @apply object-cover;
   }
 
   .search-chat-anchor-ref__copy {
@@ -2633,8 +2626,9 @@
     z-index: 70;
   }
 
+  /* object-fit: central product-image-fit policy via RemoteProductImage */
   .product-detail-modal__gallery-image {
-    @apply block size-full object-contain;
+    @apply block size-full;
   }
 
   .product-detail-modal__gallery-image--fallback {
@@ -2682,8 +2676,9 @@
     @apply border-foreground;
   }
 
+  /* object-fit: central product-image-fit policy via RemoteProductImage */
   .product-detail-modal__thumb-image {
-    @apply h-full w-full object-contain object-center;
+    @apply h-full w-full;
   }
 
   .product-detail-modal__thumb-image--fallback {
@@ -3292,10 +3287,6 @@
     @apply relative aspect-4/3 overflow-hidden rounded-lg bg-muted sm:aspect-4/5;
   }
 
-  .account-tracks__image {
-    @apply object-cover;
-  }
-
   .account-tracks__image-fallback {
     @apply flex size-full items-center justify-center bg-muted text-muted-foreground;
   }
@@ -3569,11 +3560,6 @@
       transform 450ms cubic-bezier(0.16, 1, 0.3, 1),
       filter 300ms ease;
     @apply absolute bottom-0 aspect-[3/4] overflow-hidden rounded-xl bg-white;
-  }
-
-  /* Fill the 3:4 frame the same way as other apparel tiles (not packshot contain). */
-  .category-fan-card__photo img {
-    @apply object-cover object-center;
   }
 
   .category-fan-card__photo--center {

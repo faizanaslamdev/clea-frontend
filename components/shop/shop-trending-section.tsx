@@ -81,8 +81,10 @@ function ShopTrendingCard({
           src={product.image}
           alt={product.name}
           role="feature"
+          merchantId={product.merchantId}
+          merchantName={product.merchantName}
           fill
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          className="transition-transform duration-500 ease-out group-hover:scale-105"
           sizes="(min-width: 640px) 33vw, 100vw"
           fallback={<div className="absolute inset-0 bg-muted" aria-hidden />}
         />

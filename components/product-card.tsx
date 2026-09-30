@@ -91,6 +91,8 @@ function ProductCardImage({
         src={product.image}
         alt={toDisplayCase(product.name)}
         role="card"
+        merchantId={product.merchantId}
+        merchantName={product.merchantName}
         fill
         className="product-card__image"
         sizes={sizes}

@@ -12,6 +12,7 @@ export interface AnchorPreview {
   brand?: string;
   price?: number;
   currency?: string;
+  merchantId?: string;
   merchantName?: string;
   unavailable?: boolean;
 }
@@ -26,7 +27,14 @@ export function isAnchorActionMessage(message: string): boolean {
 export function anchorPreviewFromProduct(
   product: Pick<
     Product,
-    'id' | 'name' | 'image' | 'brand' | 'lowestPrice' | 'currency' | 'merchantName'
+    | 'id'
+    | 'name'
+    | 'image'
+    | 'brand'
+    | 'lowestPrice'
+    | 'currency'
+    | 'merchantId'
+    | 'merchantName'
   >,
 ): AnchorPreview {
   return {
@@ -39,7 +47,8 @@ export function anchorPreviewFromProduct(
         ? product.lowestPrice
         : undefined,
     currency: product.currency || undefined,
-    merchantName: product.merchantName || undefined,
+    ...(product.merchantId ? { merchantId: product.merchantId } : {}),
+    ...(product.merchantName ? { merchantName: product.merchantName } : {}),
   };
 }
 
@@ -53,7 +62,8 @@ export function anchorPreviewFromProductReference(
     brand: reference.brand,
     price: reference.price,
     currency: reference.currency,
-    merchantName: reference.merchantName,
+    ...(reference.merchantId ? { merchantId: reference.merchantId } : {}),
+    ...(reference.merchantName ? { merchantName: reference.merchantName } : {}),
     unavailable: reference.unavailable,
   };
 }
@@ -68,7 +78,8 @@ export function productReferenceFromAnchorPreview(
     brand: preview.brand,
     price: preview.price,
     currency: preview.currency,
-    merchantName: preview.merchantName,
+    ...(preview.merchantId ? { merchantId: preview.merchantId } : {}),
+    ...(preview.merchantName ? { merchantName: preview.merchantName } : {}),
     unavailable: preview.unavailable,
   };
 }

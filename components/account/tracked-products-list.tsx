@@ -16,7 +16,17 @@ import { Button } from '@/components/ui/button';
 import { RemoteProductImage } from '@/components/product/remote-product-image';
 import { useState } from 'react';
 
-function TrackImage({ src, name }: { src: string | null; name: string }) {
+function TrackImage({
+  src,
+  name,
+  merchantId,
+  merchantName,
+}: {
+  src: string | null;
+  name: string;
+  merchantId?: string | null;
+  merchantName?: string | null;
+}) {
   return (
     <div className="account-tracks__media">
       {src ? (
@@ -24,6 +34,8 @@ function TrackImage({ src, name }: { src: string | null; name: string }) {
           src={src}
           alt={name}
           role="thumb"
+          merchantId={merchantId}
+          merchantName={merchantName}
           fill
           sizes="(max-width: 640px) 100vw, 144px"
           className="account-tracks__image"
@@ -182,7 +194,12 @@ export function TrackedProductsList() {
 
         return (
           <li key={track.id} className="account-tracks__item">
-            <TrackImage src={image ?? null} name={title} />
+            <TrackImage
+              src={image ?? null}
+              name={title}
+              merchantId={product?.merchantId ?? track.merchantId}
+              merchantName={product?.merchantName}
+            />
             <div className="account-tracks__meta">
               <div className="account-tracks__heading">
                 <div>

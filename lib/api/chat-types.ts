@@ -62,6 +62,7 @@ export interface ProductReferenceSnapshot {
   brand?: string;
   price?: number;
   currency?: string;
+  merchantId?: string;
   merchantName?: string;
   unavailable?: boolean;
 }

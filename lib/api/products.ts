@@ -307,6 +307,12 @@ export async function fetchProductsByMerchant(
 }
 
 
+export interface CategoryPreviewPhoto {
+  src: string;
+  merchantId?: string;
+  merchantName?: string;
+}
+
 export interface CategoryPreview {
   id: string;
   /** Present for apparel tiles; omitted for beauty/accessories shelves. */
@@ -321,7 +327,7 @@ export interface CategoryPreview {
    *  images beyond that are extra headroom reused by FeatureTabsSection's
    *  Explore/Compare tabs so they don't repeat the same photos already
    *  shown by the category tile. Always has at least 1 entry. */
-  images: string[];
+  images: CategoryPreviewPhoto[];
   productId: string;
 }
 
@@ -663,6 +669,14 @@ function pickShopEntryProducts(
   ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
 }
 
+function toCategoryPreviewPhoto(product: Product): CategoryPreviewPhoto {
+  return {
+    src: product.image,
+    merchantId: product.merchantId,
+    merchantName: product.merchantName,
+  };
+}
+
 function toCategoryPreview(
   entry: CategoryGridEntry,
   ranked: Product[],
@@ -676,7 +690,7 @@ function toCategoryPreview(
     query: entry.query,
     accentFrom: entry.accentFrom,
     accentTo: entry.accentTo,
-    images: ranked.map((product) => product.image),
+    images: ranked.map(toCategoryPreviewPhoto),
     productId: first.id,
   };
 }
@@ -766,7 +780,7 @@ async function fetchShopCategoryPreviews(
                 .slice(0, need);
         const mergedImages = [
           ...(existing?.images ?? []),
-          ...fallback.map((product) => product.image),
+          ...fallback.map(toCategoryPreviewPhoto),
         ].slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
         if (mergedImages.length === 0) {
           return existing ?? null;
@@ -855,7 +869,7 @@ async function fetchShopCategoryPreviews(
         picked.forEach((product) => usedImages.add(product.image));
         const mergedImages = [
           ...(existing?.images ?? []),
-          ...picked.map((product) => product.image),
+          ...picked.map(toCategoryPreviewPhoto),
         ].slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
         return {
           id: entry.id,
@@ -1143,7 +1157,7 @@ function scoreSearchByPhoto(
 /** Best in-stock product image matching a SearchBy example query. */
 export async function fetchSearchByCardPhoto(
   params: SearchByPhotoParams,
-): Promise<string | null> {
+): Promise<CategoryPreviewPhoto | null> {
   try {
     const { products } = await fetchCatalogFromApi(
       {
@@ -1160,7 +1174,8 @@ export async function fetchSearchByCardPhoto(
     const ranked = [...products].sort(
       (a, b) => scoreSearchByPhoto(b, params) - scoreSearchByPhoto(a, params),
     );
-    return ranked[0]?.image ?? null;
+    const best = ranked[0];
+    return best ? toCategoryPreviewPhoto(best) : null;
   } catch {
     return null;
   }

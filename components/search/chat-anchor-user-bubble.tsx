@@ -67,6 +67,8 @@ export function ChatAnchorUserBubble({
                 src={imageSrc}
                 alt=""
                 role="thumb"
+                merchantId={preview.merchantId}
+                merchantName={preview.merchantName}
                 fill
                 className="search-chat-anchor-ref__image"
                 sizes="72px"

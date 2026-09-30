@@ -13,10 +13,7 @@ import {
 } from '@/lib/constants/category-grid';
 import { shopBrowseHrefForGridEntry } from '@/lib/constants/shop-categories';
 import type { CategoryPreview } from '@/lib/api/products';
-import type { ProductFamily, ShopCategory, SuitableFor } from '@/lib/api/chat-types';
-
-/** Packshot-heavy tiles: contain so products aren't cropped in the 3:4 frame. */
-const CONTAIN_FIT_FAMILIES = new Set<ProductFamily>(['gloves']);
+import type { ShopCategory, SuitableFor } from '@/lib/api/chat-types';
 
 interface CategorySectionProps {
   /** Hides the "Se hele utvalget" link to /shop -- pass false when this
@@ -185,13 +182,8 @@ function CategoryFanCard({
   onSelect: () => void;
 }) {
   const [center, left, right] = category.images;
-  // Packshot-heavy families look cropped/broken with object-cover in the
-  // 3:4 fan frame — contain keeps the full product on the white plate.
-  // Apparel tiles (jeans, tees, tops, …) always use object-cover.
-  const imageFit =
-    category.family && CONTAIN_FIT_FAMILIES.has(category.family)
-      ? 'object-contain'
-      : 'object-cover';
+  if (!center) return null;
+  // object-fit: central merchant policy via RemoteProductImage (merchantId/Name).
 
   const cardClassName = 'category-fan-card group snap-start shrink-0 text-left';
   const cardStyle = {
@@ -208,11 +200,12 @@ function CategoryFanCard({
         {left ? (
           <div className="category-fan-card__photo category-fan-card__photo--left">
             <RemoteProductImage
-              src={left}
+              src={left.src}
               alt=""
               role="feature"
+              merchantId={left.merchantId}
+              merchantName={left.merchantName}
               fill
-              className={`${imageFit} object-center`}
               sizes="140px"
             />
           </div>
@@ -220,22 +213,24 @@ function CategoryFanCard({
         {right ? (
           <div className="category-fan-card__photo category-fan-card__photo--right">
             <RemoteProductImage
-              src={right}
+              src={right.src}
               alt=""
               role="feature"
+              merchantId={right.merchantId}
+              merchantName={right.merchantName}
               fill
-              className={`${imageFit} object-center`}
               sizes="140px"
             />
           </div>
         ) : null}
         <div className="category-fan-card__photo category-fan-card__photo--center">
           <RemoteProductImage
-            src={center}
+            src={center.src}
             alt={category.label}
             role="feature"
+            merchantId={center.merchantId}
+            merchantName={center.merchantName}
             fill
-            className={`${imageFit} object-center`}
             sizes="180px"
           />
         </div>

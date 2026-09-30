@@ -232,4 +232,43 @@ describe('RemoteProductImage', () => {
     expect(after[0]?.getAttribute('src')).not.toMatch(/[?&]format=/);
     expect(after[1]?.getAttribute('src')).toContain('format=large');
   });
+
+  it('applies cover by default and contain for exception merchants', () => {
+    act(() => {
+      root.render(
+        <RemoteProductImage
+          src={OCCTOO}
+          alt="ASOS"
+          role="card"
+          merchantId="asos"
+          width={100}
+          height={100}
+        />,
+      );
+    });
+    expect(container.querySelector('img')?.className).toContain('object-cover');
+    expect(container.querySelector('img')?.className).toContain('object-center');
+    expect(container.querySelector('img')?.className).not.toContain(
+      'object-contain',
+    );
+
+    act(() => {
+      root.render(
+        <RemoteProductImage
+          src={OCCTOO}
+          alt="KICKS"
+          role="card"
+          merchantId="kicks"
+          merchantName="KICKS"
+          width={100}
+          height={100}
+        />,
+      );
+    });
+    expect(container.querySelector('img')?.className).toContain('object-contain');
+    expect(container.querySelector('img')?.className).toContain('object-center');
+    expect(container.querySelector('img')?.className).not.toContain(
+      'object-cover',
+    );
+  });
 });
