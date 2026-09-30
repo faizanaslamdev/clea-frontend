@@ -337,8 +337,31 @@ export const CATEGORY_SECTION_DISPLAY_COUNT = 3;
 /** Total fetched per category — tile uses 3; spare headroom for FeatureTabs. */
 const CATEGORY_PREVIEW_PHOTO_COUNT = 6;
 
-/** Cap parallel catalog calls so shop's 11 tiles don't trip the API throttle. */
-const CATEGORY_PREVIEW_CONCURRENCY = 4;
+/** Cap parallel gap-fill catalog calls (shop + homepage deficient tiles). */
+const CATEGORY_GAP_FILL_CONCURRENCY = 3;
+
+/**
+ * Homepage bulk pools — merchant-scoped catalog pages (fast indexed reads)
+ * instead of 12 live balanced/productFamily/q fan-outs.
+ *
+ * Multi-merchant fashion + one beauty shelf merchant give local ranking enough
+ * candidates for all 12 tiles; gap-fill stays rare. Merchant diversity comes
+ * from the multi-merchant pool + cross-tile assignment, not SQL
+ * balance_merchants on each tile (document vs prior per-tile balancing).
+ */
+const HOMEPAGE_FASHION_POOL_MERCHANTS = [
+  '19563', // Nelly NO
+  'asos',
+  'ellos',
+  'hm',
+  'bubbleroom',
+  '384513', // Ralph Lauren NO — shirts / knit / outerwear depth
+  'miinto',
+] as const;
+const HOMEPAGE_SHELF_POOL_MERCHANTS = [
+  'kicks', // beauty / accessories shelf coverage
+] as const;
+const HOMEPAGE_MERCHANT_POOL_LIMIT = 48;
 
 /** Pull a catalog `q` from "Vis meg …" chat copy when no explicit previewQ. */
 function previewQueryForEntry(entry: CategoryGridEntry): string | undefined {
@@ -531,7 +554,10 @@ function rankProductsForCategoryTile<T extends { image: string; name: string }>(
  * reload. Sparse shelves (vesker / beauty / …) gap-fill with a small
  * concurrent pool across the same open catalog.
  *
- * Homepage (no gender): capped per-family fetches as before.
+ * Homepage (no gender): same pool→assign→gap-fill shape — parallel
+ * merchant-scoped fashion + shelf pools, then local ranking. Targeted
+ * gap-fill only for tiles still below CATEGORY_SECTION_DISPLAY_COUNT
+ * (not 12 family fan-outs).
  */
 export async function fetchCategoryPreviews(
   entries: readonly CategoryGridEntry[],
@@ -547,7 +573,8 @@ function productBlob(product: Product): string {
   return `${product.name} ${product.productType ?? ''} ${product.categoryPath ?? ''}`.toLowerCase();
 }
 
-function productMatchesShopEntry(
+/** Exported for unit tests — category tile relevance matching. */
+export function productMatchesShopEntry(
   product: Product,
   entry: CategoryGridEntry,
   previewQ?: string,
@@ -564,16 +591,40 @@ function productMatchesShopEntry(
     );
   }
   if (shelf === 'accessories') {
-    if (/veske|\bbag\b|clutch|tote/.test(blob)) return false;
-    return (
-      product.category === 'Accessories' ||
-      /smykke|jewel|bracelet|øredobb|earring|belte|\bbelt\b|cap|hatt|skjerf|scarf|solbrille|klokke|watch|watches|accessoir/.test(
+    // Do NOT trust product.category === 'Accessories' alone — many apparel
+    // feeds use parent paths like "Klær og tilbehør", which mapCategory treats
+    // as Accessories and would flood this tile with jeans/tops.
+    if (
+      /veske|\bbag\b|clutch|tote|jeans|bukse|pants|chino|short|shorts|skjørt|skirt|kjole|dress|jakke|jacket|genser|sweater|t-shirt|\btee\b|skjorte|\bshirt\b|bluse|blouse|hoodie|sandal|sneaker|\bsko\b|shoe|\bboot\b|bra|\bbh\b|undertøy|bikini|badetøy|swim/.test(
         blob,
       )
+    ) {
+      return false;
+    }
+    return /smykke|jewel|bracelet|øredobb|earring|belte|\bbelt\b|\bcap\b|hatt|skjerf|scarf|solbrille|klokke|\bwatch\b|watches|accessoir/.test(
+      blob,
     );
   }
 
-  // Prefer entry-specific preview tokens (tees vs shirts vs topper).
+  // Tees: title must look like a tee. Parent paths such as
+  // "Topper & t-shirts > Sommertopper" match /t-shirt/ too broadly.
+  if (entry.id === 'tees') {
+    const name = product.name.toLowerCase();
+    if (/t-shirt|\btee\b|t\s*skjorte/.test(name)) return true;
+    if (
+      /\btop\b|bluse|blouse|sommertopp|tank|cami|crop|body\b|bodysuit/.test(name)
+    ) {
+      return false;
+    }
+    return /t-shirt|\btee\b|t\s*skjorte/.test(blob);
+  }
+  if (entry.id === 'shirts') {
+    return (
+      /skjorte|\bshirt\b/.test(blob) && !/t-shirt|\btee\b/.test(blob)
+    );
+  }
+
+  // Prefer entry-specific preview tokens (tops vs jeans vs dresses, …).
   if (previewQ) {
     const tokens = previewQ
       .toLowerCase()
@@ -590,21 +641,13 @@ function productMatchesShopEntry(
       if (shelf === 'tops' && /bikini|bra|\bbh\b|badetøy|swim/.test(blob)) {
         return false;
       }
-      if (entry.id === 'tees' && !/t-shirt|\btee\b|t\s*skjorte/.test(blob)) {
-        return false;
-      }
-      if (
-        entry.id === 'shirts' &&
-        (/t-shirt|\btee\b/.test(blob) || !/skjorte|\bshirt\b/.test(blob))
-      ) {
-        return false;
-      }
-      if (
-        entry.id === 'tops' &&
-        /t-shirt|\btee\b|skjorte|\bshirt\b/.test(blob) &&
-        !/\btop\b|bluse|blouse|hoodie/.test(blob)
-      ) {
-        return false;
+      if (entry.id === 'tops') {
+        if (
+          /t-shirt|\btee\b|skjorte|\bshirt\b/.test(blob) &&
+          !/\btop\b|bluse|blouse|hoodie/.test(blob)
+        ) {
+          return false;
+        }
       }
       if (entry.id === 'jeans-bukser' && /skjørt|skirt|short/.test(blob)) {
         return false;
@@ -695,25 +738,19 @@ function toCategoryPreview(
   };
 }
 
-async function fetchShopCategoryPreviews(
+/**
+ * Assign category tiles from a shared product pool (shop + homepage).
+ * Cross-tile image dedupe matches existing shop behavior.
+ * Exported for unit tests — production callers use fetchCategoryPreviews.
+ */
+export function assignCategoryPreviewsFromPool(
   entries: readonly CategoryGridEntry[],
-  suitableFor: 'male' | 'female',
-): Promise<CategoryPreview[]> {
-  let pool: Product[] = [];
-  try {
-    const page = await fetchCatalogFromApi(
-      {
-        suitableFor,
-        limit: 80,
-        balanceMerchants: true,
-      },
-      { next: { revalidate: 120 } },
-    );
-    pool = page.products;
-  } catch {
-    pool = [];
-  }
-
+  pool: readonly Product[],
+): {
+  byId: Map<string, CategoryPreview>;
+  gaps: CategoryGridEntry[];
+  usedImages: Set<string>;
+} {
   const usedImages = new Set<string>();
   const byId = new Map<string, CategoryPreview>();
   const gaps: CategoryGridEntry[] = [];
@@ -725,17 +762,84 @@ async function fetchShopCategoryPreviews(
       ranked.forEach((product) => usedImages.add(product.image));
       byId.set(entry.id, preview);
     }
-    // Fan cards need 3 photos; a thin pool hit used to skip gap-fill entirely
-    // and leave a half-empty tile. Refill anything below the display count.
     if (!preview || preview.images.length < CATEGORY_SECTION_DISPLAY_COUNT) {
       gaps.push(entry);
     }
   }
 
-  if (gaps.length > 0) {
-    const gapResults = await mapPool(gaps, 3, async (entry) => {
+  return { byId, gaps, usedImages };
+}
+
+async function fetchCatalogPool(
+  params: FetchProductsParams,
+): Promise<Product[]> {
+  try {
+    const page = await fetchCatalogFromApi(params, {
+      next: { revalidate: 120 },
+    });
+    return page.products;
+  } catch {
+    return [];
+  }
+}
+
+/** Catalog params for one category gap-fill (shop audience vs homepage). */
+function gapFillFetchParams(
+  entry: CategoryGridEntry,
+  previewQ: string | undefined,
+  suitableFor?: 'male' | 'female',
+): FetchProductsParams {
+  const isShelf = entry.shelf === 'beauty' || entry.shelf === 'accessories';
+  const params: FetchProductsParams = {
+    limit: CATEGORY_PREVIEW_PHOTO_COUNT,
+    // Shop hub keeps SQL merchant balancing on gap-fill. Homepage gap-fills
+    // omit it — those live balanced family/q paths are the 7–25s killers we
+    // are escaping; multi-merchant bulk pools already supply diversity.
+    ...(suitableFor ? { balanceMerchants: true } : {}),
+  };
+
+  if (suitableFor) {
+    // Shop hub: audience pin, or segment=all for beauty/accessories shelves.
+    if (isShelf) {
+      params.segment = 'all';
+    } else {
+      params.suitableFor = suitableFor;
+    }
+    if (previewQ) {
+      params.q = previewQ;
+    } else if (entry.family) {
+      params.productFamily = entry.family;
+    }
+    return params;
+  }
+
+  // Homepage: match prior per-tile semantics (family and/or q; shelves → all).
+  if (isShelf) {
+    params.segment = 'all';
+  } else if (entry.family) {
+    params.productFamily = entry.family;
+  }
+  if (previewQ) {
+    params.q = previewQ;
+  }
+  return params;
+}
+
+async function gapFillCategoryPreviews(args: {
+  gaps: readonly CategoryGridEntry[];
+  byId: Map<string, CategoryPreview>;
+  usedImages: Set<string>;
+  /** When set, apparel gap-fills pin to Dame/Herre like the shop hub. */
+  suitableFor?: 'male' | 'female';
+}): Promise<void> {
+  const { gaps, byId, usedImages, suitableFor } = args;
+  if (gaps.length === 0) return;
+
+  const gapResults = await mapPool(
+    gaps,
+    CATEGORY_GAP_FILL_CONCURRENCY,
+    async (entry) => {
       const previewQ = previewQueryForEntry(entry);
-      const isShelf = entry.shelf === 'beauty' || entry.shelf === 'accessories';
       const existing = byId.get(entry.id);
       const need = CATEGORY_PREVIEW_PHOTO_COUNT - (existing?.images.length ?? 0);
       if (need <= 0) {
@@ -743,18 +847,7 @@ async function fetchShopCategoryPreviews(
       }
       try {
         const { products } = await fetchCatalogFromApi(
-          {
-            ...(isShelf
-              ? { segment: 'all' as const }
-              : { suitableFor }),
-            ...(previewQ
-              ? { q: previewQ }
-              : entry.family
-                ? { productFamily: entry.family }
-                : {}),
-            limit: CATEGORY_PREVIEW_PHOTO_COUNT,
-            balanceMerchants: true,
-          },
+          gapFillFetchParams(entry, previewQ, suitableFor),
           { next: { revalidate: 120 } },
         );
         const ranked = rankProductsForCategoryTile(
@@ -767,8 +860,6 @@ async function fetchShopCategoryPreviews(
           entry.family,
           previewQ,
         ).slice(0, need);
-        // Shelf gap fills can be sparse — accept ranked catalog hits even if
-        // the name heuristic is strict.
         const fallback =
           ranked.length > 0
             ? ranked
@@ -799,12 +890,35 @@ async function fetchShopCategoryPreviews(
       } catch {
         return existing ?? null;
       }
-    });
+    },
+  );
 
-    for (const preview of gapResults) {
-      if (preview) byId.set(preview.id, preview);
-    }
+  for (const preview of gapResults) {
+    if (preview) byId.set(preview.id, preview);
   }
+}
+
+async function fetchShopCategoryPreviews(
+  entries: readonly CategoryGridEntry[],
+  suitableFor: 'male' | 'female',
+): Promise<CategoryPreview[]> {
+  const pool = await fetchCatalogPool({
+    suitableFor,
+    limit: 80,
+    balanceMerchants: true,
+  });
+
+  const { byId, gaps, usedImages } = assignCategoryPreviewsFromPool(
+    entries,
+    pool,
+  );
+
+  await gapFillCategoryPreviews({
+    gaps,
+    byId,
+    usedImages,
+    suitableFor,
+  });
 
   // Last resort: both passes above stay pinned to one merchant (Nelly /
   // NLY Man) and the audience filter, so a shelf that retailer doesn't carry
@@ -817,7 +931,10 @@ async function fetchShopCategoryPreviews(
     return !preview || preview.images.length < CATEGORY_SECTION_DISPLAY_COUNT;
   });
   if (stillMissing.length > 0) {
-    const widened = await mapPool(stillMissing, 3, async (entry) => {
+    const widened = await mapPool(
+      stillMissing,
+      CATEGORY_GAP_FILL_CONCURRENCY,
+      async (entry) => {
       const previewQ = previewQueryForEntry(entry);
       const existing = byId.get(entry.id);
       const need =
@@ -883,7 +1000,8 @@ async function fetchShopCategoryPreviews(
         };
       }
       return existing ?? null;
-    });
+    },
+    );
 
     for (const preview of widened) {
       if (preview) byId.set(preview.id, preview);
@@ -898,51 +1016,48 @@ async function fetchShopCategoryPreviews(
 async function fetchHomepageCategoryPreviews(
   entries: readonly CategoryGridEntry[],
 ): Promise<CategoryPreview[]> {
-  const results = await mapPool(
+  // Parallel merchant-scoped pages — replaces the old 12× family/q fan-out.
+  const poolPages = await Promise.all([
+    ...HOMEPAGE_FASHION_POOL_MERCHANTS.map((merchantId) =>
+      fetchCatalogPool({
+        merchantId,
+        segment: 'fashion',
+        limit: HOMEPAGE_MERCHANT_POOL_LIMIT,
+      }),
+    ),
+    ...HOMEPAGE_SHELF_POOL_MERCHANTS.map((merchantId) =>
+      fetchCatalogPool({
+        merchantId,
+        segment: 'all',
+        limit: HOMEPAGE_MERCHANT_POOL_LIMIT,
+      }),
+    ),
+  ]);
+
+  const seen = new Set<string>();
+  const pool: Product[] = [];
+  for (const page of poolPages) {
+    for (const product of page) {
+      if (!product.image || seen.has(product.image)) continue;
+      seen.add(product.image);
+      pool.push(product);
+    }
+  }
+
+  const { byId, gaps, usedImages } = assignCategoryPreviewsFromPool(
     entries,
-    CATEGORY_PREVIEW_CONCURRENCY,
-    async (entry) => {
-      const previewQ = previewQueryForEntry(entry);
-      const isShelf = entry.shelf === 'beauty' || entry.shelf === 'accessories';
-
-      const load = async (opts: { brand?: string }) => {
-        try {
-          const { products } = await fetchCatalogFromApi(
-            {
-              ...(isShelf
-                ? { segment: 'all' as const }
-                : {
-                    ...(entry.family ? { productFamily: entry.family } : {}),
-                  }),
-              ...(previewQ ? { q: previewQ } : {}),
-              ...(opts.brand ? { brand: opts.brand } : {}),
-              limit: CATEGORY_PREVIEW_PHOTO_COUNT,
-              balanceMerchants: !opts.brand,
-            },
-            { next: { revalidate: 120 } },
-          );
-          return rankProductsForCategoryTile(
-            products,
-            entry.family,
-            previewQ,
-          ).slice(0, CATEGORY_PREVIEW_PHOTO_COUNT);
-        } catch {
-          return [] as Product[];
-        }
-      };
-
-      // Open multi-merchant catalog first so scraper + affiliate stores can
-      // contribute tile photos. Optional previewBrand is a soft fallback only.
-      let ranked = await load({});
-      if (ranked.length === 0 && entry.previewBrand) {
-        ranked = await load({ brand: entry.previewBrand });
-      }
-
-      return toCategoryPreview(entry, ranked);
-    },
+    pool,
   );
 
-  return results.filter((entry): entry is CategoryPreview => entry !== null);
+  await gapFillCategoryPreviews({
+    gaps,
+    byId,
+    usedImages,
+  });
+
+  return entries
+    .map((entry) => byId.get(entry.id) ?? null)
+    .filter((entry): entry is CategoryPreview => entry !== null);
 }
 
 const TRENDING_LINGERIE_RE =
