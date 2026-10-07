@@ -79,6 +79,10 @@
     @apply mb-4 list-disc space-y-2 pl-6;
   }
 
+  .legal-page__body strong {
+    @apply font-medium;
+  }
+
   .legal-page__body a {
     @apply underline decoration-foreground/30 underline-offset-4 transition-opacity hover:opacity-75;
   }

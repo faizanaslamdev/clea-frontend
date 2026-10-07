@@ -20,11 +20,6 @@ const FOOTER_LINKS = {
   company: [
     { href: '/about', label: 'Om oss' },
     { href: '/partner', label: 'Samarbeid' },
-    {
-      href: 'https://sovrn.co/det3haz',
-      label: 'Sovrn',
-      external: true,
-    },
   ],
   resources: [
     { href: '/privacy', label: 'Personvern' },
