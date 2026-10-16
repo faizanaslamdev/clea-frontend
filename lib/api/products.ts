@@ -21,6 +21,8 @@ export interface FetchProductsParams {
   q?: string;
   brand?: string;
   merchantId?: string;
+  /** Shop multi-select: any of these stores. */
+  merchantIds?: string[];
   category?: string;
   /** Defaults to fashion for discovery; merchant-scoped pages default to all */
   segment?: ProductSegment;
@@ -45,6 +47,8 @@ export interface FetchProductsParams {
   colour?: string;
   /** Shop: match structured colour column only (no title inference). */
   colourFieldOnly?: boolean;
+  /** Shop multi-select: stored colour families (black, blue, gold, multi…). */
+  colourFamilies?: string[];
   /** Proven discount: old_price > price. */
   onSale?: boolean;
   /** Browse sort order. Omitted = the catalog's compare-ready relevance order. */
@@ -56,6 +60,9 @@ function buildProductsQuery(params: FetchProductsParams): string {
   if (params.q) search.set('q', params.q);
   if (params.brand) search.set('brand', params.brand);
   if (params.merchantId) search.set('merchant_id', params.merchantId);
+  if (params.merchantIds?.length) {
+    search.set('merchant_ids', params.merchantIds.join(','));
+  }
   if (params.category) search.set('category', params.category);
   if (params.productFamily) search.set('product_family', params.productFamily);
   if (params.minPrice != null) search.set('min_price', String(params.minPrice));
@@ -69,6 +76,9 @@ function buildProductsQuery(params: FetchProductsParams): string {
   }
   if (params.colour) search.set('colour', params.colour);
   if (params.colourFieldOnly) search.set('colour_field_only', 'true');
+  if (params.colourFamilies?.length) {
+    search.set('colour_families', params.colourFamilies.join(','));
+  }
   if (params.onSale) search.set('on_sale', 'true');
   if (params.suitableFor) search.set('suitable_for', params.suitableFor);
   if (params.balanceMerchants) search.set('balance_merchants', 'true');
@@ -117,6 +127,38 @@ export async function fetchCatalogFromApi(
     offset: data.offset,
     hasMore: data.hasMore,
   };
+}
+
+export interface CatalogFacets {
+  /** Exact number of products matching every active filter. */
+  total: number;
+  stores: Array<{ id: string; count: number }>;
+  brands: Array<{ brand: string; count: number }>;
+  colours: Array<{ value: string; count: number }>;
+  /** Products that would match with "På salg" on. */
+  onSaleCount: number;
+}
+
+/**
+ * Filter-drawer options for a catalog query (`GET /catalog/facets`): only
+ * stores / brands / colours that have products, with counts. Each group's
+ * counts ignore that group's own selection so multi-select keeps working.
+ */
+export async function fetchCatalogFacets(
+  params: FetchProductsParams,
+  init?: RequestInit,
+): Promise<CatalogFacets> {
+  const { limit: _limit, offset: _offset, sort: _sort, ...rest } = params;
+  void _limit;
+  void _offset;
+  void _sort;
+  const qs = buildProductsQuery(rest)
+    .split('&')
+    .filter((part) => !part.startsWith('limit=') && !part.startsWith('offset='))
+    .join('&');
+  return apiFetch<CatalogFacets>(`/catalog/facets?${qs}`, {
+    ...(init ?? { cache: 'no-store' }),
+  });
 }
 
 export interface CatalogBrowseBrand {

@@ -2,19 +2,20 @@
 
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { ProductGrid } from '@/components/product-grid';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
 import { ShopBrowseAssistant, ShopBrowseAssistantScope } from '@/components/shop/shop-browse-assistant';
 import { ShopCategoryRefinements } from '@/components/shop/shop-category-refinements';
 import { ShopFilterDrawer } from '@/components/shop/shop-filter-drawer';
 import { ShopPendingSurface } from '@/components/shop/shop-pending-surface';
-import type { CatalogBrowseBrand } from '@/lib/api/products';
 import type { ShopCategory } from '@/lib/constants/shop-categories';
+import { useCatalogFacets } from '@/lib/hooks/useCatalogFacets';
 import { useCatalogInfinite } from '@/lib/hooks/useCatalogInfinite';
 import { useShopPendingLabel, useShopPendingItems, useShopPendingTransition } from '@/lib/hooks/useShopPending';
 import {
   buildShopBrowseQuery,
+  emptyShopBrowseState,
   isShopBrowseFiltered,
   parseShopBrowseState,
   shopBrowseFilters,
@@ -28,15 +29,9 @@ import type { Store } from '@/lib/types';
 interface ShopBrowseClientProps {
   category: ShopCategory;
   stores: readonly Store[];
-  brands: readonly CatalogBrowseBrand[];
 }
 
-function ShopBrowseContent({
-  category,
-  stores,
-  brands,
-}: ShopBrowseClientProps) {
-  const router = useRouter();
+function ShopBrowseContent({ category, stores }: ShopBrowseClientProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
@@ -72,14 +67,16 @@ function ShopBrowseContent({
 
   // replace (not push): one Shop URL so product → Back restores this filtered
   // view without a history entry per refinement.
+  // Native replaceState (synced into useSearchParams by the App Router) instead
+  // of router.replace: the page is static and ignores search params, so a
+  // server round trip per click only delayed the update and left the previous
+  // count on screen until it returned.
   const applyState = useCallback(
     (next: ShopBrowseState) => {
       const query = buildShopBrowseQuery(next);
-      router.replace(query ? `${pathname}?${query}` : pathname, {
-        scroll: false,
-      });
+      window.history.replaceState(null, '', query ? `${pathname}?${query}` : pathname);
     },
-    [pathname, router],
+    [pathname],
   );
 
   const handleChange = useCallback(
@@ -88,7 +85,7 @@ function ShopBrowseContent({
   );
 
   const handleReset = useCallback(
-    () => applyState({ sort: 'relevance', gender: state.gender }),
+    () => applyState(emptyShopBrowseState(state.gender)),
     [applyState, state.gender],
   );
 
@@ -103,8 +100,19 @@ function ShopBrowseContent({
     isFetchingNextPage,
   } = useCatalogInfinite(filters);
 
+  const { data: facets, isPlaceholderData: facetsPending } = useCatalogFacets(filters);
+
   const products = data?.pages.flatMap((page) => page.products) ?? [];
   const loaded = products.length;
+  // Exact total from facets; while it loads, the last page tells us when the
+  // list is complete, otherwise show what has loaded as a lower bound.
+  const lastPage = data?.pages[data.pages.length - 1];
+  // While a new selection loads, both queries still hold the previous
+  // selection's data (keepPreviousData) — never show that count as current.
+  const countPending = facetsPending || isPlaceholderData;
+  const total = facetsPending
+    ? null
+    : (facets?.total ?? (lastPage && !lastPage.hasMore ? loaded : null));
   // Prefer previous products over an empty skeleton while the next set loads.
   const showSkeleton = isLoading && products.length === 0;
 
@@ -150,10 +158,13 @@ function ShopBrowseContent({
           <div className="shop-browse__meta">
             {pending && showSkeleton ? (
               <span>Laster produkter …</span>
+            ) : countPending ? (
+              <span>Oppdaterer …</span>
             ) : (
               <span>
-                {loaded.toLocaleString('nb-NO')}{' '}
-                {loaded === 1 ? 'produkt' : 'produkter'}
+                {total != null
+                  ? `${total.toLocaleString('nb-NO')} ${total === 1 ? 'produkt' : 'produkter'}`
+                  : `${loaded.toLocaleString('nb-NO')}+ produkter`}
               </span>
             )}
           </div>
@@ -161,7 +172,8 @@ function ShopBrowseContent({
             category={category}
             state={state}
             stores={stores}
-            brands={brands}
+            facets={facets}
+            facetsPending={facetsPending}
             onChange={handleChange}
             onReset={handleReset}
             onOpenChange={setFilterOpen}

@@ -4322,11 +4322,67 @@
   }
 
   .shop-filter-drawer__footer {
-    @apply shrink-0 border-t border-border px-5 py-4;
+    @apply flex shrink-0 items-center gap-3 border-t border-border px-5 py-4;
+  }
+
+  .shop-filter-drawer__field:is(fieldset) {
+    @apply m-0 min-w-0 border-0 p-0;
+  }
+
+  .shop-filter-drawer__empty {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .shop-filter-options {
+    @apply flex flex-col;
+  }
+
+  .shop-filter-option {
+    @apply flex min-h-11 w-full items-center gap-3 rounded-lg px-1 text-left text-sm text-foreground transition-colors hover:bg-muted disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent;
+  }
+
+  .shop-filter-option__box {
+    @apply inline-flex size-5 shrink-0 items-center justify-center rounded-md border border-border text-background;
+  }
+
+  .shop-filter-option--selected .shop-filter-option__box {
+    @apply border-foreground bg-foreground;
+  }
+
+  .shop-filter-option__label {
+    @apply min-w-0 flex-1 truncate;
+  }
+
+  .shop-filter-option__count {
+    @apply shrink-0 text-xs tabular-nums text-muted-foreground;
+  }
+
+  .shop-filter-more {
+    @apply self-start text-sm font-medium text-foreground underline underline-offset-4 hover:text-foreground/70;
+  }
+
+  .shop-filter-swatches {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .shop-filter-swatch {
+    @apply inline-flex h-10 items-center gap-2 rounded-full border border-border px-3 text-sm text-foreground transition-colors hover:border-foreground/30 disabled:cursor-default disabled:opacity-40;
+  }
+
+  .shop-filter-swatch--selected {
+    @apply border-foreground ring-1 ring-foreground;
+  }
+
+  .shop-filter-swatch__dot {
+    @apply size-4 shrink-0 rounded-full border border-black/15;
+  }
+
+  .shop-filter-apply {
+    @apply h-11 flex-1 rounded-full bg-foreground px-5 text-sm font-medium text-background transition-colors hover:bg-foreground/90;
   }
 
   .shop-filter-reset {
-    @apply h-10 w-full rounded-full border border-border px-4 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground md:w-auto;
+    @apply h-10 shrink-0 rounded-full border border-border px-4 text-sm text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground;
   }
 
   .shop-filter-sale {

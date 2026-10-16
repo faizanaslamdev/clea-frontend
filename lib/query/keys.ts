@@ -3,6 +3,8 @@ import type { CatalogSort } from '@/lib/api/catalog-sort';
 
 export type CatalogQueryFilters = {
   merchantId?: string;
+  /** Shop multi-select stores. */
+  merchantIds?: string[];
   brand?: string;
   category?: string;
   q?: string;
@@ -18,6 +20,8 @@ export type CatalogQueryFilters = {
   /** Canonical colour key; pairs with colourFieldOnly for Shop. */
   colour?: string;
   colourFieldOnly?: boolean;
+  /** Shop multi-select stored colour families. */
+  colourFamilies?: string[];
   onSale?: boolean;
   sort?: CatalogSort;
 };
@@ -31,6 +35,12 @@ export const productKeys = {
     [...productKeys.all, 'trending', suitableFor ?? 'all'] as const,
   catalog: (filters: CatalogQueryFilters) =>
     [...productKeys.all, 'catalog', filters] as const,
+  /** Filter-drawer facets: same filters as the listing, sort is irrelevant. */
+  catalogFacets: (filters: CatalogQueryFilters) => {
+    const { sort: _sort, ...rest } = filters;
+    void _sort;
+    return [...productKeys.all, 'catalog-facets', rest] as const;
+  },
   catalogBrands: (limit = 250) =>
     [...productKeys.all, 'catalog-brands', limit] as const,
   detail: (id: string) => [...productKeys.all, 'detail', id] as const,

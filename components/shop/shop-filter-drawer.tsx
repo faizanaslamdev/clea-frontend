@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { XIcon } from 'lucide-react';
+import { CheckIcon, XIcon } from 'lucide-react';
 import {
   Dialog,
   DialogDescription,
@@ -11,36 +11,88 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CATALOG_SORT_LABELS, CATALOG_SORT_VALUES, type CatalogSort } from '@/lib/api/catalog-sort';
-import type { CatalogBrowseBrand } from '@/lib/api/products';
+import type { CatalogFacets } from '@/lib/api/products';
 import type { ShopCategory } from '@/lib/constants/shop-categories';
 import { SHOP_COLOUR_OPTIONS } from '@/lib/shop/shop-colours';
 import { shopFilterCapabilities } from '@/lib/shop/shop-filter-capabilities';
 import {
   commitPriceRange,
   countShopDrawerFilters,
+  toggleBrandValue,
+  toggleListValue,
   type ShopBrowseState,
 } from '@/lib/shop/shop-browse-params';
+import {
+  brandFacetOptions,
+  colourFacetOptions,
+  storeFacetOptions,
+  type FacetOption,
+} from '@/lib/shop/shop-facet-options';
 import type { Store } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const PRICE_DEBOUNCE_MS = 650;
+/** Brands shown before "Vis alle merker". */
+const BRAND_PREVIEW_COUNT = 10;
 
 interface ShopFilterDrawerProps {
   category: ShopCategory;
   state: ShopBrowseState;
+  /** Store directory, used only for display names. */
   stores: readonly Store[];
-  brands: readonly CatalogBrowseBrand[];
+  /** Options + counts for the current filters (undefined while first loading). */
+  facets: CatalogFacets | undefined;
+  /**
+   * True while `facets` still holds the previous selection's counts (a new
+   * selection is loading). The options stay visible; the total is hidden so
+   * the apply button never shows a stale number.
+   */
+  facetsPending?: boolean;
   onChange: (patch: Partial<ShopBrowseState>) => void;
   onReset: () => void;
   /** Lets the page suppress the floating CLEA assistant while filters are open. */
   onOpenChange?: (open: boolean) => void;
 }
 
+const formatCount = (count: number) => count.toLocaleString('nb-NO');
+
+function CheckRow({
+  option,
+  onToggle,
+}: {
+  option: FacetOption;
+  onToggle: () => void;
+}) {
+  const disabled = option.count === 0 && !option.selected;
+  return (
+    <li>
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={option.selected}
+        disabled={disabled}
+        className={cn(
+          'shop-filter-option',
+          option.selected && 'shop-filter-option--selected',
+        )}
+        onClick={onToggle}
+      >
+        <span className="shop-filter-option__box" aria-hidden="true">
+          {option.selected && <CheckIcon className="size-3.5" />}
+        </span>
+        <span className="shop-filter-option__label">{option.label}</span>
+        <span className="shop-filter-option__count">{formatCount(option.count)}</span>
+      </button>
+    </li>
+  );
+}
+
 export function ShopFilterDrawer({
   category,
   state,
   stores,
-  brands,
+  facets,
+  facetsPending = false,
   onChange,
   onReset,
   onOpenChange,
@@ -52,14 +104,28 @@ export function ShopFilterDrawer({
   const activeCount = countShopDrawerFilters(state);
 
   const [open, setOpen] = useState(false);
+  const [brandQuery, setBrandQuery] = useState('');
+  const [showAllBrands, setShowAllBrands] = useState(false);
 
   const sortId = useId();
-  const storeId = useId();
-  const brandId = useId();
-  const colourId = useId();
-  const minId = useId();
-  const maxId = useId();
-  const brandListId = useId();
+  const brandSearchId = useId();
+
+  const storeOptions = useMemo(
+    () => storeFacetOptions(facets, state.merchantIds, stores),
+    [facets, state.merchantIds, stores],
+  );
+  const brandOptions = useMemo(
+    () => brandFacetOptions(facets, state.brands, brandQuery),
+    [facets, state.brands, brandQuery],
+  );
+  const colourOptions = useMemo(
+    () => colourFacetOptions(facets, state.colours, SHOP_COLOUR_OPTIONS),
+    [facets, state.colours],
+  );
+  const visibleBrands =
+    showAllBrands || brandQuery.trim()
+      ? brandOptions
+      : brandOptions.slice(0, Math.max(BRAND_PREVIEW_COUNT, state.brands.length));
 
   const [minDraft, setMinDraft] = useState(
     state.minPrice != null ? String(state.minPrice) : '',
@@ -67,23 +133,15 @@ export function ShopFilterDrawer({
   const [maxDraft, setMaxDraft] = useState(
     state.maxPrice != null ? String(state.maxPrice) : '',
   );
-  const [brandDraft, setBrandDraft] = useState(state.brand ?? '');
-
   const minDraftRef = useRef(minDraft);
   const maxDraftRef = useRef(maxDraft);
-  const brandDraftRef = useRef(brandDraft);
   minDraftRef.current = minDraft;
   maxDraftRef.current = maxDraft;
-  brandDraftRef.current = brandDraft;
 
   useEffect(() => {
     setMinDraft(state.minPrice != null ? String(state.minPrice) : '');
     setMaxDraft(state.maxPrice != null ? String(state.maxPrice) : '');
   }, [state.minPrice, state.maxPrice]);
-
-  useEffect(() => {
-    setBrandDraft(state.brand ?? '');
-  }, [state.brand]);
 
   const priceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const stateRef = useRef(state);
@@ -107,35 +165,6 @@ export function ShopFilterDrawer({
     }, PRICE_DEBOUNCE_MS);
   };
 
-  const commitBrand = (raw: string) => {
-    const trimmed = raw.trim();
-    const current = stateRef.current;
-    if (!trimmed) {
-      if (current.brand) onChangeRef.current({ brand: undefined });
-      setBrandDraft('');
-      return;
-    }
-    const match =
-      brands.find(
-        (entry) => entry.brand.toLowerCase() === trimmed.toLowerCase(),
-      ) ??
-      brands.find((entry) =>
-        entry.brand.toLowerCase().startsWith(trimmed.toLowerCase()),
-      );
-    const brand = match?.brand ?? trimmed;
-    setBrandDraft(brand);
-    if (brand !== current.brand) onChangeRef.current({ brand });
-  };
-
-  const flushPending = () => {
-    if (priceTimer.current) {
-      clearTimeout(priceTimer.current);
-      priceTimer.current = null;
-    }
-    commitPrices(minDraftRef.current, maxDraftRef.current);
-    commitBrand(brandDraftRef.current);
-  };
-
   useEffect(
     () => () => {
       if (priceTimer.current) clearTimeout(priceTimer.current);
@@ -144,10 +173,22 @@ export function ShopFilterDrawer({
   );
 
   const handleOpenChange = (next: boolean) => {
-    if (!next) flushPending();
+    if (!next) {
+      if (priceTimer.current) {
+        clearTimeout(priceTimer.current);
+        priceTimer.current = null;
+      }
+      commitPrices(minDraftRef.current, maxDraftRef.current);
+    }
     setOpen(next);
     onOpenChange?.(next);
   };
+
+  const close = () => handleOpenChange(false);
+  const total = facetsPending ? undefined : facets?.total;
+  const showSale =
+    capabilities.sale && (state.onSale || (facets?.onSaleCount ?? 0) > 0);
+  const showColours = capabilities.colour && colourOptions.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -167,18 +208,14 @@ export function ShopFilterDrawer({
           className="shop-filter-drawer"
           aria-describedby={undefined}
           onCloseAutoFocus={(event) => {
-            // Return focus to the trigger; Radix default is fine but keep explicit.
             event.preventDefault();
-            const trigger = document.querySelector<HTMLButtonElement>(
-              '.shop-filter-trigger',
-            );
-            trigger?.focus();
+            document
+              .querySelector<HTMLButtonElement>('.shop-filter-trigger')
+              ?.focus();
           }}
         >
           <div className="shop-filter-drawer__header">
-            <DialogTitle className="shop-filter-drawer__title">
-              Filter
-            </DialogTitle>
+            <DialogTitle className="shop-filter-drawer__title">Filter</DialogTitle>
             <DialogDescription className="sr-only">
               Sorter og snevre inn produktlisten. Endringer lagres i adressen.
             </DialogDescription>
@@ -214,93 +251,106 @@ export function ShopFilterDrawer({
               </div>
             )}
 
-            {capabilities.brand && (
-              <div className="shop-filter-drawer__field">
-                <label htmlFor={brandId} className="shop-filter-drawer__label">
-                  Merke
+            {capabilities.store && storeOptions.length > 0 && (
+              <fieldset className="shop-filter-drawer__field">
+                <legend className="shop-filter-drawer__label">Butikk</legend>
+                <ul className="shop-filter-options">
+                  {storeOptions.map((option) => (
+                    <CheckRow
+                      key={option.value}
+                      option={option}
+                      onToggle={() =>
+                        onChange({
+                          merchantIds: toggleListValue(state.merchantIds, option.value),
+                        })
+                      }
+                    />
+                  ))}
+                </ul>
+              </fieldset>
+            )}
+
+            {capabilities.brand && (brandOptions.length > 0 || brandQuery) && (
+              <fieldset className="shop-filter-drawer__field">
+                <legend className="shop-filter-drawer__label">Merke</legend>
+                <label htmlFor={brandSearchId} className="sr-only">
+                  Søk etter merke
                 </label>
                 <input
-                  id={brandId}
+                  id={brandSearchId}
+                  type="search"
                   className="shop-filter-drawer__control"
-                  list={brandListId}
-                  placeholder="Alle merker"
+                  placeholder="Søk etter merke"
                   autoComplete="off"
-                  value={brandDraft}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setBrandDraft(value);
-                    const exact = brands.find(
-                      (entry) =>
-                        entry.brand.toLowerCase() ===
-                        value.trim().toLowerCase(),
-                    );
-                    if (exact && exact.brand !== state.brand) {
-                      onChange({ brand: exact.brand });
-                    }
-                  }}
-                  onBlur={() => commitBrand(brandDraft)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault();
-                      commitBrand(brandDraft);
-                      (event.target as HTMLInputElement).blur();
-                    }
-                  }}
+                  value={brandQuery}
+                  onChange={(event) => setBrandQuery(event.target.value)}
                 />
-                <datalist id={brandListId}>
-                  {brands.slice(0, 200).map((entry) => (
-                    <option key={entry.brand} value={entry.brand} />
-                  ))}
-                </datalist>
-              </div>
+                {visibleBrands.length > 0 ? (
+                  <ul className="shop-filter-options">
+                    {visibleBrands.map((option) => (
+                      <CheckRow
+                        key={option.value}
+                        option={option}
+                        onToggle={() =>
+                          onChange({
+                            brands: toggleBrandValue(state.brands, option.value),
+                          })
+                        }
+                      />
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="shop-filter-drawer__empty">
+                    Ingen merker matcher «{brandQuery.trim()}» her.
+                  </p>
+                )}
+                {!brandQuery.trim() && brandOptions.length > visibleBrands.length && (
+                  <button
+                    type="button"
+                    className="shop-filter-more"
+                    onClick={() => setShowAllBrands(true)}
+                  >
+                    Vis alle merker ({formatCount(brandOptions.length)})
+                  </button>
+                )}
+              </fieldset>
             )}
 
-            {capabilities.colour && SHOP_COLOUR_OPTIONS.length > 0 && (
-              <div className="shop-filter-drawer__field">
-                <label htmlFor={colourId} className="shop-filter-drawer__label">
-                  Farge
-                </label>
-                <select
-                  id={colourId}
-                  className="shop-filter-drawer__control"
-                  value={state.colour ?? ''}
-                  onChange={(event) =>
-                    onChange({ colour: event.target.value || undefined })
-                  }
-                >
-                  <option value="">Alle farger</option>
-                  {SHOP_COLOUR_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
+            {showColours && (
+              <fieldset className="shop-filter-drawer__field">
+                <legend className="shop-filter-drawer__label">Farge</legend>
+                <ul className="shop-filter-swatches">
+                  {colourOptions.map((option) => (
+                    <li key={option.value}>
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={option.selected}
+                        disabled={option.count === 0 && !option.selected}
+                        className={cn(
+                          'shop-filter-swatch',
+                          option.selected && 'shop-filter-swatch--selected',
+                        )}
+                        onClick={() =>
+                          onChange({
+                            colours: toggleListValue(state.colours, option.value),
+                          })
+                        }
+                      >
+                        <span
+                          className="shop-filter-swatch__dot"
+                          style={{ background: option.swatch }}
+                          aria-hidden="true"
+                        />
+                        <span>{option.label}</span>
+                        <span className="shop-filter-option__count">
+                          {formatCount(option.count)}
+                        </span>
+                      </button>
+                    </li>
                   ))}
-                </select>
-              </div>
-            )}
-
-            {capabilities.store && (
-              <div className="shop-filter-drawer__field">
-                <label htmlFor={storeId} className="shop-filter-drawer__label">
-                  Butikk
-                </label>
-                <select
-                  id={storeId}
-                  className="shop-filter-drawer__control"
-                  value={state.merchantId ?? ''}
-                  onChange={(event) =>
-                    onChange({
-                      merchantId: event.target.value || undefined,
-                    })
-                  }
-                >
-                  <option value="">Alle butikker</option>
-                  {stores.map((store) => (
-                    <option key={store.id} value={store.id}>
-                      {store.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                </ul>
+              </fieldset>
             )}
 
             {capabilities.price && (
@@ -308,7 +358,6 @@ export function ShopFilterDrawer({
                 <span className="shop-filter-drawer__label">Pris (kr)</span>
                 <div className="shop-filter-drawer__price">
                   <input
-                    id={minId}
                     type="number"
                     inputMode="numeric"
                     min={0}
@@ -331,7 +380,6 @@ export function ShopFilterDrawer({
                     –
                   </span>
                   <input
-                    id={maxId}
                     type="number"
                     inputMode="numeric"
                     min={0}
@@ -354,7 +402,7 @@ export function ShopFilterDrawer({
               </div>
             )}
 
-            {capabilities.sale && (
+            {showSale && (
               <button
                 type="button"
                 className={cn(
@@ -362,17 +410,16 @@ export function ShopFilterDrawer({
                   state.onSale && 'shop-filter-sale--active',
                 )}
                 aria-pressed={Boolean(state.onSale)}
-                onClick={() =>
-                  onChange({ onSale: state.onSale ? undefined : true })
-                }
+                onClick={() => onChange({ onSale: state.onSale ? undefined : true })}
               >
                 På salg
+                {facets && !facetsPending && !state.onSale && ` (${formatCount(facets.onSaleCount)})`}
               </button>
             )}
           </div>
 
-          {activeCount > 0 && (
-            <div className="shop-filter-drawer__footer">
+          <div className="shop-filter-drawer__footer">
+            {activeCount > 0 && (
               <button
                 type="button"
                 className="shop-filter-reset"
@@ -384,19 +431,23 @@ export function ShopFilterDrawer({
                   // Clear drafts synchronously so close-flush cannot revive filters.
                   minDraftRef.current = '';
                   maxDraftRef.current = '';
-                  brandDraftRef.current = '';
                   setMinDraft('');
                   setMaxDraft('');
-                  setBrandDraft('');
+                  setBrandQuery('');
                   onReset();
-                  setOpen(false);
-                  onOpenChange?.(false);
                 }}
               >
-                Nullstill filtre
+                Nullstill
               </button>
-            </div>
-          )}
+            )}
+            <button type="button" className="shop-filter-apply" onClick={close}>
+              {total == null
+                ? 'Vis produkter'
+                : total === 1
+                  ? 'Vis 1 produkt'
+                  : `Vis ${formatCount(total)} produkter`}
+            </button>
+          </div>
         </DialogPrimitive.Content>
       </DialogPortal>
     </Dialog>

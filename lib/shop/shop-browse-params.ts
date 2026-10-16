@@ -21,15 +21,12 @@ export interface ShopBrowseState {
   sort: CatalogSort;
   minPrice?: number;
   maxPrice?: number;
-  /** Merchant id — the API takes one store at a time. */
-  merchantId?: string;
-  /** Catalog brand string for `brand_values` (exact LOWER match). */
-  brand?: string;
-  /**
-   * Canonical colour key (`black`, `blue`, …) for structured `colour` filter.
-   * Only meaningful when the category enables colour.
-   */
-  colour?: string;
+  /** Selected stores (merchant ids). Empty = all stores. */
+  merchantIds: string[];
+  /** Selected brands, as the facet labels them. Empty = all brands. */
+  brands: string[];
+  /** Selected colour families (`black`, `blue`, `gold`, `multi`…). */
+  colours: string[];
   /** Proven `old_price > price` sale filter. */
   onSale?: boolean;
   gender: SuitableFor;
@@ -46,6 +43,23 @@ export const SHOP_BROWSE_PARAM = {
   sale: 'salg',
   gender: 'gender',
 } as const;
+
+/**
+ * Multi-value URL param: repeated (`merke=a&merke=b`) or legacy comma list
+ * for stores/colours. Brands are never comma-split (names can contain commas).
+ */
+function readList(
+  params: URLSearchParams,
+  key: string,
+  splitCommas: boolean,
+): string[] {
+  const values = params
+    .getAll(key)
+    .flatMap((value) => (splitCommas ? value.split(',') : [value]))
+    .map((value) => value.trim())
+    .filter(Boolean);
+  return [...new Set(values)];
+}
 
 /** Committed price only — empty / non-positive / NaN means no constraint. */
 export function parseCommittedPrice(raw: string | null | undefined): number | undefined {
@@ -99,10 +113,11 @@ export function parseShopBrowseState(
     params.get(SHOP_BROWSE_PARAM.max) ?? '',
   );
 
-  const brand = params.get(SHOP_BROWSE_PARAM.brand)?.trim() || undefined;
-  const colour = capabilities.colour
-    ? parseShopColourParam(params.get(SHOP_BROWSE_PARAM.colour))
-    : undefined;
+  const colours = capabilities.colour
+    ? readList(params, SHOP_BROWSE_PARAM.colour, true)
+        .map((value) => parseShopColourParam(value))
+        .filter((value): value is string => Boolean(value))
+    : [];
   const onSale = capabilities.sale
     ? parseOnSaleParam(params.get(SHOP_BROWSE_PARAM.sale))
     : false;
@@ -112,9 +127,9 @@ export function parseShopBrowseState(
     sort: parseCatalogSort(params.get(SHOP_BROWSE_PARAM.sort)),
     minPrice,
     maxPrice,
-    merchantId: params.get(SHOP_BROWSE_PARAM.store) ?? undefined,
-    brand,
-    colour,
+    merchantIds: readList(params, SHOP_BROWSE_PARAM.store, true),
+    brands: dedupeCaseInsensitive(readList(params, SHOP_BROWSE_PARAM.brand, false)),
+    colours: [...new Set(colours)],
     onSale: onSale || undefined,
     gender: parseShopGenderParam(params.get(SHOP_BROWSE_PARAM.gender)),
   };
@@ -127,9 +142,13 @@ export function buildShopBrowseQuery(state: ShopBrowseState): string {
   if (state.sort !== 'relevance') params.set(SHOP_BROWSE_PARAM.sort, state.sort);
   if (state.minPrice != null) params.set(SHOP_BROWSE_PARAM.min, String(state.minPrice));
   if (state.maxPrice != null) params.set(SHOP_BROWSE_PARAM.max, String(state.maxPrice));
-  if (state.merchantId) params.set(SHOP_BROWSE_PARAM.store, state.merchantId);
-  if (state.brand) params.set(SHOP_BROWSE_PARAM.brand, state.brand);
-  if (state.colour) params.set(SHOP_BROWSE_PARAM.colour, state.colour);
+  if (state.merchantIds.length) {
+    params.set(SHOP_BROWSE_PARAM.store, state.merchantIds.join(','));
+  }
+  for (const brand of state.brands) params.append(SHOP_BROWSE_PARAM.brand, brand);
+  if (state.colours.length) {
+    params.set(SHOP_BROWSE_PARAM.colour, state.colours.join(','));
+  }
   if (state.onSale) params.set(SHOP_BROWSE_PARAM.sale, '1');
   // Dame is the default; only pin the param when the shopper picked Herre.
   if (state.gender === 'male') {
@@ -145,7 +164,8 @@ export function buildShopBrowseQuery(state: ShopBrowseState): string {
  * while the `fashion` segment layers fuzzy merchant-category LIKE matching on
  * top that can drop correctly-tagged products (and excludes beauty entirely).
  *
- * Colour uses `colourFieldOnly` so Shop never infers colour from titles.
+ * Colour uses the stored colour family (decided at import), never a
+ * query-time guess from titles.
  */
 export function shopBrowseFilters(
   category: ShopCategory,
@@ -164,12 +184,12 @@ export function shopBrowseFilters(
     // Beauty / watches / accessories have no suitable_for value in the catalog,
     // so sending one would return an empty grid.
     suitableFor: category.gendered ? state.gender : undefined,
-    merchantId: state.merchantId,
-    brandValues: state.brand ? [state.brand] : undefined,
+    merchantIds: state.merchantIds.length ? [...state.merchantIds].sort() : undefined,
+    brandValues: state.brands.length ? [...state.brands].sort() : undefined,
     minPrice: state.minPrice,
     maxPrice: state.maxPrice,
-    colour: capabilities.colour ? state.colour : undefined,
-    colourFieldOnly: capabilities.colour && state.colour ? true : undefined,
+    colourFamilies:
+      capabilities.colour && state.colours.length ? [...state.colours].sort() : undefined,
     onSale: capabilities.sale && state.onSale ? true : undefined,
     sort: state.sort,
   };
@@ -178,9 +198,9 @@ export function shopBrowseFilters(
 export function isShopBrowseFiltered(state: ShopBrowseState): boolean {
   return Boolean(
     state.sub ||
-      state.merchantId ||
-      state.brand ||
-      state.colour ||
+      state.merchantIds.length ||
+      state.brands.length ||
+      state.colours.length ||
       state.onSale ||
       state.minPrice != null ||
       state.maxPrice != null ||
@@ -191,15 +211,52 @@ export function isShopBrowseFiltered(state: ShopBrowseState): boolean {
 /**
  * Count of secondary filters shown in the Filter drawer.
  * Excludes subcategory chips and gender (page context, not drawer filters).
- * Price min/max counts as one constraint. Default relevance sort does not count.
+ * Each selected store / brand / colour counts; price min/max counts as one. Default relevance sort does not count.
  */
 export function countShopDrawerFilters(state: ShopBrowseState): number {
   let count = 0;
-  if (state.brand) count += 1;
-  if (state.merchantId) count += 1;
-  if (state.colour) count += 1;
+  count += state.brands.length;
+  count += state.merchantIds.length;
+  count += state.colours.length;
   if (state.onSale) count += 1;
   if (state.minPrice != null || state.maxPrice != null) count += 1;
   if (state.sort !== 'relevance') count += 1;
   return count;
+}
+
+/** Empty browse state for a gender (used by reset and server prefetch). */
+export function emptyShopBrowseState(
+  gender: SuitableFor = 'female',
+): ShopBrowseState {
+  return { sort: 'relevance', gender, merchantIds: [], brands: [], colours: [] };
+}
+
+/** Toggle one value in a multi-select list. */
+export function toggleListValue(list: readonly string[], value: string): string[] {
+  return list.includes(value)
+    ? list.filter((entry) => entry !== value)
+    : [...list, value];
+}
+
+/**
+ * Brand toggle. The catalog matches brands case-insensitively, so a URL value
+ * of "ADIDAS" and the facet label "adidas" are the same selection: clicking it
+ * must untick it, not add a second spelling.
+ */
+export function toggleBrandValue(list: readonly string[], value: string): string[] {
+  const key = value.toLowerCase();
+  return list.some((entry) => entry.toLowerCase() === key)
+    ? list.filter((entry) => entry.toLowerCase() !== key)
+    : [...list, value];
+}
+
+/** Keep the first spelling of each brand (`merke=adidas&merke=ADIDAS` → one). */
+function dedupeCaseInsensitive(values: readonly string[]): string[] {
+  const seen = new Set<string>();
+  return values.filter((value) => {
+    const key = value.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

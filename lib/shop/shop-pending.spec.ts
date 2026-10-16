@@ -8,6 +8,9 @@ import type { ShopBrowseState } from '@/lib/shop/shop-browse-params';
 const baseState: ShopBrowseState = {
   sort: 'relevance',
   gender: 'female',
+  merchantIds: [],
+  brands: [],
+  colours: [],
 };
 
 describe('shop pending labels', () => {

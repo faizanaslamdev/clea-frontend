@@ -22,6 +22,7 @@ export function useCatalogInfinite(filters: CatalogQueryFilters) {
 
   const queryFilters: FetchProductsParams = {
     merchantId: filters.merchantId,
+    merchantIds: filters.merchantIds,
     brand: filters.brand,
     category: filters.category,
     q: filters.q,
@@ -35,6 +36,7 @@ export function useCatalogInfinite(filters: CatalogQueryFilters) {
     maxPrice: filters.maxPrice,
     colour: filters.colour,
     colourFieldOnly: filters.colourFieldOnly,
+    colourFamilies: filters.colourFamilies,
     onSale: filters.onSale,
     sort: filters.sort,
   };

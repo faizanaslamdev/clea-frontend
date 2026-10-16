@@ -30,17 +30,22 @@ export function shopBrowsePendingLabel(input: {
   if (input.state.onSale) {
     return `Finner ${lower} på salg`;
   }
-  if (input.state.colour) {
+  if (input.state.colours.length) {
     return `Henter ${lower} i valgt farge`;
   }
   if (input.state.minPrice != null || input.state.maxPrice != null) {
     return `Finner ${lower} i prisklassen din`;
   }
-  if (input.state.brand) {
-    return `Henter ${lower} fra ${input.state.brand}`;
+  if (input.state.brands.length === 1) {
+    return `Henter ${lower} fra ${input.state.brands[0]}`;
   }
-  if (input.state.merchantId) {
-    return `Henter ${lower} fra butikken`;
+  if (input.state.brands.length > 1) {
+    return `Henter ${lower} fra valgte merker`;
+  }
+  if (input.state.merchantIds.length) {
+    return input.state.merchantIds.length === 1
+      ? `Henter ${lower} fra butikken`
+      : `Henter ${lower} fra valgte butikker`;
   }
   return `Finner smaken din for: ${heading}`;
 }

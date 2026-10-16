@@ -4,7 +4,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { PageLayout } from '@/components/layout/page-layout';
 import { ShopBrowseClient } from '@/components/shop/shop-browse-client';
 import {
-  fetchCatalogBrands,
+  fetchCatalogFacets,
   fetchCatalogFromApi,
   type CatalogPageResult,
 } from '@/lib/api/products';
@@ -15,7 +15,7 @@ import {
   SHOP_CATEGORIES,
 } from '@/lib/constants/shop-categories';
 import { productKeys } from '@/lib/query/keys';
-import { shopBrowseFilters } from '@/lib/shop/shop-browse-params';
+import { emptyShopBrowseState, shopBrowseFilters } from '@/lib/shop/shop-browse-params';
 import { BRAND } from '@/lib/constants/brand';
 
 export const revalidate = 120;
@@ -56,16 +56,21 @@ export default async function ShopCategoryPage({ params }: PageProps) {
   // The unfiltered Dame view is what most visitors land on, so prefetch exactly
   // that on the server. Any other filter combination hydrates and fetches
   // client-side, which is correct — those are refinements, not first paint.
-  const defaultFilters = shopBrowseFilters(category, {
-    sort: 'relevance',
-    gender: 'female',
-  });
+  const defaultFilters = shopBrowseFilters(category, emptyShopBrowseState('female'));
 
   const queryClient = new QueryClient();
 
-  const [stores, brands] = await Promise.all([
+  const [stores] = await Promise.all([
     fetchAllStoresFromApi().catch(() => []),
-    fetchCatalogBrands(250, { next: { revalidate: 300 } }).catch(() => []),
+    // Filter options + exact count for the default view, so the toolbar and
+    // drawer are ready on first paint.
+    queryClient
+      .prefetchQuery({
+        queryKey: productKeys.catalogFacets(defaultFilters),
+        queryFn: () =>
+          fetchCatalogFacets(defaultFilters, { next: { revalidate: 120 } }),
+      })
+      .catch(() => undefined),
     queryClient
       .prefetchInfiniteQuery({
         queryKey: productKeys.catalog(defaultFilters),
@@ -85,14 +90,10 @@ export default async function ShopCategoryPage({ params }: PageProps) {
       .catch(() => undefined),
   ]);
 
-  if (brands.length > 0) {
-    queryClient.setQueryData(productKeys.catalogBrands(250), brands);
-  }
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <PageLayout>
-        <ShopBrowseClient category={category} stores={stores} brands={brands} />
+        <ShopBrowseClient category={category} stores={stores} />
       </PageLayout>
     </HydrationBoundary>
   );

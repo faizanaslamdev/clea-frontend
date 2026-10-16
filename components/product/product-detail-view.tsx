@@ -374,6 +374,9 @@ export function ProductDetailView({
                         product={product}
                         disabled={chatAnchor?.isAnchorLoading ?? false}
                         className="product-detail-modal__gallery-anchor"
+                        // An AI action hands off to the chat; close the modal so
+                        // the shopper sees the answer instead of a stale overlay.
+                        onActionComplete={isModal ? onClose : undefined}
                       />
                     </div>
               {galleryImages.length > 1 ? (
@@ -534,6 +537,7 @@ export function ProductDetailView({
                   storeId={listingStoreId ?? undefined}
                   variant="detailed"
                   enableAnchorActions
+                  onAnchorActionComplete={isModal ? onClose : undefined}
                 />
               )}
             </section>

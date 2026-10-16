@@ -13,8 +13,9 @@ export interface ShopFilterCapabilities {
   store: boolean;
   price: boolean;
   /**
-   * Clothing/shoe colour from structured `product.colour`.
-   * Off for beauty / watches / accessories (wrong semantics or no data).
+   * Colour family filter (stored at import). Off for beauty, where colour
+   * means a shade, not the product colour. Elsewhere the group only shows
+   * when the page actually has coloured products (facets).
    */
   colour: boolean;
   /**
@@ -35,9 +36,10 @@ function ontologyBranch(ontologyId: string): string {
 /**
  * Resolve filter capabilities for a Shop browse category.
  *
- * Apparel (incl. footwear, bags, socks, legwear): colour + sale.
- * Beauty: no clothing colour; sale kept (Sephora old_price coverage).
- * Watches / accessories: brand/store/price/sort only.
+ * Apparel, watches, accessories: colour (gold/silver matter for jewellery
+ * and watches) + sale. Beauty: no colour; sale kept.
+ * Store / brand / colour / sale groups also hide when the page has no
+ * options for them (see the drawer + facets).
  */
 export function shopFilterCapabilities(
   category: ShopCategory,
@@ -45,16 +47,14 @@ export function shopFilterCapabilities(
   const branch = ontologyBranch(category.ontologyId);
 
   const isBeauty = branch === 'beauty';
-  const isWatches = branch === 'watches';
-  const isAccessories = branch === 'accessories';
 
   return {
     subcategory: category.children.length > 0,
     brand: true,
     store: true,
     price: true,
-    colour: !isBeauty && !isWatches && !isAccessories,
-    sale: !isWatches && !isAccessories,
+    colour: !isBeauty,
+    sale: true,
     sort: true,
     gender: category.gendered,
   };
