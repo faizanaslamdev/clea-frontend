@@ -120,6 +120,35 @@ describe('resolveMerchantImageUrl', () => {
     ).toBe('https://cdn.example.com/a.jpg?x=1');
   });
 
+  it('H&M group: sets imwidth per role on all group hosts', () => {
+    const hm =
+      'https://image.hm.com/assets/hm/00/52/00528296109fca8a77612683cae35a76934721d4.jpg';
+    expect(resolveMerchantImageUrl(hm, 'card')).toBe(`${hm}?imwidth=600`);
+    expect(resolveMerchantImageUrl(`${hm}?imwidth=2000`, 'thumb')).toBe(
+      `${hm}?imwidth=400`,
+    );
+    const cos = 'https://media.cos.com/assets/001/05/46/05465a84e6f7932b96c2ab245ea350a8fe49b6ec.jpg';
+    expect(resolveMerchantImageUrl(cos, 'gallery')).toBe(`${cos}?imwidth=1200`);
+  });
+
+  it('Ellos: replaces mw and keeps $preset$ keys raw', () => {
+    const ellos =
+      'https://assets.ellosgroup.com/i/ellos/b?$eg$&$em$&$ep$&$el$&n=ell_1043441-01_Fs&mw=800';
+    expect(resolveMerchantImageUrl(ellos, 'thumb')).toBe(
+      'https://assets.ellosgroup.com/i/ellos/b?$eg$&$em$&$ep$&$el$&n=ell_1043441-01_Fs&mw=400',
+    );
+  });
+
+  it('Miinto: uses a verified preset for small roles, original for large', () => {
+    const miinto = 'https://static.miinto.net/0001.webp?width=268&height=402';
+    expect(resolveMerchantImageUrl(miinto, 'card')).toBe(
+      'https://static.miinto.net/0001.webp?width=400&height=600',
+    );
+    expect(resolveMerchantImageUrl(miinto, 'gallery')).toBe(
+      'https://static.miinto.net/0001.webp',
+    );
+  });
+
   it('malformed URL safe passthrough', () => {
     expect(resolveMerchantImageUrl('not-a-url', 'card')).toBe('not-a-url');
   });

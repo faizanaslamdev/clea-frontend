@@ -15,6 +15,7 @@ import {
   SHOP_CATEGORIES,
 } from '@/lib/constants/shop-categories';
 import { productKeys } from '@/lib/query/keys';
+import { canKeepPreviousPage, requirePrefetched } from '@/lib/query/isr-guard';
 import { emptyShopBrowseState, shopBrowseFilters } from '@/lib/shop/shop-browse-params';
 import { BRAND } from '@/lib/constants/brand';
 
@@ -89,6 +90,15 @@ export default async function ShopCategoryPage({ params }: PageProps) {
       })
       .catch(() => undefined),
   ]);
+
+  // The product list is the page; the store list names the store filter.
+  // Facet counts may be missing (the drawer fetches them on open).
+  requirePrefetched(queryClient, `shop/${category.slug}`, [
+    productKeys.catalog(defaultFilters),
+  ]);
+  if (stores.length === 0 && canKeepPreviousPage()) {
+    throw new Error(`ISR shop/${category.slug}: store list missing; keeping the previous page`);
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

@@ -7,6 +7,7 @@ import {
 } from '@/lib/api/products';
 import { categoryGridForShop } from '@/lib/constants/category-grid';
 import { productKeys } from '@/lib/query/keys';
+import { requirePrefetched } from '@/lib/query/isr-guard';
 import type { SuitableFor } from '@/lib/api/chat-types';
 
 /** Keep shop previews fresh without a full client waterfall on every visit. */
@@ -32,6 +33,12 @@ async function prefetchShopData() {
         }),
       ];
     }),
+  );
+
+  requirePrefetched(
+    queryClient,
+    'shop',
+    SHOP_AUDIENCES.map((suitableFor) => productKeys.categoryGrid(suitableFor)),
   );
 
   return dehydrate(queryClient);

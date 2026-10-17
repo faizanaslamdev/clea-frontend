@@ -12,6 +12,7 @@ import {
 import { BRAND } from '@/lib/constants/brand';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { productKeys } from '@/lib/query/keys';
+import { prefetchWithin } from '@/lib/query/prefetch-within';
 import { getProductHref, isProductId } from '@/lib/domain/products/paths';
 import { toDisplayCase } from '@/lib/services';
 
@@ -24,6 +25,10 @@ function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
   return value;
 }
+
+/** Offers drive the price comparison, so they get the longer wait. */
+const OFFERS_BUDGET_MS = 2000;
+const SIMILAR_BUDGET_MS = 600;
 
 const loadProduct = cache(async (id: string) =>
   fetchProductById(id, { next: { revalidate: 120 } }),
@@ -90,15 +95,27 @@ export default async function ProductPage({
 
   queryClient.setQueryData(productKeys.detail(id), product);
 
+  // Only the product itself blocks the page. Offers and similar products get
+  // a short budget: when the API answers in time they are rendered with the
+  // page, otherwise the client fetches them behind their skeletons.
   await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: productKeys.similar(id),
-      queryFn: () => fetchSimilarProducts(id, 4, { next: { revalidate: 120 } }),
-    }),
-    queryClient.prefetchQuery({
-      queryKey: productKeys.offers(id),
-      queryFn: () => fetchProductOffers(id, { next: { revalidate: 120 } }),
-    }),
+    prefetchWithin(
+      queryClient,
+      {
+        queryKey: productKeys.offers(id),
+        queryFn: () => fetchProductOffers(id, { next: { revalidate: 120 } }),
+      },
+      OFFERS_BUDGET_MS,
+    ),
+    prefetchWithin(
+      queryClient,
+      {
+        queryKey: productKeys.similar(id),
+        queryFn: () =>
+          fetchSimilarProducts(id, 4, { next: { revalidate: 120 } }),
+      },
+      SIMILAR_BUDGET_MS,
+    ),
   ]);
 
   return (

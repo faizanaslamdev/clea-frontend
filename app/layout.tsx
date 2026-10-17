@@ -3,6 +3,8 @@ import { Roboto_Mono, Playfair_Display, DM_Sans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { BRAND, BRAND_LOGOS } from '@/lib/constants/brand';
 import './globals.css';
+import { preconnect } from 'react-dom';
+import { getApiBaseUrl } from '@/lib/api/backend-client';
 import { Providers } from './providers';
 
 const robotoMono = Roboto_Mono({
@@ -55,6 +57,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // The first client API call shouldn't pay DNS + TLS setup. API requests send
+  // credentials, so the warm connection must be the credentialed one.
+  preconnect(getApiBaseUrl(), { crossOrigin: 'use-credentials' });
+
   return (
     <html
       lang="nb"

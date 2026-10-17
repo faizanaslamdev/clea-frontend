@@ -11,6 +11,8 @@ export function useCatalogFacets(filters: CatalogQueryFilters) {
     queryFn: () => fetchCatalogFacets(filters),
     // Keep the old counts on screen while a new selection loads.
     placeholderData: keepPreviousData,
-    staleTime: 60_000,
+    // Same freshness as the product list: counts are hydrated from the ISR page
+    // (up to a few minutes old) and must not refetch on every visit.
+    staleTime: 5 * 60_000,
   });
 }

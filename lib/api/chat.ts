@@ -92,6 +92,8 @@ export async function fetchChatTurn(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request),
     cache: 'no-store',
+    // A chat turn includes an LLM call plus search; give it more room.
+    timeoutMs: 30_000,
   });
 
   return {

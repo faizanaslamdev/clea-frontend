@@ -7,6 +7,18 @@ const SHOPIFY_HOST = 'cdn.shopify.com';
 const SCENE7_HOST = 'ralphlauren.scene7.com';
 const ADIDAS_HOST = 'assets.adidas.com';
 const FJELLSPORT_HOSTS = new Set(['www.fjellsport.no', 'prod.fjellsport.no']);
+/** H&M group CDN (Akamai `imwidth`, any width). Originals are often ~1 MB. */
+const HM_GROUP_HOSTS = new Set([
+  'image.hm.com',
+  'media.cos.com',
+  'media.arket.com',
+  'media.weekday.com',
+  'media.stories.com',
+]);
+/** Ellos group (Amplience `mw`, any width; presets `$eg$…` must stay raw). */
+const ELLOS_HOST = 'assets.ellosgroup.com';
+/** Miinto only serves fixed `width`+`height` presets (others 404). */
+const MIINTO_HOST = 'static.miinto.net';
 
 const OCCTOO_FORMAT: Record<Exclude<ProductImageRole, 'gallery'>, string> = {
   thumb: 'medium',
@@ -39,6 +51,28 @@ const OUTNORTH_W: Record<ProductImageRole, number> = {
   card: 800,
   feature: 1000,
   gallery: 1200,
+};
+
+const HM_GROUP_WIDTH: Record<ProductImageRole, number> = {
+  thumb: 400,
+  card: 600,
+  feature: 800,
+  gallery: 1200,
+};
+
+const ELLOS_WIDTH: Record<ProductImageRole, number> = {
+  thumb: 400,
+  card: 600,
+  feature: 800,
+  gallery: 1200,
+};
+
+/** Verified presets (2026-10-17): 268x402 and 400x600; null = original. */
+const MIINTO_PRESET: Record<ProductImageRole, [number, number] | null> = {
+  thumb: [400, 600],
+  card: [400, 600],
+  feature: null,
+  gallery: null,
 };
 
 function serializeUrl(parsed: URL): string {
@@ -127,6 +161,20 @@ export function getMerchantImageBaseUrl(url: string): string {
       return serializeUrl(parsed);
     }
 
+    if (HM_GROUP_HOSTS.has(host)) {
+      deleteParamsCaseInsensitive(parsed, ['imwidth']);
+      return serializeUrl(parsed);
+    }
+
+    if (host === ELLOS_HOST) {
+      return rewriteRawQueryParam(cleaned, 'mw', null);
+    }
+
+    if (host === MIINTO_HOST) {
+      deleteParamsCaseInsensitive(parsed, ['width', 'height']);
+      return serializeUrl(parsed);
+    }
+
     // Adidas / Viking / unknown: path or opaque feed URL is the base.
     return cleaned;
   } catch {
@@ -177,6 +225,25 @@ function applyOutnorth(base: string, role: ProductImageRole): string {
   return serializeUrl(parsed);
 }
 
+function applyHmGroup(base: string, role: ProductImageRole): string {
+  const parsed = new URL(base);
+  setParam(parsed, 'imwidth', String(HM_GROUP_WIDTH[role]));
+  return serializeUrl(parsed);
+}
+
+function applyEllos(base: string, role: ProductImageRole): string {
+  return rewriteRawQueryParam(base, 'mw', String(ELLOS_WIDTH[role]));
+}
+
+function applyMiinto(base: string, role: ProductImageRole): string {
+  const preset = MIINTO_PRESET[role];
+  if (!preset) return base;
+  const parsed = new URL(base);
+  parsed.searchParams.set('width', String(preset[0]));
+  parsed.searchParams.set('height', String(preset[1]));
+  return serializeUrl(parsed);
+}
+
 /**
  * Presentation-time merchant CDN sizing. Pass raw or normalized URLs.
  * Unknown hosts and malformed URLs return the hygiene/base URL unchanged.
@@ -208,6 +275,15 @@ export function resolveMerchantImageUrl(
     }
     if (FJELLSPORT_HOSTS.has(host) && new URL(base).pathname.includes('/assets/blobs/')) {
       return applyOutnorth(base, role);
+    }
+    if (HM_GROUP_HOSTS.has(host)) {
+      return applyHmGroup(base, role);
+    }
+    if (host === ELLOS_HOST) {
+      return applyEllos(base, role);
+    }
+    if (host === MIINTO_HOST) {
+      return applyMiinto(base, role);
     }
 
     return base;

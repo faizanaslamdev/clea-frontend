@@ -38,20 +38,69 @@ export class ApiError extends Error {
   }
 }
 
+/** Server renders must not hang on a slow API; browsers get a little longer. */
+export const API_TIMEOUT_SERVER_MS = 10_000;
+export const API_TIMEOUT_BROWSER_MS = 20_000;
+
+export interface ApiFetchInit extends RequestInit {
+  /** Abort after this many ms (default depends on server vs browser). */
+  timeoutMs?: number;
+}
+
+function defaultTimeoutMs(): number {
+  return typeof window === 'undefined'
+    ? API_TIMEOUT_SERVER_MS
+    : API_TIMEOUT_BROWSER_MS;
+}
+
+/** Caller's signal (e.g. TanStack's) combined with the timeout. */
+function withTimeout(
+  signal: AbortSignal | null | undefined,
+  timeoutMs: number,
+): AbortSignal {
+  const timeout = AbortSignal.timeout(timeoutMs);
+  if (!signal) return timeout;
+  if (typeof AbortSignal.any === 'function') {
+    return AbortSignal.any([signal, timeout]);
+  }
+  return signal;
+}
+
+function isTimeoutError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === 'TimeoutError' || error.name === 'AbortError')
+  );
+}
+
 export async function apiFetch<T>(
   path: string,
-  init?: RequestInit,
+  init?: ApiFetchInit,
 ): Promise<T> {
   const url = `${getApiBaseUrl()}${path.startsWith('/') ? path : `/${path}`}`;
+  const { timeoutMs = defaultTimeoutMs(), signal, ...requestInit } = init ?? {};
 
-  const response = await fetch(url, {
-    ...init,
-    credentials: init?.credentials ?? 'include',
-    headers: {
-      Accept: 'application/json',
-      ...init?.headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      ...requestInit,
+      signal: withTimeout(signal, timeoutMs),
+      credentials: requestInit.credentials ?? 'include',
+      headers: {
+        Accept: 'application/json',
+        ...requestInit.headers,
+      },
+    });
+  } catch (error) {
+    if (isTimeoutError(error) && !signal?.aborted) {
+      throw new ApiError(
+        `API timed out after ${timeoutMs} ms for ${path}`,
+        0,
+        'timeout',
+      );
+    }
+    throw error;
+  }
 
   if (!response.ok) {
     const detail = await response.text().catch(() => '');

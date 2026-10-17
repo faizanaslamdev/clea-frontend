@@ -15,6 +15,7 @@ import { fetchAllStores } from '@/lib/api/stores';
 import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
 import { POPULAR_PRODUCTS_LIMIT } from '@/lib/constants/popular-brands';
 import { productKeys, storeKeys } from '@/lib/query/keys';
+import { requirePrefetched } from '@/lib/query/isr-guard';
 
 /** Keep home data fresh without forcing a full client waterfall on every visit. */
 export const revalidate = 120;
@@ -36,6 +37,13 @@ async function prefetchHomeData() {
       queryKey: storeKeys.all,
       queryFn: fetchAllStores,
     }),
+  ]);
+
+  // Featured products and category previews make the page; the store list
+  // only feeds the marquee names and may be missing.
+  requirePrefetched(queryClient, 'home', [
+    productKeys.featured(),
+    productKeys.categoryGrid(),
   ]);
 
   return dehydrate(queryClient);

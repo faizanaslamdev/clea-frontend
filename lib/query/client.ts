@@ -9,6 +9,8 @@ export function createQueryClient(): QueryClient {
       queries: {
         staleTime: STALE_TIME_DEFAULT_MS,
         retry: 1,
+        // Catalog data doesn't change when a tab regains focus.
+        refetchOnWindowFocus: false,
       },
     },
   });
