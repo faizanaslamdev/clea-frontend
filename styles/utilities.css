@@ -4393,6 +4393,39 @@
     @apply border-foreground bg-foreground text-background hover:border-foreground hover:bg-foreground/90 hover:text-background;
   }
 
+  /* Search results (/sok) */
+  .search-results__header {
+    @apply mb-4 flex flex-col gap-3;
+  }
+
+  .search-results__box {
+    @apply w-full max-w-2xl;
+  }
+
+  .search-results__title {
+    @apply mt-2 break-words;
+  }
+
+  .search-results__understood {
+    @apply flex flex-wrap items-center gap-2 text-sm text-muted-foreground;
+  }
+
+  .search-results__chip {
+    @apply rounded-full border border-border px-3 py-1 text-foreground;
+  }
+
+  .search-results__notices {
+    @apply flex flex-col gap-1 rounded-xl bg-muted px-4 py-3 text-sm text-foreground;
+  }
+
+  .search-results__hint {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .search-results__ask {
+    @apply inline-flex items-center gap-1.5 underline-offset-4 transition-colors hover:text-foreground hover:underline;
+  }
+
   .shop-browse__state {
     @apply flex flex-col items-start gap-4 py-16 text-muted-foreground;
   }

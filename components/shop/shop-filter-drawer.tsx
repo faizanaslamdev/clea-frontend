@@ -14,7 +14,10 @@ import { CATALOG_SORT_LABELS, CATALOG_SORT_VALUES, type CatalogSort } from '@/li
 import type { CatalogFacets } from '@/lib/api/products';
 import type { ShopCategory } from '@/lib/constants/shop-categories';
 import { SHOP_COLOUR_OPTIONS } from '@/lib/shop/shop-colours';
-import { shopFilterCapabilities } from '@/lib/shop/shop-filter-capabilities';
+import {
+  shopFilterCapabilities,
+  type ShopFilterCapabilities,
+} from '@/lib/shop/shop-filter-capabilities';
 import {
   commitPriceRange,
   countShopDrawerFilters,
@@ -35,8 +38,22 @@ const PRICE_DEBOUNCE_MS = 650;
 /** Brands shown before "Vis alle merker". */
 const BRAND_PREVIEW_COUNT = 10;
 
+/** Search results: every filter except Shop-only subcategory / gender rows. */
+export const SEARCH_FILTER_CAPABILITIES: ShopFilterCapabilities = {
+  subcategory: false,
+  brand: true,
+  store: true,
+  price: true,
+  colour: true,
+  sale: true,
+  sort: true,
+  gender: false,
+};
+
 interface ShopFilterDrawerProps {
-  category: ShopCategory;
+  /** Shop category the drawer filters; omit and pass `capabilities` elsewhere (search). */
+  category?: ShopCategory;
+  capabilities?: ShopFilterCapabilities;
   state: ShopBrowseState;
   /** Store directory, used only for display names. */
   stores: readonly Store[];
@@ -89,6 +106,7 @@ function CheckRow({
 
 export function ShopFilterDrawer({
   category,
+  capabilities: capabilitiesOverride,
   state,
   stores,
   facets,
@@ -98,8 +116,10 @@ export function ShopFilterDrawer({
   onOpenChange,
 }: ShopFilterDrawerProps) {
   const capabilities = useMemo(
-    () => shopFilterCapabilities(category),
-    [category],
+    () =>
+      capabilitiesOverride ??
+      (category ? shopFilterCapabilities(category) : SEARCH_FILTER_CAPABILITIES),
+    [capabilitiesOverride, category],
   );
   const activeCount = countShopDrawerFilters(state);
 

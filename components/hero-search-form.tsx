@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowUp } from 'lucide-react';
 import type { ShopCategory } from '@/lib/api/chat-types';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
+import { buildSearchUrl, shouldOpenChat } from '@/lib/search/search-routing';
 import { TypewriterText } from '@/components/shared/typewriter-text';
 import { cn } from '@/lib/utils';
 
@@ -103,8 +104,14 @@ export function HeroSearchForm({
       return;
     }
 
-    navigateToChat(trimmed);
-  }, [query, onSubmitQuery, navigateToChat, submitLocked]);
+    // Product lookups ("svarte jeans herre") open the results page; questions,
+    // occasions and styling requests go to the AI chat.
+    if (shouldOpenChat(trimmed)) {
+      navigateToChat(trimmed);
+      return;
+    }
+    router.push(buildSearchUrl(trimmed, shopCategory));
+  }, [query, onSubmitQuery, navigateToChat, submitLocked, router, shopCategory]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

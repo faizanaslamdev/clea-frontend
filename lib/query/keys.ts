@@ -1,5 +1,6 @@
 import type { ProductFamily, SuitableFor } from '@/lib/api/chat-types';
 import type { CatalogSort } from '@/lib/api/catalog-sort';
+import type { SearchParams } from '@/lib/api/search';
 
 export type CatalogQueryFilters = {
   merchantId?: string;
@@ -41,6 +42,8 @@ export const productKeys = {
     void _sort;
     return [...productKeys.all, 'catalog-facets', rest] as const;
   },
+  /** Search results page (`GET /search`); page 0 also carries facets. */
+  search: (params: SearchParams) => [...productKeys.all, 'search', params] as const,
   catalogBrands: (limit = 250) =>
     [...productKeys.all, 'catalog-brands', limit] as const,
   detail: (id: string) => [...productKeys.all, 'detail', id] as const,
