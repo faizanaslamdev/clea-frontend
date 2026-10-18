@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useId, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAppPathname } from '@/lib/navigation/app-pathname';
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -53,7 +54,7 @@ export function PillSearchBar({
   }, [defaultValue, isControlled]);
 
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const searchParams = useSearchParams();
   const urlValue = searchParams.get(paramKey) ?? '';
 

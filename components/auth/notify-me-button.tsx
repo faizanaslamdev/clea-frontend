@@ -2,7 +2,7 @@
 
 import { Bell, BellOff, Check } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { useAppPathname } from '@/lib/navigation/app-pathname';
 import { useAuthModal } from '@/components/auth/auth-provider';
 import { useSession } from '@/lib/auth/client';
 import { ApiError } from '@/lib/api/backend-client';
@@ -23,7 +23,7 @@ export function NotifyMeButton({ productId, className }: NotifyMeButtonProps) {
   const { data: session, isPending: isSessionPending } = useSession();
   const { openAuthModal, clearPendingActionAfterSuccess, refreshPendingAction } =
     useAuthModal();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const [info, setInfo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [optimisticTracking, setOptimisticTracking] = useState<boolean | null>(

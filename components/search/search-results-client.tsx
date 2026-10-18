@@ -1,7 +1,8 @@
 'use client';
 
 import { Suspense, useCallback, useMemo, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAppPathname } from '@/lib/navigation/app-pathname';
 import { Sparkles } from 'lucide-react';
 import { HeroSearchForm } from '@/components/hero-search-form';
 import { ProductGrid } from '@/components/product-grid';
@@ -27,7 +28,7 @@ interface SearchResultsClientProps {
 
 function SearchResultsContent({ stores }: SearchResultsClientProps) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const searchParams = useSearchParams();
   const state = useMemo(
     () => parseSearchPageState(new URLSearchParams(searchParams.toString())),

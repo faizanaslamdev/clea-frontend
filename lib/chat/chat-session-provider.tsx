@@ -11,7 +11,8 @@ import {
   type ReactNode,
   type SetStateAction,
 } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useAppPathname } from '@/lib/navigation/app-pathname';
 import type { ChatEntryBootstrap } from '@/lib/chat/chat-entry';
 import { parseChatEntryBootstrap } from '@/lib/chat/chat-entry';
 import { conversationIdFromPath } from '@/lib/chat/chat-footer-visibility';
@@ -83,7 +84,7 @@ function ChatSessionStateOwner({
 }
 
 export function ChatSessionProvider({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const conversationId = conversationIdFromPath(pathname);
 
   return (

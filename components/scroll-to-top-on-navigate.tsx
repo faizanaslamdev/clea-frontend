@@ -1,6 +1,7 @@
 'use client';
 
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useAppPathname } from '@/lib/navigation/app-pathname';
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import {
   locationKey,
@@ -18,7 +19,7 @@ const PENDING_RESTORE_KEY = 'clea:pending-scroll-restore';
  * returns to the same place in the brand/shop/chat grid.
  */
 export function ScrollToTopOnNavigate() {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const searchParams = useSearchParams();
   const search = searchParams?.toString() ? `?${searchParams.toString()}` : '';
   const isPopRef = useRef(false);

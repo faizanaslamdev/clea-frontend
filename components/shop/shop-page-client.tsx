@@ -7,7 +7,8 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAppPathname } from '@/lib/navigation/app-pathname';
 import { useQueryClient } from '@tanstack/react-query';
 import { CategorySection } from '@/components/category-section';
 import { ShopBrowseAssistant, ShopBrowseAssistantScope } from '@/components/shop/shop-browse-assistant';
@@ -34,7 +35,7 @@ import { shopHubPendingLabel } from '@/lib/shop/shop-pending';
 
 function ShopPageContent() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const { isNavigating, error, navigateToShopHref, retry } =

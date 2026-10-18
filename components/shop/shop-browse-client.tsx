@@ -2,7 +2,8 @@
 
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useAppPathname } from '@/lib/navigation/app-pathname';
 import { ProductGrid } from '@/components/product-grid';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
 import { ShopBrowseAssistant, ShopBrowseAssistantScope } from '@/components/shop/shop-browse-assistant';
@@ -32,7 +33,7 @@ interface ShopBrowseClientProps {
 }
 
 function ShopBrowseContent({ category, stores }: ShopBrowseClientProps) {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const searchParams = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
 
