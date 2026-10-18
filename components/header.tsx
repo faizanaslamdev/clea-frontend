@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { UserRound } from 'lucide-react';
 import { BrandLogo } from '@/components/brand-logo';
 import { HeroSearchForm } from '@/components/hero-search-form';
@@ -10,6 +9,7 @@ import { useAuthModal } from '@/components/auth/auth-provider';
 import { useSession } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 import { isFooterNearStickySearch } from '@/lib/ui/floating-search-dock';
+import { useAppPathname } from '@/lib/navigation/app-pathname';
 
 /* Explore/Shop/Brands -- daydream.ing's own header nav is Explore/Shop/
    Favorites; Clea doesn't have a favorites concept in the header today, so
@@ -72,7 +72,7 @@ function isMobileViewport(): boolean {
 }
 
 export function Header() {
-  const pathname = usePathname();
+  const pathname = useAppPathname();
   const { data: session } = useSession();
   const { openAuthModal } = useAuthModal();
   const [pastHero, setPastHero] = useState(false);

@@ -117,3 +117,21 @@ describe('Header background', () => {
     expect(header?.className).toContain('site-header--scrolled');
   });
 });
+
+describe('Header server render', () => {
+  beforeEach(() => {
+    sessionState = { data: null, isPending: false };
+  });
+
+  it('renders the home markup when ISR regenerates / as /index (no hydration mismatch)', async () => {
+    const { renderToString } = await import('react-dom/server');
+    currentPathname = '/';
+    const home = renderToString(<Header />);
+    currentPathname = '/index';
+    const isrRegenerated = renderToString(<Header />);
+
+    expect(isrRegenerated).toBe(home);
+    expect(home).toContain('site-header--scrolled');
+    expect(home).not.toContain('site-header-spacer');
+  });
+});
