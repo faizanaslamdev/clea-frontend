@@ -38,7 +38,7 @@ export interface SearchUnderstanding {
 }
 
 /** A constraint dropped because nothing matched all of them. */
-export type SearchRelaxation = 'words' | 'colour' | 'audience' | 'brand';
+export type SearchRelaxation = 'words' | 'words_ranked' | 'colour' | 'audience' | 'brand';
 
 interface ApiSearchResponse {
   items: ApiProduct[];

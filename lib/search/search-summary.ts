@@ -53,6 +53,8 @@ export function relaxationNotices(
         return `Ingen treff på «${requested.textWords.join(' ')}» – viser nærmeste treff uten ${
           requested.textWords.length > 1 ? 'disse ordene' : 'dette ordet'
         }.`;
+      case 'words_ranked':
+        return `Få treff nevner «${requested.textWords.join(' ')}» – de vises først, fulgt av lignende produkter.`;
       case 'colour':
         return `Fant ingen i ${joinOr(requested.colourFamilies.map((c) => colourLabel(c).toLowerCase()))} – viser andre farger.`;
       case 'audience':

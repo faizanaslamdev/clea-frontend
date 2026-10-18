@@ -30,4 +30,10 @@ describe('relaxationNotices', () => {
     expect(relaxationNotices(['audience'], base, true)).toEqual(['Få treff merket for herre – viser for alle.']);
     expect(relaxationNotices(['words'], { ...base, textWords: ['linen'] }, false)[0]).toContain('«linen»');
   });
+
+  it('says sparse words now rank the results', () => {
+    const note = relaxationNotices(['words_ranked'], { ...base, textWords: ['bryllup'] }, false)[0];
+    expect(note).toContain('«bryllup»');
+    expect(note).toContain('vises først');
+  });
 });
