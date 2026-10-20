@@ -73,6 +73,18 @@ function isTimeoutError(error: unknown): boolean {
   );
 }
 
+/**
+ * Server-rendered pages call the API from Vercel's shared IPs on behalf of
+ * every visitor; the shared key tells the API not to rate-limit those calls
+ * per IP. CLEA_SSR_API_KEY has no NEXT_PUBLIC_ prefix, so it never reaches
+ * the browser bundle, and the header is only added on the server.
+ */
+export function serverOnlyHeaders(): Record<string, string> {
+  if (typeof window !== 'undefined') return {};
+  const key = process.env.CLEA_SSR_API_KEY?.trim();
+  return key ? { 'x-clea-ssr-key': key } : {};
+}
+
 export async function apiFetch<T>(
   path: string,
   init?: ApiFetchInit,
@@ -88,6 +100,7 @@ export async function apiFetch<T>(
       credentials: requestInit.credentials ?? 'include',
       headers: {
         Accept: 'application/json',
+        ...serverOnlyHeaders(),
         ...requestInit.headers,
       },
     });
