@@ -39,7 +39,8 @@ interface HeroSearchFormProps {
    *  static box under an animated one. Only wired up for variant="full". */
   animatedPlaceholderPhrases?: readonly string[];
   shopCategory?: ShopCategory;
-  onShopCategoryChange?: (category: ShopCategory) => void;
+  /** Called with undefined when the visitor clears the choice. */
+  onShopCategoryChange?: (category: ShopCategory | undefined) => void;
 }
 
 export function HeroSearchForm({
@@ -60,13 +61,16 @@ export function HeroSearchForm({
   shopCategory: controlledShopCategory,
   onShopCategoryChange,
 }: HeroSearchFormProps) {
-  const [internalShopCategory, setInternalShopCategory] =
-    useState<ShopCategory>('mens');
-  const isShopCategoryControlled = controlledShopCategory !== undefined;
+  // No audience preselected: a first-time visitor's "kjole" or "jakke" must
+  // not be read as men's. Clicking the chosen one again clears it.
+  const [internalShopCategory, setInternalShopCategory] = useState<
+    ShopCategory | undefined
+  >(undefined);
+  const isShopCategoryControlled = onShopCategoryChange !== undefined;
   const shopCategory = isShopCategoryControlled
     ? controlledShopCategory
     : internalShopCategory;
-  const setShopCategory = (next: ShopCategory) => {
+  const setShopCategory = (next: ShopCategory | undefined) => {
     if (!isShopCategoryControlled) {
       setInternalShopCategory(next);
     }
@@ -186,7 +190,7 @@ export function HeroSearchForm({
               type="button"
               role="tab"
               aria-selected={isActive}
-              onClick={() => setShopCategory(value)}
+              onClick={() => setShopCategory(isActive ? undefined : value)}
               className={cn(
                 'hero-category-toggle__btn',
                 isActive && 'hero-category-toggle__btn--active',

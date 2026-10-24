@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { HeroSearchForm } from '@/components/hero-search-form';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { TypewriterText } from '@/components/shared/typewriter-text';
-import { SEARCH_HEADLINE_EXAMPLES, SEARCH_PLACEHOLDER_EXAMPLES } from '@/lib/constants/search-prompts';
+import { placeholderExamplesFor, SEARCH_HEADLINE_EXAMPLES } from '@/lib/constants/search-prompts';
 import { useLandingSuggestions } from '@/lib/hooks/useLandingSuggestions';
 
 export function SearchLanding() {
@@ -43,7 +43,7 @@ export function SearchLanding() {
           onValueChange={setQuery}
           shopCategory={shopCategory}
           onShopCategoryChange={setShopCategory}
-          animatedPlaceholderPhrases={SEARCH_PLACEHOLDER_EXAMPLES[shopCategory]}
+          animatedPlaceholderPhrases={placeholderExamplesFor(shopCategory)}
         />
       </div>
 

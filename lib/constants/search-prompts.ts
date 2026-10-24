@@ -35,3 +35,18 @@ export const SEARCH_PLACEHOLDER_EXAMPLES: Record<ShopCategory, readonly string[]
     'Chinos som funker til jobb og fest',
   ],
 } as const;
+
+/** Examples for the chosen audience, or both interleaved before one is chosen. */
+export function placeholderExamplesFor(category?: ShopCategory): readonly string[] {
+  if (category) return SEARCH_PLACEHOLDER_EXAMPLES[category];
+  return interleave(SEARCH_PLACEHOLDER_EXAMPLES.womens, SEARCH_PLACEHOLDER_EXAMPLES.mens);
+}
+
+export function interleave<T>(a: readonly T[], b: readonly T[]): T[] {
+  const out: T[] = [];
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if (i < a.length) out.push(a[i]);
+    if (i < b.length) out.push(b[i]);
+  }
+  return out;
+}

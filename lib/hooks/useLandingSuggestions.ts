@@ -6,7 +6,7 @@ import { fetchChatSuggestions } from '@/lib/api/chat';
 import type { ShopCategory } from '@/lib/api/chat-types';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { LANDING_SUGGESTIONS_LOCALE } from '@/lib/constants/chat';
-import { SEARCH_PLACEHOLDER_EXAMPLES } from '@/lib/constants/search-prompts';
+import { interleave, SEARCH_PLACEHOLDER_EXAMPLES } from '@/lib/constants/search-prompts';
 
 const SHOP_CATEGORIES = ['womens', 'mens'] as const satisfies readonly ShopCategory[];
 
@@ -24,6 +24,12 @@ async function loadSuggestions(shopCategory: ShopCategory): Promise<string[]> {
     : fallbackSuggestions(shopCategory);
 }
 
+function mixedSuggestions(
+  cache: Partial<Record<ShopCategory, string[]>>,
+): string[] {
+  return interleave(cache.womens ?? [], cache.mens ?? []).slice(0, 8);
+}
+
 /**
  * Landing Dame/Herre suggestions — seeded with curated fallbacks so chips
  * paint with the hero (no skeleton height jump on reload), then swapped for
@@ -31,12 +37,13 @@ async function loadSuggestions(shopCategory: ShopCategory): Promise<string[]> {
  */
 export function useLandingSuggestions() {
   const router = useRouter();
-  const [shopCategory, setShopCategory] = useState<ShopCategory>('mens');
+  // No audience until the visitor picks one: a first visit sees both.
+  const [shopCategory, setShopCategory] = useState<ShopCategory | undefined>(undefined);
   const shopCategoryRef = useRef(shopCategory);
   shopCategoryRef.current = shopCategory;
 
   const [suggestions, setSuggestions] = useState<string[]>(() =>
-    fallbackSuggestions('mens'),
+    interleave(fallbackSuggestions('womens'), fallbackSuggestions('mens')),
   );
   const cacheRef = useRef<Partial<Record<ShopCategory, string[]>>>({
     mens: fallbackSuggestions('mens'),
@@ -73,6 +80,8 @@ export function useLandingSuggestions() {
         .then((next) => {
           if (shopCategoryRef.current === category) {
             setSuggestions(next);
+          } else if (shopCategoryRef.current === undefined) {
+            setSuggestions(mixedSuggestions(cacheRef.current));
           }
         })
         .catch(() => {
@@ -82,6 +91,10 @@ export function useLandingSuggestions() {
   }, [ensureSuggestions]);
 
   useEffect(() => {
+    if (!shopCategory) {
+      setSuggestions(mixedSuggestions(cacheRef.current));
+      return;
+    }
     const cached = cacheRef.current[shopCategory];
     if (cached && cached.length > 0) {
       setSuggestions(cached);
