@@ -18,7 +18,7 @@ import { productKeys, storeKeys } from '@/lib/query/keys';
 import { requirePrefetched } from '@/lib/query/isr-guard';
 
 /** Keep home data fresh without forcing a full client waterfall on every visit. */
-export const revalidate = 120;
+export const revalidate = 900; // see LISTING_REVALIDATE_SECONDS
 
 async function prefetchHomeData() {
   const queryClient = new QueryClient();

@@ -3,6 +3,7 @@
 import * as Sentry from '@sentry/nextjs';
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { recoverFromChunkLoadError } from '@/lib/ui/chunk-load-recovery';
 
 export default function ChatError({
   error,
@@ -12,6 +13,9 @@ export default function ChatError({
   reset: () => void;
 }) {
   useEffect(() => {
+    // A tab opened before a deploy asking for code that no longer exists:
+    // reload once to the current version instead of showing this screen.
+    if (recoverFromChunkLoadError(error)) return;
     Sentry.captureException(error);
   }, [error]);
 

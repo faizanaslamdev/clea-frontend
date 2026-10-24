@@ -7,6 +7,7 @@ import {
   fetchCatalogFacets,
   fetchCatalogFromApi,
   type CatalogPageResult,
+  LISTING_REVALIDATE_SECONDS,
 } from '@/lib/api/products';
 import { fetchAllStoresFromApi } from '@/lib/api/stores';
 import { CATALOG_PAGE_SIZE } from '@/lib/constants/catalog';
@@ -19,7 +20,7 @@ import { canKeepPreviousPage, requirePrefetched } from '@/lib/query/isr-guard';
 import { emptyShopBrowseState, shopBrowseFilters } from '@/lib/shop/shop-browse-params';
 import { BRAND } from '@/lib/constants/brand';
 
-export const revalidate = 120;
+export const revalidate = 900; // see LISTING_REVALIDATE_SECONDS
 
 export function generateStaticParams(): Array<{ category: string }> {
   return SHOP_CATEGORIES.map((entry) => ({ category: entry.slug }));
@@ -69,7 +70,7 @@ export default async function ShopCategoryPage({ params }: PageProps) {
       .prefetchQuery({
         queryKey: productKeys.catalogFacets(defaultFilters),
         queryFn: () =>
-          fetchCatalogFacets(defaultFilters, { next: { revalidate: 120 } }),
+          fetchCatalogFacets(defaultFilters, { next: { revalidate: LISTING_REVALIDATE_SECONDS } }),
       })
       .catch(() => undefined),
     queryClient
@@ -82,7 +83,7 @@ export default async function ShopCategoryPage({ params }: PageProps) {
               limit: CATALOG_PAGE_SIZE,
               offset: 0,
             },
-            { next: { revalidate: 120 } },
+            { next: { revalidate: LISTING_REVALIDATE_SECONDS } },
           ),
         initialPageParam: 0,
         getNextPageParam: (lastPage: CatalogPageResult) =>

@@ -11,7 +11,7 @@ import { requirePrefetched } from '@/lib/query/isr-guard';
 import type { SuitableFor } from '@/lib/api/chat-types';
 
 /** Keep shop previews fresh without a full client waterfall on every visit. */
-export const revalidate = 120;
+export const revalidate = 900; // see LISTING_REVALIDATE_SECONDS
 
 const SHOP_AUDIENCES: readonly SuitableFor[] = ['female', 'male'];
 

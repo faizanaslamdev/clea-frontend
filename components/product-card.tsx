@@ -69,7 +69,10 @@ function ProductCardLink({
       onClick={onNavigate}
       onMouseEnter={onMouseEnter}
       onFocus={onFocus}
-      prefetch
+      // Default (auto) prefetch: only the product page's loading shell. A
+      // full prefetch server-rendered every visible card's page (product,
+      // offers, similar products) — a dozen API calls per chat answer, even
+      // on desktop where cards open the modal. Hover prefetches the data.
     >
       {children}
     </Link>

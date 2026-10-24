@@ -17,6 +17,14 @@ export type ProductSegment = 'fashion' | 'all';
 
 import type { CatalogSort } from '@/lib/api/catalog-sort';
 
+/**
+ * Listings (homepage rails, Shop tiles and pools, search-by-photo) change only
+ * when a feed import lands (a few times a day). Regenerating them every 2 min
+ * re-ran a fan-out of heavy catalog queries per page and spent Vercel CPU;
+ * 15 min keeps them fresh enough. Product details and offers keep 2 min.
+ */
+export const LISTING_REVALIDATE_SECONDS = 900;
+
 export interface FetchProductsParams {
   q?: string;
   brand?: string;
@@ -233,7 +241,7 @@ export async function fetchFeaturedProducts(
 
   const data = await apiFetch<ApiProductListResponse>(
     `/catalog/popular-now?${search.toString()}`,
-    { next: { revalidate: 120 } },
+    { next: { revalidate: LISTING_REVALIDATE_SECONDS } },
   );
   return data.items.map(mapApiProductToProduct);
 }
@@ -817,7 +825,7 @@ async function fetchCatalogPool(
 ): Promise<Product[]> {
   try {
     const page = await fetchCatalogFromApi(params, {
-      next: { revalidate: 120 },
+      next: { revalidate: LISTING_REVALIDATE_SECONDS },
     });
     return page.products;
   } catch {
@@ -890,7 +898,7 @@ async function gapFillCategoryPreviews(args: {
       try {
         const { products } = await fetchCatalogFromApi(
           gapFillFetchParams(entry, previewQ, suitableFor),
-          { next: { revalidate: 120 } },
+          { next: { revalidate: LISTING_REVALIDATE_SECONDS } },
         );
         const ranked = rankProductsForCategoryTile(
           products.filter(
@@ -1001,7 +1009,7 @@ async function fetchShopCategoryPreviews(
         [{ ...base, suitableFor }, base].map(async (filters) => {
           try {
             const { products } = await fetchCatalogFromApi(filters, {
-              next: { revalidate: 120 },
+              next: { revalidate: LISTING_REVALIDATE_SECONDS },
             });
             return products;
           } catch {
@@ -1201,7 +1209,7 @@ async function fetchTrendingLookSupplements(
           limit: 8,
           balanceMerchants: true,
         },
-        { next: { revalidate: 120 } },
+        { next: { revalidate: LISTING_REVALIDATE_SECONDS } },
       ).catch(() => ({ products: [] as Product[] })),
     ),
   );
@@ -1326,7 +1334,7 @@ export async function fetchSearchByCardPhoto(
         limit: 16,
         balanceMerchants: true,
       },
-      { next: { revalidate: 120 } },
+      { next: { revalidate: LISTING_REVALIDATE_SECONDS } },
     );
     const ranked = [...products].sort(
       (a, b) => scoreSearchByPhoto(b, params) - scoreSearchByPhoto(a, params),

@@ -23,6 +23,7 @@ import { getProductHref } from '@/lib/domain/products/paths';
 import { ProductCardAnchorMenu } from '@/components/product/product-card-anchor-menu';
 import { useChatAnchorConnection } from '@/components/chat/chat-anchor-provider';
 import { NotifyMeButton } from '@/components/auth/notify-me-button';
+import { SectionErrorBoundary } from '@/components/ui/section-error-boundary';
 import { ProductDetailSkeleton } from '@/components/product/product-detail-skeleton';
 import { ProductSimilarSkeleton } from '@/components/product/product-similar-skeleton';
 import {
@@ -497,16 +498,23 @@ export function ProductDetailView({
                       strokeWidth={1.5}
                     />
                   </a>
+                  <SectionErrorBoundary
+                    name="notify-me"
+                    resetKeys={[product.id]}
+                  >
+                    <NotifyMeButton
+                      productId={product.id}
+                      className="product-detail-modal__notify"
+                    />
+                  </SectionErrorBoundary>
+                </div>
+              ) : showBestPrices ? (
+                <SectionErrorBoundary name="notify-me" resetKeys={[product.id]}>
                   <NotifyMeButton
                     productId={product.id}
                     className="product-detail-modal__notify"
                   />
-                </div>
-              ) : showBestPrices ? (
-                <NotifyMeButton
-                  productId={product.id}
-                  className="product-detail-modal__notify"
-                />
+                </SectionErrorBoundary>
               ) : null}
 
               <ProductDescription
@@ -518,29 +526,34 @@ export function ProductDetailView({
           </div>
 
           {isSimilarLoading || similarProducts.length > 0 ? (
-            <section
-              className="product-detail-modal__similar"
-              aria-label="Lignende produkter"
-              aria-busy={isSimilarLoading}
+            <SectionErrorBoundary
+              name="similar-products"
+              resetKeys={[productId]}
             >
-              <h2 className="product-detail-modal__similar-title">
-                Lignende produkter
-              </h2>
-              {isSimilarLoading ? (
-                <>
-                  <p className="sr-only">Laster lignende produkter</p>
-                  <ProductSimilarSkeleton />
-                </>
-              ) : (
-                <ProductGrid
-                  products={similarProducts}
-                  storeId={listingStoreId ?? undefined}
-                  variant="detailed"
-                  enableAnchorActions
-                  onAnchorActionComplete={isModal ? onClose : undefined}
-                />
-              )}
-            </section>
+              <section
+                className="product-detail-modal__similar"
+                aria-label="Lignende produkter"
+                aria-busy={isSimilarLoading}
+              >
+                <h2 className="product-detail-modal__similar-title">
+                  Lignende produkter
+                </h2>
+                {isSimilarLoading ? (
+                  <>
+                    <p className="sr-only">Laster lignende produkter</p>
+                    <ProductSimilarSkeleton />
+                  </>
+                ) : (
+                  <ProductGrid
+                    products={similarProducts}
+                    storeId={listingStoreId ?? undefined}
+                    variant="detailed"
+                    enableAnchorActions
+                    onAnchorActionComplete={isModal ? onClose : undefined}
+                  />
+                )}
+              </section>
+            </SectionErrorBoundary>
           ) : null}
         </div>
       ) : isFetched ? (

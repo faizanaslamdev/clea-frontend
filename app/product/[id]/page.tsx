@@ -8,6 +8,7 @@ import {
   fetchProductById,
   fetchProductOffers,
   fetchSimilarProducts,
+  LISTING_REVALIDATE_SECONDS,
 } from '@/lib/api/products';
 import { BRAND } from '@/lib/constants/brand';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
@@ -112,7 +113,9 @@ export default async function ProductPage({
       {
         queryKey: productKeys.similar(id),
         queryFn: () =>
-          fetchSimilarProducts(id, 4, { next: { revalidate: 120 } }),
+          fetchSimilarProducts(id, 4, {
+            next: { revalidate: LISTING_REVALIDATE_SECONDS },
+          }),
       },
       SIMILAR_BUDGET_MS,
     ),

@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ProductDetailView } from '@/components/product/product-detail-view';
+import { SectionErrorBoundary } from '@/components/ui/section-error-boundary';
 import type { EngagementSurface } from '@/lib/api/engagement';
 
 type ProductDesktopModalTarget = {
@@ -103,15 +104,31 @@ export function ProductDesktopModalProvider({
             </button>
             {target ? (
               <div className="product-detail-desktop-modal__scroll">
-                <ProductDetailView
-                  productId={target.productId}
-                  storeId={target.storeId}
-                  engagementSurface={
-                    target.engagementSurface ?? 'product_page'
+                {/* The modal renders outside the route's error page: without
+                    this, any failure here replaced the whole site with the
+                    global error screen. */}
+                <SectionErrorBoundary
+                  name="product-modal"
+                  resetKeys={[target.productId]}
+                  fallback={
+                    <div className="product-detail-page__error">
+                      <p className="product-detail-page__error-message">
+                        Vi kunne ikke vise dette produktet akkurat nå. Prøv
+                        igjen om litt.
+                      </p>
+                    </div>
                   }
-                  presentation="modal"
-                  onClose={closeProductModal}
-                />
+                >
+                  <ProductDetailView
+                    productId={target.productId}
+                    storeId={target.storeId}
+                    engagementSurface={
+                      target.engagementSurface ?? 'product_page'
+                    }
+                    presentation="modal"
+                    onClose={closeProductModal}
+                  />
+                </SectionErrorBoundary>
               </div>
             ) : null}
           </DialogPrimitive.Content>

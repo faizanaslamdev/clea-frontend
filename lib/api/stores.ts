@@ -4,6 +4,9 @@ import type { ApiMerchant } from '@/lib/api/types';
 import { FEATURED_MERCHANT_LIMIT } from '@/lib/constants/featured';
 import type { Store } from '@/lib/types';
 
+/** The store list changes only when a store is added (see LISTING_REVALIDATE_SECONDS). */
+const STORES_REVALIDATE_SECONDS = 900;
+
 function merchantsUrl(limit: number): string {
   // Include beauty/watches merchants (Sephora, Urverket) — fashion
   // segment alone excludes their catalog rows.
@@ -12,7 +15,7 @@ function merchantsUrl(limit: number): string {
 
 export async function fetchAllStoresFromApi(): Promise<Store[]> {
   const merchants = await apiFetch<ApiMerchant[]>(merchantsUrl(100), {
-    next: { revalidate: 300 },
+    next: { revalidate: STORES_REVALIDATE_SECONDS },
   });
   return merchants.map(mapApiMerchantToStore);
 }
@@ -20,7 +23,7 @@ export async function fetchAllStoresFromApi(): Promise<Store[]> {
 export async function fetchFeaturedStores(): Promise<Store[]> {
   const merchants = await apiFetch<ApiMerchant[]>(
     merchantsUrl(FEATURED_MERCHANT_LIMIT),
-    { next: { revalidate: 300 } },
+    { next: { revalidate: STORES_REVALIDATE_SECONDS } },
   );
   return merchants.map(mapApiMerchantToStore);
 }
@@ -35,7 +38,7 @@ export async function fetchStoreByIdOrSlug(
   try {
     const merchant = await apiFetch<ApiMerchant>(
       `/merchants/${encodeURIComponent(key)}`,
-      { next: { revalidate: 300 } },
+      { next: { revalidate: STORES_REVALIDATE_SECONDS } },
     );
     return mapApiMerchantToStore(merchant);
   } catch (error) {

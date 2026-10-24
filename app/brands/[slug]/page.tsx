@@ -7,6 +7,7 @@ import { BrandProductSection } from '@/components/brands/brand-product-section';
 import {
   fetchCatalogFromApi,
   type CatalogPageResult,
+  LISTING_REVALIDATE_SECONDS,
 } from '@/lib/api/products';
 import { CATALOG_PAGE_SIZE } from '@/lib/constants/catalog';
 import { productKeys, type CatalogQueryFilters } from '@/lib/query/keys';
@@ -73,7 +74,7 @@ async function BrandProductsPrefetch({
     queryFn: () =>
       fetchCatalogFromApi(
         { ...filters, limit: CATALOG_PAGE_SIZE, offset: 0 },
-        { next: { revalidate: 120 } },
+        { next: { revalidate: LISTING_REVALIDATE_SECONDS } },
       ),
     initialPageParam: 0,
     getNextPageParam: (lastPage: CatalogPageResult) =>
