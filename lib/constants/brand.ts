@@ -18,8 +18,8 @@ export const BRAND = {
   siteUrl: 'https://www.clea.no',
   tagline: 'Mote og skjønnhet',
   heroTagline: [
-    // Non-breaking space keeps "500 000" on one line.
-    'Søk blant 500\u00a0000 produkter',
+    // Non-breaking spaces keep "1 000 000+" on one line.
+    'Søk blant 1\u00a0000\u00a0000+ produkter',
     'med din AI-moteassistent',
   ] as const,
   title: 'Clea — Mote og skjønnhet',
