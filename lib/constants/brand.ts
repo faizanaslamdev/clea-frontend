@@ -19,6 +19,13 @@ export const BRAND_ICONS = {
   apple: '/logos/apple-touch-icon-180.png',
 } as const;
 
+/** Official social profiles (footer). */
+export const BRAND_SOCIAL = [
+  { id: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/clea.norge/' },
+  { id: 'tiktok', label: 'TikTok', href: 'https://www.tiktok.com/@clea.no' },
+  { id: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/company/clea-nor/' },
+] as const;
+
 export const BRAND = {
   name: 'Clea',
   wordmark: 'clea',

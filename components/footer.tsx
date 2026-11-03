@@ -1,8 +1,14 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-// import { Instagram, Linkedin } from 'lucide-react';
 import { BrandLogo } from '@/components/brand-logo';
-import { BRAND } from '@/lib/constants/brand';
+import { BRAND, BRAND_SOCIAL } from '@/lib/constants/brand';
+import { InstagramIcon, LinkedInIcon, TikTokIcon } from '@/components/social-icons';
+
+const SOCIAL_ICONS = {
+  instagram: InstagramIcon,
+  tiktok: TikTokIcon,
+  linkedin: LinkedInIcon,
+} as const;
 
 type FooterLink = {
   href: string;
@@ -89,37 +95,25 @@ export function Footer({ showCompareCta = true }: { showCompareCta?: boolean }) 
               imageClassName="site-footer-logo__image"
             />
 
-            {/* Social links — restore when profiles are ready
-            <div className="flex items-center gap-1">
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-social-link"
-                aria-label="Instagram"
-              >
-                <Instagram className="size-[18px]" strokeWidth={1.5} />
-              </a>
-              <a
-                href="https://x.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-social-link"
-                aria-label="X"
-              >
-                <XIcon className="size-[17px]" />
-              </a>
-              <a
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="footer-social-link"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="size-[18px]" strokeWidth={1.5} />
-              </a>
-            </div>
-            */}
+            <ul className="-ml-2 flex items-center gap-1" aria-label="Clea i sosiale medier">
+              {BRAND_SOCIAL.map((social) => {
+                const Icon = SOCIAL_ICONS[social.id];
+                return (
+                  <li key={social.id}>
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="footer-social-link"
+                      aria-label={`Clea på ${social.label}`}
+                      title={social.label}
+                    >
+                      <Icon className="size-[18px]" />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
 
             <p className="text-sm font-light text-muted-foreground">
               © 2026 {BRAND.name} · Alle rettigheter reservert
