@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Roboto_Mono, Playfair_Display, DM_Sans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
-import { BRAND, BRAND_LOGOS } from '@/lib/constants/brand';
+import { BRAND, BRAND_ICONS } from '@/lib/constants/brand';
 import './globals.css';
 import { preconnect } from 'react-dom';
 import { getApiBaseUrl } from '@/lib/api/backend-client';
@@ -36,9 +36,13 @@ export const metadata: Metadata = {
   description: BRAND.description,
   applicationName: BRAND.name,
   icons: {
-    icon: [{ url: BRAND_LOGOS.mark.dark, type: 'image/png' }],
-    apple: [{ url: BRAND_LOGOS.mark.dark, type: 'image/png' }],
-    shortcut: BRAND_LOGOS.mark.dark,
+    icon: [
+      { url: BRAND_ICONS.ico, sizes: '48x48' },
+      { url: BRAND_ICONS.svg, type: 'image/svg+xml' },
+      { url: BRAND_ICONS.png512, type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [{ url: BRAND_ICONS.apple, sizes: '180x180', type: 'image/png' }],
+    shortcut: BRAND_ICONS.ico,
   },
 };
 

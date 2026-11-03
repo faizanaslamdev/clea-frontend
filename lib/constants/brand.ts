@@ -2,13 +2,21 @@
 /** Transparent WebP assets in /public/logos — used for header and footer. */
 export const BRAND_LOGOS = {
   wordmark: {
-    dark: '/logos/clea-wordmark-black.webp',
-    light: '/logos/clea-wordmark-white.webp',
+    dark: '/logos/clea-wordmark-black-v2.webp',
+    light: '/logos/clea-wordmark-white-v2.webp',
   },
   mark: {
-    dark: '/logos/clea-mark-black.webp',
-    light: '/logos/clea-mark-white.webp',
+    dark: '/logos/clea-mark-black-v2.webp',
+    light: '/logos/clea-mark-white-v2.webp',
   },
+} as const;
+
+/** Browser tab, home-screen and bookmark icons (✦ sparkle on black). */
+export const BRAND_ICONS = {
+  ico: '/logos/favicon.ico',
+  svg: '/logos/favicon.svg',
+  png512: '/logos/icon-512.png',
+  apple: '/logos/apple-touch-icon-180.png',
 } as const;
 
 export const BRAND = {
