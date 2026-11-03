@@ -8,15 +8,15 @@ const PARTNER_VISUALS: Record<
   { src: string; alt: string }
 > = {
   chat: {
-    src: '/partner/partner-ai-chat.webp',
+    src: '/partner/partner-ai-chat-v2.webp',
     alt: 'Clea AI-søk med chat og produktforslag',
   },
   brands: {
-    src: '/partner/partner-brand-pages.webp',
+    src: '/partner/partner-brand-pages-v2.webp',
     alt: 'Clea merkesider med produktutforskning',
   },
   search: {
-    src: '/partner/partner-product-search.webp',
+    src: '/partner/partner-product-search-v2.webp',
     alt: 'Clea produktsøk med forslag og resultater',
   },
 };
