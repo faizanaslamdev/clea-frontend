@@ -6,7 +6,8 @@ import { COMPANY } from '@/lib/constants/company';
 
 export const metadata: Metadata = {
   title: 'Om oss',
-  description: `Lær mer om ${BRAND.name} — din personlige moteassistent.`,
+  description: `Om ${BRAND.name}: en norsk AI-moteassistent som samler klær, sko og skjønnhet fra 15+ nettbutikker og sammenligner prisene for deg.`,
+  alternates: { canonical: '/about' },
 };
 
 export default function AboutPage() {

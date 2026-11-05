@@ -4,8 +4,9 @@ import { LegalPageShell } from '@/components/legal/legal-page-shell';
 import { BRAND } from '@/lib/constants/brand';
 
 export const metadata: Metadata = {
-  title: 'FAQ',
-  description: `Ofte stilte spørsmål om ${BRAND.name}.`,
+  title: 'Ofte stilte spørsmål',
+  description: `Svar på vanlige spørsmål om ${BRAND.name}: hvordan prissammenligning, AI-søk og prisvarsel fungerer.`,
+  alternates: { canonical: '/faq' },
 };
 
 const FAQ_ITEMS = [

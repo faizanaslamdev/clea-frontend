@@ -16,6 +16,9 @@ import { productKeys } from '@/lib/query/keys';
 import { prefetchWithin } from '@/lib/query/prefetch-within';
 import { getProductHref, isProductId } from '@/lib/domain/products/paths';
 import { toDisplayCase } from '@/lib/services';
+import type { Product } from '@/lib/types';
+import type { ProductOffersResult } from '@/lib/api/products';
+import { JsonLd, productJsonLd } from '@/lib/seo/json-ld';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -35,6 +38,51 @@ const loadProduct = cache(async (id: string) =>
   fetchProductById(id, { next: { revalidate: 120 } }),
 );
 
+/** "adidas" + "Adidas Women's Ultraboost 5" should not read "adidas Adidas …". */
+function productTitle(product: Product): string {
+  const name = toDisplayCase(product.name);
+  const brand = product.brand?.trim();
+  if (!brand) return name;
+  return name.toLowerCase().startsWith(brand.toLowerCase()) ? name : `${brand} ${name}`;
+}
+
+function productStructuredData(
+  id: string,
+  product: Product,
+  offersResult: ProductOffersResult | undefined,
+) {
+  const fromOffers = offersResult?.offers?.length
+    ? offersResult.offers
+    : offersResult?.anchor
+      ? [offersResult.anchor]
+      : [];
+  const offers = fromOffers.length
+    ? fromOffers.map((offer) => ({
+        price: offer.price,
+        currency: offer.currency,
+        inStock: offer.in_stock,
+        storeName: offer.merchant_name,
+      }))
+    : [
+        {
+          price: product.lowestPrice,
+          currency: product.currency ?? 'NOK',
+          inStock: Object.values(product.inStock ?? {}).some(Boolean),
+          storeName: product.merchantName,
+        },
+      ];
+  return productJsonLd({
+    url: `${BRAND.siteUrl}${getProductHref(id)}`,
+    name: productTitle(product),
+    brand: product.brand,
+    description: product.description?.trim().slice(0, 500) || null,
+    images: (product.images?.length ? product.images : [product.image]).filter(Boolean),
+    sku: product.sku || null,
+    colour: product.colour ?? null,
+    offers,
+  });
+}
+
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
@@ -49,7 +97,7 @@ export async function generateMetadata({
     return { title: 'Produkt ikke funnet' };
   }
 
-  const title = `${product.brand} ${toDisplayCase(product.name)}`;
+  const title = productTitle(product);
   const description =
     product.description?.trim().slice(0, 160) ||
     `Se pris og tilbud på ${title} hos ${BRAND.name}.`;
@@ -121,8 +169,15 @@ export default async function ProductPage({
     ),
   ]);
 
+  const structuredData = productStructuredData(
+    id,
+    product,
+    queryClient.getQueryData<ProductOffersResult>(productKeys.offers(id)),
+  );
+
   return (
     <PageLayout showFooter={false}>
+      {structuredData ? <JsonLd data={structuredData} /> : null}
       <HydrationBoundary state={dehydrate(queryClient)}>
         <ProductDetailView productId={id} storeId={storeId} />
       </HydrationBoundary>

@@ -7,6 +7,7 @@ import { COMPANY } from '@/lib/constants/company';
 export const metadata: Metadata = {
   title: 'Vilkår',
   description: `Vilkår for bruk av ${BRAND.name}.`,
+  alternates: { canonical: '/terms' },
 };
 
 export default function TermsPage() {

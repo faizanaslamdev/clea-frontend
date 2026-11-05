@@ -5,7 +5,8 @@ import { COMPANY } from '@/lib/constants/company';
 
 export const metadata: Metadata = {
   title: 'Kontakt',
-  description: `Ta kontakt med ${BRAND.name}.`,
+  description: `Ta kontakt med ${BRAND.name} – spørsmål, tilbakemeldinger eller samarbeid.`,
+  alternates: { canonical: '/contact' },
 };
 
 export default function ContactPage() {

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { PageLayout } from '@/components/layout/page-layout';
 import { ShopPageClient } from '@/components/shop/shop-page-client';
@@ -9,6 +10,13 @@ import { categoryGridForShop } from '@/lib/constants/category-grid';
 import { productKeys } from '@/lib/query/keys';
 import { requirePrefetched } from '@/lib/query/isr-guard';
 import type { SuitableFor } from '@/lib/api/chat-types';
+
+export const metadata: Metadata = {
+  title: 'Handle klær, sko og skjønnhet – sammenlign priser',
+  description:
+    'Handle kjoler, jakker, gensere, jeans, sko, vesker og skjønnhet fra 15+ nettbutikker. Se samme vare hos flere butikker og finn laveste pris.',
+  alternates: { canonical: '/shop' },
+};
 
 /** Keep shop previews fresh without a full client waterfall on every visit. */
 export const revalidate = 900; // see LISTING_REVALIDATE_SECONDS

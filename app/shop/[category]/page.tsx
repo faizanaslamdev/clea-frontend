@@ -19,6 +19,7 @@ import { productKeys } from '@/lib/query/keys';
 import { canKeepPreviousPage, requirePrefetched } from '@/lib/query/isr-guard';
 import { emptyShopBrowseState, shopBrowseFilters } from '@/lib/shop/shop-browse-params';
 import { BRAND } from '@/lib/constants/brand';
+import { socialMetadata } from '@/lib/seo/social';
 
 export const revalidate = 900; // see LISTING_REVALIDATE_SECONDS
 
@@ -40,10 +41,13 @@ export async function generateMetadata({
     return { title: 'Handle' };
   }
 
+  const title = `${category.label} – sammenlign priser fra 15+ nettbutikker`;
+  const description = `${category.description} Sammenlign priser på ${BRAND.domain}.`;
   return {
-    title: category.label,
-    description: `${category.description} Sammenlign priser på ${BRAND.domain}.`,
+    title,
+    description,
     alternates: { canonical: `/shop/${category.slug}` },
+    ...socialMetadata({ title, description, path: `/shop/${category.slug}` }),
   };
 }
 

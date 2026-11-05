@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { HeroSection } from '@/components/hero-section';
 import { PageLayout } from '@/components/layout/page-layout';
@@ -16,6 +17,11 @@ import { CATEGORY_GRID_ENTRIES } from '@/lib/constants/category-grid';
 import { POPULAR_PRODUCTS_LIMIT } from '@/lib/constants/popular-brands';
 import { productKeys, storeKeys } from '@/lib/query/keys';
 import { requirePrefetched } from '@/lib/query/isr-guard';
+
+export const metadata: Metadata = {
+  title: { absolute: 'Clea – Sammenlign priser på mote og skjønnhet i Norge' },
+  alternates: { canonical: '/' },
+};
 
 /** Keep home data fresh without forcing a full client waterfall on every visit. */
 export const revalidate = 900; // see LISTING_REVALIDATE_SECONDS

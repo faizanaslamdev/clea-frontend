@@ -6,6 +6,7 @@ import { COMPANY } from '@/lib/constants/company';
 export const metadata: Metadata = {
   title: 'Personvern',
   description: `Personvernerklæring for ${BRAND.name}.`,
+  alternates: { canonical: '/privacy' },
 };
 
 export default function PrivacyPage() {

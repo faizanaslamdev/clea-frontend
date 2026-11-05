@@ -4,7 +4,8 @@ import { BRAND } from '@/lib/constants/brand';
 
 export const metadata: Metadata = {
   title: 'Samarbeid',
-  description: `Bli partner med ${BRAND.name} — nå kjøpsklare shoppere i Norden med AI-drevet produktopdagelse.`,
+  description: `Bli partner med ${BRAND.name} — nå kjøpsklare shoppere i Norden med AI-drevet produktoppdagelse.`,
+  alternates: { canonical: '/partner' },
 };
 
 export default function PartnerRoutePage() {

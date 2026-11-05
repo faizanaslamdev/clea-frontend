@@ -37,8 +37,8 @@ export const BRAND = {
     'Søk blant 1\u00a0000\u00a0000+ produkter',
     'med din AI-moteassistent',
   ] as const,
-  title: 'Clea — Mote og skjønnhet',
+  title: 'Clea – Sammenlign priser på mote og skjønnhet',
   titleTemplate: '%s | Clea',
   description:
-    'Sammenlign mote- og skjønnhetspriser på clea.no. Finn de beste tilbudene med smarte prissammenligninger og AI-søk.',
+    'Sammenlign priser på klær, sko, vesker og skjønnhet fra 15+ nettbutikker i Norge. Søk blant 1 000 000+ produkter med AI-moteassistenten og få varsel når prisen faller.',
 } as const;

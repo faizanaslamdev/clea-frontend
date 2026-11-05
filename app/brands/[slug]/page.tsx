@@ -1,4 +1,6 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { socialMetadata } from '@/lib/seo/social';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { notFound, redirect } from 'next/navigation';
 import { PageLayout } from '@/components/layout/page-layout';
@@ -31,6 +33,33 @@ interface BrandPageProps {
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];
   return value;
+}
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: BrandPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const query = await searchParams;
+  const brand = await resolveStoreFromRouteParam(slug, firstParam(query.m)).catch(
+    () => undefined,
+  );
+  // Keep the page's own canonical even when the store lookup is slow or fails.
+  if (!brand) return { title: 'Butikk', alternates: { canonical: `/brands/${slug}` } };
+
+  const canonical = `/brands/${getBrandSlug(brand)}`;
+  const count =
+    brand.productCount && brand.productCount > 0
+      ? `${brand.productCount.toLocaleString('nb-NO')} produkter`
+      : 'produkter';
+  const title = `${brand.name} – ${count} med priser sammenlignet | Clea`;
+  const description = `Se ${count} fra ${brand.name} på Clea. Sammenlign prisen med andre nettbutikker og få varsel når prisen faller.`;
+  return {
+    title: { absolute: title },
+    description,
+    alternates: { canonical },
+    ...socialMetadata({ title, description, path: canonical }),
+  };
 }
 
 /** Same skeleton BrandProductSection shows while its query is pending. */

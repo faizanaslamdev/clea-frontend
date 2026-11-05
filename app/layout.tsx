@@ -6,6 +6,7 @@ import './globals.css';
 import { preconnect } from 'react-dom';
 import { getApiBaseUrl } from '@/lib/api/backend-client';
 import { Providers } from './providers';
+import { JsonLd, organizationJsonLd, websiteJsonLd } from '@/lib/seo/json-ld';
 
 const robotoMono = Roboto_Mono({
   subsets: ['latin'],
@@ -35,6 +36,24 @@ export const metadata: Metadata = {
   },
   description: BRAND.description,
   applicationName: BRAND.name,
+  openGraph: {
+    type: 'website',
+    siteName: BRAND.name,
+    locale: 'nb_NO',
+    title: BRAND.title,
+    description: BRAND.description,
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: BRAND.title }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: BRAND.title,
+    description: BRAND.description,
+    images: ['/og-image.png'],
+  },
+  // Google Search Console HTML-tag verification (set in Vercel when needed).
+  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+    : undefined,
   icons: {
     icon: [
       { url: BRAND_ICONS.ico, sizes: '48x48' },
@@ -75,6 +94,7 @@ export default function RootLayout({
         className="font-sans antialiased bg-background text-foreground"
         suppressHydrationWarning
       >
+        <JsonLd data={[organizationJsonLd(), websiteJsonLd()]} />
         <Providers>{children}</Providers>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
