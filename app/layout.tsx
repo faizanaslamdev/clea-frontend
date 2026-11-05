@@ -50,10 +50,14 @@ export const metadata: Metadata = {
     description: BRAND.description,
     images: ['/og-image.png'],
   },
-  // Google Search Console HTML-tag verification (set in Vercel when needed).
-  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
-    : undefined,
+  // Search-engine ownership checks. Google uses the file in /public; the
+  // Google tag can also be set in Vercel. Bing Webmaster Tools: msvalidate.01.
+  verification: {
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+      : {}),
+    other: { 'msvalidate.01': 'C3E07EE8094BC1229365C51C97DFA606' },
+  },
   icons: {
     icon: [
       { url: BRAND_ICONS.ico, sizes: '48x48' },
