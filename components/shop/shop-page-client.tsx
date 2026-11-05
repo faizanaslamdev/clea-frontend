@@ -2,6 +2,7 @@
 
 import {
   Suspense,
+  useMemo,
   startTransition,
   useCallback,
   useEffect,
@@ -33,10 +34,14 @@ import {
 } from '@/lib/shop/shop-gender';
 import { shopHubPendingLabel } from '@/lib/shop/shop-pending';
 
-function ShopPageContent() {
+/**
+ * `query` is the URL's search string; the server render and Suspense fallback
+ * pass "" so the first HTML already holds the hub for crawlers without JS.
+ */
+function ShopPageContent({ query }: { query: string }) {
   const router = useRouter();
   const pathname = useAppPathname();
-  const searchParams = useSearchParams();
+  const searchParams = useMemo(() => new URLSearchParams(query), [query]);
   const queryClient = useQueryClient();
   const { isNavigating, error, navigateToShopHref, retry } =
     useShopReadyNavigation();
@@ -174,10 +179,15 @@ function ShopPageContent() {
   );
 }
 
+function ShopPageFromUrl() {
+  const searchParams = useSearchParams();
+  return <ShopPageContent query={searchParams.toString()} />;
+}
+
 export function ShopPageClient() {
   return (
-    <Suspense fallback={null}>
-      <ShopPageContent />
+    <Suspense fallback={<ShopPageContent query="" />}>
+      <ShopPageFromUrl />
     </Suspense>
   );
 }

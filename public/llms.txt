@@ -9,11 +9,20 @@ Clea er en norsk tjeneste for prissammenligning av mote og skjønnhet, med en AI
 - [Home](https://www.clea.no/): search across all stores and see popular products
 - [Shop by category](https://www.clea.no/shop): dresses, tops, knitwear, trousers and jeans, jackets, shoes, bags, accessories, beauty
 - [Stores](https://www.clea.no/brands): every partner store and its products
+- [Brands A–Z](https://www.clea.no/merker): 500 brands such as adidas, Nike, H&M, Ralph Lauren and Fjällräven, with prices compared across stores
 - [AI chat](https://www.clea.no/chat): describe what you need and get product suggestions
 - [About Clea](https://www.clea.no/about)
 - [FAQ](https://www.clea.no/faq)
 - [For partners and stores](https://www.clea.no/partner)
 - [Contact](https://www.clea.no/contact)
+
+## Shopping guides (Norwegian)
+
+- [How to compare prices on clothes and shoes](https://www.clea.no/guide/sammenligne-priser-klaer-sko)
+- [Where sneakers are cheapest in Norway](https://www.clea.no/guide/billige-sneakers-norge)
+- [Choosing a winter jacket](https://www.clea.no/guide/vinterjakke-guide)
+- [Price-drop alerts](https://www.clea.no/guide/prisvarsel)
+- [Using the AI fashion assistant](https://www.clea.no/guide/ai-moteassistent)
 
 ## Product pages
 

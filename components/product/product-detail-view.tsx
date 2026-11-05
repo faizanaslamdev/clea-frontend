@@ -66,6 +66,8 @@ export interface ProductDetailViewProps {
   /** Page route vs desktop listing overlay — same data/UI, different chrome. */
   presentation?: 'page' | 'modal';
   onClose?: () => void;
+  /** Brand landing page, when the brand has one (product page only). */
+  brandHref?: string;
 }
 
 export function ProductDetailView({
@@ -74,6 +76,7 @@ export function ProductDetailView({
   engagementSurface = 'product_page',
   presentation = 'page',
   onClose,
+  brandHref,
 }: ProductDetailViewProps) {
   const router = useRouter();
   const chatAnchor = useChatAnchorConnection();
@@ -424,7 +427,15 @@ export function ProductDetailView({
 
             <div className="product-detail-modal__info">
               <div className="product-detail-modal__intro">
-                <p className="product-detail-modal__brand">{product.brand}</p>
+                <p className="product-detail-modal__brand">
+                  {brandHref ? (
+                    <Link href={brandHref} className="hover:underline underline-offset-4">
+                      {product.brand}
+                    </Link>
+                  ) : (
+                    product.brand
+                  )}
+                </p>
                 <h1 className="product-detail-modal__name">
                   {toDisplayCase(product.name)}
                 </h1>

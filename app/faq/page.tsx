@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { faqJsonLd, JsonLd } from '@/lib/seo/json-ld';
 import Link from 'next/link';
 import { LegalPageShell } from '@/components/legal/legal-page-shell';
 import { BRAND } from '@/lib/constants/brand';
@@ -16,7 +17,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Hvilke forhandlere dekker dere?',
-    a: 'Vi fokuserer på store moteforhandlere populære i Norge og Norden, blant annet Zalando, Boozt, Nelly og H&M. Tilgjengelige merker og produkter utvides over tid.',
+    a: 'Vi fokuserer på store moteforhandlere populære i Norge og Norden, blant annet Nelly, H&M, ASOS, Outnorth, Bubbleroom, Ellos, KICKS og Miinto. Tilgjengelige merker og produkter utvides over tid.',
   },
   {
     q: 'Trenger jeg en konto?',
@@ -38,6 +39,8 @@ const FAQ_ITEMS = [
 
 export default function FaqPage() {
   return (
+    <>
+    <JsonLd data={faqJsonLd(FAQ_ITEMS)} />
     <LegalPageShell
       title="FAQ"
       description="Vanlige spørsmål om å bruke Clea."
@@ -54,5 +57,6 @@ export default function FaqPage() {
         Har du flere spørsmål? <Link href="/contact">Kontakt oss</Link>.
       </p>
     </LegalPageShell>
+    </>
   );
 }

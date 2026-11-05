@@ -124,3 +124,38 @@ export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>): 
     })),
   };
 }
+
+export function faqJsonLd(items: ReadonlyArray<{ q: string; a: string }>): JsonLdValue {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: items.map((item) => ({
+      '@type': 'Question',
+      name: item.q,
+      acceptedAnswer: { '@type': 'Answer', text: item.a },
+    })),
+  };
+}
+
+export function articleJsonLd(input: {
+  url: string;
+  title: string;
+  description: string;
+  published: string;
+  updated: string;
+}): JsonLdValue {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: input.title,
+    description: input.description,
+    url: input.url,
+    mainEntityOfPage: input.url,
+    datePublished: input.published,
+    dateModified: input.updated,
+    inLanguage: 'nb-NO',
+    image: `${BRAND.siteUrl}/og-image.png`,
+    author: { '@id': ORGANIZATION_ID },
+    publisher: { '@id': ORGANIZATION_ID },
+  };
+}

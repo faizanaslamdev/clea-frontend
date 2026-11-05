@@ -18,7 +18,8 @@ import { getProductHref, isProductId } from '@/lib/domain/products/paths';
 import { toDisplayCase } from '@/lib/services';
 import type { Product } from '@/lib/types';
 import type { ProductOffersResult } from '@/lib/api/products';
-import { JsonLd, productJsonLd } from '@/lib/seo/json-ld';
+import { breadcrumbJsonLd, JsonLd, productJsonLd } from '@/lib/seo/json-ld';
+import { displayBrandName, productBrandHref } from '@/lib/domain/brands/product-brands';
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -169,6 +170,7 @@ export default async function ProductPage({
     ),
   ]);
 
+  const brandHref = await productBrandHref(product.brand);
   const structuredData = productStructuredData(
     id,
     product,
@@ -178,8 +180,18 @@ export default async function ProductPage({
   return (
     <PageLayout showFooter={false}>
       {structuredData ? <JsonLd data={structuredData} /> : null}
+      {brandHref ? (
+        <JsonLd
+          data={breadcrumbJsonLd([
+            { name: 'Clea', path: '/' },
+            { name: 'Merker', path: '/merker' },
+            { name: displayBrandName(product.brand), path: brandHref },
+            { name: productTitle(product), path: getProductHref(id) },
+          ])}
+        />
+      ) : null}
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <ProductDetailView productId={id} storeId={storeId} />
+        <ProductDetailView productId={id} storeId={storeId} brandHref={brandHref} />
       </HydrationBoundary>
     </PageLayout>
   );

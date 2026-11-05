@@ -34,7 +34,7 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: '*', allow: '/', disallow: PRIVATE_PATHS },
       { userAgent: SEO_TOOL_CRAWLERS, disallow: '/' },
     ],
-    sitemap: `${BRAND.siteUrl}/sitemap.xml`,
+    sitemap: [`${BRAND.siteUrl}/sitemap-index.xml`, `${BRAND.siteUrl}/sitemap.xml`],
     host: BRAND.siteUrl,
   };
 }

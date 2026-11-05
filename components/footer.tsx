@@ -20,6 +20,7 @@ type FooterLink = {
 const FOOTER_LINKS = {
   discover: [
     { href: '/brands', label: 'Alle merker' },
+    { href: '/merker', label: 'Merker A–Å' },
     { href: '/chat', label: 'AI-søk' },
     { href: '/shop', label: 'Handle' },
   ],
@@ -32,6 +33,7 @@ const FOOTER_LINKS = {
     { href: '/terms', label: 'Vilkår' },
     { href: '/contact', label: 'Kontakt' },
     { href: '/faq', label: 'FAQ' },
+    { href: '/guide', label: 'Guider' },
   ],
 } as const satisfies Record<string, readonly FooterLink[]>;
 

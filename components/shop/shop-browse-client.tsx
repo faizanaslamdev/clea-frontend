@@ -32,18 +32,26 @@ interface ShopBrowseClientProps {
   stores: readonly Store[];
 }
 
-function ShopBrowseContent({ category, stores }: ShopBrowseClientProps) {
+/**
+ * `query` is the URL's search string. The server render (and the Suspense
+ * fallback) uses "" — the unfiltered view the page prefetched — so the first
+ * HTML already holds the heading and products for crawlers that don't run JS.
+ */
+function ShopBrowseContent({
+  category,
+  stores,
+  query,
+}: ShopBrowseClientProps & { query: string }) {
   const pathname = useAppPathname();
-  const searchParams = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
 
   const state = useMemo(
     () =>
       parseShopBrowseState(
-        new URLSearchParams(searchParams.toString()),
+        new URLSearchParams(query),
         category,
       ),
-    [searchParams, category],
+    [query, category],
   );
 
   const filters = useMemo(
@@ -249,10 +257,15 @@ function ShopBrowseContent({ category, stores }: ShopBrowseClientProps) {
   );
 }
 
+function ShopBrowseFromUrl(props: ShopBrowseClientProps) {
+  const searchParams = useSearchParams();
+  return <ShopBrowseContent {...props} query={searchParams.toString()} />;
+}
+
 export function ShopBrowseClient(props: ShopBrowseClientProps) {
   return (
-    <Suspense fallback={null}>
-      <ShopBrowseContent {...props} />
+    <Suspense fallback={<ShopBrowseContent {...props} query="" />}>
+      <ShopBrowseFromUrl {...props} />
     </Suspense>
   );
 }

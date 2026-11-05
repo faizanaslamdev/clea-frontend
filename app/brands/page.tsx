@@ -1,65 +1,23 @@
-'use client';
-
-import { Suspense, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { PageLayout } from '@/components/layout/page-layout';
-import BrandGrid from '@/components/brands/BrandGrid';
-import { BrandGridSkeleton } from '@/components/brands/brand-grid-skeleton';
-import { PageSearchSection } from '@/components/shared/page-search-section';
-import { useAllStores } from '@/lib/hooks/useStores';
-import { searchStores } from '@/lib/services';
+import { BrandsPageClient } from '@/components/brands/brands-page-client';
+import { fetchAllStores } from '@/lib/api/stores';
+import { storeKeys } from '@/lib/query/keys';
 
-function BrandsPageContent() {
-  const searchParams = useSearchParams();
-  const brandQuery = searchParams.get('q')?.trim() ?? '';
-  const { data: brands = [], isLoading, isError } = useAllStores();
+export const revalidate = 900; // see LISTING_REVALIDATE_SECONDS
 
-  const filteredBrands = useMemo(
-    () => searchStores(brandQuery, brands),
-    [brandQuery, brands],
-  );
+/** Stores are fetched on the server so the first HTML lists them all. */
+export default async function BrandsPage() {
+  const queryClient = new QueryClient();
+  await queryClient
+    .prefetchQuery({ queryKey: storeKeys.all, queryFn: fetchAllStores })
+    .catch(() => undefined);
 
   return (
-    <div className="section-container section-shell">
-      <PageSearchSection
-        title="Utforsk merker"
-        description="Oppdag et kuratert utvalg av mote, tilbehør og nordiske favoritter."
-        placeholder="Søk etter et merke"
-        paramKey="q"
-        aria-label="Søk etter et merke"
-      />
-
-      {isLoading ? (
-        <>
-          <p className="sr-only">Laster merker</p>
-          <BrandGridSkeleton />
-        </>
-      ) : isError ? (
-        /* Without this the page just ended after the search box -- no grid,
-           no skeleton, no explanation. /shop and the brand detail pages both
-           say this in the same situation. */
-        <p className="text-center text-muted-foreground">
-          Kunne ikke laste merker. Prøv igjen senere.
-        </p>
-      ) : filteredBrands.length === 0 ? (
-        <p className="text-center text-muted-foreground">
-          {brandQuery
-            ? `Ingen merker funnet for «${brandQuery}»`
-            : 'Ingen merker tilgjengelig akkurat nå'}
-        </p>
-      ) : (
-        <BrandGrid brands={filteredBrands} />
-      )}
-    </div>
-  );
-}
-
-export default function BrandsPage() {
-  return (
-    <PageLayout>
-      <Suspense fallback={null}>
-        <BrandsPageContent />
-      </Suspense>
-    </PageLayout>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <PageLayout>
+        <BrandsPageClient />
+      </PageLayout>
+    </HydrationBoundary>
   );
 }

@@ -20,6 +20,8 @@ import { canKeepPreviousPage, requirePrefetched } from '@/lib/query/isr-guard';
 import { emptyShopBrowseState, shopBrowseFilters } from '@/lib/shop/shop-browse-params';
 import { BRAND } from '@/lib/constants/brand';
 import { socialMetadata } from '@/lib/seo/social';
+import { CATEGORY_CONTENT } from '@/lib/seo/category-content';
+import { CategoryGuide } from '@/components/seo/category-guide';
 
 export const revalidate = 900; // see LISTING_REVALIDATE_SECONDS
 
@@ -109,6 +111,9 @@ export default async function ShopCategoryPage({ params }: PageProps) {
     <HydrationBoundary state={dehydrate(queryClient)}>
       <PageLayout>
         <ShopBrowseClient category={category} stores={stores} />
+        {CATEGORY_CONTENT[category.slug] ? (
+          <CategoryGuide content={CATEGORY_CONTENT[category.slug]} />
+        ) : null}
       </PageLayout>
     </HydrationBoundary>
   );
