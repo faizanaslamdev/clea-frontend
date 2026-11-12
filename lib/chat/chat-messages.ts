@@ -12,6 +12,8 @@ export interface SearchChatMessageData {
   turnId?: string;
   status?: ChatMessageStatus;
   products?: import('@/lib/types').Product[];
+  /** Multi-item answer: one titled group per requested product. */
+  sections?: import('@/lib/api/chat-types').ChatResultSection[];
   query?: string;
   searchTotal?: number;
   searchHasMore?: boolean;
@@ -45,6 +47,7 @@ function assistantOptionsFromTurn(
 ): Omit<SearchChatMessageData, 'id' | 'role' | 'content' | 'status'> {
   return {
     products: turn.products.length > 0 ? turn.products : undefined,
+    sections: turn.sections?.length ? turn.sections : undefined,
     query: query.trim() || undefined,
     searchTotal: turn.usedFallback ? turn.products.length : turn.total,
     searchHasMore: turn.hasMore,

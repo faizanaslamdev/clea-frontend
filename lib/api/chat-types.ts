@@ -111,6 +111,7 @@ export interface RestoreConversationTurn {
   reply?: string;
   intent?: ChatIntent;
   products?: ChatProductCard[];
+  sections?: ChatResultSectionWire[];
   total?: number;
   limit?: number;
   offset?: number;
@@ -170,10 +171,29 @@ export interface ChatProductCard {
   relevance_score?: number;
 }
 
+/** One group of products in a multi-item answer ("Kjole", "Sko"). */
+export interface ChatResultSectionWire {
+  title: string;
+  query: string;
+  products: ChatProductCard[];
+  total: number;
+  catalogQuery?: CatalogQuery;
+}
+
+export interface ChatResultSection {
+  title: string;
+  query: string;
+  products: import('@/lib/types').Product[];
+  total: number;
+  catalogQuery?: CatalogQuery;
+}
+
 export interface ChatTurnResponse {
   reply: string;
   intent: ChatIntent;
   products: ChatProductCard[];
+  /** Present when the answer has several product groups (outfit, multi-item). */
+  sections?: ChatResultSectionWire[];
   total: number;
   limit: number;
   offset: number;
@@ -194,6 +214,7 @@ export interface ChatTurnResult {
   reply: string;
   intent: ChatIntent;
   products: import('@/lib/types').Product[];
+  sections?: ChatResultSection[];
   total: number;
   limit: number;
   offset: number;

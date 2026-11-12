@@ -100,6 +100,12 @@ export async function fetchChatTurn(
     reply: data.reply,
     intent: data.intent,
     products: data.products.map(mapChatProductCardToProduct),
+    sections: data.sections?.length
+      ? data.sections.map((section) => ({
+          ...section,
+          products: section.products.map(mapChatProductCardToProduct),
+        }))
+      : undefined,
     total: data.total,
     limit: data.limit,
     offset: data.offset,

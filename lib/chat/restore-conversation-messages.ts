@@ -32,6 +32,12 @@ export function mapRestoreConversationToMessages(
       turnId: messages[messages.length - 1]?.turnId,
       status: 'complete',
       products: products.length > 0 ? products : undefined,
+      sections: turn.sections?.length
+        ? turn.sections.map((section) => ({
+            ...section,
+            products: section.products.map(mapChatProductCardToProduct),
+          }))
+        : undefined,
       query: restored.turns.find((candidate) => candidate.seq === turn.seq - 1)
         ?.message,
       searchTotal: turn.total,

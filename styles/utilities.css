@@ -1593,6 +1593,18 @@
     @apply w-full max-w-none pt-2;
   }
 
+  .search-chat-thread__sections {
+    @apply flex flex-col gap-8;
+  }
+
+  .search-chat-thread__section-title {
+    @apply mb-3 font-serif text-lg font-medium text-foreground;
+  }
+
+  .search-chat-thread__section-count {
+    @apply font-sans text-sm font-normal text-muted-foreground;
+  }
+
   .search-chat-thread__results-reveal {
     display: grid;
     grid-template-rows: 1fr;

@@ -224,8 +224,39 @@ export function SearchChatThread({
 
         const resultsContent =
           message.role === 'assistant' &&
-          message.products &&
-          message.products.length > 0 ? (
+          message.sections &&
+          message.sections.length > 0 ? (
+            <div
+              className="search-chat-thread__results search-chat-thread__sections"
+              aria-label="Forslag"
+            >
+              {message.sections.map((section, index) => (
+                <section
+                  key={`${message.id}-section-${index}`}
+                  className="search-chat-thread__section"
+                  aria-label={section.title}
+                >
+                  <h3 className="search-chat-thread__section-title">
+                    {section.title}
+                    {section.total > section.products.length ? (
+                      <span className="search-chat-thread__section-count">
+                        {' '}
+                        · {section.total} treff
+                      </span>
+                    ) : null}
+                  </h3>
+                  <ProductGrid
+                    products={section.products}
+                    enableAnchorActions
+                    showMerchantLabel
+                    emptyMessage={`Ingen produkter funnet for «${section.query}»`}
+                  />
+                </section>
+              ))}
+            </div>
+          ) : message.role === 'assistant' &&
+            message.products &&
+            message.products.length > 0 ? (
             <div
               className="search-chat-thread__results"
               aria-label={
