@@ -88,14 +88,18 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { id } = await params;
+  // With loading.tsx the page body streams after a 200 shell, so a missing
+  // product thrown from the page became a soft 404 (status 200 + "404" text;
+  // Search Console reports those). notFound() here runs before any bytes go
+  // out, so the response is a real 404.
   if (!isProductId(id)) {
-    return { title: 'Produkt' };
+    notFound();
   }
 
   const product = await loadProduct(id);
 
   if (!product) {
-    return { title: 'Produkt ikke funnet' };
+    notFound();
   }
 
   const title = productTitle(product);

@@ -58,7 +58,12 @@ export function AuthModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="auth-modal sm:max-w-md" showCloseButton>
+      {/* Opens from inside the product modal (z-51) too, so it must sit above it. */}
+      <DialogContent
+        className="auth-modal z-[70] sm:max-w-md"
+        overlayClassName="z-[69]"
+        showCloseButton
+      >
         <DialogHeader className="auth-modal__header">
           <DialogTitle className="auth-modal__title">{copy.title}</DialogTitle>
           <DialogDescription className="auth-modal__description">

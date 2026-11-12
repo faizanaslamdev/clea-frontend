@@ -30,8 +30,9 @@ const SEARCH_BY_CARDS: readonly SearchByCard[] = [
     query: 'Bryllupsgjest-kjole til en sommerfest i Sørlandet',
     shopCategory: 'womens',
     family: 'dresses',
+    // q + product_family together is the one catalog query that still takes
+    // 10–15 s (statement timeout → 500); "kjole" alone answers in under a second.
     photo: {
-      productFamily: 'dresses',
       q: 'kjole',
       nameHint: /dress|kjole|midi|pleat|embroider/i,
       nameAvoid: /sandal|skirt|skjørt|slide/i,

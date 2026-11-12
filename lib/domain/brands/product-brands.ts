@@ -4,6 +4,7 @@ import { slugifyBrandName } from '@/lib/domain/stores/slug';
 
 /** Brand landing pages exist for the catalogue's biggest brands. */
 export const BRAND_PAGE_LIMIT = 500;
+export const BRAND_LOOKUP_LIMIT = 2000;
 const BRANDS_REVALIDATE_SECONDS = 86400;
 
 export interface ProductBrand {
@@ -72,9 +73,22 @@ export const getProductBrands = cache(async (): Promise<ProductBrand[]> => {
   return brands;
 });
 
+/** Every brand with products, for slug lookups (the A–Å list shows the top 500). */
+const getAllProductBrands = cache(async (): Promise<ProductBrand[]> => {
+  const entries = await fetchCatalogBrands(BRAND_LOOKUP_LIMIT, {
+    next: { revalidate: BRANDS_REVALIDATE_SECONDS },
+  });
+  return entries.map(toProductBrand);
+});
+
 export async function findProductBrand(slug: string): Promise<ProductBrand | undefined> {
   const brands = await getProductBrands();
-  return brands.find((brand) => brand.slug === slug);
+  const listed = brands.find((brand) => brand.slug === slug);
+  if (listed) return listed;
+  // Brands just outside the top 500 (counts move with every feed import)
+  // used to 404 — and that 404 was then cached for 15 minutes.
+  const all = await getAllProductBrands().catch(() => []);
+  return all.find((brand) => brand.slug === slug);
 }
 
 /** Link to a brand page when that brand has one. */
