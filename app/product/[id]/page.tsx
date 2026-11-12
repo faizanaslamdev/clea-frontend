@@ -88,10 +88,13 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { id } = await params;
-  // With loading.tsx the page body streams after a 200 shell, so a missing
-  // product thrown from the page became a soft 404 (status 200 + "404" text;
-  // Search Console reports those). notFound() here runs before any bytes go
-  // out, so the response is a real 404.
+  // A missing product used to render the 404 view with HTTP 200 (a soft
+  // 404 — Search Console reports those): the route's loading.tsx made Next
+  // stream a 200 shell before the page could throw. The route has no
+  // loading boundary any more (the skeleton lives in
+  // components/product/product-page-loading.tsx if it is ever needed
+  // again) and the lookup runs here in generateMetadata, before any bytes
+  // go out, so a missing product is a real 404.
   if (!isProductId(id)) {
     notFound();
   }
