@@ -1,4 +1,5 @@
 import { betterAuth } from 'better-auth';
+import { bearer } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { BRAND } from '@/lib/constants/brand';
 import { getAuthDatabasePool } from '@/lib/auth/database';
@@ -16,6 +17,8 @@ function buildTrustedOrigins(baseUrl: string): string[] {
     BRAND.siteUrl,
     `https://${BRAND.domain}`,
     `https://www.${BRAND.domain}`,
+    // Clea mobile app (React Native) sends this Origin on auth requests.
+    'clea://',
   ]);
 
   if (process.env.NODE_ENV !== 'production') {
@@ -24,6 +27,23 @@ function buildTrustedOrigins(baseUrl: string): string[] {
   }
 
   return [...origins];
+}
+
+/**
+ * Price alerts and push devices live in backend-owned tables keyed by the auth user id
+ * (no foreign key), so remove them when the account is deleted. Missing tables are ignored.
+ */
+async function deleteUserOwnedRows(userId: string): Promise<void> {
+  const pool = getAuthDatabasePool();
+  for (const table of ['product_tracks', 'push_devices']) {
+    try {
+      await pool.query(`DELETE FROM "${table}" WHERE "user_id" = $1`, [userId]);
+    } catch (error) {
+      if ((error as { code?: string }).code !== '42P01') {
+        console.error(`[auth] failed to delete ${table} rows for deleted user`, error);
+      }
+    }
+  }
 }
 
 function createAuthInstance() {
@@ -60,6 +80,16 @@ function createAuthInstance() {
         '/send-verification-email': {
           window: 60,
           max: 3,
+        },
+      },
+    },
+    user: {
+      deleteUser: {
+        // App Store guideline 5.1.1(v): accounts created in the app must be deletable in the app.
+        // The endpoint requires the current password.
+        enabled: true,
+        afterDelete: async (user) => {
+          await deleteUserOwnedRows(user.id);
         },
       },
     },
@@ -131,7 +161,9 @@ function createAuthInstance() {
         path: '/',
       },
     },
-    plugins: [nextCookies()],
+    // bearer(): the mobile app authenticates with `Authorization: Bearer` (token from the
+    // `set-auth-token` response header) instead of cookies. nextCookies() must stay last.
+    plugins: [bearer(), nextCookies()],
   });
 }
 
