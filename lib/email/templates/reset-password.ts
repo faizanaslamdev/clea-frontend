@@ -20,7 +20,6 @@ export function buildResetPasswordEmail({
     throw new Error('Password reset email requires a valid http(s) URL.');
   }
 
-  const safeUrl = escapeHtml(verifiedUrl);
   const expiryCopy = formatTokenExpiryCopy(expiresInSeconds);
 
   return renderTransactionalEmail({
@@ -33,14 +32,14 @@ export function buildResetPasswordEmail({
         Vi mottok en forespørsel om å tilbakestille passordet ditt på ${escapeHtml(BRAND.name)}.
       </p>
       <p style="margin:0 0 14px;">${escapeHtml(expiryCopy)}</p>
-      <p style="margin:0 0 14px;">
+      <p style="margin:0;">
         Passordet ditt forblir uendret hvis du ikke gjør noe.
       </p>
-      <p style="margin:0;font-size:13px;color:#666666;">
-        Hvis knappen ikke virker, lim inn denne lenken i nettleseren:<br />
-        <a href="${safeUrl}" style="color:#111111;word-break:break-all;">${safeUrl}</a>
-      </p>
     `,
+    linkFallback: {
+      href: verifiedUrl,
+      intro: 'Virker ikke knappen? Åpne denne lenken:',
+    },
     bodyText: [
       'Hei!',
       '',

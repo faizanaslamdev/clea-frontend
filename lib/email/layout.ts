@@ -20,6 +20,14 @@ export interface LayoutOptions {
   bodyText: string[];
   reason: string;
   cta?: { href: string; label: string };
+  /**
+   * Shown small under the button: the same link written out, for mail apps
+   * that do not draw the button. It used to sit above the button, where the
+   * long raw link was the first thing people saw.
+   */
+  linkFallback?: { href: string; intro: string };
+  /** Language of the fixed footer words. Default Norwegian. */
+  lang?: 'nb' | 'en';
   secondaryLinks?: Array<{ href: string; label: string }>;
   footerNote?: string;
 }
@@ -29,7 +37,14 @@ function formatHours(seconds: number): string {
   return hours === 1 ? 'én time' : `${hours} timer`;
 }
 
-export function formatTokenExpiryCopy(seconds = AUTH_TOKEN_EXPIRES_IN_SECONDS): string {
+export function formatTokenExpiryCopy(
+  seconds = AUTH_TOKEN_EXPIRES_IN_SECONDS,
+  lang: 'nb' | 'en' = 'nb',
+): string {
+  if (lang === 'en') {
+    const hours = Math.max(1, Math.round(seconds / 3600));
+    return `The link works for ${hours === 1 ? 'one hour' : `${hours} hours`}.`;
+  }
   return `Lenken er gyldig i ${formatHours(seconds)}.`;
 }
 
@@ -78,12 +93,22 @@ export function renderTransactionalEmail(options: LayoutOptions): EmailParts {
     .filter((line): line is string => Boolean(line))
     .join(' &nbsp;·&nbsp; ');
 
+  const lang = options.lang ?? 'nb';
+  const contactLabel = lang === 'en' ? 'Contact' : 'Kontakt';
+  const fallbackHref = options.linkFallback
+    ? safeHttpUrl(options.linkFallback.href)
+    : null;
+  const fallbackBlock =
+    fallbackHref && options.linkFallback
+      ? `<p style="margin:18px 0 0;font-size:12px;line-height:1.5;color:#8a8a8a;">${escapeHtml(options.linkFallback.intro)}<br /><a href="${escapeHtml(fallbackHref)}" style="color:#8a8a8a;text-decoration:underline;word-break:break-all;">${escapeHtml(fallbackHref)}</a></p>`
+      : '';
+
   const footerNote = options.footerNote
     ? `<p style="margin:12px 0 0;font-size:12px;line-height:1.5;color:#888888;">${escapeHtml(options.footerNote)}</p>`
     : '';
 
   const html = `<!DOCTYPE html>
-<html lang="nb">
+<html lang="${lang}">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -121,6 +146,7 @@ export function renderTransactionalEmail(options: LayoutOptions): EmailParts {
                 ${options.bodyHtml}
               </div>
               ${ctaBlock}
+              ${fallbackBlock}
               ${
                 secondaryHtml
                   ? `<p style="margin:20px 0 0;font-size:13px;line-height:1.5;color:#666666;">${secondaryHtml}</p>`
@@ -137,7 +163,7 @@ export function renderTransactionalEmail(options: LayoutOptions): EmailParts {
               </p>
               <p style="margin:10px 0 0;font-size:12px;line-height:1.5;color:#888888;">${safeReason}</p>
               <p style="margin:10px 0 0;font-size:12px;line-height:1.5;color:#888888;">
-                Kontakt: <a href="mailto:${safeContact}" style="color:#888888;text-decoration:underline;">${safeContact}</a>
+                ${contactLabel}: <a href="mailto:${safeContact}" style="color:#888888;text-decoration:underline;">${safeContact}</a>
               </p>
               ${footerNote}
             </td>
@@ -161,7 +187,7 @@ export function renderTransactionalEmail(options: LayoutOptions): EmailParts {
       .filter((line): line is string => Boolean(line)),
     '',
     options.reason,
-    `Kontakt: ${COMPANY.email}`,
+    `${contactLabel}: ${COMPANY.email}`,
     options.footerNote ?? null,
     '',
     `${BRAND.name} · ${siteUrl}`,

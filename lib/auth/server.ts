@@ -8,7 +8,10 @@ import { sendTransactionalEmail } from '@/lib/email/send';
 import { AUTH_TOKEN_EXPIRES_IN_SECONDS } from '@/lib/email/layout';
 import { buildPasswordChangedEmail } from '@/lib/email/templates/password-changed';
 import { buildResetPasswordEmail } from '@/lib/email/templates/reset-password';
-import { buildVerifyEmail } from '@/lib/email/templates/verify-email';
+import {
+  buildVerifyEmail,
+  emailLangFromVerifyUrl,
+} from '@/lib/email/templates/verify-email';
 import { buildWelcomeEmail } from '@/lib/email/templates/welcome';
 
 function buildTrustedOrigins(baseUrl: string): string[] {
@@ -125,6 +128,7 @@ function createAuthInstance() {
         const template = buildVerifyEmail({
           url,
           expiresInSeconds: AUTH_TOKEN_EXPIRES_IN_SECONDS,
+          lang: emailLangFromVerifyUrl(url),
         });
         await sendTransactionalEmail({
           to: user.email,
