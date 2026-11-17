@@ -37,10 +37,10 @@ export function ProductBestPrices({
   return (
     <section
       className="product-detail-modal__best-prices"
-      aria-label="Beste priser"
+      aria-label="Kjøp hos"
     >
       <div className="product-detail-modal__best-prices-header">
-        <h3 className="product-detail-modal__best-prices-title">Beste priser</h3>
+        <h3 className="product-detail-modal__best-prices-title">Kjøp hos</h3>
         {savings > 0 ? (
           <p className="product-detail-modal__best-prices-savings">
             Spar opptil {formatPrice(savings, currency)}
@@ -112,7 +112,7 @@ export function ProductBestPricesSkeleton({
   return (
     <section
       className="product-detail-modal__best-prices product-detail-modal__best-prices--loading"
-      aria-label="Laster beste priser"
+      aria-label="Laster butikker"
       aria-busy="true"
     >
       <div className="product-detail-modal-skeleton__line product-detail-modal-skeleton__line--label" />
@@ -139,7 +139,7 @@ export function ProductBestPricesError({ onRetry }: ProductBestPricesErrorProps)
   return (
     <section className="product-detail-modal__best-prices product-detail-modal__best-prices--error">
       <p className="product-detail-modal__best-prices-error">
-        Kunne ikke laste prissammenligning.
+        Kunne ikke laste butikkene.
       </p>
       <button
         type="button"

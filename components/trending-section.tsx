@@ -47,7 +47,7 @@ export function TrendingSection() {
 
       <div className="section-container mb-8 hidden items-center justify-between md:mb-10 md:flex">
         <p className="type-subheading">
-          Populære valg fra flere merker — sammenlign priser på {BRAND.domain}
+          Populære valg fra flere merker på {BRAND.domain}
         </p>
         <div className="flex items-center gap-4">
           <Link href="/brands" className="type-link">

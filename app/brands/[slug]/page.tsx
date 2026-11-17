@@ -52,8 +52,8 @@ export async function generateMetadata({
     brand.productCount && brand.productCount > 0
       ? `${brand.productCount.toLocaleString('nb-NO')} produkter`
       : 'produkter';
-  const title = `${brand.name} – ${count} med priser sammenlignet | Clea`;
-  const description = `Se ${count} fra ${brand.name} på Clea. Sammenlign prisen med andre nettbutikker og få varsel når prisen faller.`;
+  const title = `${brand.name} – ${count} | Clea`;
+  const description = `Utforsk ${count} fra ${brand.name} på Clea. Spør AI-stylisten om råd, og få varsel når favorittene går på salg.`;
   return {
     title: { absolute: title },
     description,

@@ -19,7 +19,7 @@ import { productKeys, storeKeys } from '@/lib/query/keys';
 import { requirePrefetched } from '@/lib/query/isr-guard';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Clea – Sammenlign priser på mote og skjønnhet i Norge' },
+  title: { absolute: 'Clea – Din AI-stylist for mote og skjønnhet i Norge' },
   alternates: { canonical: '/' },
 };
 

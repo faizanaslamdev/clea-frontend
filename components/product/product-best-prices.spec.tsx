@@ -65,7 +65,7 @@ describe('ProductBestPrices', () => {
       );
     });
 
-    expect(container.textContent).toContain('Beste priser');
+    expect(container.textContent).toContain('Kjøp hos');
     expect(container.textContent).toContain('Laveste pris');
     expect(container.textContent).toContain('Outnorth NO');
     expect(container.textContent).toContain('valgt');

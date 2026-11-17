@@ -36,7 +36,7 @@ const PROBLEMS = [
     icon: Tag,
     title: 'Merkevare vs. pris',
     description:
-      'Shoppere sammenligner priser hele tiden. Konstante rabatter kan svekke merkevaren din over tid.',
+      'Konstante rabatter kan svekke merkevaren din over tid. Shoppere trenger grunner til å velge deg utover pris.',
   },
   {
     icon: TrendingUp,
@@ -57,7 +57,7 @@ const WHY_PARTNER = [
     icon: Users,
     title: 'Nå nye shoppere',
     description:
-      'Vi kobler deg med kjøpsklare brukere som sammenligner produkter på tvers av nordiske forhandlere.',
+      'Vi kobler deg med kjøpsklare brukere som får personlige stilråd og forslag fra Clea.',
   },
   {
     icon: Store,
@@ -69,7 +69,7 @@ const WHY_PARTNER = [
     icon: BarChart3,
     title: 'Nordisk fokus',
     description:
-      'Bygget for Norge og Norden — der shoppere sammenligner mote og skjønnhet digitalt.',
+      'Bygget for Norge og Norden — der shoppere oppdager mote og skjønnhet digitalt.',
   },
   {
     icon: RefreshCw,
@@ -116,7 +116,7 @@ const SPOTLIGHTS = [
     description:
       'Shoppere beskriver behovet sitt i naturlig språk — anledning, stil, farge eller produkt. Clea matcher produktene dine når de er relevante.',
     aside:
-      'Høy-intensjons trafikk: Brukere kommer for å finne og sammenligne — ikke for passiv browsing.',
+      'Høy-intensjons trafikk: Brukere kommer med et konkret behov og får stilråd — ikke for passiv browsing.',
     variant: 'chat' as const,
     reverse: false,
   },

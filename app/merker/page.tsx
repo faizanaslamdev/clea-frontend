@@ -6,9 +6,9 @@ import { socialMetadata } from '@/lib/seo/social';
 
 export const revalidate = 86400;
 
-const title = 'Merker A–Å – sammenlign priser på populære merker';
+const title = 'Merker A–Å – populære mote- og skjønnhetsmerker';
 const description =
-  'Alle merkene på Clea fra A til Å: adidas, Nike, H&M, Ralph Lauren, Fjällräven og hundrevis til. Se produktene og sammenlign prisene i flere nettbutikker.';
+  'Alle merkene på Clea fra A til Å: adidas, Nike, H&M, Ralph Lauren, Fjällräven og hundrevis til. Utforsk produktene fra flere nettbutikker på ett sted.';
 
 export const metadata: Metadata = {
   title,
@@ -39,8 +39,8 @@ export default async function BrandsAtoZPage() {
         <header className="mb-10 max-w-3xl">
           <h1 className="type-heading">Merker A–Å</h1>
           <p className="type-subheading mt-3">
-            {brands.length} merker fra butikkene på Clea. Velg et merke for å se produktene og
-            sammenligne prisene.
+            {brands.length} merker fra butikkene på Clea. Velg et merke for å utforske
+            produktene.
           </p>
         </header>
 

@@ -37,8 +37,8 @@ export async function generateMetadata({ params }: BrandPageProps): Promise<Meta
   const canonical = `/merker/${slug}`;
   if (!brand) return { title: 'Merke', alternates: { canonical } };
 
-  const title = `${brand.name} – sammenlign priser på ${countText(brand.productCount)} | Clea`;
-  const description = `Finn ${brand.name} til laveste pris. Se ${countText(brand.productCount)} fra ${brand.name} hos flere nettbutikker i Norge, sammenlign prisene og få varsel når prisen faller.`;
+  const title = `${brand.name} – ${countText(brand.productCount)} fra flere nettbutikker | Clea`;
+  const description = `Utforsk ${countText(brand.productCount)} fra ${brand.name} hos flere nettbutikker i Norge. Spør Clea hvordan du style dem, og få varsel når favorittene går på salg.`;
   return {
     title: { absolute: title },
     description,
@@ -89,8 +89,8 @@ export default async function ProductBrandPage({ params }: BrandPageProps) {
         <header className="mb-10 max-w-3xl">
           <h1 className="type-heading">{brand.name}</h1>
           <p className="type-subheading mt-3">
-            {countText(brand.productCount)} fra {brand.name}, samlet fra flere nettbutikker. Se
-            prisene side om side og kjøp der det er billigst.
+            {countText(brand.productCount)} fra {brand.name}, samlet fra flere nettbutikker. Finn
+            favoritten din og kjøp den hos butikken som passer deg.
           </p>
         </header>
 
@@ -111,7 +111,7 @@ export default async function ProductBrandPage({ params }: BrandPageProps) {
             Åpne et produkt for å se alle tilbud og lignende produkter, eller slå på prisvarsel for å
             få beskjed når prisen faller. Leter du etter noe bestemt? Spør{' '}
             <Link href="/chat" className="underline underline-offset-4 hover:text-foreground">
-              AI-moteassistenten
+              AI-stylisten
             </Link>
             , for eksempel «{brand.name} til under 1000 kr».
           </p>

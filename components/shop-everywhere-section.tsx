@@ -13,7 +13,7 @@ export function ShopEverywhereSection() {
       <div className="promo-panel flex flex-col md:flex-row">
         <div className="promo-panel__intro flex w-full flex-col justify-center gap-6 bg-muted px-8 py-12 md:min-h-[520px] md:flex-1 md:gap-7 md:px-16 md:py-16 lg:px-20 lg:py-20">
           <p className="type-eyebrow text-muted-foreground">
-            Sammenlign på {BRAND.domain}
+            Alltid med på {BRAND.domain}
           </p>
 
           <h2
@@ -24,8 +24,8 @@ export function ShopEverywhereSection() {
           </h2>
 
           <p className="type-subheading max-w-[520px]">
-            Følg priser, sammenlign forhandlere side om side, og lagre
-            favoritter — rett i nettleseren. Ingen app å installere, bare
+            Spør AI-stylisten, finn favoritter fra mange butikker og lagre
+            dem — rett i nettleseren. Ingen app å installere, bare
             smartere shopping når du trenger det.
           </p>
         </div>

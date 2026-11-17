@@ -12,9 +12,9 @@ import { requirePrefetched } from '@/lib/query/isr-guard';
 import type { SuitableFor } from '@/lib/api/chat-types';
 
 export const metadata: Metadata = {
-  title: 'Handle klær, sko og skjønnhet – sammenlign priser',
+  title: 'Handle klær, sko og skjønnhet fra 15+ nettbutikker',
   description:
-    'Handle kjoler, jakker, gensere, jeans, sko, vesker og skjønnhet fra 15+ nettbutikker. Se samme vare hos flere butikker og finn laveste pris.',
+    'Handle kjoler, jakker, gensere, jeans, sko, vesker og skjønnhet fra 15+ nettbutikker på ett sted, med AI-stylisten Clea som hjelper deg å velge.',
   alternates: { canonical: '/shop' },
 };
 

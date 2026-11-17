@@ -41,7 +41,7 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
   {
     slug: 'kjoler',
     label: 'Kjoler',
-    description: 'Kjoler fra alle partnerbutikkene våre, med priser sammenlignet.',
+    description: 'Kjoler fra alle partnerbutikkene våre.',
     ontologyId: 'apparel.dresses',
     gendered: true,
     children: [],
@@ -68,7 +68,7 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
   {
     slug: 'gensere',
     label: 'Gensere & strikk',
-    description: 'Gensere, cardigans og hettegensere — sammenlign før du kjøper.',
+    description: 'Gensere, cardigans og hettegensere fra alle butikkene.',
     ontologyId: 'apparel.knitwear',
     gendered: true,
     children: [
@@ -115,7 +115,7 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
   {
     slug: 'sko',
     label: 'Sko',
-    description: 'Sneakers, støvler, sandaler og løpesko — pris sammenlignet.',
+    description: 'Sneakers, støvler, sandaler og løpesko fra alle butikkene.',
     ontologyId: 'apparel.footwear',
     gendered: true,
     children: [
@@ -153,7 +153,7 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
   {
     slug: 'skjonnhet',
     label: 'Skjønnhet',
-    description: 'Sminke, parfyme, hudpleie og hårpleie — sammenlign prisene.',
+    description: 'Sminke, parfyme, hudpleie og hårpleie fra alle butikkene.',
     ontologyId: 'beauty',
     gendered: false,
     children: [

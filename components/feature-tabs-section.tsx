@@ -167,7 +167,7 @@ const TABS: readonly { key: TabKey; label: string }[] = [
   { key: 'explore', label: 'Utforsk' },
   { key: 'chat', label: 'Chat' },
   { key: 'save', label: 'Prisvarsel' },
-  { key: 'compare', label: 'Sammenlign' },
+  { key: 'compare', label: 'Butikker' },
 ];
 
 const CHAT_EXAMPLE_QUERY =
@@ -691,11 +691,11 @@ export function FeatureTabsSection() {
 
             {activeTab === 'compare' && (
               <>
-                <h3 className="feature-tabs__copy-heading">Én pris er sjelden den beste.</h3>
+                <h3 className="feature-tabs__copy-heading">Én favoritt, mange butikker.</h3>
                 <p className="feature-tabs__copy-body">
                   {storeCount > 0
-                    ? `Vi sammenligner priser fra ${storeCount}+ butikker, så du alltid vet om du får den beste avtalen.`
-                    : 'Vi sammenligner priser på tvers av butikker, så du alltid vet om du får den beste avtalen.'}
+                    ? `Clea samler ${storeCount}+ butikker på ett sted, så du ser hvor du kan kjøpe favoritten din.`
+                    : 'Clea samler mange butikker på ett sted, så du ser hvor du kan kjøpe favoritten din.'}
                 </p>
                 <Link href="/brands" className="feature-tabs__cta">
                   Se alle butikker

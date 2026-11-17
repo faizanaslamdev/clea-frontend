@@ -6,14 +6,14 @@ import { BRAND } from '@/lib/constants/brand';
 
 export const metadata: Metadata = {
   title: 'Ofte stilte spørsmål',
-  description: `Svar på vanlige spørsmål om ${BRAND.name}: hvordan prissammenligning, AI-søk og prisvarsel fungerer.`,
+  description: `Svar på vanlige spørsmål om ${BRAND.name}: hvordan AI-stylisten, søket og prisvarsel fungerer.`,
   alternates: { canonical: '/faq' },
 };
 
 const FAQ_ITEMS = [
   {
     q: 'Hva er Clea?',
-    a: 'Clea er en nordisk prissammenligningstjeneste for mote. Bruk AI-søk for å finne produkter og sammenligne priser hos ledende forhandlere.',
+    a: 'Clea er en nordisk AI-stylist for mote og skjønnhet. Beskriv anledningen, stilen eller plagget du leter etter, så finner Clea forslag hos ledende forhandlere.',
   },
   {
     q: 'Hvilke forhandlere dekker dere?',
@@ -29,7 +29,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Hvor fullfører jeg kjøpet?',
-    a: 'Kjøp skjer alltid på forhandlerens nettsted. Clea hjelper deg med å oppdage og sammenligne — utsjekking skjer hos butikken du velger.',
+    a: 'Kjøp skjer alltid på forhandlerens nettsted. Clea hjelper deg med å finne og velge — utsjekking skjer hos butikken du velger.',
   },
   {
     q: 'Er Clea tilgjengelig utenfor Norge?',

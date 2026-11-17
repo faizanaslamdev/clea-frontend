@@ -35,10 +35,10 @@ export const BRAND = {
   heroTagline: [
     // Non-breaking spaces keep "1 000 000+" on one line.
     'Søk blant 1\u00a0000\u00a0000+ produkter',
-    'med din AI-moteassistent',
+    'med din AI-stylist',
   ] as const,
-  title: 'Clea – Sammenlign priser på mote og skjønnhet',
+  title: 'Clea – Din AI-stylist for mote og skjønnhet',
   titleTemplate: '%s | Clea',
   description:
-    'Sammenlign priser på klær, sko, vesker og skjønnhet fra 15+ nettbutikker i Norge. Søk blant 1 000 000+ produkter med AI-moteassistenten og få varsel når prisen faller.',
+    'Clea er din personlige AI-stylist. Fortell hva du skal, og få forslag til klær, sko, vesker og skjønnhet blant 1 000 000+ produkter fra 15+ nettbutikker i Norge.',
 } as const;

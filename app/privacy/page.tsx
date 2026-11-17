@@ -45,7 +45,7 @@ export default function PrivacyPage() {
 
       <h2>Hvordan vi bruker informasjon</h2>
       <p>
-        Vi bruker data til å drive nettstedet, forbedre søk og sammenligning,
+        Vi bruker data til å drive nettstedet, forbedre søk og anbefalinger,
         hindre misbruk, og forstå bruk i aggregert form. Søketekst behandles
         blant annet ved hjelp av tredjeparts AI-teknologi for å generere
         relevante resultater. Vi selger ikke personopplysninger.

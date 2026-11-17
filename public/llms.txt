@@ -1,16 +1,16 @@
 # Clea
 
-> Clea (clea.no) is a Norwegian fashion and beauty price-comparison site with an AI shopping assistant. It brings together more than 1 000 000 products from 15+ online stores, shows the same product's price across stores, and links shoppers directly to the store to buy. Prices are in Norwegian kroner (NOK). The site is in Norwegian.
+> Clea (clea.no) is a Norwegian AI fashion stylist for fashion and beauty. Shoppers describe the occasion, style or piece they want, and Clea suggests products from more than 1 000 000 items across 15+ online stores, then links them directly to the store to buy. Prices are in Norwegian kroner (NOK). The site is in Norwegian.
 
-Clea er en norsk tjeneste for prissammenligning av mote og skjønnhet, med en AI-moteassistent. Søk med vanlige ord ("vinterjakke dame under 2000 kr"), sammenlign prisen på samme vare hos flere butikker, og få varsel når prisen faller.
+Clea er en norsk AI-stylist for mote og skjønnhet. Beskriv anledningen eller stilen med vanlige ord ("noe pent til julebord", "vinterjakke dame under 2000 kr"), få forslag fra mange butikker, og få varsel når favorittene går på salg.
 
 ## Main pages
 
 - [Home](https://www.clea.no/): search across all stores and see popular products
 - [Shop by category](https://www.clea.no/shop): dresses, tops, knitwear, trousers and jeans, jackets, shoes, bags, accessories, beauty
 - [Stores](https://www.clea.no/brands): every partner store and its products
-- [Brands A–Z](https://www.clea.no/merker): 500 brands such as adidas, Nike, H&M, Ralph Lauren and Fjällräven, with prices compared across stores
-- [AI chat](https://www.clea.no/chat): describe what you need and get product suggestions
+- [Brands A–Z](https://www.clea.no/merker): 500 brands such as adidas, Nike, H&M, Ralph Lauren and Fjällräven
+- [AI stylist](https://www.clea.no/chat): describe what you need and get outfit and product suggestions
 - [About Clea](https://www.clea.no/about)
 - [FAQ](https://www.clea.no/faq)
 - [For partners and stores](https://www.clea.no/partner)
@@ -18,11 +18,11 @@ Clea er en norsk tjeneste for prissammenligning av mote og skjønnhet, med en AI
 
 ## Shopping guides (Norwegian)
 
-- [How to compare prices on clothes and shoes](https://www.clea.no/guide/sammenligne-priser-klaer-sko)
-- [Where sneakers are cheapest in Norway](https://www.clea.no/guide/billige-sneakers-norge)
+- [How to shop clothes and shoes smarter online](https://www.clea.no/guide/sammenligne-priser-klaer-sko)
+- [Finding sneakers in Norway](https://www.clea.no/guide/billige-sneakers-norge)
 - [Choosing a winter jacket](https://www.clea.no/guide/vinterjakke-guide)
 - [Price-drop alerts](https://www.clea.no/guide/prisvarsel)
-- [Using the AI fashion assistant](https://www.clea.no/guide/ai-moteassistent)
+- [Using the AI fashion stylist](https://www.clea.no/guide/ai-moteassistent)
 
 ## Product pages
 

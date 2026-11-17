@@ -9,7 +9,7 @@ export const revalidate = 600;
 
 export const metadata: Metadata = {
   title: 'Søk',
-  description: 'Søk i produkter fra alle partnerbutikkene, med priser sammenlignet.',
+  description: 'Søk i produkter fra alle partnerbutikkene på ett sted.',
   // Search results are not landing pages.
   robots: { index: false, follow: true },
 };

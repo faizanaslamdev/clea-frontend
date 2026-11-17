@@ -5,9 +5,9 @@ import { ChatSessionProvider } from '@/lib/chat/chat-session-provider';
 import { SearchChatView } from '@/components/search/search-chat-view';
 
 export const metadata: Metadata = {
-  title: 'AI-moteassistent – spør Clea',
+  title: 'AI-stylist – spør Clea',
   description:
-    'Beskriv hva du leter etter, som «noe pent til julebord under 1500 kr», og få forslag fra 15+ nettbutikker med priser sammenlignet.',
+    'Beskriv hva du leter etter, som «noe pent til julebord under 1500 kr», og få forslag til antrekk fra 15+ nettbutikker.',
   alternates: { canonical: '/chat' },
 };
 

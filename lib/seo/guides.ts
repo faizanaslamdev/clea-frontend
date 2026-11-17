@@ -24,9 +24,9 @@ export interface Guide {
 export const GUIDES: Guide[] = [
   {
     slug: 'sammenligne-priser-klaer-sko',
-    title: 'Slik sammenligner du priser på klær og sko på nett',
+    title: 'Slik handler du klær og sko smartere på nett',
     description:
-      'En enkel guide til å finne laveste pris på klær, sko og vesker i norske nettbutikker – og hvordan Clea gjør det for deg på ett sted.',
+      'En enkel guide til å finne riktig plagg til riktig pris i norske nettbutikker – og hvordan AI-stylisten Clea hjelper deg på ett sted.',
     published: '2026-11-06',
     updated: '2026-11-06',
     intro:
@@ -50,13 +50,13 @@ export const GUIDES: Guide[] = [
       {
         heading: 'Slik gjør Clea det for deg',
         paragraphs: [
-          'Clea samler over 1 000 000 produkter fra 15+ nettbutikker. Når flere butikker selger samme vare, ser du prisene side om side og går rett til butikken med best pris. Du kan søke med vanlige ord, som «vinterjakke dame under 2000 kr», eller spørre AI-moteassistenten.',
+          'Clea er en AI-stylist som samler over 1 000 000 produkter fra 15+ nettbutikker. Fortell hva du skal, for eksempel «vinterjakke dame under 2000 kr» eller «noe pent til julebord», så foreslår Clea plagg og viser hvilke butikker som har dem.',
         ],
       },
     ],
     links: [
       { href: '/shop', label: 'Handle etter kategori' },
-      { href: '/chat', label: 'Spør AI-moteassistenten' },
+      { href: '/chat', label: 'Spør AI-stylisten' },
       { href: '/merker', label: 'Merker A–Å' },
     ],
   },
@@ -64,14 +64,14 @@ export const GUIDES: Guide[] = [
     slug: 'billige-sneakers-norge',
     title: 'Hvor er sneakers billigst i Norge?',
     description:
-      'Tips for å finne sneakers og løpesko til lavest mulig pris: sammenlign butikker, følg med på salg og bruk prisvarsel.',
+      'Tips for å finne sneakers og løpesko til en god pris: sjekk flere butikker, følg med på salg og bruk prisvarsel.',
     published: '2026-11-06',
     updated: '2026-11-06',
     intro:
       'Populære sneakers fra merker som adidas, Nike og New Balance selges både av merkenes egne nettbutikker og av sportsbutikker og motebutikker. Det betyr at samme par ofte har flere priser.',
     sections: [
       {
-        heading: 'Sammenlign samme modell hos flere butikker',
+        heading: 'Finn samme modell hos flere butikker',
         paragraphs: [
           'Søk opp modellnavnet, for eksempel «Ultraboost 5» eller «Samba». På Clea ser du hvilke butikker som har skoen og hva den koster hos hver av dem.',
         ],
@@ -95,7 +95,7 @@ export const GUIDES: Guide[] = [
     links: [
       { href: '/shop/sko', label: 'Sko og sneakers' },
       { href: '/merker/adidas', label: 'adidas' },
-      { href: '/chat', label: 'Spør AI-moteassistenten' },
+      { href: '/chat', label: 'Spør AI-stylisten' },
     ],
   },
   {
@@ -106,7 +106,7 @@ export const GUIDES: Guide[] = [
     published: '2026-11-06',
     updated: '2026-11-06',
     intro:
-      'En god vinterjakke skal holde deg varm og tørr gjennom norsk vinter, og den er ofte et av de dyreste plaggene i garderoben. Derfor lønner det seg å velge riktig og sammenligne prisene.',
+      'En god vinterjakke skal holde deg varm og tørr gjennom norsk vinter, og den er ofte et av de dyreste plaggene i garderoben. Derfor lønner det seg å velge riktig.',
     sections: [
       {
         heading: 'Dun eller syntetisk fôr?',
@@ -126,7 +126,7 @@ export const GUIDES: Guide[] = [
       {
         heading: 'Slik får du den billigere',
         paragraphs: [
-          'Samme jakke kan ha ulik pris hos forskjellige butikker. Filtrer på vinterjakker på Clea, sammenlign prisene, og slå på prisvarsel hvis du kan vente på et tilbud.',
+          'Samme jakke kan ha ulik pris hos forskjellige butikker. Filtrer på vinterjakker på Clea, spør AI-stylisten hvilken som passer deg, og slå på prisvarsel hvis du kan vente på et tilbud.',
         ],
       },
     ],
@@ -167,9 +167,9 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: 'ai-moteassistent',
-    title: 'Hva er en AI-moteassistent – og hvordan bruker du den?',
+    title: 'Hva er en AI-stylist – og hvordan bruker du den?',
     description:
-      'Clea sin AI-moteassistent finner klær, sko og skjønnhet fra 15+ nettbutikker når du beskriver hva du trenger med egne ord.',
+      'Clea sin AI-stylist finner klær, sko og skjønnhet fra 15+ nettbutikker når du beskriver hva du trenger med egne ord.',
     published: '2026-11-06',
     updated: '2026-11-06',
     intro:
@@ -191,7 +191,7 @@ export const GUIDES: Guide[] = [
       },
     ],
     links: [
-      { href: '/chat', label: 'Prøv AI-moteassistenten' },
+      { href: '/chat', label: 'Prøv AI-stylisten' },
       { href: '/about', label: 'Om Clea' },
     ],
   },

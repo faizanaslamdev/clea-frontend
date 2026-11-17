@@ -43,8 +43,8 @@ export async function generateMetadata({
     return { title: 'Handle' };
   }
 
-  const title = `${category.label} – sammenlign priser fra 15+ nettbutikker`;
-  const description = `${category.description} Sammenlign priser på ${BRAND.domain}.`;
+  const title = `${category.label} fra 15+ nettbutikker`;
+  const description = `${category.description} Utforsk og få stilråd på ${BRAND.domain}.`;
   return {
     title,
     description,

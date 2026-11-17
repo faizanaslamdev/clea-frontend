@@ -26,7 +26,7 @@ export default function TermsPage() {
 
       <h2>Tjenesten</h2>
       <p>
-        {COMPANY.name} tilbyr prissammenligning og oppdagelse for mote og
+        {COMPANY.name} er en AI-stylist og tjeneste for oppdagelse av mote og
         skjønnhet, inkludert AI-assistert søk. Produktinformasjon, priser og
         tilgjengelighet kommer fra forhandlere og kan endres uten varsel.
       </p>

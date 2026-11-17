@@ -6,7 +6,7 @@ import { socialMetadata } from '@/lib/seo/social';
 
 const title = 'Shoppingguider – tips for å handle smartere på nett';
 const description =
-  'Guider fra Clea: slik sammenligner du priser, finner billige sneakers, velger vinterjakke og bruker prisvarsel og AI-moteassistent.';
+  'Guider fra Clea: slik handler du smartere på nett, finner sneakers, velger vinterjakke og bruker prisvarsel og AI-stylisten.';
 
 export const metadata: Metadata = {
   title,
