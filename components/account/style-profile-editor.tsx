@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useState } from 'react';
 import { Check, LoaderCircle, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { fetchCatalogBrands } from '@/lib/api/products';
+import { displayBrandName } from '@/lib/domain/brands/product-brands';
 import {
   BUDGET_SLIDER_MAX,
   BUDGET_STEP,
@@ -56,7 +57,18 @@ export function StyleProfileEditor() {
       });
     fetchCatalogBrands(400)
       .then((brands) => {
-        if (!cancelled) setBrandOptions(brands.map((b) => b.brand).filter(Boolean));
+        if (cancelled) return;
+        const seen = new Set<string>();
+        setBrandOptions(
+          brands
+            .map((b) => displayBrandName(b.brand))
+            .filter((name) => {
+              const key = name.toLowerCase();
+              if (!name || seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            }),
+        );
       })
       .catch(() => undefined);
     return () => {
