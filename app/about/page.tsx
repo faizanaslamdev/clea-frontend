@@ -17,7 +17,7 @@ export default function AboutPage() {
       description="Smartere motehandel i Norden."
     >
       <p>
-        {BRAND.name} er en personlig moteassistent. Våre brukere kommer til{' '}
+        {BRAND.name} er en personlig AI-stylist. Våre brukere kommer til{' '}
         {BRAND.name} for å bli inspirert, oppdage nye merker og finne akkurat
         det de leter etter.
       </p>
@@ -34,7 +34,7 @@ export default function AboutPage() {
       <h2>Hva vi tilbyr</h2>
       <ul>
         <li>
-          <strong>Personlig moteassistent:</strong> En smart løsning som
+          <strong>Personlig AI-stylist:</strong> En smart løsning som
           forstår stilen og ønskene dine, og hjelper deg å finne riktige
           produkter.
         </li>

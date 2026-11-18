@@ -1,8 +1,11 @@
 /**
  * Short shopping guides in Norwegian. They answer the questions people ask
- * Google and AI assistants ("hvor er det billigst …", "hvordan sammenligne
- * priser …"), and point to the matching Clea pages. Keep them factual and
- * general: no prices or claims that go stale.
+ * Google and AI assistants ("hva skal jeg ha på meg …", "hvilken vinterjakke …"),
+ * and point to the matching Clea pages. Clea is an AI stylist, not a price
+ * comparison site, so the guides lead with style and fit, never "cheapest".
+ * Keep them factual and general: no prices or claims that go stale.
+ *
+ * Renamed slugs keep a permanent redirect in `guide-redirects.mjs`.
  */
 export interface GuideSection {
   heading: string;
@@ -23,72 +26,72 @@ export interface Guide {
 
 export const GUIDES: Guide[] = [
   {
-    slug: 'sammenligne-priser-klaer-sko',
-    title: 'Slik handler du klær og sko smartere på nett',
+    slug: 'finn-riktig-antrekk',
+    title: 'Slik finner du riktig antrekk på nett',
     description:
-      'En enkel guide til å finne riktig plagg til riktig pris i norske nettbutikker – og hvordan AI-stylisten Clea hjelper deg på ett sted.',
+      'Fra anledning til ferdig antrekk: slik finner du klær og sko som passer stilen, budsjettet og størrelsen din – og hvordan AI-stylisten Clea hjelper deg.',
     published: '2026-11-06',
-    updated: '2026-11-06',
+    updated: '2026-11-18',
     intro:
-      'Den samme jakken, skoen eller kjolen selges ofte av flere nettbutikker samtidig – og prisen kan variere mer enn mange tror. Med noen enkle grep betaler du ikke mer enn nødvendig.',
+      'Det er lett å bli sittende og bla i mange nettbutikker uten å finne det du egentlig leter etter. Begynn heller med hva du skal, så blir det mye enklere å velge.',
     sections: [
       {
-        heading: 'Hvorfor er prisen forskjellig fra butikk til butikk?',
+        heading: 'Start med anledningen',
         paragraphs: [
-          'Butikkene setter prisene selv. Noen har kampanjer, andre har restlager, og merkets egen nettbutikk er ikke alltid billigst. Prisene endrer seg også fra uke til uke.',
+          'Julebord, jobbintervju, hyttetur eller en vanlig arbeidsdag stiller helt ulike krav. Når du vet hva du skal, vet du også om du trenger noe pent, varmt, komfortabelt eller praktisk.',
         ],
       },
       {
-        heading: 'Slik finner du laveste pris',
+        heading: 'Dette hjelper deg å velge',
         bullets: [
-          'Søk opp nøyaktig samme vare – samme modell, farge og størrelse.',
-          'Sammenlign totalpris: frakt, retur og eventuelle tollgebyrer fra butikker utenfor Norge.',
-          'Sjekk at varen er på lager i din størrelse før du bestemmer deg.',
-          'Bruk prisvarsel hvis du ikke har hastverk, så får du beskjed når prisen faller.',
+          'Tenk på hva du allerede har: et nytt plagg bør passe med det som henger i garderoben.',
+          'Bestem deg for et budsjett før du begynner å lete.',
+          'Velg farger som er lette å kombinere, som svart, hvitt, beige og marine.',
+          'Sjekk størrelsesguiden: størrelser varierer mellom merker.',
+          'Les returvilkårene, særlig hos butikker du ikke har handlet hos før.',
         ],
       },
       {
-        heading: 'Slik gjør Clea det for deg',
+        heading: 'Slik hjelper Clea deg',
         paragraphs: [
-          'Clea er en AI-stylist som samler over 1 000 000 produkter fra 15+ nettbutikker. Fortell hva du skal, for eksempel «vinterjakke dame under 2000 kr» eller «noe pent til julebord», så foreslår Clea plagg og viser hvilke butikker som har dem.',
+          'Clea er en AI-stylist som kjenner over 1 000 000 produkter fra 15+ nettbutikker. Fortell hva du skal, for eksempel «noe pent til julebord» eller «vinterjakke dame under 2000 kr», så foreslår Clea plagg som passer og viser hvor du kan kjøpe dem.',
         ],
       },
     ],
     links: [
-      { href: '/shop', label: 'Handle etter kategori' },
       { href: '/chat', label: 'Spør AI-stylisten' },
+      { href: '/shop', label: 'Handle etter kategori' },
       { href: '/merker', label: 'Merker A–Å' },
     ],
   },
   {
-    slug: 'billige-sneakers-norge',
-    title: 'Hvor er sneakers billigst i Norge?',
+    slug: 'sneakers-guide',
+    title: 'Sneakers: slik finner du riktig par',
     description:
-      'Tips for å finne sneakers og løpesko til en god pris: sjekk flere butikker, følg med på salg og bruk prisvarsel.',
+      'Hverdag, trening eller stil? Slik velger du sneakers og løpesko som passer deg, og finner dem i norske nettbutikker.',
     published: '2026-11-06',
-    updated: '2026-11-06',
+    updated: '2026-11-18',
     intro:
-      'Populære sneakers fra merker som adidas, Nike og New Balance selges både av merkenes egne nettbutikker og av sportsbutikker og motebutikker. Det betyr at samme par ofte har flere priser.',
+      'Sneakers fra merker som adidas, Nike og New Balance finnes i mange varianter. Det lønner seg å vite hva du skal bruke dem til før du velger.',
     sections: [
       {
-        heading: 'Finn samme modell hos flere butikker',
-        paragraphs: [
-          'Søk opp modellnavnet, for eksempel «Ultraboost 5» eller «Samba». På Clea ser du hvilke butikker som har skoen og hva den koster hos hver av dem.',
-        ],
-      },
-      {
-        heading: 'Når er det lurt å kjøpe?',
+        heading: 'Hva skal du bruke dem til?',
         bullets: [
-          'Black Friday og Cyber Monday i slutten av november.',
-          'Romjulssalg og januarsalg.',
-          'Sommersalg når nye kolleksjoner kommer.',
-          'Når en ny versjon av skoen lanseres, blir forrige modell ofte satt ned.',
+          'Hverdag: en enkel, hvit eller nøytral sneaker passer til det meste, fra jeans til dress.',
+          'Løping og trening: velg sko laget for aktiviteten, med demping og støtte som passer deg.',
+          'Stil: klassiske modeller som Samba og Old Skool gir et enkelt, tidløst uttrykk.',
         ],
       },
       {
-        heading: 'Husk størrelse og retur',
+        heading: 'Størrelse og passform',
         paragraphs: [
-          'Størrelser varierer mellom merker. Sjekk butikkens returvilkår, særlig hvis du bestiller fra en butikk du ikke har handlet hos før.',
+          'Størrelser varierer mellom merker og modeller. Sjekk butikkens størrelsesguide og returvilkår, særlig hvis du bestiller fra en butikk du ikke har handlet hos før.',
+        ],
+      },
+      {
+        heading: 'Spør AI-stylisten',
+        paragraphs: [
+          'Fortell Clea hva du ser etter, for eksempel «hvite sneakers dame» eller «løpesko til asfalt», så får du forslag fra flere butikker på ett sted. Følger du et par, kan du slå på prisvarsel.',
         ],
       },
     ],
@@ -100,9 +103,9 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: 'vinterjakke-guide',
-    title: 'Vinterjakke: slik velger du riktig – og betaler minst',
+    title: 'Vinterjakke: slik velger du riktig',
     description:
-      'Dunjakke, parkas eller syntetisk fôr? Slik velger du vinterjakke til norsk vinter og finner den til best pris.',
+      'Dunjakke, parkas eller syntetisk fôr? Slik velger du vinterjakke som holder deg varm gjennom norsk vinter.',
     published: '2026-11-06',
     updated: '2026-11-06',
     intro:
@@ -124,22 +127,22 @@ export const GUIDES: Guide[] = [
         ],
       },
       {
-        heading: 'Slik får du den billigere',
+        heading: 'La AI-stylisten hjelpe deg',
         paragraphs: [
-          'Samme jakke kan ha ulik pris hos forskjellige butikker. Filtrer på vinterjakker på Clea, spør AI-stylisten hvilken som passer deg, og slå på prisvarsel hvis du kan vente på et tilbud.',
+          'Fortell Clea hvor og hvordan du skal bruke jakken, for eksempel «varm vinterjakke til Oslo» eller «parkas til hverdags», så foreslår AI-stylisten jakker som passer. Slå på prisvarsel hvis du vil vente på et tilbud.',
         ],
       },
     ],
     links: [
       { href: '/shop/jakker', label: 'Jakker og yttertøy' },
-      { href: '/chat', label: 'Finn jakke med AI-søk' },
+      { href: '/chat', label: 'Spør AI-stylisten' },
     ],
   },
   {
     slug: 'prisvarsel',
     title: 'Prisvarsel: få beskjed når prisen faller',
     description:
-      'Slik bruker du prisvarsel på Clea for å kjøpe klær, sko og skjønnhetsprodukter når de er billigst.',
+      'Slik bruker du prisvarsel på Clea og får beskjed når klær, sko og skjønnhetsprodukter du følger går ned i pris.',
     published: '2026-11-06',
     updated: '2026-11-06',
     intro:
@@ -166,7 +169,7 @@ export const GUIDES: Guide[] = [
     ],
   },
   {
-    slug: 'ai-moteassistent',
+    slug: 'ai-stylist',
     title: 'Hva er en AI-stylist – og hvordan bruker du den?',
     description:
       'Clea sin AI-stylist finner klær, sko og skjønnhet fra 15+ nettbutikker når du beskriver hva du trenger med egne ord.',
@@ -179,8 +182,8 @@ export const GUIDES: Guide[] = [
         heading: 'Slik bruker du den',
         bullets: [
           'Beskriv anledning, stil, farge og budsjett: «noe pent til julebord under 1500 kr».',
-          'Juster svaret: «heller i svart», «billigere», «vis lignende».',
-          'Åpne et produkt for å se prisen hos alle butikkene som selger det.',
+          'Juster svaret: «heller i svart», «vis lignende», «under 1000 kr».',
+          'Åpne et produkt for å se hvilke butikker som har det.',
         ],
       },
       {

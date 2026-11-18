@@ -18,11 +18,11 @@ Clea er en norsk AI-stylist for mote og skjønnhet. Beskriv anledningen eller st
 
 ## Shopping guides (Norwegian)
 
-- [How to shop clothes and shoes smarter online](https://www.clea.no/guide/sammenligne-priser-klaer-sko)
-- [Finding sneakers in Norway](https://www.clea.no/guide/billige-sneakers-norge)
+- [Finding the right outfit online](https://www.clea.no/guide/finn-riktig-antrekk)
+- [Choosing sneakers](https://www.clea.no/guide/sneakers-guide)
 - [Choosing a winter jacket](https://www.clea.no/guide/vinterjakke-guide)
 - [Price-drop alerts](https://www.clea.no/guide/prisvarsel)
-- [Using the AI fashion stylist](https://www.clea.no/guide/ai-moteassistent)
+- [Using the AI fashion stylist](https://www.clea.no/guide/ai-stylist)
 
 ## Product pages
 

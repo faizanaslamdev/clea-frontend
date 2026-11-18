@@ -1,6 +1,7 @@
 import { withSentryConfig } from '@sentry/nextjs';
 import { validateProductionApiUrl } from './lib/api/api-base-url.mjs';
 import { IMAGE_HOSTS } from './lib/image-hosts.mjs';
+import { GUIDE_REDIRECTS } from './lib/seo/guide-redirects.mjs';
 
 if (process.env.NODE_ENV === 'production') {
   validateProductionApiUrl(process.env.NEXT_PUBLIC_API_URL);
@@ -44,6 +45,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // Guides renamed when Clea became an AI stylist (18 Nov 2026); keep links and rankings.
+      ...Object.entries(GUIDE_REDIRECTS).map(([from, to]) => ({
+        source: `/guide/${from}`,
+        destination: `/guide/${to}`,
+        permanent: true,
+      })),
       { source: '/cart', destination: '/brands', permanent: false },
       { source: '/trending', destination: '/brands', permanent: false },
       { source: '/products', destination: '/brands', permanent: false },
