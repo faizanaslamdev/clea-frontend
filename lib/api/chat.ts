@@ -6,6 +6,8 @@ import type {
   ChatTurnResponse,
   ChatTurnResult,
   CreateConversationRequest,
+  PhotoDescription,
+  PhotoTurnRequest,
   CreateConversationResponse,
   RestoreConversationResponse,
 } from '@/lib/api/chat-types';
@@ -96,6 +98,29 @@ export async function fetchChatTurn(
     timeoutMs: 30_000,
   });
 
+  return mapChatTurnResponse(data);
+}
+
+/** Photo search: Clea reads the photo, then answers like a normal chat turn. */
+export async function fetchPhotoTurn(
+  request: PhotoTurnRequest,
+): Promise<ChatTurnResult> {
+  const data = await apiFetch<ChatTurnResponse & { photo?: PhotoDescription }>('/chat/photo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+    cache: 'no-store',
+    // Reading the photo is one more model call before the normal turn.
+    timeoutMs: 45_000,
+  });
+
+  return {
+    ...mapChatTurnResponse(data),
+    photo: data.photo ? { summary: data.photo.summary, items: data.photo.items } : undefined,
+  };
+}
+
+function mapChatTurnResponse(data: ChatTurnResponse): ChatTurnResult {
   return {
     reply: data.reply,
     intent: data.intent,

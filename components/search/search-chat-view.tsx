@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import type { AnchorPreview } from '@/lib/chat/anchor-preview';
 import { ChatAnchorProvider } from '@/components/chat/chat-anchor-provider';
 import { ChatNewChatButton } from '@/components/search/chat-new-chat-button';
@@ -8,6 +8,7 @@ import { HeroSearchForm } from '@/components/hero-search-form';
 import { SearchChatThread } from '@/components/search/search-chat-thread';
 import { SearchLanding } from '@/components/search/search-landing';
 import { useChatSessionContext } from '@/lib/chat/chat-session-provider';
+import { takePendingPhoto } from '@/lib/photo/pending-photo';
 
 export function SearchChatView() {
   const {
@@ -22,6 +23,7 @@ export function SearchChatView() {
     setActiveProductId,
     loadingMoreMessageId,
     sendMessage,
+    sendPhoto,
     selectSuggestion,
     runAnchorAction,
     loadMore,
@@ -40,6 +42,14 @@ export function SearchChatView() {
     },
     [sendMessage, setActiveProductId],
   );
+
+  // A photo picked on the homepage waits for the chat to open, then goes out once.
+  useEffect(() => {
+    const pending = takePendingPhoto();
+    if (pending) {
+      void sendPhoto(pending.dataUrl, pending.shopCategory);
+    }
+  }, [sendPhoto]);
 
   if (showLanding) {
     return (
@@ -88,6 +98,8 @@ export function SearchChatView() {
             value={draft}
             onValueChange={setDraft}
             onSubmitQuery={(query) => void sendMessage({ query })}
+            photoSearch
+            onSubmitPhoto={(dataUrl) => void sendPhoto(dataUrl)}
             submitLocked={isBusy || isRestoring}
           />
           <ChatNewChatButton onNewChat={reset} disabled={isBusy || isRestoring} />

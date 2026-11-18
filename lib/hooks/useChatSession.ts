@@ -40,6 +40,7 @@ import {
   createConversationSession,
   resolveConversationSession,
   restoreConversationSession,
+  sendConversationPhotoTurn,
   sendConversationTurn,
 } from '@/lib/chat/conversation-session';
 import { mapRestoreConversationToMessages, resolveRestoredActiveProductId } from '@/lib/chat/restore-conversation-messages';
@@ -48,6 +49,9 @@ import { resolveHydratedSendSource } from '@/lib/chat/start-product-chat';
 import { resolveSendMessage } from '@/lib/chat/resolve-send-message';
 import { syncAnchorSessionForTurn } from '@/lib/chat/anchor-turn-state';
 import { CHAT_DEFAULT_LOCALE } from '@/lib/constants/chat';
+
+/** Text of the user's turn while Clea reads a photo. */
+export const PHOTO_TURN_LABEL = 'Bildesøk';
 
 export interface UseChatSessionOptions {
   conversationId?: string;
@@ -253,6 +257,58 @@ export function useChatSession({
       }
     },
     [requestTurn],
+  );
+
+  /** Photo search: sends an already resized photo as one chat turn. */
+  const sendPhoto = useCallback(
+    async (dataUrl: string, shopCategory?: ShopCategory) => {
+      if (stateRef.current.messages.some(isPendingAssistantMessage)) {
+        return;
+      }
+      if (shopCategory) {
+        shopCategoryRef.current = shopCategory;
+      }
+
+      // A photo starts a new topic: it is not about the product in focus.
+      dispatch({ type: 'SET_ACTIVE_PRODUCT', productId: null });
+      clearAnchorTurnContext();
+
+      const generation = requestGenerationRef.current + 1;
+      requestGenerationRef.current = generation;
+      const identity = createTurnIdentity();
+      dispatch({
+        type: 'TURN_BEGIN',
+        identity,
+        query: PHOTO_TURN_LABEL,
+        photoUrl: dataUrl,
+      });
+
+      try {
+        const session = await resolveOrCreateConversationSession();
+        const result = await sendConversationPhotoTurn({
+          image: dataUrl,
+          conversationId: session.conversationId,
+          anonymousToken: session.anonymousToken,
+          clientTurnId: identity.turnId,
+          shopCategory: shopCategoryRef.current,
+          sessionId: getSessionId(),
+          locale: CHAT_DEFAULT_LOCALE,
+        });
+        if (requestGenerationRef.current !== generation) {
+          return;
+        }
+        if (result.photo?.summary) {
+          dispatch({ type: 'PHOTO_DESCRIBED', turnId: identity.turnId, summary: result.photo.summary });
+        }
+        dispatch({ type: 'TURN_SUCCESS', turnId: identity.turnId, query: PHOTO_TURN_LABEL, result });
+      } catch (error) {
+        if (requestGenerationRef.current !== generation) {
+          return;
+        }
+        dispatch({ type: 'TURN_ERROR', turnId: identity.turnId, errorMessage: resolveChatErrorMessage(error) });
+      }
+    },
+    [getSessionId, resolveOrCreateConversationSession],
   );
 
   const selectSuggestion = useCallback(
@@ -543,6 +599,7 @@ export function useChatSession({
     setActiveProductId,
     loadingMoreMessageId: state.loadingMoreMessageId,
     sendMessage,
+    sendPhoto,
     selectSuggestion,
     runAnchorAction,
     loadMore,

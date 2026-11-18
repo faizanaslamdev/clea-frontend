@@ -8,6 +8,7 @@ import {
   useState,
 } from 'react';
 import { ChatAnchorUserBubble } from '@/components/search/chat-anchor-user-bubble';
+import { ChatPhotoUserBubble } from '@/components/search/chat-photo-user-bubble';
 import { ProductGrid } from '@/components/product-grid';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
@@ -23,6 +24,7 @@ import {
 } from '@/lib/chat/chat-results-reveal';
 import {
   isPendingAssistantMessage,
+  isPhotoUserMessage,
   isProductReferenceUserMessage,
   type SearchChatMessageData,
 } from '@/lib/chat/chat-messages';
@@ -216,6 +218,7 @@ export function SearchChatThread({
           anchorForChips,
         );
         const isAnchorReference = isProductReferenceUserMessage(message);
+        const isPhoto = isPhotoUserMessage(message);
         const useIntrinsicReveal =
           !reduceMotion &&
           shouldUseIntrinsicResultsReveal(message.id, revealTarget);
@@ -314,6 +317,8 @@ export function SearchChatThread({
                 message.id === latestMessageId && 'search-chat-bubble--scroll-target',
                 isAnchorReference
                   ? 'search-chat-bubble--anchor-ref'
+                  : isPhoto
+                    ? 'search-chat-bubble--photo'
                   : message.role === 'user'
                     ? 'search-chat-bubble--user'
                     : 'search-chat-bubble--assistant',
@@ -322,6 +327,8 @@ export function SearchChatThread({
             >
               {isPendingAssistantMessage(message) ? (
                 <ChatTypingIndicator />
+              ) : isPhoto && message.photo ? (
+                <ChatPhotoUserBubble url={message.photo.url} summary={message.photo.summary} />
               ) : isAnchorReference && message.anchorPreview ? (
                 <ChatAnchorUserBubble
                   preview={message.anchorPreview}

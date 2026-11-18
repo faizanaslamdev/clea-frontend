@@ -22,6 +22,8 @@ export type ChatSessionAction =
       query: string;
       anchorPreview?: AnchorPreview;
       showAsProductReference?: boolean;
+      /** Photo search: the photo shown in the user's bubble. */
+      photoUrl?: string;
     }
   | {
       type: 'TURN_SUCCESS';
@@ -30,6 +32,7 @@ export type ChatSessionAction =
       result: ChatTurnResult;
     }
   | { type: 'TURN_ERROR'; turnId: string; errorMessage: string }
+  | { type: 'PHOTO_DESCRIBED'; turnId: string; summary: string }
   | { type: 'TURN_RETRY_PENDING'; turnId: string }
   | { type: 'SET_ACTIVE_PRODUCT'; productId: string | null }
   | { type: 'CLEAR_SUGGESTIONS'; messageId: string }
@@ -100,6 +103,7 @@ export function chatSessionReducer(
         {
           anchorPreview: action.anchorPreview,
           showAsProductReference: action.showAsProductReference,
+          photoUrl: action.photoUrl,
         },
       );
 
@@ -131,6 +135,16 @@ export function chatSessionReducer(
           action.result.anchorProductId ?? state.activeProductId,
       };
     }
+
+    case 'PHOTO_DESCRIBED':
+      return {
+        ...state,
+        messages: state.messages.map((message) =>
+          message.role === 'user' && message.turnId === action.turnId && message.photo
+            ? { ...message, photo: { ...message.photo, summary: action.summary } }
+            : message,
+        ),
+      };
 
     case 'TURN_ERROR': {
       const messages = replaceAssistantForTurn(

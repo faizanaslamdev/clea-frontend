@@ -44,6 +44,7 @@ export function SearchLanding() {
           shopCategory={shopCategory}
           onShopCategoryChange={setShopCategory}
           animatedPlaceholderPhrases={placeholderExamplesFor(shopCategory)}
+          photoSearch
         />
       </div>
 

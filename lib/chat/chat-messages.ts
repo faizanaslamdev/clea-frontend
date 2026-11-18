@@ -26,6 +26,8 @@ export interface SearchChatMessageData {
   degraded?: boolean;
   /** True for the synthetic assistant message shown when a turn request fails. */
   isError?: boolean;
+  /** Photo search: the user's photo (data URL, kept in memory only) and what Clea saw. */
+  photo?: { url: string; summary?: string };
 }
 
 function createMessage(
@@ -69,6 +71,7 @@ export function isPendingAssistantMessage(
 export interface UserMessageBuildOptions {
   anchorPreview?: AnchorPreview;
   showAsProductReference?: boolean;
+  photoUrl?: string;
 }
 
 export function userMessageOptionsForTurn(
@@ -94,6 +97,10 @@ export function userMessageOptionsForTurn(
   };
 }
 
+export function isPhotoUserMessage(message: SearchChatMessageData): boolean {
+  return message.role === 'user' && Boolean(message.photo);
+}
+
 export function isProductReferenceUserMessage(
   message: SearchChatMessageData,
 ): boolean {
@@ -105,6 +112,9 @@ export function buildUserMessage(
   options?: UserMessageBuildOptions,
 ): SearchChatMessageData {
   const trimmed = query.trim();
+  if (options?.photoUrl) {
+    return createMessage('user', trimmed, { photo: { url: options.photoUrl } });
+  }
   const userOptions = userMessageOptionsForTurn(trimmed, options);
   return createMessage('user', trimmed, userOptions);
 }

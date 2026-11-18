@@ -27,6 +27,7 @@ export function HeroSectionContent() {
           shopCategory={shopCategory}
           onShopCategoryChange={setShopCategory}
           animatedPlaceholderPhrases={placeholderExamplesFor(shopCategory)}
+          photoSearch
         />
       </div>
       <div className="hero-section__suggestions">

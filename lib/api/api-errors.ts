@@ -17,6 +17,10 @@ const CHAT_ERROR_MESSAGES_NB: Record<string, string> = {
   conversation_not_found: 'Samtalen ble ikke funnet.',
   conversation_expired: 'Samtalen har utløpt. Start en ny chat.',
   invalid_anonymous_token: 'Kunne ikke gjenopprette samtalen. Start en ny chat.',
+  invalid_image: 'Klarte ikke å lese bildet. Prøv et JPEG- eller PNG-bilde.',
+  photo_not_fashion:
+    'Clea fant ingen klær, sko, vesker eller tilbehør i bildet. Prøv et bilde der plagget vises tydelig.',
+  photo_unavailable: 'Bildesøk er ikke tilgjengelig akkurat nå. Prøv igjen om litt.',
 };
 
 export function resolveChatErrorMessage(error: unknown): string {

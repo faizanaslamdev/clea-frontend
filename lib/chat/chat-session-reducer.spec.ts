@@ -244,3 +244,33 @@ describe('chatSessionReducer TURN_ERROR', () => {
     expect(state.messages[1]?.status).toBe('complete');
   });
 });
+
+describe('chatSessionReducer photo search', () => {
+  it('shows the photo on the user turn and adds what Clea saw', () => {
+    const identity = createTurnIdentity();
+    const started = chatSessionReducer(initialChatSessionState, {
+      type: 'TURN_BEGIN',
+      identity,
+      query: 'Bildesøk',
+      photoUrl: 'data:image/jpeg;base64,AAAA',
+    });
+    expect(started.messages[0].photo).toEqual({ url: 'data:image/jpeg;base64,AAAA' });
+    expect(started.messages[0].anchorPreview).toBeUndefined();
+
+    const described = chatSessionReducer(started, {
+      type: 'PHOTO_DESCRIBED',
+      turnId: identity.turnId,
+      summary: 'En kamelfarget ullkåpe.',
+    });
+    expect(described.messages[0].photo?.summary).toBe('En kamelfarget ullkåpe.');
+
+    const done = chatSessionReducer(described, {
+      type: 'TURN_SUCCESS',
+      turnId: identity.turnId,
+      query: 'Bildesøk',
+      result: TURN,
+    });
+    expect(done.messages[0].photo?.summary).toBe('En kamelfarget ullkåpe.');
+    expect(isPendingAssistantMessage(done.messages[1])).toBe(false);
+  });
+});

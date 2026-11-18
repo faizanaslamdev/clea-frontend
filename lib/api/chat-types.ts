@@ -210,7 +210,28 @@ export interface ChatTurnResponse {
   };
 }
 
+/** What Clea read from a photo (POST /chat/photo). */
+export interface PhotoDescription {
+  summary: string;
+  items: { label: string; query: string }[];
+}
+
+/** POST /chat/photo: a photo instead of a typed message. */
+export interface PhotoTurnRequest {
+  /** `data:image/jpeg;base64,…`, already resized in the browser. */
+  image: string;
+  note?: string;
+  conversationId: string;
+  anonymousToken: string;
+  clientTurnId: string;
+  locale?: 'nb' | 'en';
+  sessionId?: string;
+  shopCategory?: ShopCategory;
+}
+
 export interface ChatTurnResult {
+  /** Set on a photo search turn. */
+  photo?: PhotoDescription;
   reply: string;
   intent: ChatIntent;
   products: import('@/lib/types').Product[];

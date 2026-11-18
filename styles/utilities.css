@@ -1516,6 +1516,55 @@
     @apply max-w-none bg-transparent p-0 shadow-none;
   }
 
+  /* Photo search: the visitor's photo with what Clea saw next to it. */
+  .search-chat-bubble--photo {
+    @apply max-w-[min(100%,24rem)] bg-transparent p-0 shadow-none;
+  }
+
+  .chat-photo-bubble {
+    @apply flex items-end gap-3;
+  }
+
+  .chat-photo-bubble__image {
+    background-color: var(--muted);
+    @apply block h-[8.5rem] w-[6.5rem] shrink-0 rounded-2xl object-cover md:h-[10.5rem] md:w-[8rem];
+  }
+
+  .chat-photo-bubble__seen {
+    @apply flex min-w-0 flex-col gap-1 pb-1 text-left;
+  }
+
+  .chat-photo-bubble__label {
+    color: var(--muted-foreground);
+    @apply inline-flex items-center gap-1.5 text-[13px];
+  }
+
+  .chat-photo-bubble__summary {
+    font-family: var(--font-serif, Georgia, serif);
+    color: var(--foreground);
+    @apply m-0 text-[17px] leading-snug md:text-lg;
+  }
+
+  .photo-search-button {
+    color: var(--foreground);
+    @apply inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent transition-[background-color,opacity] duration-200 hover:bg-[color-mix(in_oklab,var(--foreground)_8%,transparent)] disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .photo-search-button--card {
+    @apply size-9;
+  }
+
+  /* Shown as a small toast: the search card clips anything placed under it. */
+  .photo-search-button__error {
+    background-color: var(--foreground);
+    color: var(--primary-foreground);
+    @apply fixed bottom-24 left-1/2 z-50 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-full px-4 py-2 text-sm shadow-lg;
+  }
+
+  .hero-search-card__footer:has(.photo-search-button) {
+    @apply justify-between;
+  }
+
   .search-chat-anchor-ref {
     @apply flex max-w-[min(100%,20rem)] flex-col items-end;
   }

@@ -7,6 +7,8 @@ import type { ShopCategory } from '@/lib/api/chat-types';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { buildSearchUrl, shouldOpenChat } from '@/lib/search/search-routing';
 import { TypewriterText } from '@/components/shared/typewriter-text';
+import { PhotoSearchButton } from '@/components/search/photo-search-button';
+import { setPendingPhoto } from '@/lib/photo/pending-photo';
 import { cn } from '@/lib/utils';
 
 export type HeroSearchVariant = 'full' | 'compact';
@@ -41,6 +43,13 @@ interface HeroSearchFormProps {
   shopCategory?: ShopCategory;
   /** Called with undefined when the visitor clears the choice. */
   onShopCategoryChange?: (category: ShopCategory | undefined) => void;
+  /** Shows the camera button for photo search. */
+  photoSearch?: boolean;
+  /**
+   * Receives the resized photo. Without it the photo is handed to /chat,
+   * which sends it (homepage and chat landing).
+   */
+  onSubmitPhoto?: (dataUrl: string) => void;
 }
 
 export function HeroSearchForm({
@@ -60,6 +69,8 @@ export function HeroSearchForm({
   animatedPlaceholderPhrases,
   shopCategory: controlledShopCategory,
   onShopCategoryChange,
+  photoSearch = false,
+  onSubmitPhoto,
 }: HeroSearchFormProps) {
   // No audience preselected: a first-time visitor's "kjole" or "jakke" must
   // not be read as men's. Clicking the chosen one again clears it.
@@ -95,6 +106,19 @@ export function HeroSearchForm({
       navigateToChatEntry(router, { query: trimmed, shopCategory });
     },
     [router, shopCategory],
+  );
+
+  const submitPhoto = useCallback(
+    (dataUrl: string) => {
+      if (submitLocked) return;
+      if (onSubmitPhoto) {
+        onSubmitPhoto(dataUrl);
+        return;
+      }
+      setPendingPhoto({ dataUrl, shopCategory });
+      router.push('/chat');
+    },
+    [onSubmitPhoto, router, shopCategory, submitLocked],
   );
 
   const submitQuery = useCallback(() => {
@@ -159,6 +183,9 @@ export function HeroSearchForm({
           autoComplete="off"
           enterKeyHint="search"
         />
+        {photoSearch ? (
+          <PhotoSearchButton onPhoto={submitPhoto} disabled={submitLocked} />
+        ) : null}
         <button
           type="submit"
           disabled={!canSubmit}
@@ -237,6 +264,9 @@ export function HeroSearchForm({
         </div>
 
         <div className="hero-search-card__footer">
+          {photoSearch ? (
+            <PhotoSearchButton onPhoto={submitPhoto} disabled={submitLocked} className="photo-search-button--card" />
+          ) : null}
           <button
             type="submit"
             className="hero-search-card__submit hero-search-card__submit--active"

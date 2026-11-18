@@ -1,6 +1,7 @@
 import {
   createConversation as apiCreateConversation,
   fetchChatTurn,
+  fetchPhotoTurn,
   getConversation as apiGetConversation,
 } from '@/lib/api/chat';
 import type {
@@ -65,6 +66,26 @@ export async function sendConversationTurn(input: {
   };
 
   return fetchChatTurn(request);
+}
+
+export async function sendConversationPhotoTurn(input: {
+  conversationId: string;
+  anonymousToken: string;
+  image: string;
+  clientTurnId: string;
+  shopCategory?: ShopCategory;
+  locale?: 'nb' | 'en';
+  sessionId?: string;
+}): Promise<ChatTurnResult> {
+  return fetchPhotoTurn({
+    image: input.image,
+    conversationId: input.conversationId,
+    anonymousToken: input.anonymousToken,
+    clientTurnId: input.clientTurnId,
+    locale: input.locale ?? CHAT_DEFAULT_LOCALE,
+    sessionId: input.sessionId,
+    shopCategory: input.shopCategory,
+  });
 }
 
 export function bindConversationSession(
