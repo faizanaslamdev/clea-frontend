@@ -27,7 +27,8 @@ async function loadSuggestions(shopCategory: ShopCategory): Promise<string[]> {
 function mixedSuggestions(
   cache: Partial<Record<ShopCategory, string[]>>,
 ): string[] {
-  return interleave(cache.womens ?? [], cache.mens ?? []).slice(0, 8);
+  // Both audiences share some questions ("Hyttetur i helgen …"): show each once.
+  return [...new Set(interleave(cache.womens ?? [], cache.mens ?? []))].slice(0, 8);
 }
 
 /**
@@ -43,7 +44,7 @@ export function useLandingSuggestions() {
   shopCategoryRef.current = shopCategory;
 
   const [suggestions, setSuggestions] = useState<string[]>(() =>
-    interleave(fallbackSuggestions('womens'), fallbackSuggestions('mens')),
+    mixedSuggestions({ womens: fallbackSuggestions('womens'), mens: fallbackSuggestions('mens') }),
   );
   const cacheRef = useRef<Partial<Record<ShopCategory, string[]>>>({
     mens: fallbackSuggestions('mens'),

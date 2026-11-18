@@ -1,16 +1,17 @@
 import type { ShopCategory } from '@/lib/api/chat-types';
 
 export const SEARCH_HEADLINE_EXAMPLES = [
+  'antrekk til julebord',
+  'noe pent til middag ute',
+  'antrekk til jobbintervju',
+  'klær til hytteturen',
+  'kjole til sommerbryllup',
   'antrekk fra jobb til middag',
-  'lærveske til jobb, ikke stresskoffert',
-  'fottøy til uformell bryllupsgjest',
-  'old school joggesko',
-  'americana-arbeidsklær',
 ] as const;
 
 /**
- * Curated, hand-picked example search queries for the animated search-box
- * placeholder -- split by shopCategory so "Dame" and "Herre" each get
+ * Curated stylist questions for the animated search-box placeholder (an
+ * occasion, a plan, a budget: how people ask an AI stylist) -- split by shopCategory so "Dame" and "Herre" each get
  * queries that actually make sense for that wardrobe. Deliberately NOT the
  * live AI-generated `suggestions` (useLandingSuggestions): those can vary
  * in phrasing/quality run to run, while a placeholder is a *promise* of
@@ -21,18 +22,18 @@ export const SEARCH_HEADLINE_EXAMPLES = [
  */
 export const SEARCH_PLACEHOLDER_EXAMPLES: Record<ShopCategory, readonly string[]> = {
   womens: [
-    'Kjole til sommerbryllup',
-    'Ferieklare sandaler til sommeren',
-    'Strikkegenser i myk ull til høsten',
-    'Sort skinnjakke i mellomstørrelse',
-    'En veske som passer til alt',
+    'Kjole til julebord på fredag',
+    'Noe pent til middag ute',
+    'Antrekk til jobbintervju for dame',
+    'Varm vinterjakke dame under 2000 kr',
+    'Hva pakker jeg til Syden i januar?',
   ],
   mens: [
-    'Herrejakke under 1500 kr',
-    'Ralph Lauren på tvers av butikker',
-    'Joggesko til hverdagsbruk',
-    'Ullgenser til kontordagen',
-    'Chinos som funker til jobb og fest',
+    'Hva har jeg på meg på julebord?',
+    'Skjorte og bukse til middag ute',
+    'Antrekk til jobbintervju for herre',
+    'Varm vinterjakke herre under 2000 kr',
+    'Smart casual til kontoret',
   ],
 } as const;
 
