@@ -300,9 +300,6 @@ export function useChatSession({
         if (requestGenerationRef.current !== generation) {
           return;
         }
-        if (result.photo?.summary) {
-          dispatch({ type: 'PHOTO_DESCRIBED', turnId: identity.turnId, summary: result.photo.summary });
-        }
         dispatch({ type: 'TURN_SUCCESS', turnId: identity.turnId, query: PHOTO_TURN_LABEL, result });
       } catch (error) {
         if (requestGenerationRef.current !== generation) {

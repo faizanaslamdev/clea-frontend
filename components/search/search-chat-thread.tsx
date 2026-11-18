@@ -210,7 +210,7 @@ export function SearchChatThread({
 
   return (
     <ul className="search-chat-thread" aria-live="polite">
-      {messages.map((message, index) => {
+      {messages.map((message) => {
         const anchorForChips =
           activeProductId ?? message.anchorProductId ?? undefined;
         const visibleSuggestions = filterSuggestionsForAnchor(
@@ -326,13 +326,9 @@ export function SearchChatThread({
               )}
             >
               {isPendingAssistantMessage(message) ? (
-                <ChatTypingIndicator />
+                <ChatTypingIndicator photo={message.isPhotoTurn} />
               ) : isPhoto && message.photo ? (
-                <ChatPhotoUserBubble
-                  url={message.photo.url}
-                  summary={message.photo.summary}
-                  reading={Boolean(messages[index + 1] && isPendingAssistantMessage(messages[index + 1]))}
-                />
+                <ChatPhotoUserBubble url={message.photo.url} />
               ) : isAnchorReference && message.anchorPreview ? (
                 <ChatAnchorUserBubble
                   preview={message.anchorPreview}
@@ -343,6 +339,14 @@ export function SearchChatThread({
                   <CircleAlert aria-hidden className="search-chat-bubble__error-icon" />
                   <span>{message.content}</span>
                 </p>
+              ) : message.photoSummary ? (
+                <>
+                  <p className="chat-photo-seen">
+                    <span className="chat-photo-seen__label">Clea ser</span>
+                    <span className="chat-photo-seen__summary">{message.photoSummary}</span>
+                  </p>
+                  <p>{message.content}</p>
+                </>
               ) : (
                 <p>{message.content}</p>
               )}

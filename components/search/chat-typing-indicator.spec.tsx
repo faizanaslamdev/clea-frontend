@@ -34,7 +34,7 @@ describe('ChatTypingIndicator', () => {
     act(() => {
       vi.advanceTimersByTime(2200);
     });
-    expect(container.textContent).toContain('Sjekker priser');
+    expect(container.textContent).toContain('Finner plagg');
 
     act(() => {
       vi.advanceTimersByTime(6000 - 2200);

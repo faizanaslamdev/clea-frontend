@@ -1516,53 +1516,63 @@
     @apply max-w-none bg-transparent p-0 shadow-none;
   }
 
-  /* Photo search: the visitor's photo with what Clea saw next to it. */
+  /* Photo search: the visitor's photo is their message, like a sent picture. */
   .search-chat-bubble--photo {
-    @apply max-w-[min(100%,24rem)] bg-transparent p-0 shadow-none;
+    @apply max-w-none bg-transparent p-0 shadow-none;
   }
 
   .chat-photo-bubble {
-    @apply flex items-end gap-3;
+    @apply flex justify-end;
   }
 
   .chat-photo-bubble__image {
     background-color: var(--muted);
-    @apply block h-[8.5rem] w-[6.5rem] shrink-0 rounded-2xl object-cover md:h-[10.5rem] md:w-[8rem];
+    border: 1px solid var(--border);
+    @apply block h-[11rem] w-[8.5rem] rounded-2xl object-cover md:h-[13.5rem] md:w-[10.5rem];
   }
 
-  .chat-photo-bubble__seen {
-    @apply flex min-w-0 flex-col gap-1 pb-1 text-left;
+  /* What Clea saw, first line of her answer to a photo. */
+  .chat-photo-seen {
+    border-bottom: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
+    @apply mb-2.5 flex flex-col gap-0.5 pb-2.5;
   }
 
-  .chat-photo-bubble__label {
+  .chat-photo-seen__label {
     color: var(--muted-foreground);
-    @apply inline-flex items-center gap-1.5 text-[13px];
+    @apply text-xs font-medium uppercase tracking-[0.06em];
   }
 
-  .chat-photo-bubble__summary {
+  .chat-photo-seen__summary {
     font-family: var(--font-serif, Georgia, serif);
     color: var(--foreground);
-    @apply m-0 text-[17px] leading-snug md:text-lg;
+    @apply text-[17px] leading-snug md:text-lg;
   }
 
+  /* Camera for photo search: a soft grey circle next to send, as in the app design. */
   .photo-search-button {
+    background-color: var(--muted);
+    color: color-mix(in oklab, var(--foreground) 72%, transparent);
+    @apply inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 transition-[background-color,color,opacity] duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .photo-search-button:not(:disabled):hover {
+    background-color: color-mix(in oklab, var(--foreground) 10%, var(--muted));
     color: var(--foreground);
-    @apply inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent transition-[background-color,opacity] duration-200 hover:bg-[color-mix(in_oklab,var(--foreground)_8%,transparent)] disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   .photo-search-button--card {
     @apply size-9;
   }
 
-  /* Shown as a small toast: the search card clips anything placed under it. */
   .photo-search-button__error {
     background-color: var(--foreground);
     color: var(--primary-foreground);
     @apply fixed bottom-24 left-1/2 z-50 w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-full px-4 py-2 text-sm shadow-lg;
   }
 
+  /* Camera sits beside the send button. */
   .hero-search-card__footer:has(.photo-search-button) {
-    @apply justify-between;
+    @apply gap-2;
   }
 
   .search-chat-anchor-ref {

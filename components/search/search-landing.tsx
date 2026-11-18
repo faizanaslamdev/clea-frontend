@@ -6,6 +6,7 @@ import { SearchSuggestionChips } from '@/components/search/search-suggestion-chi
 import { TypewriterText } from '@/components/shared/typewriter-text';
 import { placeholderExamplesFor, SEARCH_HEADLINE_EXAMPLES } from '@/lib/constants/search-prompts';
 import { useLandingSuggestions } from '@/lib/hooks/useLandingSuggestions';
+import { useChatSessionContext } from '@/lib/chat/chat-session-provider';
 
 export function SearchLanding() {
   const { shopCategory, setShopCategory, suggestions, isLoadingSuggestions, selectSuggestion } =
@@ -14,6 +15,8 @@ export function SearchLanding() {
   // the headline's type/delete/next-phrase loop can see it and freeze --
   // otherwise it kept cycling underneath whatever the user was typing.
   const [query, setQuery] = useState('');
+  // Already on /chat: send the photo here instead of navigating to the same page.
+  const { sendPhoto } = useChatSessionContext();
 
   return (
     <section className="search-landing section-container" aria-label="Søk">
@@ -45,6 +48,7 @@ export function SearchLanding() {
           onShopCategoryChange={setShopCategory}
           animatedPlaceholderPhrases={placeholderExamplesFor(shopCategory)}
           photoSearch
+          onSubmitPhoto={(dataUrl) => void sendPhoto(dataUrl, shopCategory)}
         />
       </div>
 

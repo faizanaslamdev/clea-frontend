@@ -26,8 +26,12 @@ export interface SearchChatMessageData {
   degraded?: boolean;
   /** True for the synthetic assistant message shown when a turn request fails. */
   isError?: boolean;
-  /** Photo search: the user's photo (data URL, kept in memory only) and what Clea saw. */
+  /** Photo search, user turn: the photo (data URL, kept in memory only). */
   photo?: { url: string; summary?: string };
+  /** Photo search, Clea's turn: true while she reads the photo. */
+  isPhotoTurn?: boolean;
+  /** Photo search, Clea's turn: what she saw in the photo. */
+  photoSummary?: string;
 }
 
 function createMessage(
@@ -59,6 +63,7 @@ function assistantOptionsFromTurn(
     anchorProductId: turn.anchorProductId,
     suggestions: turn.suggestions,
     degraded: turn.degraded,
+    photoSummary: turn.photo?.summary || undefined,
   };
 }
 
@@ -150,6 +155,7 @@ export function buildOptimisticTurnMessages(
       ...assistantMessage,
       id: identity.assistantMessageId,
       turnId: identity.turnId,
+      ...(options?.photoUrl ? { isPhotoTurn: true } : {}),
     },
   ];
 }

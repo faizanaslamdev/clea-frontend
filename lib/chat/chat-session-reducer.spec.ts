@@ -246,7 +246,7 @@ describe('chatSessionReducer TURN_ERROR', () => {
 });
 
 describe('chatSessionReducer photo search', () => {
-  it('shows the photo on the user turn and adds what Clea saw', () => {
+  it('shows the photo as the user turn and what Clea saw in her answer', () => {
     const identity = createTurnIdentity();
     const started = chatSessionReducer(initialChatSessionState, {
       type: 'TURN_BEGIN',
@@ -255,22 +255,16 @@ describe('chatSessionReducer photo search', () => {
       photoUrl: 'data:image/jpeg;base64,AAAA',
     });
     expect(started.messages[0].photo).toEqual({ url: 'data:image/jpeg;base64,AAAA' });
-    expect(started.messages[0].anchorPreview).toBeUndefined();
+    expect(started.messages[1].isPhotoTurn).toBe(true);
 
-    const described = chatSessionReducer(started, {
-      type: 'PHOTO_DESCRIBED',
-      turnId: identity.turnId,
-      summary: 'En kamelfarget ullkåpe.',
-    });
-    expect(described.messages[0].photo?.summary).toBe('En kamelfarget ullkåpe.');
-
-    const done = chatSessionReducer(described, {
+    const done = chatSessionReducer(started, {
       type: 'TURN_SUCCESS',
       turnId: identity.turnId,
       query: 'Bildesøk',
-      result: TURN,
+      result: { ...TURN, photo: { summary: 'En kamelfarget ullkåpe.', items: [] } },
     });
-    expect(done.messages[0].photo?.summary).toBe('En kamelfarget ullkåpe.');
+    expect(done.messages[0].photo).toEqual({ url: 'data:image/jpeg;base64,AAAA' });
+    expect(done.messages[1].photoSummary).toBe('En kamelfarget ullkåpe.');
     expect(isPendingAssistantMessage(done.messages[1])).toBe(false);
   });
 });

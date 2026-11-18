@@ -11,13 +11,21 @@ import { AiSparkIcon } from '@/components/icons/ai-spark-icon';
  */
 const STAGES: readonly string[] = [
   'Søker …',
-  'Sjekker priser hos flere butikker …',
+  'Finner plagg som passer …',
+  'Snart klar …',
+];
+
+/** Photo search: reading the photo comes first. */
+const PHOTO_STAGES: readonly string[] = [
+  'Ser på bildet …',
+  'Finner lignende plagg …',
   'Snart klar …',
 ];
 
 const STAGE_ADVANCE_DELAYS_MS = [2200, 6000] as const;
 
-export function ChatTypingIndicator() {
+export function ChatTypingIndicator({ photo = false }: { photo?: boolean }) {
+  const stages = photo ? PHOTO_STAGES : STAGES;
   const [stageIndex, setStageIndex] = useState(0);
 
   useEffect(() => {
@@ -33,7 +41,7 @@ export function ChatTypingIndicator() {
     <span className="chat-typing-indicator" role="status">
       <AiSparkIcon className="chat-typing-indicator__icon" />
       <span key={stageIndex} className="chat-typing-indicator__label">
-        {STAGES[stageIndex]}
+        {stages[stageIndex]}
       </span>
     </span>
   );
