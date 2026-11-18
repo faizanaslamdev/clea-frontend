@@ -6,6 +6,7 @@ import { createQueryClient } from '@/lib/query/client';
 import { AuthProvider } from '@/components/auth/auth-provider';
 import { AuthQueryListener } from '@/components/auth/auth-query-listener';
 import { AuthResumeListener } from '@/components/auth/auth-resume-listener';
+import { StyleProfileSync } from '@/components/account/style-profile-sync';
 import { ProductDesktopModalProvider } from '@/components/product/product-desktop-modal-provider';
 import { ScrollToTopOnNavigate } from '@/components/scroll-to-top-on-navigate';
 
@@ -21,6 +22,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ProductDesktopModalProvider>
           <AuthQueryListener />
           <AuthResumeListener />
+          <StyleProfileSync />
           {children}
         </ProductDesktopModalProvider>
       </AuthProvider>

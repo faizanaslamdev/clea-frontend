@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Bell, LoaderCircle, LogOut, UserRound } from 'lucide-react';
+import { Bell, LoaderCircle, LogOut, Sparkles, UserRound } from 'lucide-react';
 import { PageLayout } from '@/components/layout/page-layout';
 import { Button } from '@/components/ui/button';
 import { VerifyEmailBanner } from '@/components/auth/verify-email-banner';
 import { TrackedProductsList } from '@/components/account/tracked-products-list';
+import { StyleProfileEditor } from '@/components/account/style-profile-editor';
+import { clearLocalStyleProfile } from '@/lib/style-profile/style-profile';
 import { signOut } from '@/lib/auth/client';
 
 interface AccountUser {
@@ -29,6 +31,7 @@ export function AccountPageClient({ user }: AccountPageClientProps) {
     setIsSigningOut(true);
     try {
       await signOut();
+      clearLocalStyleProfile();
       router.push('/');
       router.refresh();
     } finally {
@@ -69,6 +72,10 @@ export function AccountPageClient({ user }: AccountPageClientProps) {
           <Link href="#profile">
             <UserRound aria-hidden />
             Kontoinformasjon
+          </Link>
+          <Link href="#style-profile">
+            <Sparkles aria-hidden />
+            Stilprofil
           </Link>
           <Link href="#price-alerts">
             <Bell aria-hidden />
@@ -120,6 +127,25 @@ export function AccountPageClient({ user }: AccountPageClientProps) {
               </dd>
             </div>
           </dl>
+        </section>
+
+        <section
+          id="style-profile"
+          className="account-page__card"
+          aria-labelledby="style-profile-title"
+        >
+          <div className="account-page__section-header">
+            <span className="account-page__section-icon" aria-hidden>
+              <Sparkles />
+            </span>
+            <div>
+              <h2 id="style-profile-title" className="account-page__section-title">
+                Stilprofil
+              </h2>
+              <p>Clea bruker profilen din til å velge for deg: merkene du liker, budsjettet ditt og størrelsene dine.</p>
+            </div>
+          </div>
+          <StyleProfileEditor />
         </section>
 
         <section

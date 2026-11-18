@@ -13,6 +13,7 @@ import type {
   ShopCategory,
 } from '@/lib/api/chat-types';
 import { CHAT_DEFAULT_LOCALE } from '@/lib/constants/chat';
+import type { StyleProfile } from '@/lib/style-profile/style-profile';
 import {
   getAnonymousToken,
   saveAnonymousToken,
@@ -74,10 +75,12 @@ export async function sendConversationPhotoTurn(input: {
   image: string;
   clientTurnId: string;
   shopCategory?: ShopCategory;
+  styleProfile?: StyleProfile;
   locale?: 'nb' | 'en';
   sessionId?: string;
 }): Promise<ChatTurnResult> {
   return fetchPhotoTurn({
+    styleProfile: input.styleProfile,
     image: input.image,
     conversationId: input.conversationId,
     anonymousToken: input.anonymousToken,

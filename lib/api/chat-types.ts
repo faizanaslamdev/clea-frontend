@@ -73,6 +73,8 @@ export interface ChatTurnContext {
   catalog?: CatalogQuery;
   intent?: ChatIntent;
   shopCategory?: ShopCategory;
+  /** Favourite brands, budgets and sizes (style profile add-on). */
+  styleProfile?: import('@/lib/style-profile/style-profile').StyleProfile;
 }
 
 export interface ChatSuggestionsResponse {
@@ -227,6 +229,7 @@ export interface PhotoTurnRequest {
   locale?: 'nb' | 'en';
   sessionId?: string;
   shopCategory?: ShopCategory;
+  styleProfile?: import('@/lib/style-profile/style-profile').StyleProfile;
 }
 
 export interface ChatTurnResult {

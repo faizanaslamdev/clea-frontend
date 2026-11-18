@@ -3162,6 +3162,96 @@
     @apply mt-6 scroll-mt-24 rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6;
   }
 
+  /* Style profile (account): brands, budgets, sizes. */
+  .style-profile {
+    @apply flex flex-col gap-8;
+  }
+
+  .style-profile__group {
+    @apply flex flex-col gap-3;
+  }
+
+  .style-profile__heading {
+    font-family: var(--font-serif, Georgia, serif);
+    @apply m-0 text-lg font-medium;
+  }
+
+  .style-profile__brands {
+    @apply m-0 flex list-none flex-wrap gap-2 p-0;
+  }
+
+  .style-profile__brand {
+    background-color: var(--muted);
+    @apply inline-flex items-center gap-1.5 rounded-full py-1.5 pl-3.5 pr-1.5 text-sm;
+  }
+
+  .style-profile__brand button {
+    color: var(--muted-foreground);
+    @apply inline-flex size-6 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent hover:bg-[color-mix(in_oklab,var(--foreground)_8%,transparent)];
+  }
+
+  .style-profile__add {
+    @apply flex max-w-md items-center gap-2;
+  }
+
+  .style-profile__input {
+    background-color: var(--card);
+    @apply h-9 min-w-0 flex-1 rounded-md border border-border px-3 text-sm outline-none focus-visible:border-foreground;
+  }
+
+  .style-profile__budgets {
+    @apply grid gap-4 sm:grid-cols-2;
+  }
+
+  .style-profile__budget {
+    @apply flex flex-col gap-2 text-sm;
+  }
+
+  .style-profile__budget-row {
+    @apply flex items-baseline justify-between gap-3;
+  }
+
+  .style-profile__budget-value {
+    color: var(--muted-foreground);
+  }
+
+  .style-profile__budget input[type='range'] {
+    accent-color: var(--foreground);
+    @apply w-full;
+  }
+
+  .style-profile__sizes {
+    @apply grid grid-cols-2 gap-3 sm:grid-cols-4;
+  }
+
+  .style-profile__size {
+    @apply flex flex-col gap-1.5 text-sm;
+  }
+
+  .style-profile__size span {
+    color: var(--muted-foreground);
+  }
+
+  .style-profile__size select {
+    background-color: var(--card);
+    font-family: var(--font-serif, Georgia, serif);
+    @apply h-11 rounded-xl border border-border px-3 text-lg outline-none focus-visible:border-foreground;
+  }
+
+  .style-profile__hint {
+    color: var(--muted-foreground);
+    @apply m-0 text-xs;
+  }
+
+  .style-profile__actions {
+    @apply flex flex-wrap items-center gap-3 border-t border-border pt-5;
+  }
+
+  .style-profile__status {
+    color: var(--muted-foreground);
+    @apply inline-flex items-center gap-1.5 text-sm;
+  }
+
   .account-page__section-header {
     @apply mb-6 flex items-start gap-3 border-b border-border pb-5;
   }

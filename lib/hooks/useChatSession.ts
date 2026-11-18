@@ -49,6 +49,7 @@ import { resolveHydratedSendSource } from '@/lib/chat/start-product-chat';
 import { resolveSendMessage } from '@/lib/chat/resolve-send-message';
 import { syncAnchorSessionForTurn } from '@/lib/chat/anchor-turn-state';
 import { CHAT_DEFAULT_LOCALE } from '@/lib/constants/chat';
+import { styleProfileForChat } from '@/lib/style-profile/style-profile';
 
 /** Text of the user's turn while Clea reads a photo. */
 export const PHOTO_TURN_LABEL = 'Bildesøk';
@@ -151,10 +152,11 @@ export function useChatSession({
         context,
       );
       const session = await resolveOrCreateConversationSession();
+      const styleProfile = styleProfileForChat();
 
       return sendConversationTurn({
         message,
-        context: mergedContext,
+        context: styleProfile ? { ...mergedContext, styleProfile } : mergedContext,
         conversationId: session.conversationId,
         anonymousToken: session.anonymousToken,
         clientTurnId: clientTurnId ?? crypto.randomUUID(),
@@ -291,6 +293,7 @@ export function useChatSession({
           anonymousToken: session.anonymousToken,
           clientTurnId: identity.turnId,
           shopCategory: shopCategoryRef.current,
+          styleProfile: styleProfileForChat(),
           sessionId: getSessionId(),
           locale: CHAT_DEFAULT_LOCALE,
         });
