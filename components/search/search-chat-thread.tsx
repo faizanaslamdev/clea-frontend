@@ -210,7 +210,7 @@ export function SearchChatThread({
 
   return (
     <ul className="search-chat-thread" aria-live="polite">
-      {messages.map((message) => {
+      {messages.map((message, index) => {
         const anchorForChips =
           activeProductId ?? message.anchorProductId ?? undefined;
         const visibleSuggestions = filterSuggestionsForAnchor(
@@ -328,7 +328,11 @@ export function SearchChatThread({
               {isPendingAssistantMessage(message) ? (
                 <ChatTypingIndicator />
               ) : isPhoto && message.photo ? (
-                <ChatPhotoUserBubble url={message.photo.url} summary={message.photo.summary} />
+                <ChatPhotoUserBubble
+                  url={message.photo.url}
+                  summary={message.photo.summary}
+                  reading={Boolean(messages[index + 1] && isPendingAssistantMessage(messages[index + 1]))}
+                />
               ) : isAnchorReference && message.anchorPreview ? (
                 <ChatAnchorUserBubble
                   preview={message.anchorPreview}
