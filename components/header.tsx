@@ -65,36 +65,44 @@ function NavLink({
  * True when no `[data-audience-toggle]` is on the page, or the one that is
  * has left the viewport.
  */
+const UNGENDERED_SHELVES = new Set(['skjonnhet', 'klokker', 'tilbehor']);
+
+function isAudiencePage(pathname: string): boolean {
+  if (pathname === '/' || pathname === '/shop') return true;
+  const shelf = /^\/shop\/([^/]+)/.exec(pathname)?.[1];
+  return Boolean(shelf && !UNGENDERED_SHELVES.has(shelf));
+}
+
 function useAudienceToggleScrolledAway(pathname: string): boolean {
   const [scrolledAway, setScrolledAway] = useState(false);
   useEffect(() => {
+    let watched: Element | null = null;
     let intersection: IntersectionObserver | null = null;
-    let mutation: MutationObserver | null = null;
-    const watch = (target: Element) => {
-      mutation?.disconnect();
-      mutation = null;
+    // Pages swap their toggle element (a pending surface first, the real
+    // hub after hydration), so the watched element is re-found whenever the
+    // DOM changes; with none on the page the switch shows.
+    const sync = () => {
+      const target = document.querySelector('[data-audience-toggle]');
+      if (target === watched) return;
+      intersection?.disconnect();
+      intersection = null;
+      watched = target;
+      if (!target) {
+        setScrolledAway(true);
+        return;
+      }
       intersection = new IntersectionObserver(
         ([entry]) => setScrolledAway(!entry.isIntersecting),
         { threshold: 0 },
       );
       intersection.observe(target);
     };
-    const found = document.querySelector('[data-audience-toggle]');
-    if (found) {
-      watch(found);
-    } else {
-      // Pages such as the /shop hub render their toggle after a client
-      // transition: show the switch now, hand over once the toggle appears.
-      setScrolledAway(true);
-      mutation = new MutationObserver(() => {
-        const late = document.querySelector('[data-audience-toggle]');
-        if (late) watch(late);
-      });
-      mutation.observe(document.body, { childList: true, subtree: true });
-    }
+    sync();
+    const mutation = new MutationObserver(sync);
+    mutation.observe(document.body, { childList: true, subtree: true });
     return () => {
       intersection?.disconnect();
-      mutation?.disconnect();
+      mutation.disconnect();
     };
   }, [pathname]);
   return scrolledAway;
@@ -138,7 +146,12 @@ export function Header() {
   // (home hero, /chat landing, /shop hub) is on screen: one choice, not
   // two. It comes in, like the sticky search, once that toggle has scrolled
   // away, and is always there on pages without one.
-  const showAudienceSwitch = useAudienceToggleScrolledAway(pathname);
+  // Only where Dame/Herre changes what is shown: the homepage and the
+  // gendered shop shelves. Chat keeps its own per-conversation choice, and
+  // brands, products, beauty, watches and accessories are not split by it.
+  const audienceRelevant = isAudiencePage(pathname);
+  const toggleScrolledAway = useAudienceToggleScrolledAway(pathname);
+  const showAudienceSwitch = audienceRelevant && toggleScrolledAway;
 
   const updateHeaderOnScroll = useCallback(() => {
     if (!hasUnderlapHero) {
@@ -198,11 +211,13 @@ export function Header() {
                 />
               ))}
             </nav>
+            {audienceRelevant ? (
             <AudienceSwitch
               overHero={overHero}
               className={cn('site-header-audience', !showAudienceSwitch && 'site-header-audience--hidden')}
               hidden={!showAudienceSwitch}
             />
+            ) : null}
           </div>
 
           <BrandLogo

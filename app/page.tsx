@@ -66,7 +66,7 @@ export default async function Home() {
         <HeroSection />
         <BrandMarquee />
         <Reveal>
-          <CategorySection browseLinks />
+          <CategorySection browseLinks followAudience />
         </Reveal>
         <Reveal>
           <OccasionSection />

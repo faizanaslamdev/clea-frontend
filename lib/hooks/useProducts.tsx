@@ -6,6 +6,7 @@ import {
   fetchProductOffers,
   fetchSimilarProducts,
   fetchTrendingLooks,
+  fetchHomepageCategoryPreviews,
 } from '@/lib/api/products';
 import {
   CATEGORY_GRID_ENTRIES,
@@ -35,6 +36,22 @@ export function useCategoryPreviews(suitableFor?: SuitableFor) {
     staleTime: STALE_TIME_STATIC_MS,
     // Dame↔Herre keeps the previous Shop cards on screen until the matching
     // audience lands — count never collapses mid-toggle.
+    placeholderData: keepPreviousData,
+  });
+}
+
+/** Homepage tiles: the curated twelve, for the visitor's audience when chosen. */
+export function useHomepageCategoryPreviews(suitableFor?: 'male' | 'female', enabled = true) {
+  return useQuery({
+    enabled: enabled && Boolean(suitableFor),
+    queryKey: [...productKeys.categoryGrid(suitableFor), 'home'] as const,
+    // That audience's tiles (no Kjoler for Herre), photos from the curated pool.
+    queryFn: () =>
+      fetchHomepageCategoryPreviews(
+        suitableFor ? categoryGridForShop(suitableFor) : CATEGORY_GRID_ENTRIES,
+        suitableFor,
+      ),
+    staleTime: STALE_TIME_STATIC_MS,
     placeholderData: keepPreviousData,
   });
 }

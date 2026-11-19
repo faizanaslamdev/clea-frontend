@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
-import { useCategoryPreviews } from '@/lib/hooks/useProducts';
+import { useCategoryPreviews, useHomepageCategoryPreviews } from '@/lib/hooks/useProducts';
+import { useAudience } from '@/lib/audience/audience';
 import { RemoteProductImage } from '@/components/product/remote-product-image';
 import {
   CATEGORY_GRID_ENTRIES,
@@ -51,12 +52,15 @@ interface CategorySectionProps {
   onBrowseNavigate?: (href: string) => void;
   /** Disable card activation while a ready-navigation is in flight. */
   browseNavigateDisabled?: boolean;
+  /** Homepage: photos, links and eyebrow follow the remembered Dame/Herre. */
+  followAudience?: boolean;
 }
 
 export function CategorySection({
   showLink = true,
-  suitableFor,
-  shopCategory,
+  suitableFor: suitableForProp,
+  shopCategory: shopCategoryProp,
+  followAudience = false,
   compact = false,
   layout = 'carousel',
   browseLinks = false,
@@ -64,7 +68,23 @@ export function CategorySection({
   browseNavigateDisabled = false,
 }: CategorySectionProps = {}) {
   const router = useRouter();
-  const { data: categories = [], isLoading } = useCategoryPreviews(suitableFor);
+  const audience = useAudience();
+  const suitableFor: SuitableFor | undefined = followAudience
+    ? audience === 'mens'
+      ? 'male'
+      : audience === 'womens'
+        ? 'female'
+        : undefined
+    : suitableForProp;
+  const shopCategory = followAudience ? audience : shopCategoryProp;
+  // The homepage keeps its own curated twelve; the shop hub its eight.
+  const shopPreviews = useCategoryPreviews(followAudience ? undefined : suitableFor);
+  const homePreviews = useHomepageCategoryPreviews(
+    suitableFor === 'male' || suitableFor === 'female' ? suitableFor : undefined,
+    followAudience,
+  );
+  const { data: categories = [], isLoading } =
+    followAudience && suitableFor ? homePreviews : shopPreviews;
   const skeletonEntries = suitableFor
     ? categoryGridForShop(suitableFor)
     : CATEGORY_GRID_ENTRIES;

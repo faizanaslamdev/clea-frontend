@@ -1063,8 +1063,14 @@ async function fetchShopCategoryPreviews(
     .filter((entry): entry is CategoryPreview => entry !== null);
 }
 
-async function fetchHomepageCategoryPreviews(
+/**
+ * The homepage's twelve tiles from its curated merchant pool. With an
+ * audience (the visitor's remembered Dame/Herre) the clothes pool and
+ * gap-fills are pinned to it; beauty and accessories shelves stay shared.
+ */
+export async function fetchHomepageCategoryPreviews(
   entries: readonly CategoryGridEntry[],
+  suitableFor?: 'male' | 'female',
 ): Promise<CategoryPreview[]> {
   // Parallel merchant-scoped pages — replaces the old 12× family/q fan-out.
   const poolPages = await Promise.all([
@@ -1073,6 +1079,7 @@ async function fetchHomepageCategoryPreviews(
         merchantId,
         segment: 'fashion',
         limit: HOMEPAGE_MERCHANT_POOL_LIMIT,
+        ...(suitableFor ? { suitableFor } : {}),
       }),
     ),
     ...HOMEPAGE_SHELF_POOL_MERCHANTS.map((merchantId) =>
@@ -1103,6 +1110,7 @@ async function fetchHomepageCategoryPreviews(
     gaps,
     byId,
     usedImages,
+    suitableFor,
   });
 
   return entries
