@@ -121,6 +121,8 @@ export interface RestoreConversationTurn {
   catalogQuery?: CatalogQuery;
   anchorProductId?: string;
   productReference?: ProductReferenceSnapshot;
+  /** The user turn was a photo search: what Clea saw and the note typed with it. */
+  photoSearch?: { summary: string; note?: string };
   suggestions?: string[];
   turnSeq?: number;
   degraded?: boolean;

@@ -1,3 +1,5 @@
+import { PHOTO_TURN_LABEL } from '@/lib/constants/chat';
+import { recallPhotoThumbnail } from '@/lib/photo/photo-thumbnails';
 import { mapChatProductCardToProduct } from '@/lib/api/chat-mappers';
 import type { RestoreConversationResponse } from '@/lib/api/chat-types';
 import { anchorPreviewFromProductReference } from '@/lib/chat/anchor-preview';
@@ -13,6 +15,20 @@ export function mapRestoreConversationToMessages(
       const anchorPreview = turn.productReference
         ? anchorPreviewFromProductReference(turn.productReference)
         : undefined;
+      if (turn.photoSearch) {
+        // The photo itself is only in the browser that sent it.
+        messages.push({
+          id: turn.clientTurnId ?? `user-${turn.seq}`,
+          role: 'user',
+          content: turn.photoSearch.note ?? PHOTO_TURN_LABEL,
+          turnId: turn.clientTurnId,
+          photo: {
+            url: recallPhotoThumbnail(turn.clientTurnId) ?? '',
+            summary: turn.photoSearch.summary,
+          },
+        });
+        continue;
+      }
       messages.push({
         id: turn.clientTurnId ?? `user-${turn.seq}`,
         role: 'user',
@@ -25,7 +41,9 @@ export function mapRestoreConversationToMessages(
     }
 
     const products = (turn.products ?? []).map(mapChatProductCardToProduct);
+    const previous = restored.turns.find((candidate) => candidate.seq === turn.seq - 1);
     messages.push({
+      ...(previous?.photoSearch ? { photoSummary: previous.photoSearch.summary } : {}),
       id: `assistant-${turn.seq}`,
       role: 'assistant',
       content: turn.reply ?? turn.message,
