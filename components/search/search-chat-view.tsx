@@ -47,7 +47,7 @@ export function SearchChatView() {
   useEffect(() => {
     const pending = takePendingPhoto();
     if (pending) {
-      void sendPhoto(pending.dataUrl, pending.shopCategory);
+      void sendPhoto(pending.dataUrl, pending.shopCategory, pending.note);
     }
   }, [sendPhoto]);
 
@@ -99,7 +99,7 @@ export function SearchChatView() {
             onValueChange={setDraft}
             onSubmitQuery={(query) => void sendMessage({ query })}
             photoSearch
-            onSubmitPhoto={(dataUrl) => void sendPhoto(dataUrl)}
+            onSubmitPhoto={(dataUrl, note) => void sendPhoto(dataUrl, undefined, note)}
             submitLocked={isBusy || isRestoring}
           />
           <ChatNewChatButton onNewChat={reset} disabled={isBusy || isRestoring} />

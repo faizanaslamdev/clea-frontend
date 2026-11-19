@@ -78,8 +78,10 @@ export async function sendConversationPhotoTurn(input: {
   styleProfile?: StyleProfile;
   locale?: 'nb' | 'en';
   sessionId?: string;
+  note?: string;
 }): Promise<ChatTurnResult> {
   return fetchPhotoTurn({
+    ...(input.note ? { note: input.note } : {}),
     styleProfile: input.styleProfile,
     image: input.image,
     conversationId: input.conversationId,

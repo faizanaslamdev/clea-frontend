@@ -8,6 +8,8 @@ import type { ShopCategory } from '@/lib/api/chat-types';
 export interface PendingPhoto {
   dataUrl: string;
   shopCategory?: ShopCategory;
+  /** What the shopper typed with the photo. */
+  note?: string;
 }
 
 let pending: PendingPhoto | null = null;

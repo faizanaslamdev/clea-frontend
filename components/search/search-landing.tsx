@@ -48,7 +48,7 @@ export function SearchLanding() {
           onShopCategoryChange={setShopCategory}
           animatedPlaceholderPhrases={placeholderExamplesFor(shopCategory)}
           photoSearch
-          onSubmitPhoto={(dataUrl) => void sendPhoto(dataUrl, shopCategory)}
+          onSubmitPhoto={(dataUrl, note) => void sendPhoto(dataUrl, shopCategory, note)}
         />
       </div>
 

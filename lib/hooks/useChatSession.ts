@@ -261,9 +261,14 @@ export function useChatSession({
     [requestTurn],
   );
 
-  /** Photo search: sends an already resized photo as one chat turn. */
+  /**
+   * Photo search: sends an already resized photo as one chat turn, with what
+   * the shopper typed beside it ("i rødt", "fra Arket") when they did.
+   */
   const sendPhoto = useCallback(
-    async (dataUrl: string, shopCategory?: ShopCategory) => {
+    async (dataUrl: string, shopCategory?: ShopCategory, note?: string) => {
+      const text = note?.trim() || undefined;
+      const label = text ?? PHOTO_TURN_LABEL;
       if (stateRef.current.messages.some(isPendingAssistantMessage)) {
         return;
       }
@@ -281,7 +286,7 @@ export function useChatSession({
       dispatch({
         type: 'TURN_BEGIN',
         identity,
-        query: PHOTO_TURN_LABEL,
+        query: label,
         photoUrl: dataUrl,
       });
 
@@ -296,11 +301,12 @@ export function useChatSession({
           styleProfile: styleProfileForChat(),
           sessionId: getSessionId(),
           locale: CHAT_DEFAULT_LOCALE,
+          note: text,
         });
         if (requestGenerationRef.current !== generation) {
           return;
         }
-        dispatch({ type: 'TURN_SUCCESS', turnId: identity.turnId, query: PHOTO_TURN_LABEL, result });
+        dispatch({ type: 'TURN_SUCCESS', turnId: identity.turnId, query: label, result });
       } catch (error) {
         if (requestGenerationRef.current !== generation) {
           return;

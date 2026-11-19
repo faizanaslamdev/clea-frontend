@@ -2,7 +2,7 @@
 
 import { useCallback, useState, type KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowUp } from 'lucide-react';
+import { ArrowUp, X } from 'lucide-react';
 import type { ShopCategory } from '@/lib/api/chat-types';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { buildSearchUrl, shouldOpenChat } from '@/lib/search/search-routing';
@@ -46,10 +46,10 @@ interface HeroSearchFormProps {
   /** Shows the camera button for photo search. */
   photoSearch?: boolean;
   /**
-   * Receives the resized photo. Without it the photo is handed to /chat,
-   * which sends it (homepage and chat landing).
+   * Receives the resized photo and what the shopper typed with it. Without it
+   * the photo is handed to /chat, which sends it (homepage).
    */
-  onSubmitPhoto?: (dataUrl: string) => void;
+  onSubmitPhoto?: (dataUrl: string, note?: string) => void;
 }
 
 export function HeroSearchForm({
@@ -108,16 +108,25 @@ export function HeroSearchForm({
     [router, shopCategory],
   );
 
+  // A picked photo waits here as an attachment until the shopper sends it,
+  // so they can add words to it ("i rødt", "fra Arket").
+  const [attachedPhoto, setAttachedPhoto] = useState<string | null>(null);
+
   const submitPhoto = useCallback(
-    (dataUrl: string) => {
+    (dataUrl: string, note?: string) => {
       if (submitLocked) return;
+      const text = note?.trim() || undefined;
+      setAttachedPhoto(null);
+      setQuery('');
       if (onSubmitPhoto) {
-        onSubmitPhoto(dataUrl);
+        onSubmitPhoto(dataUrl, text);
         return;
       }
-      setPendingPhoto({ dataUrl, shopCategory });
+      setPendingPhoto({ dataUrl, shopCategory, note: text });
       router.push('/chat');
     },
+    // setQuery is a plain local helper; the deps below are the real inputs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [onSubmitPhoto, router, shopCategory, submitLocked],
   );
 
@@ -125,6 +134,10 @@ export function HeroSearchForm({
     if (submitLocked) return;
 
     const trimmed = query.trim();
+    if (attachedPhoto) {
+      submitPhoto(attachedPhoto, trimmed);
+      return;
+    }
     if (!trimmed) return;
 
     if (onSubmitQuery) {
@@ -139,7 +152,12 @@ export function HeroSearchForm({
       return;
     }
     router.push(buildSearchUrl(trimmed, shopCategory));
-  }, [query, onSubmitQuery, navigateToChat, submitLocked, router, shopCategory]);
+  }, [query, onSubmitQuery, navigateToChat, submitLocked, router, shopCategory, attachedPhoto, submitPhoto]);
+
+  const attachment = attachedPhoto ? (
+    <PhotoAttachment url={attachedPhoto} onRemove={() => setAttachedPhoto(null)} />
+  ) : null;
+  const photoPlaceholder = 'Legg til en beskjed, f.eks. «i svart» (valgfritt)';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,7 +171,7 @@ export function HeroSearchForm({
   };
 
   if (variant === 'compact') {
-    const submitReady = !submitRequiresText || hasText;
+    const submitReady = !submitRequiresText || hasText || Boolean(attachedPhoto);
     const canSubmit = submitReady && !submitLocked;
 
     return (
@@ -172,19 +190,20 @@ export function HeroSearchForm({
         <label htmlFor={inputId} className="sr-only">
           Beskriv hva du leter etter
         </label>
+        {attachment}
         <textarea
           id={inputId}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleQueryKeyDown}
-          placeholder={placeholder}
+          placeholder={attachedPhoto ? 'Legg til tekst …' : placeholder}
           rows={1}
           className="hero-search-bar--compact__input"
           autoComplete="off"
           enterKeyHint="search"
         />
         {photoSearch ? (
-          <PhotoSearchButton onPhoto={submitPhoto} disabled={submitLocked} />
+          <PhotoSearchButton onPhoto={setAttachedPhoto} disabled={submitLocked} />
         ) : null}
         <button
           type="submit"
@@ -241,8 +260,9 @@ export function HeroSearchForm({
         <label htmlFor={inputId} className="sr-only">
           Beskriv hva du leter etter
         </label>
+        {attachment}
         <div className="hero-search-card__field">
-          {animatedPlaceholderPhrases && animatedPlaceholderPhrases.length > 0 && !hasText ? (
+          {animatedPlaceholderPhrases && animatedPlaceholderPhrases.length > 0 && !hasText && !attachedPhoto ? (
             <TypewriterText
               phrases={animatedPlaceholderPhrases}
               className="hero-search-card__placeholder"
@@ -254,7 +274,7 @@ export function HeroSearchForm({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleQueryKeyDown}
-            placeholder={animatedPlaceholderPhrases ? undefined : placeholder}
+            placeholder={attachedPhoto ? photoPlaceholder : animatedPlaceholderPhrases ? undefined : placeholder}
             rows={1}
             className="hero-search-card__input"
             enterKeyHint="search"
@@ -265,7 +285,7 @@ export function HeroSearchForm({
 
         <div className="hero-search-card__footer">
           {photoSearch ? (
-            <PhotoSearchButton onPhoto={submitPhoto} disabled={submitLocked} className="photo-search-button--card" />
+            <PhotoSearchButton onPhoto={setAttachedPhoto} disabled={submitLocked} className="photo-search-button--card" />
           ) : null}
           <button
             type="submit"
@@ -276,6 +296,18 @@ export function HeroSearchForm({
           </button>
         </div>
       </form>
+    </div>
+  );
+}
+
+/** The picked photo inside the ask box, before it is sent. */
+function PhotoAttachment({ url, onRemove }: { url: string; onRemove: () => void }) {
+  return (
+    <div className="photo-attachment">
+      <img src={url} alt="Valgt bilde" className="photo-attachment__image" />
+      <button type="button" className="photo-attachment__remove" aria-label="Fjern bildet" onClick={onRemove}>
+        <X aria-hidden className="size-3.5" strokeWidth={2.25} />
+      </button>
     </div>
   );
 }

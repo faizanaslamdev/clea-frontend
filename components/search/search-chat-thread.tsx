@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { ChatAnchorUserBubble } from '@/components/search/chat-anchor-user-bubble';
 import { ChatPhotoUserBubble } from '@/components/search/chat-photo-user-bubble';
+import { PHOTO_TURN_LABEL } from '@/lib/hooks/useChatSession';
 import { ProductGrid } from '@/components/product-grid';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
@@ -328,7 +329,10 @@ export function SearchChatThread({
               {isPendingAssistantMessage(message) ? (
                 <ChatTypingIndicator photo={message.isPhotoTurn} />
               ) : isPhoto && message.photo ? (
-                <ChatPhotoUserBubble url={message.photo.url} />
+                <ChatPhotoUserBubble
+                  url={message.photo.url}
+                  note={message.content && message.content !== PHOTO_TURN_LABEL ? message.content : undefined}
+                />
               ) : isAnchorReference && message.anchorPreview ? (
                 <ChatAnchorUserBubble
                   preview={message.anchorPreview}

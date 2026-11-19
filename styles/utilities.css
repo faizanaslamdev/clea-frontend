@@ -1522,7 +1522,38 @@
   }
 
   .chat-photo-bubble {
-    @apply flex justify-end;
+    @apply flex flex-col items-end gap-1.5;
+  }
+
+  .chat-photo-bubble__note {
+    background-color: var(--foreground);
+    color: var(--primary-foreground);
+    @apply max-w-[16rem] rounded-2xl px-3.5 py-2 text-sm leading-snug;
+  }
+
+  /* A picked photo waiting in the ask box until it is sent. */
+  .photo-attachment {
+    @apply relative shrink-0;
+  }
+
+  .photo-attachment__image {
+    border: 1px solid var(--border);
+    background-color: var(--muted);
+    @apply block size-10 rounded-xl object-cover;
+  }
+
+  .hero-search-card > .photo-attachment {
+    @apply mx-4 mt-3.5 w-max sm:mx-5;
+  }
+
+  .hero-search-card > .photo-attachment .photo-attachment__image {
+    @apply size-16;
+  }
+
+  .photo-attachment__remove {
+    background-color: var(--foreground);
+    color: var(--background);
+    @apply absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full shadow;
   }
 
   .chat-photo-bubble__image {
@@ -2296,8 +2327,11 @@
   .site-header--scrolled {
     background: linear-gradient(
       180deg,
+      /* Solid behind the nav pills and logo, so chat text and buttons
+         scrolling up never show through them; it fades only below. */
       var(--header-gradient-scrolled-top) 0%,
-      var(--header-gradient-scrolled-mid) 58%,
+      var(--header-gradient-scrolled-top) 74%,
+      var(--header-gradient-scrolled-mid) 88%,
       var(--header-gradient-bottom) 100%
     );
     @apply border-0 shadow-none;
