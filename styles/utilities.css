@@ -3714,6 +3714,95 @@
     @apply w-auto min-w-0 shrink;
   }
 
+  /* Homepage "Kle deg for anledningen" and "Handle etter farge": the app's
+     one-click occasions and colours. Both sit right under the categories,
+     so they drop the shell's top padding and share its rhythm. */
+  .occasion-section,
+  .colour-section {
+    padding-top: 0;
+  }
+
+  .occasion-grid {
+    @apply grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5;
+  }
+
+  .occasion-card {
+    @apply flex flex-col text-left;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .occasion-card:focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 4px;
+    border-radius: 1.25rem;
+  }
+
+  .occasion-card__photo {
+    @apply relative block w-full overflow-hidden rounded-[1.25rem];
+    aspect-ratio: 4 / 5;
+    background-color: var(--muted);
+  }
+
+  .occasion-card__image {
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .occasion-card:hover .occasion-card__image {
+    transform: scale(1.04);
+  }
+
+  .occasion-card__text {
+    @apply mt-3.5 flex flex-col gap-1 pr-8;
+  }
+
+  .occasion-card__label {
+    @apply font-serif text-xl font-medium leading-tight md:text-2xl;
+  }
+
+  .occasion-card__prompt {
+    @apply font-sans text-xs leading-snug text-muted-foreground md:text-sm;
+  }
+
+  .occasion-card {
+    @apply relative;
+  }
+
+  .occasion-card__arrow {
+    @apply absolute bottom-0 right-1 size-5 translate-y-[-1.4rem] md:translate-y-[-1.6rem];
+    transition: transform 0.2s ease;
+  }
+
+  .occasion-card:hover .occasion-card__arrow {
+    transform: translate(4px, -1.4rem);
+  }
+
+  @media (min-width: 768px) {
+    .occasion-card:hover .occasion-card__arrow {
+      transform: translate(4px, -1.6rem);
+    }
+  }
+
+  .colour-row {
+    @apply grid grid-cols-4 gap-4 md:grid-cols-8;
+  }
+
+  .colour-item {
+    @apply flex flex-col items-center gap-2.5 font-sans text-sm text-foreground;
+  }
+
+  .colour-item__dot {
+    @apply block size-16 rounded-full md:size-[4.5rem];
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: inset 0 0 0 3px var(--background);
+    transition: transform 0.2s ease;
+  }
+
+  .colour-item:hover .colour-item__dot,
+  .colour-item:focus-visible .colour-item__dot {
+    transform: scale(1.06);
+  }
+
   .category-fan-card {
     background-image: linear-gradient(135deg, var(--cat-from), var(--cat-to));
     @apply relative flex w-[210px] shrink-0 cursor-pointer flex-col overflow-hidden rounded-[1.25rem] px-5 pb-5 pt-5 sm:w-[240px] sm:px-6 sm:pb-6 sm:pt-6;

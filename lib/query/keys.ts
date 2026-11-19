@@ -34,6 +34,8 @@ export const productKeys = {
     [...productKeys.all, 'category-grid', suitableFor ?? 'all'] as const,
   trending: (suitableFor?: SuitableFor) =>
     [...productKeys.all, 'trending', suitableFor ?? 'all'] as const,
+  occasionCovers: (shopCategory: string) =>
+    [...productKeys.all, 'occasion-covers', shopCategory] as const,
   catalog: (filters: CatalogQueryFilters) =>
     [...productKeys.all, 'catalog', filters] as const,
   /** Filter-drawer facets: same filters as the listing, sort is irrelevant. */

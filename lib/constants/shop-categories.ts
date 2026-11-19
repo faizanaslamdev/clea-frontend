@@ -39,6 +39,16 @@ export interface ShopCategory {
 
 export const SHOP_CATEGORIES: readonly ShopCategory[] = [
   {
+    // Everything in fashion (clothes, shoes and bags): where "Handle etter
+    // farge" on the homepage lands, and a browse-everything shelf of its own.
+    slug: 'alt',
+    label: 'Hele utvalget',
+    description: 'Klær, sko og vesker fra alle partnerbutikkene våre, i én oversikt.',
+    ontologyId: 'apparel',
+    gendered: true,
+    children: [],
+  },
+  {
     slug: 'kjoler',
     label: 'Kjoler',
     description: 'Kjoler fra alle partnerbutikkene våre.',

@@ -9,6 +9,8 @@ import { BrandMarquee } from '@/components/brands/brand-marquee';
 import { TrendingSection } from '@/components/trending-section';
 import { SearchBySection } from '@/components/search-by-section';
 import { CategorySection } from '@/components/category-section';
+import { OccasionSection } from '@/components/occasion-section';
+import { ColourSection } from '@/components/colour-section';
 import { FeatureTabsSection } from '@/components/feature-tabs-section';
 import { Reveal } from '@/components/shared/reveal';
 import { fetchCategoryPreviews, fetchFeaturedProducts } from '@/lib/api/products';
@@ -65,6 +67,12 @@ export default async function Home() {
         <BrandMarquee />
         <Reveal>
           <CategorySection browseLinks />
+        </Reveal>
+        <Reveal>
+          <OccasionSection />
+        </Reveal>
+        <Reveal>
+          <ColourSection />
         </Reveal>
         <Reveal>
           <FeatureTabsSection />
