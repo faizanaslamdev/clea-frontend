@@ -18,25 +18,25 @@ export const HOME_OCCASIONS: readonly HomeOccasion[] = [
     id: 'julebord',
     label: 'Julebord',
     prompt: 'Julebord på fredag. Hva skal jeg ha på meg?',
-    cover: { womens: 'festkjole', mens: 'dress herre' },
+    cover: { womens: 'festkjole', mens: 'blazer' },
   },
   {
     id: 'hyttetur',
     label: 'Hyttetur',
     prompt: 'Hyttetur i helgen. Hva trenger jeg?',
-    cover: { womens: 'ullgenser', mens: 'strikkegenser' },
+    cover: { womens: 'strikkegenser', mens: 'strikkegenser' },
   },
   {
     id: 'jobbintervju',
     label: 'Jobbintervju',
     prompt: 'Jobbintervju på mandag. Hva tar jeg på meg?',
-    cover: { womens: 'blazer', mens: 'blazer' },
+    cover: { womens: 'blazer', mens: 'skjorte' },
   },
   {
     id: 'date',
     label: 'Første date',
     prompt: 'Første date på lørdag. Hva skal jeg ha på meg?',
-    cover: { womens: 'blomstrete kjole', mens: 'skjorte' },
+    cover: { womens: 'midikjole', mens: 'poloskjorte' },
   },
 ];
 

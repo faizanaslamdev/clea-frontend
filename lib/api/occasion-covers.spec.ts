@@ -9,5 +9,7 @@ describe('pickOccasionCover', () => {
     expect(pickOccasionCover([p('Scott Men´s Defined', ''), p("Men's blazer"), p('Blazer Viemmi')], 'womens')?.name).toBe('Blazer Viemmi');
     expect(pickOccasionCover([p('Kjole Alegra'), p('Dress herre')], 'mens')?.name).toBe('Dress herre');
     expect(pickOccasionCover([], 'womens')).toBeNull();
+    expect(pickOccasionCover([p('adidas Originals genser'), p('Ullgenser')], 'womens')?.name).toBe('Ullgenser');
+    expect(pickOccasionCover([p('Kjole', 'https://img/a.jpg'), p('Kjole 2', 'https://img/b.jpg')], 'womens', new Set(['https://img/a.jpg']))?.name).toBe('Kjole 2');
   });
 });
