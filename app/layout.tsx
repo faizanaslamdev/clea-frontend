@@ -1,3 +1,4 @@
+import { TRANSLATE_DOM_GUARD_SCRIPT } from '@/lib/ui/translate-dom-guard';
 import type { Metadata, Viewport } from 'next';
 import { Roboto_Mono, Playfair_Display, DM_Sans } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
@@ -94,6 +95,10 @@ export default function RootLayout({
       className={`${dmSans.variable} ${playfair.variable} ${robotoMono.variable} bg-background`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Must run before React touches the DOM; see the file for why. */}
+        <script dangerouslySetInnerHTML={{ __html: TRANSLATE_DOM_GUARD_SCRIPT }} />
+      </head>
       <body
         className="font-sans antialiased bg-background text-foreground"
         suppressHydrationWarning
