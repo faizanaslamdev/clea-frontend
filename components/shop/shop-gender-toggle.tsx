@@ -21,7 +21,7 @@ const OPTIONS: ReadonlyArray<{ value: SuitableFor; label: string }> = [
  * homepage hero and the shop page. */
 export function ShopGenderToggle({ active, onSelect, className }: ShopGenderToggleProps) {
   return (
-    <div className={cn('hero-category-toggle', className)} role="tablist" aria-label="Kjønn">
+    <div className={cn('hero-category-toggle', className)} role="tablist" aria-label="Kjønn" data-audience-toggle>
       {OPTIONS.map((option) => {
         const isActive = active === option.value;
         return (

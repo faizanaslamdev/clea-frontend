@@ -4,17 +4,16 @@ import { HeroSearchForm } from '@/components/hero-search-form';
 import { SearchSuggestionChips } from '@/components/search/search-suggestion-chips';
 import { BRAND } from '@/lib/constants/brand';
 import { placeholderExamplesFor } from '@/lib/constants/search-prompts';
-import { useEffect } from 'react';
 import { useLandingSuggestions } from '@/lib/hooks/useLandingSuggestions';
-import { setHomeAudience } from '@/lib/home-audience';
+import { useAudienceReady } from '@/lib/audience/audience';
 
 export function HeroSectionContent() {
   const { shopCategory, setShopCategory, suggestions, isLoadingSuggestions, selectSuggestion } =
     useLandingSuggestions();
-  // The sections below the hero follow the same Dame/Herre choice.
-  useEffect(() => {
-    setHomeAudience(shopCategory);
-  }, [shopCategory]);
+  // A visitor who has not chosen Dame/Herre yet gets one line asking once.
+  const audienceReady = useAudienceReady();
+  const audiencePrompt =
+    audienceReady && !shopCategory ? 'Hvem handler du for? Velg én gang, så husker vi det.' : undefined;
 
   return (
     <div className="layout-inner-wide text-center">
@@ -33,6 +32,7 @@ export function HeroSectionContent() {
           shopCategory={shopCategory}
           onShopCategoryChange={setShopCategory}
           animatedPlaceholderPhrases={placeholderExamplesFor(shopCategory)}
+          audiencePrompt={audiencePrompt}
           photoSearch
         />
       </div>

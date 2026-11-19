@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { UserRound } from 'lucide-react';
+import { AudienceSwitch } from '@/components/audience-switch';
 import { BrandLogo } from '@/components/brand-logo';
 import { HeroSearchForm } from '@/components/hero-search-form';
 import { useAuthModal } from '@/components/auth/auth-provider';
@@ -60,6 +61,45 @@ function NavLink({
   );
 }
 
+/**
+ * True when no `[data-audience-toggle]` is on the page, or the one that is
+ * has left the viewport.
+ */
+function useAudienceToggleScrolledAway(pathname: string): boolean {
+  const [scrolledAway, setScrolledAway] = useState(false);
+  useEffect(() => {
+    let intersection: IntersectionObserver | null = null;
+    let mutation: MutationObserver | null = null;
+    const watch = (target: Element) => {
+      mutation?.disconnect();
+      mutation = null;
+      intersection = new IntersectionObserver(
+        ([entry]) => setScrolledAway(!entry.isIntersecting),
+        { threshold: 0 },
+      );
+      intersection.observe(target);
+    };
+    const found = document.querySelector('[data-audience-toggle]');
+    if (found) {
+      watch(found);
+    } else {
+      // Pages such as the /shop hub render their toggle after a client
+      // transition: show the switch now, hand over once the toggle appears.
+      setScrolledAway(true);
+      mutation = new MutationObserver(() => {
+        const late = document.querySelector('[data-audience-toggle]');
+        if (late) watch(late);
+      });
+      mutation.observe(document.body, { childList: true, subtree: true });
+    }
+    return () => {
+      intersection?.disconnect();
+      mutation?.disconnect();
+    };
+  }, [pathname]);
+  return scrolledAway;
+}
+
 function getPastHeroScrollThreshold(): number {
   const hero = document.querySelector('.page-hero');
   if (!hero) return 400;
@@ -94,6 +134,11 @@ export function Header() {
   const showStickySearch =
     showStickySearchBar && pastHero && !hideStickyNearFooter;
   const firstName = session?.user.name?.trim().split(/\s+/)[0] || 'Min konto';
+  // The header's Dame/Herre stays out of the way while a page's own toggle
+  // (home hero, /chat landing, /shop hub) is on screen: one choice, not
+  // two. It comes in, like the sticky search, once that toggle has scrolled
+  // away, and is always there on pages without one.
+  const showAudienceSwitch = useAudienceToggleScrolledAway(pathname);
 
   const updateHeaderOnScroll = useCallback(() => {
     if (!hasUnderlapHero) {
@@ -153,6 +198,11 @@ export function Header() {
                 />
               ))}
             </nav>
+            <AudienceSwitch
+              overHero={overHero}
+              className={cn('site-header-audience', !showAudienceSwitch && 'site-header-audience--hidden')}
+              hidden={!showAudienceSwitch}
+            />
           </div>
 
           <BrandLogo

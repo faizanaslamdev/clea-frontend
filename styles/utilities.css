@@ -1525,6 +1525,12 @@
     @apply flex flex-col items-end gap-1.5;
   }
 
+  .chat-photo-bubble__placeholder {
+    background-color: var(--muted);
+    color: var(--muted-foreground);
+    @apply flex h-28 w-28 flex-col items-center justify-center gap-1.5 rounded-2xl font-sans text-xs;
+  }
+
   .chat-photo-bubble__note {
     background-color: var(--foreground);
     color: var(--primary-foreground);
@@ -2354,6 +2360,76 @@
      off-white). The two references are different shades on daydream.ing
      itself, so this pill and the Dame/Herre toggle below intentionally
      don't match each other either. */
+  /* Dame/Herre in the header: the remembered choice, same pill language
+     as the nav. On phones it sits top-left, opposite the account button. */
+  .audience-switch {
+    background-color: var(--card);
+    border: 1px solid var(--hero-toggle-track-border);
+    @apply inline-flex items-center gap-0.5 rounded-full p-1;
+  }
+
+  .audience-switch__btn {
+    @apply rounded-full px-3 py-1.5 font-sans text-xs font-medium text-muted-foreground transition-colors md:text-sm;
+  }
+
+  .audience-switch__btn--active {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
+
+  .audience-switch--over-hero {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+
+  .audience-switch--over-hero .audience-switch__btn {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .audience-switch--over-hero .audience-switch__btn--active {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  .site-header-audience {
+    @apply ml-2;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .site-header-audience--hidden {
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+  }
+
+  @media (max-width: 639px) {
+    /* Top row, opposite the account button (which uses the same anchors):
+       the switch is anchored to the bar, not to the nav's own wrapper. */
+    .site-header-left {
+      position: static;
+    }
+
+    .site-header-audience {
+      position: absolute;
+      left: 12px;
+      top: 0;
+      bottom: 50%;
+      margin: auto 0;
+      height: 2.25rem;
+      margin-left: 0;
+      z-index: 25;
+    }
+
+    .audience-switch__btn {
+      padding-left: 0.6rem;
+      padding-right: 0.6rem;
+    }
+  }
+
+  .hero-audience-prompt {
+    @apply mb-3 font-sans text-sm text-muted-foreground;
+  }
+
   .site-header-nav {
     background-color: var(--card);
     border: 1px solid var(--hero-toggle-track-border);

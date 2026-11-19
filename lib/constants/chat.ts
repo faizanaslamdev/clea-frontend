@@ -6,3 +6,6 @@ export const CHAT_DEFAULT_LOCALE = 'nb' as const;
 
 /** Locale for landing suggestion chips (homepage + chat landing). */
 export const LANDING_SUGGESTIONS_LOCALE = 'nb' as const;
+
+/** Text of the user's turn when a photo is sent without words. */
+export const PHOTO_TURN_LABEL = 'Bildesøk';

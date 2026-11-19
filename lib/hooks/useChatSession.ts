@@ -1,5 +1,9 @@
 'use client';
 
+import { getAudience } from '@/lib/audience/audience';
+import { PHOTO_TURN_LABEL } from '@/lib/constants/chat';
+import { makePhotoThumbnail, rememberPhotoThumbnail } from '@/lib/photo/photo-thumbnails';
+
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -51,8 +55,7 @@ import { syncAnchorSessionForTurn } from '@/lib/chat/anchor-turn-state';
 import { CHAT_DEFAULT_LOCALE } from '@/lib/constants/chat';
 import { styleProfileForChat } from '@/lib/style-profile/style-profile';
 
-/** Text of the user's turn while Clea reads a photo. */
-export const PHOTO_TURN_LABEL = 'Bildesøk';
+export { PHOTO_TURN_LABEL } from '@/lib/constants/chat';
 
 export interface UseChatSessionOptions {
   conversationId?: string;
@@ -94,7 +97,9 @@ export function useChatSession({
   } | null>(
     conversationId ? resolveConversationSession(conversationId) : null,
   );
-  const shopCategoryRef = useRef<ShopCategory | undefined>(legacyShopCategory);
+  // A new chat starts with the remembered Dame/Herre; a conversation's own
+  // stored choice (restored below) wins over it.
+  const shopCategoryRef = useRef<ShopCategory | undefined>(legacyShopCategory ?? getAudience());
 
   useEffect(() => {
     if (legacyShopCategory) {
@@ -289,6 +294,10 @@ export function useChatSession({
         query: label,
         photoUrl: dataUrl,
       });
+      // So a reload still shows the photo: a small copy in this browser only.
+      void makePhotoThumbnail(dataUrl)
+        .then((thumb) => rememberPhotoThumbnail(identity.turnId, thumb))
+        .catch(() => undefined);
 
       try {
         const session = await resolveOrCreateConversationSession();
@@ -405,7 +414,7 @@ export function useChatSession({
     legacyEntryStartedRef.current = false;
     legacyEnsureEntryIdRef.current = null;
     conversationSessionRef.current = null;
-    shopCategoryRef.current = undefined;
+    shopCategoryRef.current = getAudience();
     dispatch({ type: 'RESET' });
     setDraft('');
     setRestoreStatus('idle');

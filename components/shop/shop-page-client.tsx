@@ -22,6 +22,7 @@ import {
   fetchTrendingLooks,
 } from '@/lib/api/products';
 import type { SuitableFor } from '@/lib/api/chat-types';
+import { rememberShopAudience, useShopAudienceDefault } from '@/lib/audience/use-shop-audience-default';
 import { categoryGridForShop } from '@/lib/constants/category-grid';
 import { useCategoryPreviews, useTrendingLooks } from '@/lib/hooks/useProducts';
 import { useShopPendingLabel, useShopPendingTransition } from '@/lib/hooks/useShopPending';
@@ -46,6 +47,7 @@ function ShopPageContent({ query }: { query: string }) {
   const { isNavigating, error, navigateToShopHref, retry } =
     useShopReadyNavigation();
 
+  useShopAudienceDefault(pathname, query);
   const urlGender = parseShopGenderParam(searchParams.get('gender'));
   // Optimistic local gender — update the toggle immediately; URL syncs after.
   const [suitableFor, setSuitableFor] = useState<SuitableFor>(urlGender);
@@ -84,6 +86,7 @@ function ShopPageContent({ query }: { query: string }) {
   const handleGenderSelect = useCallback(
     (value: SuitableFor) => {
       if (value === suitableFor || isNavigating) return;
+      rememberShopAudience(value);
       setSuitableFor(value);
       const params = new URLSearchParams(searchParams.toString());
       params.set('gender', shopGenderParamFor(value));

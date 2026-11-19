@@ -13,6 +13,7 @@ let currentPathname = '/about';
 
 vi.mock('next/navigation', () => ({
   usePathname: () => currentPathname,
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
 }));
 
 vi.mock('next/link', () => ({

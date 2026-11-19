@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useShopAudienceDefault } from '@/lib/audience/use-shop-audience-default';
 import { useAppPathname } from '@/lib/navigation/app-pathname';
 import { ProductGrid } from '@/components/product-grid';
 import { LoadMoreButton } from '@/components/shared/load-more-button';
@@ -259,6 +260,8 @@ function ShopBrowseContent({
 
 function ShopBrowseFromUrl(props: ShopBrowseClientProps) {
   const searchParams = useSearchParams();
+  const pathname = useAppPathname();
+  useShopAudienceDefault(pathname, searchParams.toString());
   return <ShopBrowseContent {...props} query={searchParams.toString()} />;
 }
 

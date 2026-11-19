@@ -50,6 +50,8 @@ interface HeroSearchFormProps {
    * the photo is handed to /chat, which sends it (homepage).
    */
   onSubmitPhoto?: (dataUrl: string, note?: string) => void;
+  /** One line above the Dame/Herre toggle for a visitor who has not chosen yet. */
+  audiencePrompt?: string;
 }
 
 export function HeroSearchForm({
@@ -71,6 +73,7 @@ export function HeroSearchForm({
   onShopCategoryChange,
   photoSearch = false,
   onSubmitPhoto,
+  audiencePrompt,
 }: HeroSearchFormProps) {
   // No audience preselected: a first-time visitor's "kjole" or "jakke" must
   // not be read as men's. Clicking the chosen one again clears it.
@@ -222,10 +225,16 @@ export function HeroSearchForm({
 
   return (
     <div className={cn('hero-search-stack layout-inner-medium', className)}>
+      {audiencePrompt ? (
+        <p className="hero-audience-prompt" role="status">
+          {audiencePrompt}
+        </p>
+      ) : null}
       <div
         className={cn('hero-category-toggle', glassClass)}
         role="tablist"
         aria-label="Handlekategori"
+        data-audience-toggle
       >
         {(['womens', 'mens'] as const).map((value) => {
           const label = value === 'womens' ? 'Dame' : 'Herre';

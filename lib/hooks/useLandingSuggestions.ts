@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { fetchChatSuggestions } from '@/lib/api/chat';
 import type { ShopCategory } from '@/lib/api/chat-types';
+import { setAudience, useAudience } from '@/lib/audience/audience';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
 import { LANDING_SUGGESTIONS_LOCALE } from '@/lib/constants/chat';
 import { interleave, SEARCH_PLACEHOLDER_EXAMPLES } from '@/lib/constants/search-prompts';
@@ -38,10 +39,19 @@ function mixedSuggestions(
  */
 export function useLandingSuggestions() {
   const router = useRouter();
-  // No audience until the visitor picks one: a first visit sees both.
-  const [shopCategory, setShopCategory] = useState<ShopCategory | undefined>(undefined);
+  // The remembered Dame/Herre (see lib/audience): a first visit sees both.
+  // Picking here is remembered for the whole site.
+  const audience = useAudience();
+  const [shopCategory, setShopCategoryState] = useState<ShopCategory | undefined>(undefined);
   const shopCategoryRef = useRef(shopCategory);
   shopCategoryRef.current = shopCategory;
+  useEffect(() => {
+    setShopCategoryState(audience);
+  }, [audience]);
+  const setShopCategory = useCallback((next: ShopCategory | undefined) => {
+    setAudience(next);
+    setShopCategoryState(next);
+  }, []);
 
   const [suggestions, setSuggestions] = useState<string[]>(() =>
     mixedSuggestions({ womens: fallbackSuggestions('womens'), mens: fallbackSuggestions('mens') }),

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { BRAND } from '@/lib/constants/brand';
 import { TRENDING_DISPLAY_LIMIT } from '@/lib/constants/popular-brands';
 import { useFeaturedProducts } from '@/lib/hooks/useProducts';
+import { useAudience } from '@/lib/audience/audience';
 import { useEngagementTracking } from '@/lib/hooks/useEngagementTracking';
 
 export function TrendingSection() {
@@ -16,10 +17,16 @@ export function TrendingSection() {
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
   const { data: allProducts = [], isLoading } = useFeaturedProducts();
+  // The remembered Dame/Herre: a man sees men's and unisex pieces here, the
+  // way the app's Home feed does. The pool is fetched once for both.
+  const audience = useAudience();
+  const forAudience = audience
+    ? allProducts.filter((p) => !p.suitableFor || p.suitableFor === 'unisex' || p.suitableFor === (audience === 'mens' ? 'male' : 'female'))
+    : allProducts;
   // The fetched pool is larger than what this carousel shows -- the
   // leftover tail is reused by FeatureTabsSection so it doesn't repeat
   // products already visible here.
-  const products = allProducts.slice(0, TRENDING_DISPLAY_LIMIT);
+  const products = (forAudience.length >= 8 ? forAudience : allProducts).slice(0, TRENDING_DISPLAY_LIMIT);
   const { trackImpression } = useEngagementTracking('popular_now');
 
   const handleScrollState = useCallback(

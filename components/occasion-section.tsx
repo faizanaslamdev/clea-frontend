@@ -6,7 +6,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { fetchOccasionCovers } from '@/lib/api/occasion-covers';
 import { HOME_OCCASIONS } from '@/lib/constants/occasions';
 import { navigateToChatEntry } from '@/lib/chat/chat-entry';
-import { useHomeAudience } from '@/lib/home-audience';
+import { useAudience } from '@/lib/audience/audience';
 import { productKeys } from '@/lib/query/keys';
 import { STALE_TIME_STATIC_MS } from '@/lib/query/client';
 import { RemoteProductImage } from '@/components/product/remote-product-image';
@@ -18,7 +18,7 @@ import { RemoteProductImage } from '@/components/product/remote-product-image';
  */
 export function OccasionSection() {
   const router = useRouter();
-  const audience = useHomeAudience();
+  const audience = useAudience();
   const shopCategory = audience ?? 'womens';
   const { data } = useQuery({
     queryKey: productKeys.occasionCovers(shopCategory),

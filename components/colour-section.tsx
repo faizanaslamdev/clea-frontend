@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { HOME_COLOURS } from '@/lib/constants/occasions';
-import { useHomeAudience } from '@/lib/home-audience';
+import { useAudience } from '@/lib/audience/audience';
 import { SHOP_COLOUR_OPTIONS } from '@/lib/shop/shop-colours';
 
 /**
@@ -10,7 +10,7 @@ import { SHOP_COLOUR_OPTIONS } from '@/lib/shop/shop-colours';
  * all-clothes shelf filtered to that colour family, for the hero's audience.
  */
 export function ColourSection() {
-  const audience = useHomeAudience();
+  const audience = useAudience();
   const gender = audience === 'mens' ? 'herre' : 'dame';
   const options = HOME_COLOURS.map((value) => SHOP_COLOUR_OPTIONS.find((o) => o.value === value)).filter(
     (o): o is NonNullable<typeof o> => Boolean(o),
