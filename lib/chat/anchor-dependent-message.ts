@@ -10,7 +10,7 @@ const SIMILAR_COMPOSER_PATTERN =
   /\b(similar(?:\s+to\s+this)?|something similar|like this|lignende(?:\s+dette|\s+produkter)?|noe lignende|similar products)\b/i;
 
 const COLOR_VARIANT_COMPOSER_PATTERN =
-  /\b(?:same\s+in|samme\s+i|in\s+(?:\w+\s+)?colou?r|i\s+(?:\w+\s+)?farge|annen\s+farge|different\s+colou?r)\b/i;
+  /\b(?:same\s+in|samme\s+i|in\s+(?:\w+\s+)?colou?r|i\s+(?:\w+\s+)?farge|annen\s+farge|andre\s+farger|(?:different|other|another)\s+colou?rs?)\b/i;
 
 export function isAnchorDependentComposerMessage(message: string): boolean {
   const trimmed = message.trim();

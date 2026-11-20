@@ -6,7 +6,7 @@ export const ANCHOR_CHEAPER_MESSAGE = 'Finn billigere alternativer';
 export type ChatAnchorKind = 'similar' | 'cheaper';
 
 const ANCHOR_DEPENDENT_CHIP_PATTERN =
-  /\b(billigere|lignende|similar|cheaper|material|materiale|passform|fit|annen\s+farge|different\s+colour)\b/i;
+  /\b(billigere|lignende|similar|cheaper|material|materiale|passform|fit|annen\s+farge|andre\s+farger|(?:different|other|another)\s+colou?rs?)\b/i;
 
 export function anchorMessageForKind(kind: ChatAnchorKind): string {
   return kind === 'similar' ? ANCHOR_SIMILAR_MESSAGE : ANCHOR_CHEAPER_MESSAGE;
