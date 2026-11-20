@@ -161,6 +161,45 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
     children: [],
   },
   {
+    slug: 'badetoy',
+    label: 'Badetøy',
+    description: 'Bikinier, badedrakter og badeshorts fra partnerbutikkene våre.',
+    ontologyId: 'apparel.swimwear',
+    gendered: true,
+    children: [
+      {
+        slug: 'bikini',
+        label: 'Bikini',
+        ontologyId: 'apparel.swimwear.bikini',
+        audiences: ['female'],
+      },
+      {
+        slug: 'badedrakt',
+        label: 'Badedrakter',
+        ontologyId: 'apparel.swimwear.swimsuit',
+        audiences: ['female'],
+      },
+      { slug: 'badeshorts', label: 'Badeshorts', ontologyId: 'apparel.swimwear.swim_shorts' },
+    ],
+  },
+  {
+    slug: 'nattoy',
+    label: 'Nattøy',
+    description: 'Pysjamas, nattkjoler og morgenkåper fra partnerbutikkene våre.',
+    ontologyId: 'apparel.nightwear',
+    gendered: true,
+    children: [
+      { slug: 'pysjamas', label: 'Pysjamas', ontologyId: 'apparel.nightwear.pyjamas' },
+      {
+        slug: 'nattkjole',
+        label: 'Nattkjoler',
+        ontologyId: 'apparel.nightwear.nightgown',
+        audiences: ['female'],
+      },
+      { slug: 'morgenkape', label: 'Morgenkåper', ontologyId: 'apparel.nightwear.bathrobe' },
+    ],
+  },
+  {
     slug: 'skjonnhet',
     label: 'Skjønnhet',
     description: 'Sminke, parfyme, hudpleie og hårpleie fra alle butikkene.',
@@ -244,6 +283,8 @@ const GRID_ENTRY_BROWSE_HREF: Readonly<Record<string, string>> = {
   accessories: '/shop/tilbehor',
   socks: '/shop/sokker',
   watches: '/shop/klokker',
+  swimwear: '/shop/badetoy',
+  nightwear: '/shop/nattoy',
 };
 
 /** Where a category tile points, split so callers can compare it to page state. */
