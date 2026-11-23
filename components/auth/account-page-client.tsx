@@ -69,22 +69,61 @@ export function AccountPageClient({ user }: AccountPageClientProps) {
         </header>
 
         <nav className="account-page__nav" aria-label="Kontoseksjoner">
-          <Link href="#profile">
-            <UserRound aria-hidden />
-            Kontoinformasjon
-          </Link>
           <Link href="#style-profile">
             <Sparkles aria-hidden />
-            Stilprofil
+            Style ID
           </Link>
           <Link href="#price-alerts">
             <Bell aria-hidden />
             Prisvarsler
           </Link>
+          <Link href="#profile">
+            <UserRound aria-hidden />
+            Kontoinformasjon
+          </Link>
         </nav>
 
         {!user.emailVerified ? <VerifyEmailBanner email={user.email} /> : null}
 
+        <section
+          id="style-profile"
+          className="account-page__card"
+          aria-labelledby="style-profile-title"
+        >
+          <div className="account-page__section-header">
+            <span className="account-page__section-icon" aria-hidden>
+              <Sparkles />
+            </span>
+            <div>
+              <h2 id="style-profile-title" className="account-page__section-title">
+                Style ID
+              </h2>
+              <p>Din personlige moteprofil: merkene du liker, størrelsene dine og budsjettet ditt. Clea bruker den til å velge for deg.</p>
+            </div>
+          </div>
+          <StyleProfileEditor />
+        </section>
+
+        <section
+          id="price-alerts"
+          className="account-page__card"
+          aria-labelledby="price-alerts-title"
+        >
+          <div className="account-page__section-header">
+            <span className="account-page__section-icon" aria-hidden>
+              <Bell />
+            </span>
+            <div>
+              <h2 id="price-alerts-title" className="account-page__section-title">
+                Prisvarsler
+              </h2>
+              <p>
+                Produkter du følger. Vi sender e-post når prisen går ned.
+              </p>
+            </div>
+          </div>
+          <TrackedProductsList />
+        </section>
         <section
           id="profile"
           className="account-page__card account-page__profile"
@@ -129,45 +168,6 @@ export function AccountPageClient({ user }: AccountPageClientProps) {
           </dl>
         </section>
 
-        <section
-          id="style-profile"
-          className="account-page__card"
-          aria-labelledby="style-profile-title"
-        >
-          <div className="account-page__section-header">
-            <span className="account-page__section-icon" aria-hidden>
-              <Sparkles />
-            </span>
-            <div>
-              <h2 id="style-profile-title" className="account-page__section-title">
-                Stilprofil
-              </h2>
-              <p>Clea bruker profilen din til å velge for deg: merkene du liker, budsjettet ditt og størrelsene dine.</p>
-            </div>
-          </div>
-          <StyleProfileEditor />
-        </section>
-
-        <section
-          id="price-alerts"
-          className="account-page__card"
-          aria-labelledby="price-alerts-title"
-        >
-          <div className="account-page__section-header">
-            <span className="account-page__section-icon" aria-hidden>
-              <Bell />
-            </span>
-            <div>
-              <h2 id="price-alerts-title" className="account-page__section-title">
-                Prisvarsler
-              </h2>
-              <p>
-                Produkter du følger. Vi sender e-post når prisen går ned.
-              </p>
-            </div>
-          </div>
-          <TrackedProductsList />
-        </section>
       </div>
     </PageLayout>
   );
