@@ -90,16 +90,16 @@ describe('Homepage vs Shop hub category cards', () => {
   it('keeps homepage at 12 cards in the curated order', () => {
     expect(CATEGORY_GRID_ENTRIES).toHaveLength(HOMEPAGE_CATEGORY_CARD_COUNT);
     expect(CATEGORY_GRID_ENTRIES.map((e) => e.label)).toEqual([
-      'Jeans & bukser',
-      'Kjoler',
-      'T-skjorter',
-      'Topper',
-      'Gensere & strikk',
       'Ytterjakker',
-      'Sko',
-      'Vesker',
+      'Gensere & strikk',
+      'Boots & støvletter',
+      'Sneakers',
+      'Kjoler',
+      'Jeans & bukser',
       'Skjorter',
-      'Undertøy',
+      'Topper',
+      'Vesker',
+      'T-skjorter',
       'Beauty',
       'Accessories',
     ]);
@@ -122,14 +122,17 @@ describe('Homepage vs Shop hub category cards', () => {
     ]);
   });
 
+  it('keeps underwear and swimwear off the homepage grid', () => {
+    expect(
+      CATEGORY_GRID_ENTRIES.some((e) =>
+        ['underwear', 'swimwear', 'nightwear', 'socks', 'legwear'].includes(e.shelf),
+      ),
+    ).toBe(false);
+  });
+
   it('maps every homepage browseable card to a real Shop route', () => {
     for (const entry of CATEGORY_GRID_ENTRIES) {
       const target = shopBrowseTargetForGridEntry(entry.id);
-      if (entry.id === 'underwear') {
-        // No /shop Undertøy shelf — chat fallback by design.
-        expect(target).toBeUndefined();
-        continue;
-      }
       expect(target, entry.id).toBeDefined();
       expect(SHOP_CATEGORIES.some((c) => c.slug === target!.slug)).toBe(true);
       if (target!.sub) {

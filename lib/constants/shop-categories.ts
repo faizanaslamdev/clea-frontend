@@ -278,6 +278,8 @@ const GRID_ENTRY_BROWSE_HREF: Readonly<Record<string, string>> = {
   knitwear: '/shop/gensere',
   outerwear: '/shop/jakker',
   footwear: '/shop/sko',
+  boots: '/shop/sko?sub=stovler',
+  sneakers: '/shop/sko?sub=sneakers',
   bags: '/shop/vesker',
   beauty: '/shop/skjonnhet',
   accessories: '/shop/tilbehor',

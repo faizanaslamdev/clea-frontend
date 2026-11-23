@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Product } from '@/lib/types';
 import {
   CATEGORY_GRID_ENTRIES,
+  SHOP_CATEGORY_GRID,
   type CategoryGridEntry,
 } from '@/lib/constants/category-grid';
 import {
@@ -50,6 +51,54 @@ function product(partial: {
 /** Representative bulk pool covering all 12 homepage category tiles. */
 function representativeHomepagePool(): Product[] {
   return [
+    product({
+      id: 'boots-1',
+      name: 'Chelsea Boots Leather Black',
+      image: 'https://cdn.example/boots-1.jpg',
+      merchantId: '19563',
+      merchantName: 'Nelly NO',
+      productType: 'Boots',
+    }),
+    product({
+      id: 'boots-2',
+      name: 'Lace-up Boots Brown',
+      image: 'https://cdn.example/boots-2.jpg',
+      merchantId: 'asos',
+      merchantName: 'ASOS',
+      productType: 'Boots',
+    }),
+    product({
+      id: 'boots-3',
+      name: 'Ankle Boots Suede Taupe',
+      image: 'https://cdn.example/boots-3.jpg',
+      merchantId: 'ellos',
+      merchantName: 'Ellos',
+      productType: 'Boots',
+    }),
+    product({
+      id: 'sneakers-1',
+      name: 'Retro Sneakers White',
+      image: 'https://cdn.example/sneakers-1.jpg',
+      merchantId: '19563',
+      merchantName: 'Nelly NO',
+      productType: 'Sneakers',
+    }),
+    product({
+      id: 'sneakers-2',
+      name: 'Low-top Sneakers Black',
+      image: 'https://cdn.example/sneakers-2.jpg',
+      merchantId: 'asos',
+      merchantName: 'ASOS',
+      productType: 'Sneakers',
+    }),
+    product({
+      id: 'sneakers-3',
+      name: 'Suede Sneakers Grey',
+      image: 'https://cdn.example/sneakers-3.jpg',
+      merchantId: 'hm',
+      merchantName: 'H&M',
+      productType: 'Sneakers',
+    }),
     product({
       id: 'jeans-1',
       name: 'Straight Jeans Blue',
@@ -522,7 +571,7 @@ describe('productMatchesShopEntry relevance', () => {
     });
 
     const dresses = CATEGORY_GRID_ENTRIES.find((e) => e.id === 'dresses')!;
-    const footwear = CATEGORY_GRID_ENTRIES.find((e) => e.id === 'footwear')!;
+    const footwear = SHOP_CATEGORY_GRID.find((e) => e.id === 'footwear')!;
     const beautyEntry = CATEGORY_GRID_ENTRIES.find((e) => e.id === 'beauty')!;
     const accessories = CATEGORY_GRID_ENTRIES.find((e) => e.id === 'accessories')!;
     const tees = CATEGORY_GRID_ENTRIES.find((e) => e.id === 'tees')!;

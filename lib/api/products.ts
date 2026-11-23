@@ -673,6 +673,13 @@ export function productMatchesShopEntry(
       /skjorte|\bshirt\b/.test(blob) && !/t-shirt|\btee\b/.test(blob)
     );
   }
+  // Homepage winter tiles: only real boots / sneakers, never sandals.
+  if (entry.id === 'boots') {
+    return /\bboots?\b|støvl|chelsea/.test(blob) && !/bootcut|sandal/.test(blob);
+  }
+  if (entry.id === 'sneakers') {
+    return /sneaker/.test(blob);
+  }
 
   // Prefer entry-specific preview tokens (tops vs jeans vs dresses, …).
   if (previewQ) {

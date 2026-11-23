@@ -137,6 +137,25 @@ const CARDS = {
     accentFrom: '#2f6b64',
     accentTo: '#163531',
   }),
+  /** Homepage-only winter tiles (sub-shelves of /shop/sko). */
+  boots: apparel({
+    id: 'boots',
+    family: 'footwear',
+    label: 'Boots & støvletter',
+    query: 'Vis meg boots og støvletter',
+    previewQ: 'boots',
+    accentFrom: '#5a4636',
+    accentTo: '#2b2119',
+  }),
+  sneakers: apparel({
+    id: 'sneakers',
+    family: 'footwear',
+    label: 'Sneakers',
+    query: 'Vis meg sneakers',
+    previewQ: 'sneakers',
+    accentFrom: '#3f5a52',
+    accentTo: '#1d2b27',
+  }),
   bags: apparel({
     id: 'bags',
     family: 'bags',
@@ -185,22 +204,23 @@ const CARDS = {
 } as const;
 
 /**
- * Homepage "Hva leter du etter?" carousel — curated 12 cards (not the Shop
- * hub list). Each apparel/beauty/accessories tile that has a Shop browse
- * destination links via {@link shopBrowseHrefForGridEntry}; Undertøy has no
- * `/shop` shelf yet, so that tile falls back to chat.
+ * Homepage "Hva leter du etter?" carousel — a curated, season-led edit of 12
+ * cards (not the Shop hub list): outerwear, knitwear, boots and sneakers lead
+ * in the cold months. Underwear/swim are deliberately not homepage tiles
+ * (they stay in search and /shop). Each tile links via
+ * {@link shopBrowseHrefForGridEntry}.
  */
 export const CATEGORY_GRID_ENTRIES: readonly CategoryGridEntry[] = [
-  CARDS.jeansBukser,
-  CARDS.dresses,
-  CARDS.tees,
-  CARDS.tops,
-  CARDS.knitwearHome,
   CARDS.outerwearHome,
-  CARDS.footwear,
-  CARDS.bags,
+  CARDS.knitwearHome,
+  CARDS.boots,
+  CARDS.sneakers,
+  CARDS.dresses,
+  CARDS.jeansBukser,
   CARDS.shirts,
-  CARDS.underwear,
+  CARDS.tops,
+  CARDS.bags,
+  CARDS.tees,
   CARDS.beauty,
   CARDS.accessories,
 ] as const;
