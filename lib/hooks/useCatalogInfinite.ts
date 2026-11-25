@@ -31,6 +31,7 @@ export function useCatalogInfinite(filters: CatalogQueryFilters) {
     suitableFor: filters.suitableFor,
     balanceMerchants: filters.balanceMerchants,
     ontologyCategoryIds: filters.ontologyCategoryIds,
+    activity: filters.activity,
     brandValues: filters.brandValues,
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,

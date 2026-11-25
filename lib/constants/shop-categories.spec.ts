@@ -42,7 +42,10 @@ describe('SHOP_CATEGORIES static mapping integrity', () => {
     for (const category of SHOP_CATEGORIES) {
       expect(looksLikeOntologyId(category.ontologyId)).toBe(true);
       for (const child of category.children) {
-        expect(looksLikeOntologyId(child.ontologyId)).toBe(true);
+        // A child may name several branches (comma-separated, e.g. Sport og trening).
+        for (const id of child.ontologyId.split(',')) {
+          expect(looksLikeOntologyId(id)).toBe(true);
+        }
       }
     }
   });
@@ -105,7 +108,7 @@ describe('Homepage vs Shop hub category cards', () => {
     ]);
   });
 
-  it('keeps Shop at 8 cards in the curated order (Dame = Herre)', () => {
+  it('keeps Shop at 9 cards in the curated order (Dame = Herre)', () => {
     expect(SHOP_CATEGORY_GRID).toHaveLength(SHOP_CATEGORY_CARD_COUNT);
     expect(SHOP_CATEGORY_GRID_FEMALE).toEqual(SHOP_CATEGORY_GRID_MALE);
     expect(categoryGridForShop('female')).toEqual(SHOP_CATEGORY_GRID);
@@ -119,7 +122,15 @@ describe('Homepage vs Shop hub category cards', () => {
       'Genser & strikk',
       'Beauty',
       'Vesker',
+      'Sport & trening',
     ]);
+  });
+
+  it('keeps the sport shelf off the homepage and opens it with the sport activity', () => {
+    expect(CATEGORY_GRID_ENTRIES.some((e) => e.id === 'sport')).toBe(false);
+    const sport = SHOP_CATEGORIES.find((c) => c.slug === 'sport-trening')!;
+    expect(sport.activity).toBe('sport');
+    expect(shopCategoryChildrenFor(sport, 'male').map((c) => c.slug)).not.toContain('sports-bh');
   });
 
   it('keeps underwear and swimwear off the homepage grid', () => {

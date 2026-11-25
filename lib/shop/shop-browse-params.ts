@@ -180,6 +180,7 @@ export function shopBrowseFilters(
 
   return {
     ontologyCategoryIds: [child?.ontologyId ?? category.ontologyId],
+    activity: category.activity,
     segment: 'all',
     // Beauty / watches / accessories have no suitable_for value in the catalog,
     // so sending one would return an empty grid.

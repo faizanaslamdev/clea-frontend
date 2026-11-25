@@ -15,6 +15,8 @@ export type CatalogQueryFilters = {
   balanceMerchants?: boolean;
   /** Ontology branch ids; the backend expands them to descendants. */
   ontologyCategoryIds?: string[];
+  /** "sport": training clothes and shoes only (Sport og trening shelf). */
+  activity?: 'sport';
   brandValues?: string[];
   minPrice?: number;
   maxPrice?: number;

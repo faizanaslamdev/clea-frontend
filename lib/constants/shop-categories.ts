@@ -34,6 +34,12 @@ export interface ShopCategory {
    * returns zero rows — the toggle is hidden and the filter omitted there.
    */
   gendered: boolean;
+  /**
+   * Shelf by activity instead of only garment type: "sport" keeps the listing
+   * to training / running / fitness items (the API reads the stores' own
+   * category paths).
+   */
+  activity?: 'sport';
   children: readonly ShopCategoryChild[];
 }
 
@@ -161,6 +167,27 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
     children: [],
   },
   {
+    slug: 'sport-trening',
+    label: 'Sport og trening',
+    description: 'Treningsklær og -sko: tights, treningstopper, sports-BH, jakker og løpesko fra partnerbutikkene våre.',
+    // Several ontology branches at once (comma-separated, expanded by the API).
+    ontologyId: 'apparel',
+    gendered: true,
+    activity: 'sport',
+    children: [
+      { slug: 'treningstights-bukser', label: 'Tights og bukser', ontologyId: 'apparel.bottoms.trousers,apparel.legwear' },
+      { slug: 'treningsshorts', label: 'Shorts', ontologyId: 'apparel.bottoms.shorts' },
+      { slug: 'treningstopper', label: 'Topper og t-skjorter', ontologyId: 'apparel.tops' },
+      { slug: 'sports-bh', label: 'Sports-BH', ontologyId: 'apparel.underwear', audiences: ['female'] },
+      {
+        slug: 'treningsjakker',
+        label: 'Jakker og hettegensere',
+        ontologyId: 'apparel.outerwear,apparel.knitwear',
+      },
+      { slug: 'trenings-sko', label: 'Løpe- og treningssko', ontologyId: 'apparel.footwear' },
+    ],
+  },
+  {
     slug: 'badetoy',
     label: 'Badetøy',
     description: 'Bikinier, badedrakter og badeshorts fra partnerbutikkene våre.',
@@ -286,6 +313,7 @@ const GRID_ENTRY_BROWSE_HREF: Readonly<Record<string, string>> = {
   socks: '/shop/sokker',
   watches: '/shop/klokker',
   swimwear: '/shop/badetoy',
+  sport: '/shop/sport-trening',
   nightwear: '/shop/nattoy',
 };
 

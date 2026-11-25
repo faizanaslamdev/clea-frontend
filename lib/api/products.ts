@@ -49,6 +49,8 @@ export interface FetchProductsParams {
    * branch you want (`apparel.bottoms`), not the whole subtree.
    */
   ontologyCategoryIds?: string[];
+  /** "sport": training / running / fitness items only (backend reads store category paths). */
+  activity?: 'sport';
   /** Multi-brand filter; the backend matches any of these (case-insensitive). */
   brandValues?: string[];
   /** Canonical colour (EN key); expands via backend synonym patterns. */
@@ -79,6 +81,7 @@ function buildProductsQuery(params: FetchProductsParams): string {
   if (params.ontologyCategoryIds?.length) {
     search.set('ontology_category_ids', params.ontologyCategoryIds.join(','));
   }
+  if (params.activity) search.set('activity', params.activity);
   if (params.brandValues?.length) {
     search.set('brand_values', params.brandValues.join(','));
   }
@@ -656,6 +659,12 @@ export function productMatchesShopEntry(
     );
   }
 
+  if (entry.id === 'sport') {
+    return /trening|training|fitness|running|løpe|activewear|sportswear|workout|yoga|sports? ?bra|sports-bh|tights|legging/.test(
+      blob,
+    );
+  }
+
   // Tees: title must look like a tee. Parent paths such as
   // "Topper & t-shirts > Sommertopper" match /t-shirt/ too broadly.
   if (entry.id === 'tees') {
@@ -849,6 +858,7 @@ function gapFillFetchParams(
   const isShelf = entry.shelf === 'beauty' || entry.shelf === 'accessories';
   const params: FetchProductsParams = {
     limit: CATEGORY_PREVIEW_PHOTO_COUNT,
+    ...(entry.activity ? { activity: entry.activity } : {}),
     // Shop hub keeps SQL merchant balancing on gap-fill. Homepage gap-fills
     // omit it — those live balanced family/q paths are the 7–25s killers we
     // are escaping; multi-merchant bulk pools already supply diversity.

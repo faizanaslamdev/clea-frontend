@@ -1,7 +1,7 @@
 import type { ProductFamily, SuitableFor } from '@/lib/api/chat-types';
 
 /** Apparel ontology family, or a non-family shop shelf (Beauty / Accessories). */
-export type CategoryShelf = ProductFamily | 'beauty' | 'accessories';
+export type CategoryShelf = ProductFamily | 'beauty' | 'accessories' | 'sport';
 
 export interface CategoryGridEntry {
   /**
@@ -31,6 +31,8 @@ export interface CategoryGridEntry {
    * families toward fashion CDNs (e.g. Nelly) without changing chat copy.
    */
   previewBrand?: string;
+  /** Activity shelf (Sport og trening): photos and listing stay on that shelf. */
+  activity?: 'sport';
   /** Card background gradient — from (top-left) → to (bottom-right). */
   accentFrom: string;
   accentTo: string;
@@ -201,6 +203,16 @@ const CARDS = {
     accentFrom: '#6b5f4a',
     accentTo: '#342e22',
   }),
+  sport: {
+    id: 'sport',
+    shelf: 'sport',
+    label: 'Sport & trening',
+    query: 'Vis meg treningsklær',
+    previewQ: 'trening',
+    activity: 'sport',
+    accentFrom: '#4f6b6a',
+    accentTo: '#243534',
+  },
 } as const;
 
 /**
@@ -241,9 +253,11 @@ export const SHOP_CATEGORY_GRID: readonly CategoryGridEntry[] = [
   CARDS.knitwearShop,
   CARDS.beauty,
   CARDS.bags,
+  // Training clothes live on /shop only; the homepage is fashion inspiration.
+  CARDS.sport,
 ] as const;
 
-export const SHOP_CATEGORY_CARD_COUNT = 8;
+export const SHOP_CATEGORY_CARD_COUNT = 9;
 
 /**
  * @deprecated Prefer {@link SHOP_CATEGORY_CARD_COUNT} or
