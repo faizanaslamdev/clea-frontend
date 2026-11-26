@@ -170,8 +170,10 @@ export const SHOP_CATEGORIES: readonly ShopCategory[] = [
     slug: 'sport-trening',
     label: 'Sport og trening',
     description: 'Treningsklær og -sko: tights, treningstopper, sports-BH, jakker og løpesko fra partnerbutikkene våre.',
-    // Several ontology branches at once (comma-separated, expanded by the API).
-    ontologyId: 'apparel',
+    // Several ontology branches at once (comma-separated, expanded by the API):
+    // training clothes and shoes, not socks, swimwear or accessories.
+    ontologyId:
+      'apparel.bottoms,apparel.legwear,apparel.tops,apparel.underwear,apparel.outerwear,apparel.knitwear,apparel.footwear',
     gendered: true,
     activity: 'sport',
     children: [

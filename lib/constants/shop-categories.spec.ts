@@ -40,7 +40,9 @@ describe('SHOP_CATEGORIES static mapping integrity', () => {
 
   it('maps every category and child to a plausible ontology id', () => {
     for (const category of SHOP_CATEGORIES) {
-      expect(looksLikeOntologyId(category.ontologyId)).toBe(true);
+      for (const id of category.ontologyId.split(',')) {
+        expect(looksLikeOntologyId(id)).toBe(true);
+      }
       for (const child of category.children) {
         // A child may name several branches (comma-separated, e.g. Sport og trening).
         for (const id of child.ontologyId.split(',')) {
